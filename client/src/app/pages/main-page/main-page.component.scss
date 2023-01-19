@@ -3,7 +3,12 @@
 }
 
 * {
-    font-family: 'Papyrus', sans-serif;
+    font-family: 'Monaco', sans-serif;
+}
+
+h1 {
+    font-family: 'Monaco', cursive;
+    font-size: 5vw;
 }
 
 .container {
@@ -44,6 +49,7 @@
 .header-item {
     justify-content: center;
     text-align: center;
+    margin-top: 60px;
 }
 
 .footer-item {
