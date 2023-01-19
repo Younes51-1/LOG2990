@@ -1,10 +1,16 @@
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.1/css/all.css" crossorigin="anonymous">
+<header>
+    <button class="config-button" routerLink="/game">
+        <i class="fa fa-cog fa-2x" aria-hidden="true"></i>
+    </button>
+</header>
 <div class="container justified">
     <h1 class="header-item">Bienvenue au cours {{ title }}</h1>
     <img src="https://bit.ly/3QofL1J" alt="Logo Projet" />
     <section id="server-message" class="justified">
         <p>Petit message du serveur : {{ message.getValue() }}</p>
         <div class="justified">
-            <button class="button" (click)="getMessagesFromServer()">Récupérer un message du serveur</button>
+            
             <button class="button" (click)="sendTimeToServer()">Envoyer un message au serveur</button>
             <button class="button" routerLink="/material">Voir la page démo Angular Material</button>
         </div>

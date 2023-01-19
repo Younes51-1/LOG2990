@@ -1,3 +1,11 @@
+:root {
+    --background-color: #8754F4;
+}
+
+* {
+    font-family: 'Papyrus', sans-serif;
+}
+
 .container {
     min-height: 100vh;
     height: auto;
@@ -13,6 +21,18 @@
 .button {
     margin-top: 10px;
     text-align: center;
+}
+
+.config-button {
+    border:none;
+    background-color: var(--background-color);
+    float: right;
+    margin-top: 10px;
+    margin-right: 10px;
+}
+
+.config-button:hover {
+    font-size: 1em;
 }
 
 .team-name {
