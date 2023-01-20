@@ -1,14 +1,21 @@
 :root {
-    --background-color: #8754F4;
+    --background-color: #5100ff;
 }
 
 * {
-    font-family: 'Monaco', sans-serif;
+    font-family: 'Monaco', cursive;
+    text-align: center;
 }
 
 h1 {
     font-family: 'Monaco', cursive;
     font-size: 5vw;
+}
+
+h2 {
+    font-family: 'Monaco', cursive;
+    font-size: 3vw;
+    margin-bottom: 30px;
 }
 
 .container {
@@ -19,31 +26,35 @@ h1 {
 .justified {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
+}
+
+.section {
+    display: flex;
 }
 
 .button {
     margin-top: 10px;
+    margin-right: 10px;
     text-align: center;
+    align-items: center;
+    background-color: transparent;
+    font-size: 3vw;
+    width: 50%;
 }
 
 .config-button {
-    border:none;
+    border: none;
     background-color: var(--background-color);
     float: right;
-    margin-top: 10px;
-    margin-right: 10px;
+    margin-top: 20px;
+    margin-right: 20px;
+    display: flex;
 }
 
 .config-button:hover {
     font-size: 1em;
-}
-
-.team-name {
-    margin-top: 0.25em;
-    margin-bottom: 0.25em;
-    color: green;
 }
 
 .header-item {
@@ -53,18 +64,13 @@ h1 {
 }
 
 .footer-item {
+    font-size: 1.8vw;
     text-align: center;
 }
 
 .footer-item p :nth-child(even) {
-    color: orange;
+    color: green;
 }
 .footer-item p :nth-child(odd) {
     color: blue;
-}
-
-.server-message {
-    justify-content: center;
-    width: 20%;
-    min-width: min-content;
 }
