@@ -20,7 +20,6 @@ const emptyPixelValue = -1;
 })
 export class DetectionDifferenceService {
     pictureDimensions = { width: 640, height: 480 };
-
     element: HTMLImageElement;
 
     createEmptyMatrix(height: number, width: number, filler: number | boolean) {
@@ -92,23 +91,6 @@ export class DetectionDifferenceService {
         }
 
         return { differenceMatrix, differenceCount };
-    }
-
-    readThenConvertImageV2(htmlElement: HTMLInputElement) {
-        const input: HTMLInputElement | null = htmlElement;
-        const file: File | null = input !== null && input.files !== null ? input.files[0] : null;
-        const reader: FileReader = new FileReader();
-
-        reader.addEventListener(
-            'loadend',
-            () => {
-                return this.convertImageToMatrix(reader.result as ArrayBuffer);
-            },
-            false,
-        );
-        if (file) {
-            reader.readAsArrayBuffer(file);
-        }
     }
 
     computeLevelDifficulty(nDifferences: number, differenceMatrix: number[][]) {
