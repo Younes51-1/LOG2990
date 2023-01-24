@@ -13,7 +13,9 @@ export class CreationGamePageComponent implements AfterViewInit {
     @ViewChild('canvas2', { static: false }) canvas2: ElementRef<HTMLCanvasElement>;
     context1: CanvasRenderingContext2D | null;
     context2: CanvasRenderingContext2D | null;
+
     constructor() {}
+
     ngAfterViewInit(): void {
         this.context1 = this.canvas1.nativeElement.getContext('2d');
         if (this.context1) {
@@ -22,9 +24,19 @@ export class CreationGamePageComponent implements AfterViewInit {
         }
         this.context2 = this.canvas2.nativeElement.getContext('2d');
     }
-    validateImage(id: string) {
-        document.getElementById(id);
+
+    verifyImageContent() {
+        const img1Src: string = this.image1.nativeElement.value;
+        const img2Src: string = this.image2.nativeElement.value;
+        const img1HasContent: boolean = img1Src !== '';
+        const img2HasContent: boolean = img2Src !== '';
+
+        if (img1HasContent && img2HasContent) {
+            // this.differenceService.detectDifferences(img1Src, img2Src, this.radiusSize);
+            //this.differenceService.computeLevelDifficulty(8, this.image1.nativeElement);
+        }
     }
+
     reset(): void {
         this.image1.nativeElement.value = null;
         this.image2.nativeElement.value = null;

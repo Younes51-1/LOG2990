@@ -3,7 +3,7 @@
         <canvas #canvas1 width="640" height="480" style="border: 1px solid #000000"></canvas>
         <canvas #canvas2 width="640" height="480" style="border: 1px solid #000000"></canvas>
     </div>
-    <input #image1 type="file" accept="image/bmp" onChange="validateImage(id)" />
+    <input #image1 type="file" accept="image/bmp" (onChange)="verifyImageContent()" />
     <input #image2 type="file" accept="image/bmp" />
 </div>
 <div id="creation-game-buttons-container">
