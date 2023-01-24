@@ -1,0 +1,34 @@
+<div id="images-container">
+    <div class="images-zone">
+        <canvas #canvas1 width="640" height="480" style="border: 1px solid #000000"></canvas>
+        <canvas #canvas2 width="640" height="480" style="border: 1px solid #000000"></canvas>
+    </div>
+    <input #image1 type="file" accept="image/bmp" onChange="validateImage(id)" />
+    <input #image2 type="file" accept="image/bmp" />
+</div>
+<div id="creation-game-buttons-container">
+    <label>Téléverser la même image dans les deux zones</label>
+    <input #deuxImages type="file" accept="image/bmp" width="640px" height="480px" />
+    <p>L'image doit être dans un format bitmap (BMP) 24-bit de taille 640x480 pixels</p>
+    <button class="button" (click)="reset()">Reset</button>
+    <button class="button">Detecter les differences</button>
+</div>
+<fieldset>
+    <legend>Choix du rayon d'élargissement</legend>
+    <div>
+        <input type="radio" id="rayon0" name="choixRayon" value="0" />
+        <label>0</label>
+    </div>
+    <div>
+        <input type="radio" id="rayon3" name="choixRayon" value="3" checked />
+        <label>3</label>
+    </div>
+    <div>
+        <input type="radio" id="rayon9" name="choixRayon" value="9" />
+        <label>9</label>
+    </div>
+    <div>
+        <input type="radio" id="rayon15" name="choixRayon" value="15" />
+        <label>15</label>
+    </div>
+</fieldset>
