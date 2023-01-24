@@ -7,9 +7,9 @@
         <ngx-slick-carousel class="carousel" #slickModal="slick-carousel" [config]="slideConfig" (init)="slickInit($event)"
             (breakpoint)="breakpoint($event)" (afterChange)="afterChange($event)" (beforeChange)="beforeChange($event)">
             <div ngxSlickItem *ngFor="let slide of slides" class="slide">
-                <img src="..\assets\logo.jpg" alt="" width="100%">
                 <app-game-card></app-game-card>
             </div>
+           
         </ngx-slick-carousel>
         
         <button (click)="addSlide()">Add</button>
