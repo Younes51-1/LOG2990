@@ -36,9 +36,36 @@ export class MaterialPageComponent {
 
     favoriteTheme: string = MATERIAL_DEFAULT_PREBUILT_THEME.value;
 
+    slides = [{ img: '..assetslogo.jpg' }, { img: '..assetslogo.jpg' }, { img: '..assetslogo.jpg' }, { img: '..assetslogo.jpg' }];
+    slideConfig = { slidesToShow: 4, slidesToScroll: 4 };
+
     constructor(private readonly matDialog: MatDialog) {}
 
     onLikeTheme(): void {
         this.matDialog.open(this.merciDialogContentRef);
+    }
+
+    addSlide() {
+        this.slides.push({ img: '..assetslogo.jpg' });
+    }
+
+    removeSlide() {
+        this.slides.length = this.slides.length - 1;
+    }
+
+    slickInit(e: unknown) {
+        console.log(e, 'slick initialized');
+    }
+
+    breakpoint(e: unknown) {
+        console.log(e, 'breakpoint');
+    }
+
+    afterChange(e: unknown) {
+        console.log(e, 'afterChange');
+    }
+
+    beforeChange(e: unknown) {
+        console.log(e, 'beforeChange');
     }
 }
