@@ -126,16 +126,15 @@ export class DetectionDifferenceService {
     computeLevelDifficulty(nDifferences: number, differenceMatrix: number[][]) {
         const nDifferencesThreshold = 7;
         const surfaceCoveredThreshold = 0.15;
-        const noDifference = -1;
 
         if (nDifferences < nDifferencesThreshold) {
-            return 'facile ';
+            return 'facile';
         }
 
         let differentPixelCounter = 0;
         for (let i = 0; i < this.pictureDimensions.height; i++) {
             for (let j = 0; j < this.pictureDimensions.width; j++) {
-                if (differenceMatrix[i][j] !== noDifference) {
+                if (differenceMatrix[i][j] !== emptyPixelValue) {
                     differentPixelCounter++;
                 }
             }
