@@ -22,7 +22,15 @@ import { GameCardComponent } from './components/game-card/game-card.component';
  * Otherwise Angular Cli will not know in which module to put new component
  */
 @NgModule({
-    declarations: [AppComponent, GamePageComponent, MainPageComponent, SelectionPageComponent, PlayAreaComponent, SidebarComponent, GameCardComponent],
+    declarations: [
+        AppComponent,
+        GamePageComponent,
+        MainPageComponent,
+        SelectionPageComponent,
+        PlayAreaComponent,
+        SidebarComponent,
+        GameCardComponent,
+    ],
     providers: [],
     bootstrap: [AppComponent],
     imports: [
