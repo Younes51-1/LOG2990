@@ -14,6 +14,8 @@ import { MaterialPageComponent } from '@app/pages/material-page/material-page.co
 import { SlickCarouselModule } from 'ngx-slick-carousel';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { GameCardComponent } from './components/game-card/game-card.component';
+import { GameCardConfigComponent } from './components/game-card-config/game-card-config.component';
+import { ConfigPageComponent } from './pages/config-page/config-page.component';
 
 /**
  * Main module that is used in main.ts.
@@ -22,7 +24,8 @@ import { GameCardComponent } from './components/game-card/game-card.component';
  * Otherwise Angular Cli will not know in which module to put new component
  */
 @NgModule({
-    declarations: [AppComponent, GamePageComponent, MainPageComponent, MaterialPageComponent, PlayAreaComponent, SidebarComponent, GameCardComponent],
+    declarations: [AppComponent, GamePageComponent, MainPageComponent, MaterialPageComponent, 
+        PlayAreaComponent, SidebarComponent, GameCardComponent, ConfigPageComponent, GameCardConfigComponent],
     providers: [],
     bootstrap: [AppComponent],
     imports: [
