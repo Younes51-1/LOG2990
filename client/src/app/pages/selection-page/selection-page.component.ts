@@ -24,11 +24,11 @@ export const MATERIAL_PREBUILT_THEMES = [
 export const MATERIAL_DEFAULT_PREBUILT_THEME = MATERIAL_PREBUILT_THEMES[0];
 
 @Component({
-    selector: 'app-material-page',
-    templateUrl: './material-page.component.html',
-    styleUrls: ['./material-page.component.scss'],
+    selector: 'app-selection-page',
+    templateUrl: './selection-page.component.html',
+    styleUrls: ['./selection-page.component.scss'],
 })
-export class MaterialPageComponent {
+export class SelectionPageComponent {
     @ViewChild('merciDialogContent')
     private readonly merciDialogContentRef: TemplateRef<HTMLElement>;
 

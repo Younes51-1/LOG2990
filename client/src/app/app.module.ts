@@ -10,7 +10,7 @@ import { AppMaterialModule } from '@app/modules/material.module';
 import { AppComponent } from '@app/pages/app/app.component';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
-import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
+import { SelectionPageComponent } from '@app/pages/selection-page/selection-page.component';
 import { SlickCarouselModule } from 'ngx-slick-carousel';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { GameCardComponent } from './components/game-card/game-card.component';
@@ -22,7 +22,7 @@ import { GameCardComponent } from './components/game-card/game-card.component';
  * Otherwise Angular Cli will not know in which module to put new component
  */
 @NgModule({
-    declarations: [AppComponent, GamePageComponent, MainPageComponent, MaterialPageComponent, PlayAreaComponent, SidebarComponent, GameCardComponent],
+    declarations: [AppComponent, GamePageComponent, MainPageComponent, SelectionPageComponent, PlayAreaComponent, SidebarComponent, GameCardComponent],
     providers: [],
     bootstrap: [AppComponent],
     imports: [

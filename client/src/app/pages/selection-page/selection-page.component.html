@@ -1,0 +1,13 @@
+<mat-toolbar color="primary">
+    <span>Sélection du jeu</span>
+</mat-toolbar>
+<div class="container justified">
+    <ngx-slick-carousel class="carousel" #slickModal="slick-carousel" [config]="slideConfig" (init)="slickInit($event)"
+        (breakpoint)="breakpoint($event)" (afterChange)="afterChange($event)" (beforeChange)="beforeChange($event)">
+        <div ngxSlickItem *ngFor="let slide of slides" class="slide">
+            <app-game-card></app-game-card>
+        </div>
+    </ngx-slick-carousel>
+</div>
+<button (click)="addSlide()" class="btn">Nouvelle fiche (temporaire)</button>
+<button (click)="removeSlide()" class="btn">Retirer fiche (temporaire)</button>

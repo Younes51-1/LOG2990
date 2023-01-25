@@ -9,7 +9,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
+import { SelectionPageComponent } from '@app/pages/selection-page/selection-page.component';
 import { of } from 'rxjs';
 
 export class MatDialogMock {
@@ -20,13 +20,13 @@ export class MatDialogMock {
     }
 }
 
-describe('MaterialPageComponent', () => {
-    let component: MaterialPageComponent;
-    let fixture: ComponentFixture<MaterialPageComponent>;
+describe('SelectionPageComponent', () => {
+    let component: SelectionPageComponent;
+    let fixture: ComponentFixture<SelectionPageComponent>;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [MaterialPageComponent],
+            declarations: [SelectionPageComponent],
             imports: [
                 BrowserAnimationsModule,
                 FormsModule,
@@ -49,7 +49,7 @@ describe('MaterialPageComponent', () => {
     });
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(MaterialPageComponent);
+        fixture = TestBed.createComponent(SelectionPageComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
