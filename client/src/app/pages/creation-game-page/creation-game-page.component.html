@@ -5,11 +5,11 @@
         <canvas #canvas2 [attr.width]="width" [attr.height]="height"></canvas>
     </div>
     <p>Téléverser une image dans la zone de gauche :</p>
-    <input #image1 type="file" accept="image/bmp" (change)="updateImageDisplay($event, image1)" />
+    <input #image1 type="file" accept="image/bmp" (change)="verifyImageFormat($event, image1)" />
     <p>Téléverser une image dans la zone de droite :</p>
-    <input #image2 type="file" accept="image/bmp" (change)="updateImageDisplay($event, image2)" />
+    <input #image2 type="file" accept="image/bmp" (change)="verifyImageFormat($event, image2)" />
     <p>Téléverser la même image dans les deux zones :</p>
-    <input #images1et2 type="file" accept="image/bmp" (change)="updateImageDisplay($event, images1et2)" />
+    <input #images1et2 type="file" accept="image/bmp" (change)="verifyImageFormat($event, images1et2)" />
     <p>L'image doit être dans un format bitmap (BMP) 24-bit de taille 640x480 pixels</p>
 </div>
 <div id="creation-game-buttons-container">

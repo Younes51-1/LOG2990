@@ -2,6 +2,17 @@ import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.component';
 
+enum AsciiLetterValue {
+    B = 66,
+    M = 77,
+}
+
+enum OffsetValues {
+    WIDTH = 18,
+    HEIGHT = 22,
+    DHP = 28,
+}
+
 @Component({
     selector: 'app-creation-game-page',
     templateUrl: './creation-game-page.component.html',
@@ -40,6 +51,7 @@ export class CreationGamePageComponent implements AfterViewInit {
         const context2Init = this.canvas2.nativeElement.getContext('2d');
         if (context2Init) this.context2 = context2Init;
     }
+
     updateImageDisplay(event: Event, input: HTMLInputElement): void {
         if (event) {
             const file = (event.target as HTMLInputElement).files;
@@ -57,6 +69,7 @@ export class CreationGamePageComponent implements AfterViewInit {
             }
         }
     }
+
     updateContext(context: CanvasRenderingContext2D, background: string): void {
         const image = new Image();
         image.src = background;
@@ -64,7 +77,48 @@ export class CreationGamePageComponent implements AfterViewInit {
             context.drawImage(image, 0, 0, this.width, this.height);
         };
     }
-    verifyImageContent(): void {
+
+    verifyImageFormat(e : Event, img : HTMLInputElement) : void {
+        const file = (e.target as HTMLInputElement).files
+
+        if(file) {
+            const reader = new FileReader();
+            reader.readAsArrayBuffer(file[0]);
+            reader.onload = () => {
+                const width = new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.WIDTH, true);
+                const height = new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.HEIGHT, true);
+                const hasCorrectDimensions = width === 640 || height === 480
+                const data = new Uint8Array(reader.result as ArrayBuffer);
+                const isBmp = data[0] === AsciiLetterValue.B && data[1] === AsciiLetterValue.M;
+                const is24BitPerPixel = data[OffsetValues.DHP] === 24;
+
+                if (!(isBmp && is24BitPerPixel) || !hasCorrectDimensions) {
+                    img.value = "";
+                }
+
+                if(!hasCorrectDimensions && !(isBmp && is24BitPerPixel)) {
+                    alert("Image refusée: elle ne respecte pas le format BMP-24 bit de taille 640x480");
+                } else if (!hasCorrectDimensions) {
+                     alert("Image refusée: elle n'est pas de taille 640x480");
+                } else if (!(isBmp && is24BitPerPixel)) {
+                    alert("Image refusée: elle ne respecte pas le format BMP-24 bit");
+                } else {
+                    this.updateImageDisplay(e, img);
+                }
+            }
+        }
+    }
+
+    reset(): void {
+        this.image1.nativeElement.value = null;
+        this.image2.nativeElement.value = null;
+        this.images1et2.nativeElement.value = null;
+        this.context1.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas2.nativeElement.height);
+        this.context2.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas2.nativeElement.height);
+    }
+
+    // a modifier
+    runDetectionSystem(): void {
         const img1Src: string = this.image1.nativeElement.value;
         const img2Src: string = this.image2.nativeElement.value;
         const img1HasContent: boolean = img1Src !== '';
@@ -75,16 +129,7 @@ export class CreationGamePageComponent implements AfterViewInit {
             // this.differenceService.computeLevelDifficulty(8, this.image1.nativeElement);
         }
     }
-    reset(): void {
-        this.image1.nativeElement.value = null;
-        this.image2.nativeElement.value = null;
-        this.images1et2.nativeElement.value = null;
-        this.context1.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas2.nativeElement.height);
-        this.context2.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas2.nativeElement.height);
-    }
-    runDetectionSystem(): void {
-        //
-    }
+
     updateRadius(newRadius: string) {
         this.radius = Number(newRadius);
     }
