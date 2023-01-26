@@ -24,8 +24,17 @@ import { ConfigPageComponent } from './pages/config-page/config-page.component';
  * Otherwise Angular Cli will not know in which module to put new component
  */
 @NgModule({
-    declarations: [AppComponent, GamePageComponent, MainPageComponent, MaterialPageComponent, 
-        PlayAreaComponent, SidebarComponent, GameCardComponent, ConfigPageComponent, GameCardConfigComponent],
+    declarations: [
+        AppComponent,
+        GamePageComponent,
+        MainPageComponent,
+        MaterialPageComponent,
+        PlayAreaComponent,
+        SidebarComponent,
+        GameCardComponent,
+        ConfigPageComponent,
+        GameCardConfigComponent,
+    ],
     providers: [],
     bootstrap: [AppComponent],
     imports: [

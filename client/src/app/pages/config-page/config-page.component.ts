@@ -36,8 +36,39 @@ export class ConfigPageComponent {
 
     favoriteTheme: string = MATERIAL_DEFAULT_PREBUILT_THEME.value;
 
-    slides = [{ img: '..assetslogo.jpg' }, { img: '..assetslogo.jpg' }, { img: '..assetslogo.jpg' }, { img: '..assetslogo.jpg' }];
-    slideConfig = { slidesToShow: 4, slidesToScroll: 2 };
+    slides = [
+        { img: '..assetslogo.jpg' },
+        { img: '..assetslogo.jpg' },
+        { img: '..assetslogo.jpg' },
+        { img: '..assetslogo.jpg' },
+        { img: '..assetslogo.jpg' },
+        { img: '..assetslogo.jpg' },
+        { img: '..assetslogo.jpg' },
+    ];
+    slideConfig = {
+        slidesToShow: 4,
+        slidesToScroll: 4,
+        responsive: [
+            {
+                breakpoint: 1024,
+                settings: {
+                    slidesToShow: 6,
+                    slidesToScroll: 4,
+                },
+            },
+            {
+                breakpoint: 600,
+                settings: {
+                    slidesToShow: 8,
+                    slidesToScroll: 4,
+                },
+            },
+        ],
+    };
+
+    initialTime = 30;
+    penalityTime = 5;
+    bonusTime = 5;
 
     constructor(private readonly matDialog: MatDialog) {}
 

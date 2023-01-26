@@ -1,13 +1,14 @@
-main {
-    height: auto;
-    min-height: 100%;
+* {
+    font-size: 18px;
+}
+
+#main {
+    height: 100%;
+    width: 100%;
+    background: #d6c5fb;
 }
 
 mat-toolbar {
-
-    position: sticky;
-    top: 0;
-    z-index: 1;
 
     span {
         margin: auto;
@@ -15,43 +16,97 @@ mat-toolbar {
 }
 
 .container {
-    padding-right: 15px;
-    padding-left: 15px;
-    margin-right: auto;
-    margin-left: auto;
-    padding-bottom: 20px;
+    // padding-right: 20px;
+    // padding-left: 20px;
+    // margin-right: auto;
+    // margin-left: auto;
+    // padding-bottom: 20px;
+    // min-width: 160vh;
+    // min-height: 80vh;
+    overflow: hidden;
 
-    > * {
-        margin-top: 20px;
-    }
+    // > * {
+    //     margin-top: 20px;
+    // }
 
+}
+
+.slide {
+    margin: 50px;
+    
+}
+
+.btn {
+    font-size: 19px;
+    background-image: linear-gradient(#639ebd 45%, #0f8ed2 55%);
+    border-radius: 20px;
+    box-shadow: 0 2px 2px #888888;
+    transition: color 0.3s, background-image 0.5s, ease-in-out;
+}
+
+.btn:hover {
+    background-image: linear-gradient(#b1ccda 49%, #96b4c5 51%);
+    color: #03324c;
+}
+
+.justified {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.slick-slider {
+    min-width: 160vh;
+    width: 100%;
+}
+  
+body .slick-prev, 
+body .slick-next {
+    width: 50px;
+    height: 50px;
+    background: transparent;
+    z-index: 100;
 }
 
 .home-button {
     border: none;
+    border-radius: 20px;
+    background-image: linear-gradient(#639ebd 45%, #0f8ed2 55%);
     background-color: transparent;
-    transition: transform 0.2s ease-in-out;
+    transition: transform 0.2s, color 0.3s, background-image 0.5s, ease-in-out;
 }
 
 .home-button:hover {
     transform: scale(1.1);
+    background-image: linear-gradient(#b1ccda 49%, #96b4c5 51%);
+    color: #03324c;
 }
 
 @media (min-width: 768px) {
     .container {
-        width: 750px;
+        width: 100%;
     }
 }
 
 @media (min-width: 992px) {
     .container {
-        width: 970px;
+        width: 100%;
     }
 }
 
 @media (min-width: 1200px) {
     .container {
-        width: 1000px;
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .carousel {
+        width: 10px;
+    }
+    .slide {
+        margin: 50, 0px;
     }
 }
 
@@ -89,4 +144,8 @@ mat-toolbar {
 
     }
 
+}
+.page-container {
+    height: 100%;
+    width: 100%;
 }
