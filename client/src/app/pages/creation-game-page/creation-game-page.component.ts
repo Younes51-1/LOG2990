@@ -15,6 +15,7 @@ export class CreationGamePageComponent implements AfterViewInit {
     context2: CanvasRenderingContext2D;
     width: number;
     height: number;
+    radius: number;
 
     constructor() {
         this.width = 640;
@@ -68,5 +69,11 @@ export class CreationGamePageComponent implements AfterViewInit {
         this.images1et2.nativeElement.value = null;
         this.context1.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas2.nativeElement.height);
         this.context2.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas2.nativeElement.height);
+    }
+    runDetectionSystem(): void {
+        //
+    }
+    updateRadius(newRadius: string) {
+        this.radius = Number(newRadius);
     }
 }
