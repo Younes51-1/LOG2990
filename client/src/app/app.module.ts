@@ -11,6 +11,7 @@ import { AppComponent } from '@app/pages/app/app.component';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
+import { ModalDialogComponent } from './components/modal-dialog/modal-dialog.component';
 import { CreationGamePageComponent } from './pages/creation-game-page/creation-game-page.component';
 
 /**
@@ -28,6 +29,7 @@ import { CreationGamePageComponent } from './pages/creation-game-page/creation-g
         PlayAreaComponent,
         SidebarComponent,
         CreationGamePageComponent,
+        ModalDialogComponent,
     ],
     imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule],
     providers: [],

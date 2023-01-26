@@ -1,4 +1,6 @@
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.component';
 
 @Component({
     selector: 'app-creation-game-page',
@@ -17,10 +19,20 @@ export class CreationGamePageComponent implements AfterViewInit {
     height: number;
     background1: string;
     background2: string;
+    imageDifferences: HTMLImageElement;
 
-    constructor() {
+    constructor(public dialog: MatDialog) {
         this.width = 640;
         this.height = 480;
+    }
+
+    openDifferencesDialog() {
+        this.dialog.open(ModalDialogComponent, {
+          data: {
+            image: this.imageDifferences,
+            nbDifferences: 5,
+          },
+        });
     }
 
     ngAfterViewInit(): void {
