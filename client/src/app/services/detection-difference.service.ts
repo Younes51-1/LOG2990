@@ -48,8 +48,7 @@ export class DetectionDifferenceService {
         return matrix;
     }
 
-    readThenConvertImage() {
-        const input: HTMLInputElement | null = document.querySelector('input[type=file]');
+    readThenConvertImage(input: HTMLInputElement) {
         const file: File | null = input !== null && input.files !== null ? input.files[0] : null;
         const reader: FileReader = new FileReader();
 
@@ -65,19 +64,28 @@ export class DetectionDifferenceService {
         }
     }
 
-    populateNeighborhood(array: number[][], visited: boolean[][], values: [i: number, j: number, radius: number, value: number]) {
-        const [i, j, radius, value] = values;
-        if (i < 0 || i >= array.length || j < 0 || j >= array[i].length || visited[i][j] || array[i][j] === emptyPixelValue) return;
+    populateNeighborhood(
+        matrix: [array: number[][], visited: boolean[][]],
+        positions: [i: number, j: number],
+        userValues: [radius: number, value: number],
+    ) {
+        const [i, j] = positions;
+        const [array, visited] = matrix;
+        const [radius, value] = userValues;
+        if (i < 0 || i >= array.length || j < 0 || j >= array[i].length || visited[i][j]) return; // TODO: CHANGE THIS
 
         visited[i][j] = true;
-        for (let k = i - radius; i <= i + radius; k++) {
-            for (let l = j - radius; j <= j + radius; l++) {
-                this.populateNeighborhood(array, visited, [k, l, radius, value]);
+        array[i][j] = value;
+        for (let k = i - radius; k <= i + radius; k++) {
+            for (let l = j - radius; l <= j + radius; l++) {
+                if (k >= 0 && k < array.length && l >= 0 && l < array[0].length) {
+                    this.populateNeighborhood([array, visited], [k, l], [radius, value]);
+                }
             }
         }
     }
 
-    differencesMatrix(array1: number[][], array2: number[][], radius: number): { differenceMatrix: number[][]; differenceCount: number } {
+    differencesMatrix(array1: number[][], array2: number[][], radius: number): [differenceMatrix: number[][], differenceCount: number] {
         const differenceMatrix = this.createEmptyMatrix(array1.length, array1[0].length, emptyPixelValue);
         let differenceCount = 0;
         const visited = this.createEmptyMatrix(array1.length, array1[0].length, false);
@@ -86,12 +94,12 @@ export class DetectionDifferenceService {
                 if (array1[i][j] !== array2[i][j] && !visited[i][j]) {
                     differenceCount++;
                     differenceMatrix[i][j] = array2[i][j];
-                    this.populateNeighborhood(differenceMatrix, visited, [i, j, radius, array2[i][j]]);
+                    this.populateNeighborhood([differenceMatrix, visited], [i, j], [radius, array2[i][j]]);
                 }
             }
         }
 
-        return { differenceMatrix, differenceCount };
+        return [differenceMatrix, differenceCount];
     }
 
     createDifferencesImage(differenceMatrix: number[][]) {
