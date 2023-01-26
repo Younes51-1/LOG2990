@@ -1,7 +1,7 @@
 <div id="images-container">
     <div class="images-zone">
-        <canvas #canvas1 [attr.width]="width" [attr.height]="height" [style.background]="background1"></canvas>
-        <canvas #canvas2 [attr.width]="width" [attr.height]="height" [style.background]="background2"></canvas>
+        <canvas #canvas1 [attr.width]="width" [attr.height]="height"></canvas>
+        <canvas #canvas2 [attr.width]="width" [attr.height]="height"></canvas>
     </div>
     <input #image1 type="file" accept="image/bmp" (change)="updateImageDisplay($event, image1)" />
     <input #image2 type="file" accept="image/bmp" (change)="updateImageDisplay($event, image2)" />
