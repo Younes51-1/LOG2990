@@ -12,6 +12,7 @@ enum OffsetValues {
     HEIGHT = 22,
     DHP = 28,
 }
+const BIT_PER_PIXEL = 24;
 
 @Component({
     selector: 'app-creation-game-page',
@@ -19,16 +20,18 @@ enum OffsetValues {
     styleUrls: ['./creation-game-page.component.scss'],
 })
 export class CreationGamePageComponent implements AfterViewInit {
-    @ViewChild('image1', { static: false }) image1: ElementRef;
-    @ViewChild('image2', { static: false }) image2: ElementRef;
-    @ViewChild('images1et2', { static: false }) images1et2: ElementRef;
+    @ViewChild('image1', { static: false }) inputImage1: ElementRef;
+    @ViewChild('image2', { static: false }) inputImage2: ElementRef;
+    @ViewChild('images1et2', { static: false }) inputImages1et2: ElementRef;
     @ViewChild('canvas1', { static: false }) canvas1: ElementRef<HTMLCanvasElement>;
     @ViewChild('canvas2', { static: false }) canvas2: ElementRef<HTMLCanvasElement>;
     context1: CanvasRenderingContext2D;
     context2: CanvasRenderingContext2D;
+    image1: HTMLInputElement;
+    image2: HTMLInputElement;
+    imageDifferences: HTMLImageElement;
     width: number;
     height: number;
-    imageDifferences: HTMLImageElement;
     radius: number;
 
     constructor(public dialog: MatDialog) {
@@ -38,10 +41,10 @@ export class CreationGamePageComponent implements AfterViewInit {
 
     openDifferencesDialog() {
         this.dialog.open(ModalDialogComponent, {
-          data: {
-            image: this.imageDifferences,
-            nbDifferences: 5,
-          },
+            data: {
+                image: this.imageDifferences,
+                nbDifferences: 5,
+            },
         });
     }
 
@@ -56,15 +59,19 @@ export class CreationGamePageComponent implements AfterViewInit {
         if (event) {
             const file = (event.target as HTMLInputElement).files;
             if (file) {
-                if (input === this.image1.nativeElement) {
-                    this.updateContext(this.context1, URL.createObjectURL(file[0]));
+                const urlPath = URL.createObjectURL(file[0]);
+                if (input === this.inputImage1.nativeElement) {
+                    this.updateContext(this.context1, urlPath);
+                    this.image1 = this.inputImage1.nativeElement;
                 }
-                if (input === this.image2.nativeElement) {
-                    this.updateContext(this.context2, URL.createObjectURL(file[0]));
+                if (input === this.inputImage2.nativeElement) {
+                    this.updateContext(this.context2, urlPath);
+                    this.image2 = this.inputImage2.nativeElement;
                 }
-                if (input === this.images1et2.nativeElement) {
-                    this.updateContext(this.context1, URL.createObjectURL(file[0]));
-                    this.updateContext(this.context2, URL.createObjectURL(file[0]));
+                if (input === this.inputImages1et2.nativeElement) {
+                    this.updateContext(this.context1, urlPath);
+                    this.updateContext(this.context2, urlPath);
+                    this.image1 = this.image2 = this.inputImages1et2.nativeElement;
                 }
             }
         }
@@ -78,55 +85,54 @@ export class CreationGamePageComponent implements AfterViewInit {
         };
     }
 
-    verifyImageFormat(e : Event, img : HTMLInputElement) : void {
-        const file = (e.target as HTMLInputElement).files
+    verifyImageFormat(e: Event, img: HTMLInputElement): void {
+        const file = (e.target as HTMLInputElement).files;
 
-        if(file) {
+        if (file) {
             const reader = new FileReader();
             reader.readAsArrayBuffer(file[0]);
             reader.onload = () => {
                 const width = new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.WIDTH, true);
                 const height = new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.HEIGHT, true);
-                const hasCorrectDimensions = width === 640 || height === 480
+                const hasCorrectDimensions = width === this.width && height === this.height;
                 const data = new Uint8Array(reader.result as ArrayBuffer);
                 const isBmp = data[0] === AsciiLetterValue.B && data[1] === AsciiLetterValue.M;
-                const is24BitPerPixel = data[OffsetValues.DHP] === 24;
+                const is24BitPerPixel = data[OffsetValues.DHP] === BIT_PER_PIXEL;
 
                 if (!(isBmp && is24BitPerPixel) || !hasCorrectDimensions) {
-                    img.value = "";
+                    img.value = '';
                 }
 
-                if(!hasCorrectDimensions && !(isBmp && is24BitPerPixel)) {
-                    alert("Image refusée: elle ne respecte pas le format BMP-24 bit de taille 640x480");
+                if (!hasCorrectDimensions && !(isBmp && is24BitPerPixel)) {
+                    alert('Image refusée: elle ne respecte pas le format BMP-24 bit de taille 640x480');
                 } else if (!hasCorrectDimensions) {
-                     alert("Image refusée: elle n'est pas de taille 640x480");
+                    alert("Image refusée: elle n'est pas de taille 640x480");
                 } else if (!(isBmp && is24BitPerPixel)) {
-                    alert("Image refusée: elle ne respecte pas le format BMP-24 bit");
+                    alert('Image refusée: elle ne respecte pas le format BMP-24 bit');
                 } else {
                     this.updateImageDisplay(e, img);
                 }
-            }
+            };
         }
     }
 
     reset(): void {
-        this.image1.nativeElement.value = null;
-        this.image2.nativeElement.value = null;
-        this.images1et2.nativeElement.value = null;
-        this.context1.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas2.nativeElement.height);
-        this.context2.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas2.nativeElement.height);
+        this.inputImage1.nativeElement.value = null;
+        this.inputImage2.nativeElement.value = null;
+        this.inputImages1et2.nativeElement.value = null;
+        this.context1.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas1.nativeElement.height);
+        this.context2.clearRect(0, 0, this.canvas2.nativeElement.width, this.canvas2.nativeElement.height);
     }
 
     // a modifier
     runDetectionSystem(): void {
-        const img1Src: string = this.image1.nativeElement.value;
-        const img2Src: string = this.image2.nativeElement.value;
+        const img1Src: string = this.image1.value;
+        const img2Src: string = this.image2.value;
         const img1HasContent: boolean = img1Src !== '';
         const img2HasContent: boolean = img2Src !== '';
 
         if (img1HasContent && img2HasContent) {
-            // this.differenceService.detectDifferences(img1Src, img2Src, this.radiusSize);
-            // this.differenceService.computeLevelDifficulty(8, this.image1.nativeElement);
+            // appel de readThenConvertImage(this.image1: HTMLInputElement, this.image2: HTMLInputElement)
         }
     }
 
