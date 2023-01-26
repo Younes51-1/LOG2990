@@ -1,0 +1,38 @@
+<button class="button" routerLink="/home">Configuration (mettre le vrai lien)</button>
+<div id="images-container">
+    <div class="images-zone">
+        <canvas #canvas1 [attr.width]="width" [attr.height]="height"></canvas>
+        <canvas #canvas2 [attr.width]="width" [attr.height]="height"></canvas>
+    </div>
+    <p>Téléverser une image dans la zone de gauche :</p>
+    <input #image1 type="file" accept="image/bmp" (change)="verifyImageFormat($event, image1)" />
+    <p>Téléverser une image dans la zone de droite :</p>
+    <input #image2 type="file" accept="image/bmp" (change)="verifyImageFormat($event, image2)" />
+    <p>Téléverser la même image dans les deux zones :</p>
+    <input #images1et2 type="file" accept="image/bmp" (change)="verifyImageFormat($event, images1et2)" />
+    <p>L'image doit être dans un format bitmap (BMP) 24-bit de taille 640x480 pixels</p>
+</div>
+<div id="creation-game-buttons-container">
+    <button class="button" (click)="reset()">Reset</button>
+    <button class="button" (click)="runDetectionSystem()">Detecter les differences</button>
+    <button class="button" (click)="openDifferencesDialog()">Afficher les differences</button>
+</div>
+<fieldset>
+    <legend>Choix du rayon d'élargissement</legend>
+    <div>
+        <input type="radio" #rayon0 name="choixRayon" value="0" (click)="updateRadius(rayon0.value)" />
+        <label for="rayon0">0</label>
+    </div>
+    <div>
+        <input type="radio" #rayon3 name="choixRayon" value="3" (click)="updateRadius(rayon3.value)" checked />
+        <label for="rayon3">3</label>
+    </div>
+    <div>
+        <input type="radio" #rayon9 name="choixRayon" value="9" (click)="updateRadius(rayon9.value)" />
+        <label for="rayon9">9</label>
+    </div>
+    <div>
+        <input type="radio" #rayon15 name="choixRayon" value="15" (click)="updateRadius(rayon15.value)" />
+        <label for="rayon15">15</label>
+    </div>
+</fieldset>
