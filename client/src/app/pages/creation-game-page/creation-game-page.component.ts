@@ -17,9 +17,8 @@ export class CreationGamePageComponent implements AfterViewInit {
     context2: CanvasRenderingContext2D;
     width: number;
     height: number;
-    background1: string;
-    background2: string;
     imageDifferences: HTMLImageElement;
+    radius: number;
 
     constructor(public dialog: MatDialog) {
         this.width = 640;
@@ -46,17 +45,14 @@ export class CreationGamePageComponent implements AfterViewInit {
             const file = (event.target as HTMLInputElement).files;
             if (file) {
                 if (input === this.image1.nativeElement) {
-                    this.background1 = URL.createObjectURL(file[0]);
-                    this.updateContext(this.context1, this.background1);
+                    this.updateContext(this.context1, URL.createObjectURL(file[0]));
                 }
                 if (input === this.image2.nativeElement) {
-                    this.background2 = URL.createObjectURL(file[0]);
-                    this.updateContext(this.context2, this.background2);
+                    this.updateContext(this.context2, URL.createObjectURL(file[0]));
                 }
                 if (input === this.images1et2.nativeElement) {
-                    this.background1 = this.background2 = URL.createObjectURL(file[0]);
-                    this.updateContext(this.context1, this.background1);
-                    this.updateContext(this.context2, this.background2);
+                    this.updateContext(this.context1, URL.createObjectURL(file[0]));
+                    this.updateContext(this.context2, URL.createObjectURL(file[0]));
                 }
             }
         }
@@ -79,12 +75,17 @@ export class CreationGamePageComponent implements AfterViewInit {
             // this.differenceService.computeLevelDifficulty(8, this.image1.nativeElement);
         }
     }
-
     reset(): void {
         this.image1.nativeElement.value = null;
         this.image2.nativeElement.value = null;
         this.images1et2.nativeElement.value = null;
         this.context1.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas2.nativeElement.height);
         this.context2.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas2.nativeElement.height);
+    }
+    runDetectionSystem(): void {
+        //
+    }
+    updateRadius(newRadius: string) {
+        this.radius = Number(newRadius);
     }
 }
