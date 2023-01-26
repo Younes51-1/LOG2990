@@ -1,10 +1,10 @@
 <div id="images-container">
     <div class="images-zone">
-        <canvas #canvas1 width="640" height="480" style="border: 1px solid #000000"></canvas>
-        <canvas #canvas2 width="640" height="480" style="border: 1px solid #000000"></canvas>
+        <canvas #canvas1 [attr.width]="width" [attr.height]="height" [style.background]="background"></canvas>
+        <canvas #canvas2 [attr.width]="width" [attr.height]="height" [style.background]="background"></canvas>
     </div>
-    <input #image1 type="file" accept="image/bmp" (onChange)="verifyImageContent()" />
-    <input #image2 type="file" accept="image/bmp" />
+    <input #image1 type="file" accept="image/bmp" (onChange)="updateImageDisplay()" />
+    <input #image2 type="file" accept="image/bmp" (onChange)="updateImageDisplay()" />
 </div>
 <div id="creation-game-buttons-container">
     <label>Téléverser la même image dans les deux zones</label>

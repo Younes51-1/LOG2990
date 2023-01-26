@@ -13,19 +13,30 @@ export class CreationGamePageComponent implements AfterViewInit {
     @ViewChild('canvas2', { static: false }) canvas2: ElementRef<HTMLCanvasElement>;
     context1: CanvasRenderingContext2D | null;
     context2: CanvasRenderingContext2D | null;
+    width: number;
+    height: number;
+    background = 'white';
 
-    constructor() {}
+    constructor() {
+        this.width = 640;
+        this.height = 480;
+    }
 
     ngAfterViewInit(): void {
         this.context1 = this.canvas1.nativeElement.getContext('2d');
         if (this.context1) {
-            // this.context1.fillStyle = 'red';
-            // this.context1.fillRect(0, 0, 5, 5);
+            const background = new Image();
+            background.src = 'https://fjolt.com/images/misc/202203281.png';
+            background.onload = () => {
+                if (this.context1) this.context1.drawImage(background, 0, 0, this.width, this.height);
+            };
         }
         this.context2 = this.canvas2.nativeElement.getContext('2d');
     }
-
-    verifyImageContent() {
+    updateImageDisplay() {
+        //
+    }
+    verifyImageContent(): void {
         const img1Src: string = this.image1.nativeElement.value;
         const img2Src: string = this.image2.nativeElement.value;
         const img1HasContent: boolean = img1Src !== '';
@@ -33,7 +44,7 @@ export class CreationGamePageComponent implements AfterViewInit {
 
         if (img1HasContent && img2HasContent) {
             // this.differenceService.detectDifferences(img1Src, img2Src, this.radiusSize);
-            //this.differenceService.computeLevelDifficulty(8, this.image1.nativeElement);
+            // this.differenceService.computeLevelDifficulty(8, this.image1.nativeElement);
         }
     }
 
