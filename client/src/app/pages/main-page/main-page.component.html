@@ -3,21 +3,20 @@
 <div class="container justified">
     <section class="header-section">
         <img src="../../../assets/logo.jpg" class="middle-element" alt="Logo Projet">
-        <button class="config-button right-element" routerLink="/game">
+        <button class="config-button right-element" routerLink="[configLink]">
             <i class="fa fa-cog fa-3x" aria-hidden="true"></i>
         </button>
     </section>
-    <h1 class="header-item">Bienvenue au jeu des différences !</h1>
+    <h1 class="header-item">Bienvenue au {{ title }}</h1>
     <h2>Modes de jeu</h2>
     <section class="section">
-        <button class="button" routerLink="/game">Classique</button>
-        <button class="button" routerLink="/game">Temps Limité</button>
+        <button class="button" routerLink="[classiqueLink]">Classique</button>
+        <button class="button" routerLink="[limitedLink]">Temps Limité</button>
     </section>
     <footer class="footer-item">
-        <h2>Membres de l'équipe 204</h2>
+        <h2>Membres de l'équipe {{teamName}}</h2>
         <p>
-            <span>Coralie Brodeur</span>, <span>Imène Clara Ghazi</span>, <span>Kylian Chaussoy</span>, <span>Thibault Demagny</span>,
-            <span>Younes Benabbou</span>, <span>Dumitru Zlotea</span>
+            <span *ngFor="let teamMate of teamMembers; let isLast=last">{{teamMate}}{{isLast ? '' : ', '}}</span>
         </p>
     </footer>
 </div>
