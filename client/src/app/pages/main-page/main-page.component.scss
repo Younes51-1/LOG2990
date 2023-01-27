@@ -59,14 +59,16 @@ img {
     background-color: white;
     font-size: 3vw;
     width: 50%;
-    transition: transform 0.2s ease-in;
+    transition: background 0.3s, transform 0.2s ease-in;
+    box-shadow: 0 2px 2px #888888;
     background: radial-gradient(50% 50% at 50% 50%, 
     #d8f4da 23.96%, #a4da9b 100%);
 }
 
 .button:hover {
     transform: scale(1.2);
-
+    background: radial-gradient(50% 50% at 50% 50%, 
+    #e4f8e6 23.96%, #c1f4b8 100%);
 }
 
 .config-button {

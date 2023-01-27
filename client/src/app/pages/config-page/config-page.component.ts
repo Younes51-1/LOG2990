@@ -24,11 +24,11 @@ export const MATERIAL_PREBUILT_THEMES = [
 export const MATERIAL_DEFAULT_PREBUILT_THEME = MATERIAL_PREBUILT_THEMES[0];
 
 @Component({
-    selector: 'app-selection-page',
-    templateUrl: './selection-page.component.html',
-    styleUrls: ['./selection-page.component.scss'],
+    selector: 'app-config-page',
+    templateUrl: './config-page.component.html',
+    styleUrls: ['./config-page.component.scss'],
 })
-export class SelectionPageComponent {
+export class ConfigPageComponent {
     @ViewChild('merciDialogContent')
     private readonly merciDialogContentRef: TemplateRef<HTMLElement>;
 
@@ -65,6 +65,10 @@ export class SelectionPageComponent {
             },
         ],
     };
+
+    initialTime = 30;
+    penalityTime = 5;
+    bonusTime = 5;
 
     constructor(private readonly matDialog: MatDialog) {}
 
