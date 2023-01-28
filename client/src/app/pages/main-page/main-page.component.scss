@@ -1,23 +1,17 @@
 * {
-    font-family: 'Monaco', cursive;
+    font-family: 'Verdana ', sans-serif, monospace;
     text-align: center;
 }
 
 h1 {
-    font-family: 'Monaco', cursive;
-    font-size: 5vw;
-}
-
-h2 {
-    font-family: 'Monaco', cursive;
-    font-size: 3vw;
-    margin-bottom: 30px;
+    font-family: 'Verdana ', sans-serif, monospace;
+    font-size: 2vw;
 }
 
 .container {
     min-height: 100vh;
     height: auto;
-    background: #d6c5fb;
+    background: #e8e4d5;
 }
 
 .justified {
@@ -27,73 +21,94 @@ h2 {
     align-items: center;
 }
 
-.section {
-    display: flex;
-}
-
 .header-section {
     width: 100%;
-    display: flex;
-    justify-content: center;
+    display: grid;
+    justify-items: center;
 }
 
 .middle-element {
-    flex: 1;
-    position: absolute;
+    width: 80%;
+    display: flex;
+    justify-content: center;
 }
 
 .right-element {
     margin-left: auto;
 }
 
-img {
-    width: 90px;
-    height: 90px;
-}
-
-.button {
-    margin-top: 10px;
-    margin-right: 10px;
-    text-align: center;
-    align-items: center;
-    background-color: white;
-    font-size: 3vw;
-    width: 50%;
-    transition: transform 0.2s ease-in;
-    background: radial-gradient(50% 50% at 50% 50%, 
-    #d8f4da 23.96%, #a4da9b 100%);
-}
-
-.button:hover {
-    transform: scale(1.2);
-
-}
-
 .config-button {
     border: none;
-    background-color: transparent;    
-    margin-right: 20px;
+    background-color: transparent;
+    margin-right: 30px;
     transition: transform 0.2s ease-in-out;
 }
 
 .config-button:hover {
-    transform: scale(1.1);
+    transform: scale(1.2);
 }
 
-.header-item {
+.card {
+    display: flex;
+    width: 500px;
+    height: 200px;
+    gap: 5px;
+    font-size: 20px;
+}
+
+.card p {
+    display: flex;
     justify-content: center;
+    align-items: center;
+    height: 100%;
+    flex: 1;
+    border-radius: 5px;
+    border: 3px solid #8200FF;
+    overflow: hidden;
+    transition: all 0.7s;
+}
+
+.card p:hover {
+    flex: 2;
+}
+
+.cheat:hover {
+    background-image: url("../../../assets/cheat.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 300px;
+}
+
+.solo:hover {
+    background-image: url("../../../assets/loupe.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 160px;
+}
+
+.chrono:hover {
+    background-image: url("../../../assets/chrono.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 150px;
+}
+
+.card p button {
+    background-color: transparent;
+    width: 100%;
+    height: 100%;
+    font-size: 100%;
+    letter-spacing: .1em;
     text-align: center;
-    margin-top: 60px;
+    transition: all 3s;
+}
+
+.card p button:hover {
+    color: transparent;
+    transition: all 0.2s;
 }
 
 .footer-item {
-    font-size: 1.8vw;
+    font-size: 1.2vw;
     text-align: center;
-}
-
-.footer-item p :nth-child(even) {
-    color: rgb(149, 146, 229);
-}
-.footer-item p :nth-child(odd) {
-    color: rgb(171, 112, 216);
 }
