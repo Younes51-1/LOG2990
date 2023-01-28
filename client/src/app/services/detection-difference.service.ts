@@ -71,8 +71,8 @@ export class DetectionDifferenceService {
         });
     }
 
-    populateNeighborhood(matrix: [array1: number[][], array2: number[][], differenceMatrix: number[][]], positions: Position, radius: number) {
-        const [array1, array2, differenceMatrix] = matrix;
+    populateNeighborhood(matrix: [array1: number[][], array2: number[][]], positions: Position, radius: number) {
+        const [array1, array2] = matrix;
 
         const queue: Position[] = [{ i: positions.i, j: positions.j }];
         while (queue.length) {
@@ -86,7 +86,6 @@ export class DetectionDifferenceService {
                     const j = curr.j + l;
                     if (i >= 0 && i < array1.length && j >= 0 && j < array1[0].length && array1[i][j] !== array2[i][j]) {
                         array1[i][j] = array2[i][j];
-                        differenceMatrix[i][j] = array2[i][j];
                         queue.push({ i, j });
                     }
                 }
@@ -94,21 +93,36 @@ export class DetectionDifferenceService {
         }
     }
 
-    differencesMatrix(array1: number[][], array2: number[][], radius: number): [differenceMatrix: number[][], differenceCount: number] {
-        const differenceMatrix = this.createEmptyMatrix(array1.length, array1[0].length, emptyPixelValue);
+    countDifferences(array1: number[][], array2: number[][], radius: number): number {
         let differenceCount = 0;
-        const differencePositions: Position[] = [];
         for (let i = 0; i < array1.length; i++) {
             for (let j = 0; j < array1[i].length; j++) {
                 if (array1[i][j] !== array2[i][j]) {
                     differenceCount++;
-                    differencePositions.push({ i, j });
-                    this.populateNeighborhood([array1, array2, differenceMatrix], { i, j }, radius);
+                    this.populateNeighborhood([array1, array2], { i, j }, radius);
                 }
             }
         }
 
-        return [differenceMatrix, differenceCount];
+        return differenceCount;
+    }
+
+    diffrencesMatrix(array1: number[][], array2: number[][], radius: number): number[][] {
+        const differenceMatrix = this.createEmptyMatrix(array1.length, array1[0].length, emptyPixelValue);
+        for (let i = 0; i < array1.length; i++) {
+            for (let j = 0; j < array1[i].length; j++) {
+                if (array1[i][j] !== array2[i][j]) {
+                    for (let k = -radius; k <= radius; k++) {
+                        for (let l = -radius; l <= radius; l++) {
+                            if (i + k >= 0 && i + k < array1.length && j + l >= 0 && j + l < array1[0].length) {
+                                differenceMatrix[i + k][j + l] = array2[i][j];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return differenceMatrix;
     }
 
     createDifferencesImage(differenceMatrix: number[][]) {
