@@ -38,6 +38,7 @@ export class CreationGamePageComponent implements AfterViewInit {
     image1: HTMLInputElement;
     image2: HTMLInputElement;
     imageDifferencesUrl: string;
+    nbImageFlipped: number = 0;
     width: number;
     height: number;
     radius: number = 3;
@@ -54,6 +55,7 @@ export class CreationGamePageComponent implements AfterViewInit {
             data: {
                 imageUrl: this.imageDifferencesUrl,
                 nbDifferences: this.differenceCount,
+                nbImageFlipped: this.nbImageFlipped,
             },
         });
     }
@@ -102,6 +104,12 @@ export class CreationGamePageComponent implements AfterViewInit {
             const reader = new FileReader();
             reader.readAsArrayBuffer(file[0]);
             reader.onload = () => {
+                if (new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.HEIGHT, true) < 0) {
+                    // eslint-disable-next-line no-console
+                    console.log(new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.HEIGHT, true));
+                    this.nbImageFlipped++;
+                }
+
                 const width = Math.abs(new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.WIDTH, true));
                 const height = Math.abs(new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.HEIGHT, true));
                 const hasCorrectDimensions = width === this.width && height === this.height;
@@ -150,6 +158,7 @@ export class CreationGamePageComponent implements AfterViewInit {
         this.inputImage1.nativeElement.value = null;
         this.inputImage2.nativeElement.value = null;
         this.inputImages1et2.nativeElement.value = null;
+        this.nbImageFlipped = 0;
         this.context1.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas1.nativeElement.height);
         this.context2.clearRect(0, 0, this.canvas2.nativeElement.width, this.canvas2.nativeElement.height);
     }
