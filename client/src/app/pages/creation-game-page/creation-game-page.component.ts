@@ -104,12 +104,6 @@ export class CreationGamePageComponent implements AfterViewInit {
             const reader = new FileReader();
             reader.readAsArrayBuffer(file[0]);
             reader.onload = () => {
-                if (new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.HEIGHT, true) < 0) {
-                    // eslint-disable-next-line no-console
-                    console.log(new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.HEIGHT, true));
-                    this.nbImageFlipped++;
-                }
-
                 const width = Math.abs(new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.WIDTH, true));
                 const height = Math.abs(new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.HEIGHT, true));
                 const hasCorrectDimensions = width === this.width && height === this.height;
@@ -129,6 +123,9 @@ export class CreationGamePageComponent implements AfterViewInit {
                     alert('Image refusée: elle ne respecte pas le format BMP-24 bit');
                 } else {
                     this.updateImageDisplay(e, img);
+                    if (new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.HEIGHT, true) < 0) {
+                        this.nbImageFlipped++;
+                    }
                 }
             };
         }
