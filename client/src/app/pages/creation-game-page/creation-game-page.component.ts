@@ -44,6 +44,8 @@ export class CreationGamePageComponent implements AfterViewInit {
     radius: number = 3;
     differenceCount: number;
     possibleRadius: number[] = [PossibleRadius.ZERO, PossibleRadius.THREE, PossibleRadius.NINE, PossibleRadius.FIFTEEN];
+    allowDisplayDiff: boolean = false;
+    nameGame: string;
     constructor(public dialog: MatDialog, private detectionService: DetectionDifferenceService) {
         this.width = 640;
         this.height = 480;
@@ -99,7 +101,7 @@ export class CreationGamePageComponent implements AfterViewInit {
 
     verifyImageFormat(e: Event, img: HTMLInputElement): void {
         const file = (e.target as HTMLInputElement).files;
-
+        this.updateDisplayDiffButton(false);
         if (file) {
             const reader = new FileReader();
             reader.readAsArrayBuffer(file[0]);
@@ -144,13 +146,19 @@ export class CreationGamePageComponent implements AfterViewInit {
             const [differenceMatrix, differenceCount] = this.detectionService.differencesMatrix(image1matrix, image2matrix, this.radius);
             this.imageDifferencesUrl = this.detectionService.createDifferencesImage(differenceMatrix);
             this.differenceCount = differenceCount;
+            this.updateDisplayDiffButton(true);
         }
     }
 
     updateRadius(newRadius: number) {
         this.radius = newRadius;
     }
-
+    updateDisplayDiffButton(bool: boolean) {
+        this.allowDisplayDiff = bool;
+    }
+    saveNameGame(name: string) {
+        this.nameGame = name;
+    }
     reset(): void {
         this.inputImage1.nativeElement.value = null;
         this.inputImage2.nativeElement.value = null;
@@ -158,5 +166,6 @@ export class CreationGamePageComponent implements AfterViewInit {
         this.nbImageFlipped = 0;
         this.context1.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas1.nativeElement.height);
         this.context2.clearRect(0, 0, this.canvas2.nativeElement.width, this.canvas2.nativeElement.height);
+        this.updateDisplayDiffButton(false);
     }
 }
