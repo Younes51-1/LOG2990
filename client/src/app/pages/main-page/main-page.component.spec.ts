@@ -23,12 +23,12 @@ describe('MainPageComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it("should have as title 'jeu des différences !'", () => {
-        expect(component.title).toEqual('jeu des différences !');
+    it("should have as title 'Jeu des différences'", () => {
+        expect(component.title).toEqual('Jeu des différences');
     });
 
-    it("should have team name '204'", () => {
-        expect(component.teamName).toEqual('204');
+    it("should have team name '204 : NO CONTENT'", () => {
+        expect(component.teamName).toEqual('204 : NO CONTENT');
     });
 
     it("should have team members full name '", () => {
@@ -46,7 +46,7 @@ describe('MainPageComponent', () => {
 
     it('should have game logo', () => {
         const image = fixture.debugElement.nativeElement.querySelector('img');
-        expect(image.src).toContain('/assets/logo.jpg');
+        expect(image.src).toContain('/assets/logo.png');
     });
 
     it('should have configuration button', () => {
@@ -55,17 +55,29 @@ describe('MainPageComponent', () => {
         expect(configBtn).not.toBeUndefined();
     });
 
+    it('should have three game mode', () => {
+        const gameModeSections = fixture.debugElement.nativeElement.getElementsByClassName('card')[0];
+        expect(gameModeSections.childElementCount).toEqual(3);
+    });
+
+    it('should have cheat mode button', () => {
+        const cheatSection = fixture.debugElement.nativeElement.getElementsByClassName('cheat button')[0];
+        const limitedBtn = cheatSection.getElementsByTagName('button')[0];
+        expect(limitedBtn).not.toBeUndefined();
+        expect(limitedBtn.innerHTML).toEqual('CHEAT');
+    });
+
     it('should have clasique mode button', () => {
-        const selectSections = fixture.debugElement.nativeElement.getElementsByClassName('section')[0];
-        const classiqueBtn = selectSections.getElementsByTagName('button')[0];
+        const classicSection = fixture.debugElement.nativeElement.getElementsByClassName('solo button')[0];
+        const classiqueBtn = classicSection.getElementsByTagName('button')[0];
         expect(classiqueBtn).not.toBeUndefined();
-        expect(classiqueBtn.innerHTML).toEqual('Classique');
+        expect(classiqueBtn.innerHTML).toEqual('CLASSIC');
     });
 
     it('should have limited mode button', () => {
-        const selectSections = fixture.debugElement.nativeElement.getElementsByClassName('section')[0];
-        const limitedBtn = selectSections.getElementsByTagName('button')[1];
+        const chronoSection = fixture.debugElement.nativeElement.getElementsByClassName('chrono button')[0];
+        const limitedBtn = chronoSection.getElementsByTagName('button')[0];
         expect(limitedBtn).not.toBeUndefined();
-        expect(limitedBtn.innerHTML).toEqual('Temps Limité');
+        expect(limitedBtn.innerHTML).toEqual('CHRONO');
     });
 });

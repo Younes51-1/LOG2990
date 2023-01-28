@@ -7,7 +7,7 @@ import { Component } from '@angular/core';
 })
 export class MainPageComponent {
     readonly title: string = 'Jeu des différences';
-    readonly teamName: string = '204';
+    readonly teamName: string = '204 : NO CONTENT';
     readonly teamMembers: string[] = [
         'Coralie Brodeur',
         ' Imène Clara Ghazi',
@@ -20,4 +20,5 @@ export class MainPageComponent {
     readonly configLink = '/game';
     readonly classiqueLink = '/game';
     readonly limitedLink = '/game';
+    readonly cheatModeLink = '/game';
 }

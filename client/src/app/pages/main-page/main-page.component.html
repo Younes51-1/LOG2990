@@ -2,7 +2,7 @@
 
 <div class="container justified">
     <section class="header-section">
-        <button class="config-button right-element" routerLink="[configLink]">
+        <button class="config-button right-element" routerLink={{configLink}}>
             <i class="fa fa-cog fa-3x" aria-hidden="true"></i>
         </button>
         <img src="../../../assets/logo.png" class="middle-element" alt="Logo Projet">
@@ -10,13 +10,13 @@
     <h1 class="header-item">GAME MODES</h1>
     <section class="section">
         <div class="card">
-            <p class="cheat button"><button>CHEAT</button></p>
-            <p class="solo button"><button>CLASSIC</button></p>
-            <p class="chrono button"><button>CHRONO</button></p>
+            <p class="cheat button"><button routerLink={{cheatModeLink}}>CHEAT</button></p>
+            <p class="solo button"><button routerLink={{classiqueLink}}>CLASSIC</button></p>
+            <p class="chrono button"><button routerLink={{limitedLink}}>CHRONO</button></p>
         </div>
     </section>
     <footer class="footer-item">
-        <p>TEAM {{teamName}} : NO CONTENT</p>
+        <p>TEAM {{teamName}}</p>
         <p>
             <span *ngFor="let teamMate of teamMembers; let isLast=last">{{teamMate}}{{isLast ? '' : ', '}}</span>
         </p>
