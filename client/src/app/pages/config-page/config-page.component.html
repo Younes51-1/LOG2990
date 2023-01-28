@@ -1,5 +1,4 @@
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.1/css/all.css" crossorigin="anonymous" />
-<div class="page-container">
     <main id="main" [ngClass]="favoriteTheme" class="mat-app-background">
         <mat-toolbar class="toolbar" color="primary">
             <button class="home-button" routerLink="/home">
@@ -8,20 +7,21 @@
             <span>Configuration</span>
         </mat-toolbar>
         <div class="container justified">
-            <ngx-slick-carousel class="carousel" #slickModal="slick-carousel" [config]="slideConfig"
-                (init)="slickInit($event)" (breakpoint)="breakpoint($event)" (afterChange)="afterChange($event)"
-                (beforeChange)="beforeChange($event)">
+            <ngx-slick-carousel class="carousel" #slickModal="slick-carousel" [config]="slideConfig">
                 <div ngxSlickItem *ngFor="let slide of slides" class="slide">
-                    <app-game-card-config></app-game-card-config>
+                    <app-game-card [page]="config"></app-game-card>
                 </div>
             </ngx-slick-carousel>
-            <button class="btn">Créer un jeu</button>
-            <h3>Paramètres:</h3>
-            <ul>
-                <li>Temps initial du compte à rebours: {{initialTime}}s</li>
-                <li>Temps de pénalité pour l’utilisation d’un indice: {{penalityTime}}s</li>
-                <li>Temps gagné avec la découverte d’une différence: {{bonusTime}}s</li>
-            </ul>
+            <div class="centered-btn">
+                <button class="btn">Créer un jeu</button>
+            </div>
+            <div class="centered-text">
+                <h2>Paramètres:</h2>
+                <ul>
+                    <li>Temps initial du compte à rebours: {{initialTime}}s</li>
+                    <li>Temps de pénalité pour l’utilisation d’un indice: {{penalityTime}}s</li>
+                    <li>Temps gagné avec la découverte d’une différence: {{bonusTime}}s</li>
+                </ul>
+            </div>
         </div>
     </main>
-</div>

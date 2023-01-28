@@ -10,30 +10,32 @@
 
 mat-toolbar {
 
+    position: sticky;
+    top: 0;
+    z-index: 1;
+
     span {
         margin: auto;
     }
 }
 
 .container {
-    // padding-right: 20px;
-    // padding-left: 20px;
-    // margin-right: auto;
-    // margin-left: auto;
-    // padding-bottom: 20px;
-    // min-width: 160vh;
-    // min-height: 80vh;
-    overflow: hidden;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+    padding-bottom: 20px;
 
-    // > * {
-    //     margin-top: 20px;
-    // }
+    > * {
+        margin-top: 20px;
+    }
 
 }
 
 .slide {
-    margin: 50px;
-    
+    margin-top: 100px;
+    margin-left: 20px;
+    margin-right: 20px;
 }
 
 .btn {
@@ -47,26 +49,6 @@ mat-toolbar {
 .btn:hover {
     background-image: linear-gradient(#b1ccda 49%, #96b4c5 51%);
     color: #03324c;
-}
-
-.justified {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-}
-
-.slick-slider {
-    min-width: 160vh;
-    width: 100%;
-}
-  
-body .slick-prev, 
-body .slick-next {
-    width: 50px;
-    height: 50px;
-    background: transparent;
-    z-index: 100;
 }
 
 .home-button {
@@ -85,28 +67,19 @@ body .slick-next {
 
 @media (min-width: 768px) {
     .container {
-        width: 100%;
+        width: 750px;
     }
 }
 
 @media (min-width: 992px) {
     .container {
-        width: 100%;
+        width: 970px;
     }
 }
 
 @media (min-width: 1200px) {
     .container {
-        width: 100%;
-    }
-}
-
-@media (max-width: 768px) {
-    .carousel {
-        width: 10px;
-    }
-    .slide {
-        margin: 50, 0px;
+        width: 1000px;
     }
 }
 
@@ -145,7 +118,19 @@ body .slick-next {
     }
 
 }
-.page-container {
-    height: 100%;
-    width: 100%;
+
+h2 {
+    margin-top: 10px;
+    margin-bottom: 0px;
+}
+
+.centered-btn {
+    text-align: center;
+}
+
+.centered-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
 }
