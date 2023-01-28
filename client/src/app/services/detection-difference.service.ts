@@ -13,6 +13,10 @@ export enum OffsetValues {
     HEIGHT = 22,
 }
 
+interface Position {
+    i: number;
+    j: number;
+}
 const emptyPixelValue = -1;
 const pixelDataSize = 4;
 
@@ -33,8 +37,8 @@ export class DetectionDifferenceService {
 
     convertImageToMatrix(buffer: ArrayBuffer): number[][] {
         const offset = new DataView(buffer).getInt32(OffsetValues.OFFSET, true);
-        const width = new DataView(buffer).getInt32(OffsetValues.WIDTH, true);
-        const height = new DataView(buffer).getInt32(OffsetValues.HEIGHT, true);
+        const width = Math.abs(new DataView(buffer).getInt32(OffsetValues.WIDTH, true));
+        const height = Math.abs(new DataView(buffer).getInt32(OffsetValues.HEIGHT, true));
 
         const matrix = this.createEmptyMatrix(height, width, emptyPixelValue);
 
@@ -48,38 +52,42 @@ export class DetectionDifferenceService {
         return matrix;
     }
 
-    readThenConvertImage(input: HTMLInputElement) {
-        const file: File | null = input !== null && input.files !== null ? input.files[0] : null;
-        const reader: FileReader = new FileReader();
+    async readThenConvertImage(input: HTMLInputElement): Promise<number[][]> {
+        return new Promise((resolve) => {
+            const file: File | null = input !== null && input.files !== null ? input.files[0] : null;
+            const reader: FileReader = new FileReader();
 
-        reader.addEventListener(
-            'loadend',
-            () => {
-                return this.convertImageToMatrix(reader.result as ArrayBuffer);
-            },
-            false,
-        );
-        if (file) {
-            reader.readAsArrayBuffer(file);
-        }
+            reader.addEventListener(
+                'loadend',
+                () => {
+                    const matrix: number[][] = this.convertImageToMatrix(reader.result as ArrayBuffer);
+                    resolve(matrix);
+                },
+                false,
+            );
+            if (file) {
+                reader.readAsArrayBuffer(file);
+            }
+        });
     }
 
-    populateNeighborhood(
-        matrix: [array: number[][], visited: boolean[][]],
-        positions: [i: number, j: number],
-        userValues: [radius: number, value: number],
-    ) {
-        const [i, j] = positions;
-        const [array, visited] = matrix;
-        const [radius, value] = userValues;
-        if (i < 0 || i >= array.length || j < 0 || j >= array[i].length || visited[i][j]) return; // TODO: CHANGE THIS
+    populateNeighborhood(matrix: [array1: number[][], array2: number[][]], positions: Position, radius: number) {
+        const [array1, array2] = matrix;
 
-        visited[i][j] = true;
-        array[i][j] = value;
-        for (let k = i - radius; k <= i + radius; k++) {
-            for (let l = j - radius; l <= j + radius; l++) {
-                if (k >= 0 && k < array.length && l >= 0 && l < array[0].length) {
-                    this.populateNeighborhood([array, visited], [k, l], [radius, value]);
+        const queue: Position[] = [{ i: positions.i, j: positions.j }];
+        while (queue.length) {
+            const curr = queue.shift();
+
+            if (curr === undefined) return;
+
+            for (let k = -radius; k <= radius; k++) {
+                for (let l = -radius; l <= radius; l++) {
+                    const i = curr.i + k;
+                    const j = curr.j + l;
+                    if (i >= 0 && i < array1.length && j >= 0 && j < array1[0].length && array1[i][j] !== array2[i][j]) {
+                        array1[i][j] = array2[i][j];
+                        queue.push({ i, j });
+                    }
                 }
             }
         }
@@ -88,13 +96,13 @@ export class DetectionDifferenceService {
     differencesMatrix(array1: number[][], array2: number[][], radius: number): [differenceMatrix: number[][], differenceCount: number] {
         const differenceMatrix = this.createEmptyMatrix(array1.length, array1[0].length, emptyPixelValue);
         let differenceCount = 0;
-        const visited = this.createEmptyMatrix(array1.length, array1[0].length, false);
+        const differencePositions: Position[] = [];
         for (let i = 0; i < array1.length; i++) {
             for (let j = 0; j < array1[i].length; j++) {
-                if (array1[i][j] !== array2[i][j] && !visited[i][j]) {
+                if (array1[i][j] !== array2[i][j]) {
                     differenceCount++;
-                    differenceMatrix[i][j] = array2[i][j];
-                    this.populateNeighborhood([differenceMatrix, visited], [i, j], [radius, array2[i][j]]);
+                    differencePositions.push({ i, j });
+                    this.populateNeighborhood([array1, array2], { i, j }, radius);
                 }
             }
         }

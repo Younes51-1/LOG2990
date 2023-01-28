@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.component';
+import { DetectionDifferenceService } from '@app/services/detection-difference.service';
 
 enum AsciiLetterValue {
     B = 66,
@@ -13,6 +14,13 @@ enum OffsetValues {
     DHP = 28,
 }
 const BIT_PER_PIXEL = 24;
+
+enum PossibleRadius {
+    ZERO = 0,
+    THREE = 3,
+    NINE = 9,
+    FIFTEEN = 15,
+}
 
 @Component({
     selector: 'app-creation-game-page',
@@ -32,18 +40,20 @@ export class CreationGamePageComponent implements AfterViewInit {
     imageDifferences: HTMLImageElement;
     width: number;
     height: number;
-    radius: number;
-
-    constructor(public dialog: MatDialog) {
+    radius: number = 3;
+    differenceCount: number;
+    possibleRadius: number[] = [PossibleRadius.ZERO, PossibleRadius.THREE, PossibleRadius.NINE, PossibleRadius.FIFTEEN];
+    constructor(public dialog: MatDialog, private detectionService: DetectionDifferenceService) {
         this.width = 640;
         this.height = 480;
     }
 
     openDifferencesDialog() {
+        this.runDetectionSystem();
         this.dialog.open(ModalDialogComponent, {
             data: {
                 image: this.imageDifferences,
-                nbDifferences: 5,
+                nbDifferences: this.differenceCount,
             },
         });
     }
@@ -92,8 +102,8 @@ export class CreationGamePageComponent implements AfterViewInit {
             const reader = new FileReader();
             reader.readAsArrayBuffer(file[0]);
             reader.onload = () => {
-                const width = new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.WIDTH, true);
-                const height = new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.HEIGHT, true);
+                const width = Math.abs(new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.WIDTH, true));
+                const height = Math.abs(new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.HEIGHT, true));
                 const hasCorrectDimensions = width === this.width && height === this.height;
                 const data = new Uint8Array(reader.result as ArrayBuffer);
                 const isBmp = data[0] === AsciiLetterValue.B && data[1] === AsciiLetterValue.M;
@@ -116,27 +126,31 @@ export class CreationGamePageComponent implements AfterViewInit {
         }
     }
 
-    reset(): void {
-        this.inputImage1.nativeElement.value = null;
-        this.inputImage2.nativeElement.value = null;
-        this.inputImages1et2.nativeElement.value = null;
-        this.context1.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas1.nativeElement.height);
-        this.context2.clearRect(0, 0, this.canvas2.nativeElement.width, this.canvas2.nativeElement.height);
-    }
-
-    // a modifier
-    runDetectionSystem(): void {
+    async runDetectionSystem() {
         const img1Src: string = this.image1.value;
         const img2Src: string = this.image2.value;
         const img1HasContent: boolean = img1Src !== '';
         const img2HasContent: boolean = img2Src !== '';
 
         if (img1HasContent && img2HasContent) {
-            // appel de readThenConvertImage(this.image1: HTMLInputElement, this.image2: HTMLInputElement)
+            const image1matrix: number[][] = await this.detectionService.readThenConvertImage(this.image1);
+            const image2matrix: number[][] = await this.detectionService.readThenConvertImage(this.image2);
+
+            const [differenceMatrix] = this.detectionService.differencesMatrix(image1matrix, image2matrix, this.radius);
+            this.detectionService.createDifferencesImage(differenceMatrix);
+            this.imageDifferences = this.detectionService.differencesImage;
         }
     }
 
-    updateRadius(newRadius: string) {
-        this.radius = Number(newRadius);
+    updateRadius(newRadius: number) {
+        this.radius = newRadius;
+    }
+
+    reset(): void {
+        this.inputImage1.nativeElement.value = null;
+        this.inputImage2.nativeElement.value = null;
+        this.inputImages1et2.nativeElement.value = null;
+        this.context1.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas1.nativeElement.height);
+        this.context2.clearRect(0, 0, this.canvas2.nativeElement.width, this.canvas2.nativeElement.height);
     }
 }

@@ -11,7 +11,7 @@
     <p>Téléverser la même image dans les deux zones :</p>
     <input #images1et2 type="file" accept="image/bmp" (change)="verifyImageFormat($event, images1et2)" />
     <p>L'image doit être dans un format bitmap (BMP) 24-bit de taille 640x480 pixels</p>
-</div>
+</div>  
 <div id="creation-game-buttons-container">
     <button class="button" (click)="reset()">Reset</button>
     <button class="button" (click)="runDetectionSystem()">Detecter les differences</button>
@@ -19,20 +19,9 @@
 </div>
 <fieldset>
     <legend>Choix du rayon d'élargissement</legend>
-    <div>
-        <input type="radio" #rayon0 name="choixRayon" value="0" (click)="updateRadius(rayon0.value)" />
-        <label for="rayon0">0</label>
-    </div>
-    <div>
-        <input type="radio" #rayon3 name="choixRayon" value="3" (click)="updateRadius(rayon3.value)" checked />
-        <label for="rayon3">3</label>
-    </div>
-    <div>
-        <input type="radio" #rayon9 name="choixRayon" value="9" (click)="updateRadius(rayon9.value)" />
-        <label for="rayon9">9</label>
-    </div>
-    <div>
-        <input type="radio" #rayon15 name="choixRayon" value="15" (click)="updateRadius(rayon15.value)" />
-        <label for="rayon15">15</label>
+    <div *ngFor="let radius of possibleRadius;">
+        <input *ngIf="radius !== 3" type="radio" #rayon{{radius}} name="choixRayon" value={{(radius)}} (click)="updateRadius(radius)" />
+        <input *ngIf="radius === 3" type="radio" #rayon{{radius}} name="choixRayon" value={{(radius)}} (click)="updateRadius(radius)" checked/>
+        <label for="rayon{{radius}}">{{radius}}</label>
     </div>
 </fieldset>
