@@ -1,44 +1,99 @@
+* {
+    font-family: 'Monaco', cursive;
+    text-align: center;
+}
+
+h1 {
+    font-family: 'Monaco', cursive;
+    font-size: 5vw;
+}
+
+h2 {
+    font-family: 'Monaco', cursive;
+    font-size: 3vw;
+    margin-bottom: 30px;
+}
+
 .container {
     min-height: 100vh;
     height: auto;
+    background: #d6c5fb;
 }
 
 .justified {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
+}
+
+.section {
+    display: flex;
+}
+
+.header-section {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.middle-element {
+    flex: 1;
+    position: absolute;
+}
+
+.right-element {
+    margin-left: auto;
+}
+
+img {
+    width: 90px;
+    height: 90px;
 }
 
 .button {
     margin-top: 10px;
+    margin-right: 10px;
     text-align: center;
+    align-items: center;
+    background-color: white;
+    font-size: 3vw;
+    width: 50%;
+    transition: transform 0.2s ease-in;
+    background: radial-gradient(50% 50% at 50% 50%, 
+    #d8f4da 23.96%, #a4da9b 100%);
 }
 
-.team-name {
-    margin-top: 0.25em;
-    margin-bottom: 0.25em;
-    color: green;
+.button:hover {
+    transform: scale(1.2);
+
+}
+
+.config-button {
+    border: none;
+    background-color: transparent;    
+    margin-right: 20px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.config-button:hover {
+    transform: scale(1.1);
 }
 
 .header-item {
     justify-content: center;
     text-align: center;
+    margin-top: 60px;
 }
 
 .footer-item {
+    font-size: 1.8vw;
     text-align: center;
 }
 
 .footer-item p :nth-child(even) {
-    color: orange;
+    color: rgb(149, 146, 229);
 }
 .footer-item p :nth-child(odd) {
-    color: blue;
-}
-
-.server-message {
-    justify-content: center;
-    width: 20%;
-    min-width: min-content;
+    color: rgb(171, 112, 216);
 }
