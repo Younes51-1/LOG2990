@@ -37,7 +37,7 @@ export class CreationGamePageComponent implements AfterViewInit {
     context2: CanvasRenderingContext2D;
     image1: HTMLInputElement;
     image2: HTMLInputElement;
-    imageDifferences: HTMLImageElement;
+    imageDifferencesUrl: string;
     width: number;
     height: number;
     radius: number = 3;
@@ -48,11 +48,11 @@ export class CreationGamePageComponent implements AfterViewInit {
         this.height = 480;
     }
 
-    openDifferencesDialog() {
-        this.runDetectionSystem();
+    async openDifferencesDialog() {
+        await this.runDetectionSystem();
         this.dialog.open(ModalDialogComponent, {
             data: {
-                image: this.imageDifferences,
+                imageUrl: this.imageDifferencesUrl,
                 nbDifferences: this.differenceCount,
             },
         });
@@ -137,10 +137,8 @@ export class CreationGamePageComponent implements AfterViewInit {
             const image2matrix: number[][] = await this.detectionService.readThenConvertImage(this.image2);
 
             const [differenceMatrix, differenceCount] = this.detectionService.differencesMatrix(image1matrix, image2matrix, this.radius);
-            console.log(differenceMatrix, differenceCount);
-            // this.detectionService.createDifferencesImage(differenceMatrix);
+            this.imageDifferencesUrl = this.detectionService.createDifferencesImage(differenceMatrix);
             this.differenceCount = differenceCount;
-            this.imageDifferences = this.detectionService.differencesImage;
         }
     }
 

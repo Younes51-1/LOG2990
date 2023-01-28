@@ -116,7 +116,7 @@ export class DetectionDifferenceService {
         canvas.width = differenceMatrix[0].length;
         canvas.height = differenceMatrix.length;
         const ctx = canvas.getContext('2d');
-        if (ctx === null) return;
+        if (ctx === null) return '';
         const imageData = ctx.createImageData(differenceMatrix[0].length, differenceMatrix.length);
         const data = imageData.data;
         for (let i = 0; i < differenceMatrix.length; i++) {
@@ -136,8 +136,7 @@ export class DetectionDifferenceService {
             }
         }
         ctx.putImageData(imageData, 0, 0);
-        this.differencesImage = document.createElement('img');
-        this.differencesImage.src = canvas.toDataURL();
+        return canvas.toDataURL();
     }
 
     computeLevelDifficulty(nDifferences: number, differenceMatrix: number[][]) {
