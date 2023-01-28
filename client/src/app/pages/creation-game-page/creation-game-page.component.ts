@@ -136,8 +136,10 @@ export class CreationGamePageComponent implements AfterViewInit {
             const image1matrix: number[][] = await this.detectionService.readThenConvertImage(this.image1);
             const image2matrix: number[][] = await this.detectionService.readThenConvertImage(this.image2);
 
-            const [differenceMatrix] = this.detectionService.differencesMatrix(image1matrix, image2matrix, this.radius);
-            this.detectionService.createDifferencesImage(differenceMatrix);
+            const [differenceMatrix, differenceCount] = this.detectionService.differencesMatrix(image1matrix, image2matrix, this.radius);
+            console.log(differenceMatrix, differenceCount);
+            // this.detectionService.createDifferencesImage(differenceMatrix);
+            this.differenceCount = differenceCount;
             this.imageDifferences = this.detectionService.differencesImage;
         }
     }

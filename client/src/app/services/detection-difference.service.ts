@@ -71,8 +71,8 @@ export class DetectionDifferenceService {
         });
     }
 
-    populateNeighborhood(matrix: [array1: number[][], array2: number[][]], positions: Position, radius: number) {
-        const [array1, array2] = matrix;
+    populateNeighborhood(matrix: [array1: number[][], array2: number[][], differenceMatrix: number[][]], positions: Position, radius: number) {
+        const [array1, array2, differenceMatrix] = matrix;
 
         const queue: Position[] = [{ i: positions.i, j: positions.j }];
         while (queue.length) {
@@ -86,6 +86,7 @@ export class DetectionDifferenceService {
                     const j = curr.j + l;
                     if (i >= 0 && i < array1.length && j >= 0 && j < array1[0].length && array1[i][j] !== array2[i][j]) {
                         array1[i][j] = array2[i][j];
+                        differenceMatrix[i][j] = array2[i][j];
                         queue.push({ i, j });
                     }
                 }
@@ -102,7 +103,7 @@ export class DetectionDifferenceService {
                 if (array1[i][j] !== array2[i][j]) {
                     differenceCount++;
                     differencePositions.push({ i, j });
-                    this.populateNeighborhood([array1, array2], { i, j }, radius);
+                    this.populateNeighborhood([array1, array2, differenceMatrix], { i, j }, radius);
                 }
             }
         }
