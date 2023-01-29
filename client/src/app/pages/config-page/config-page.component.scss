@@ -125,7 +125,10 @@ h2 {
 }
 
 .centered-btn {
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
 }
 
 .centered-text {
@@ -133,4 +136,9 @@ h2 {
     flex-direction: column;
     justify-content: space-around;
     align-items: center;
+}
+
+.carousel {
+    display: flex;
+    flex-direction: row;
 }

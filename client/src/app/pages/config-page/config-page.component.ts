@@ -48,10 +48,6 @@ export class ConfigPageComponent {
         slidesToScroll: 4,
     };
 
-    initialTime = 30;
-    penalityTime = 5;
-    bonusTime = 5;
-
     config = PageKeys.Config;
 
     addSlide() {
