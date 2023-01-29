@@ -1,7 +1,14 @@
 <div class="sidebar-container">
-    <p>Informations de la partie</p>
-    <p>Nom du jeu, niveau difficulté, mode de jeu, nombre de différences totales</p>
-    <p>Afficheur de temps : chrono MM:SS</p>
-    <p>Compteur de différences : Nb différences</p>
-    <button routerLink="/selection">Abandonner partie</button>
+    <div>
+        <p>Welcome to {{game_name}} {{player}} !</p>
+        <p>{{game_mode}}</p>
+        <p>{{difficulty}}</p>
+        <p>You have to find a total of {{total_number}} differences</p>
+        <p>There is {{total_left}} differences left</p>
+    </div>
+    <div>
+        <p>TIMER</p>
+        <p>{{ minutes | number:'2.0-0' }}:{{ seconds | number:'2.0-0' }}</p>
+    </div>
+    <button routerLink="/selection">QUIT GAME</button>
 </div>
