@@ -1,9 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class BestTime {
-    @ApiProperty()
+    @ApiProperty({
+        default: 'defaultPlayer',
+    })
     name: string;
 
-    @ApiProperty()
+    @ApiProperty({
+        default: '1:00',
+    })
     time: string;
 }

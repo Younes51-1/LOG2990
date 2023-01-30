@@ -1,7 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { ExampleController } from '@app/controllers/example/example.controller';
-import { createStubInstance, SinonStubbedInstance } from 'sinon';
 import { ExampleService } from '@app/services/example/example.service';
+import { Test, TestingModule } from '@nestjs/testing';
+import { createStubInstance, SinonStubbedInstance } from 'sinon';
 
 describe.only('ExampleController', () => {
     let controller: ExampleController;

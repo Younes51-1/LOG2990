@@ -1,8 +1,8 @@
 import { Game, GameDocument } from '@app/model/database/game';
-import { GameData } from '@app/model/dto/game/gameData.dto';
-import { GameForm } from '@app/model/dto/game/gameForm.dto';
-import { NewGame } from '@app/model/dto/game/newGame.dto';
-import { BestTime } from '@app/model/schema/bestTimes.schema';
+import { GameData } from '@app/model/dto/game/game-data.dto';
+import { GameForm } from '@app/model/dto/game/game-form.dto';
+import { NewGame } from '@app/model/dto/game/new-game.dto';
+import { BestTime } from '@app/model/schema/best-time.schema';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as fs from 'fs';
@@ -14,9 +14,6 @@ export class GameService {
 
     async getAllGames(): Promise<GameForm[]> {
         const games = await this.gameModel.find({});
-        if (games === undefined || games === null) {
-            return [];
-        }
         return games.map((game) => this.convertGameToGameForm(game));
     }
 
@@ -29,9 +26,6 @@ export class GameService {
     }
 
     async createNewGame(newGame: NewGame): Promise<void> {
-        if (!this.validateNewGame(newGame)) {
-            return Promise.reject('Invalid newGame format');
-        }
         try {
             await this.saveImages(newGame);
             const gameToSave = await this.convertNewGameToGame(newGame);
@@ -55,30 +49,14 @@ export class GameService {
         }
     }
 
-    private validateNewGame(newGame: NewGame): boolean {
-        return newGame.name !== undefined && newGame.nbDifference !== undefined && newGame.differenceMatrix !== undefined;
-    }
-
-    private async convertNewGameToGame(newGame: NewGame): Promise<Game> {
-        const game = new Game();
-        game.name = newGame.name;
-        game.nbDifference = newGame.nbDifference;
-        game.differenceMatrix = newGame.differenceMatrix;
-        game.soloBestTimes = this.newBestTimes();
-        game.vsBestTimes = this.newBestTimes();
-        return game;
-    }
-
-    private async saveImages(newGame: NewGame): Promise<void> {
+    async saveImages(newGame: NewGame): Promise<void> {
         let bufferObjImage = Buffer.from(newGame.image1, 'base64');
         await this.saveImage(bufferObjImage, newGame.name, '1');
         bufferObjImage = Buffer.from(newGame.image2, 'base64');
         await this.saveImage(bufferObjImage, newGame.name, '2');
     }
 
-    // TODO: uncomment this function to save images & remove the eslint-disable-next-line
-    // eslint-disable-next-line no-unused-vars
-    private async saveImage(bufferObj: Buffer, name: string, index: string): Promise<void> {
+    async saveImage(bufferObj: Buffer, name: string, index: string): Promise<void> {
         const dirName = `./assets/${name}`;
         if (!fs.existsSync(dirName)) fs.mkdirSync(dirName);
         fs.writeFile(`${dirName}/image${index}.bmp`, bufferObj, async (err) => {
@@ -91,6 +69,16 @@ export class GameService {
     private deleteImages(name: string): void {
         const dirName = `./assets/${name}`;
         fs.rmSync(dirName, { recursive: true, force: true });
+    }
+
+    private async convertNewGameToGame(newGame: NewGame): Promise<Game> {
+        const game = new Game();
+        game.name = newGame.name;
+        game.nbDifference = newGame.nbDifference;
+        game.differenceMatrix = newGame.differenceMatrix;
+        game.soloBestTimes = this.newBestTimes();
+        game.vsBestTimes = this.newBestTimes();
+        return game;
     }
 
     private convertGameToGameForm(game: Game): GameForm {
