@@ -50,6 +50,8 @@ export class CreationGamePageComponent implements AfterViewInit {
     possibleRadius: number[] = [PossibleRadius.ZERO, PossibleRadius.THREE, PossibleRadius.NINE, PossibleRadius.FIFTEEN];
     allowDisplayDiff: boolean = false;
     nameGame: string;
+    // TODO: Refactor this function
+    // eslint-disable-next-line max-params
     constructor(
         private communicationService: CommunicationService,
         public dialog: MatDialog,

@@ -25,6 +25,8 @@ export class ModalDialogComponent implements AfterViewInit {
         image.onload = () => {
             if (this.data.nbImageFlipped === 2) {
                 context.translate(0, canvas.height);
+                // TODO: remove eslint-disable-next-line
+                // eslint-disable-next-line @typescript-eslint/no-magic-numbers
                 context.scale(1, -1);
             }
             context.drawImage(image, 0, 0, this.width, this.height);

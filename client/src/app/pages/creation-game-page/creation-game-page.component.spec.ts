@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CreationGamePageComponent } from './creation-game-page.component';
+import { RouterTestingModule } from '@angular/router/testing';
+import { HttpClientModule } from '@angular/common/http';
 
 describe('CreationGamePageComponent', () => {
     let component: CreationGamePageComponent;
@@ -8,7 +10,7 @@ describe('CreationGamePageComponent', () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [MatDialogModule],
+            imports: [MatDialogModule, RouterTestingModule, HttpClientModule],
             declarations: [CreationGamePageComponent],
             providers: [
                 { provide: MatDialog },
