@@ -6,6 +6,7 @@ describe('DetectionDifferenceService', () => {
     const emptyPixelValue = -1;
     let matrix: number[][];
     let differentmatrix: number[][];
+
     beforeEach(() => {
         TestBed.configureTestingModule({});
         service = TestBed.inject(DetectionDifferenceService);
@@ -75,10 +76,11 @@ describe('DetectionDifferenceService', () => {
     it('Difference Matrix should return a correct matrix when given differents matrix and 3 in a radius', () => {
         const differenceMatrix = service.diffrencesMatrix(matrix, differentmatrix, 3);
         const matrixRes = [
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0],
+            [1, 0, 1],
+            [1, 0, 1],
+            [1, 0, 1],
         ];
+
         expect(differenceMatrix).toEqual(matrixRes);
     });
 });

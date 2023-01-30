@@ -108,69 +108,46 @@ export class DetectionDifferenceService {
     }
 
     diffrencesMatrix(array1: number[][], array2: number[][], radius: number): number[][] {
-        const differenceMatrix = this.createEmptyMatrix(array1.length, array1[0].length, emptyPixelValue);
-        for (let i = 0; i < array1.length; i++) {
-            for (let j = 0; j < array1[i].length; j++) {
+        const height = array1.length;
+        const width = array1[0].length;
+
+        const differenceMatrix = this.createEmptyMatrix(height, width, emptyPixelValue);
+        const differencesCoordinatesArray = [];
+        let differencesCoordinatesArraySize = 0;
+        for (let i = 0; i < height; i++) {
+            for (let j = 0; j < width; j++) {
                 if (array1[i][j] !== array2[i][j]) {
-                    for (let k = -radius; k <= radius; k++) {
-                        for (let l = -radius; l <= radius; l++) {
-                            if (i + k >= 0 && i + k < array1.length && j + l >= 0 && j + l < array1[0].length) {
-                                differenceMatrix[i + k][j + l] = array2[i][j];
-                            }
-                        }
+                    differenceMatrix[i][j] = array2[i][j];
+                    differencesCoordinatesArray[differencesCoordinatesArraySize++] = i;
+                    differencesCoordinatesArray[differencesCoordinatesArraySize++] = j;
+                }
+            }
+        }
+        const radiusCoordinatesArray = [];
+        let radiusCoordinatesArraySize = 0;
+        for (let i = -radius; i <= radius; i++) {
+            for (let j = -radius; j <= radius; j++) {
+                // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+                if ((i ** 2 + j ** 2) ** 0.5 <= radius) {
+                    radiusCoordinatesArray[radiusCoordinatesArraySize++] = i;
+                    radiusCoordinatesArray[radiusCoordinatesArraySize++] = j;
+                }
+            }
+        }
+
+        for (let i = 0; i < differencesCoordinatesArraySize; i += 2) {
+            for (let k = 0; k < radiusCoordinatesArraySize; k += 2) {
+                const coordX = differencesCoordinatesArray[i] + radiusCoordinatesArray[k];
+                const coordY = differencesCoordinatesArray[i + 1] + radiusCoordinatesArray[k + 1];
+                if (coordX >= 0 && coordY >= 0 && coordX < height && coordY < width) {
+                    if (differenceMatrix[coordX][coordY] === emptyPixelValue) {
+                        differenceMatrix[coordX][coordY] = array2[coordX][coordY];
                     }
                 }
             }
         }
         return differenceMatrix;
     }
-
-    // diffrencesMatrix(array1: number[][], array2: number[][], radius: number): number[][] {
-    //     const height = array1.length;
-    //     const width = array1[0].length;
-
-    //     const differenceMatrix = this.createEmptyMatrix(height, width, emptyPixelValue);
-    //     const differencesCoordinatesArray = [];
-    //     let differencesCoordinatesArraySize = 0;
-    //     for (let i = 0; i < height; i++) {
-    //         for (let j = 0; j < width; j++) {
-    //             if (array1[i][j] !== array2[i][j]) {
-    //                 differenceMatrix[i][j] = array2[i][j];
-    //                 differencesCoordinatesArray[differencesCoordinatesArraySize] = i;
-    //                 differencesCoordinatesArraySize++;
-    //                 differencesCoordinatesArray[differencesCoordinatesArraySize] = j;
-    //                 differencesCoordinatesArraySize++;
-    //             }
-    //         }
-    //     }
-
-    //     const radiusCoordinatesArray = [];
-    //     let radiusCoordinatesArraySize = 0;
-    //     for (let i = -radius; i <= radius; i++) {
-    //         for (let j = -radius; j <= radius; j++) {
-    //             // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-    //             if ((i ** 2 + j ** 2) ** 0.5 <= radius) {
-    //                 radiusCoordinatesArray[radiusCoordinatesArraySize] = i;
-    //                 ++radiusCoordinatesArraySize;
-    //                 radiusCoordinatesArray[radiusCoordinatesArraySize] = j;
-    //                 ++radiusCoordinatesArraySize;
-    //             }
-    //         }
-    //     }
-
-    //     for (let i = 0; i < differencesCoordinatesArraySize; i += 2) {
-    //         for (let k = 0; k < radiusCoordinatesArraySize; k += 2) {
-    //             const coordX = differencesCoordinatesArray[i] + radiusCoordinatesArray[k];
-    //             const coordY = differencesCoordinatesArray[i + 1] + radiusCoordinatesArray[k + 1];
-    //             if (coordX > 0 && coordY > 0 && coordX < height && coordY < width) {
-    //                 if (differenceMatrix[coordX][coordY] === emptyPixelValue) {
-    //                     differenceMatrix[coordX][coordY] = array2[coordX][coordY];
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     return differenceMatrix;
-    // }
 
     createDifferencesImage(differenceMatrix: number[][]) {
         const canvas = document.createElement('canvas');
