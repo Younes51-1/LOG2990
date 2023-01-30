@@ -10,9 +10,14 @@ import { AppMaterialModule } from '@app/modules/material.module';
 import { AppComponent } from '@app/pages/app/app.component';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
-import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
-import { ModalDialogComponent } from './components/modal-dialog/modal-dialog.component';
-import { CreationGamePageComponent } from './pages/creation-game-page/creation-game-page.component';
+import { SelectionPageComponent } from '@app/pages/selection-page/selection-page.component';
+import { SlickCarouselModule } from 'ngx-slick-carousel';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { GameCardComponent } from './components/game-card/game-card.component';
+import { ConfigPageComponent } from './pages/config-page/config-page.component';
+import { ConfigParamsComponent } from './components/config-params/config-params.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 /**
  * Main module that is used in main.ts.
@@ -25,14 +30,26 @@ import { CreationGamePageComponent } from './pages/creation-game-page/creation-g
         AppComponent,
         GamePageComponent,
         MainPageComponent,
-        MaterialPageComponent,
+        SelectionPageComponent,
         PlayAreaComponent,
         SidebarComponent,
-        CreationGamePageComponent,
-        ModalDialogComponent,
+        GameCardComponent,
+        ConfigPageComponent,
+        ConfigParamsComponent,
     ],
-    imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule],
     providers: [],
     bootstrap: [AppComponent],
+    imports: [
+        AppMaterialModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        BrowserModule,
+        FormsModule,
+        HttpClientModule,
+        SlickCarouselModule,
+        MatExpansionModule,
+        MatFormFieldModule,
+        MatInputModule,
+    ],
 })
 export class AppModule {}

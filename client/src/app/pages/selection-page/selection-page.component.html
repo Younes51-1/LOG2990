@@ -1,0 +1,16 @@
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.1/css/all.css" crossorigin="anonymous" />
+    <main id="main" [ngClass]="favoriteTheme" class="mat-app-background">
+        <mat-toolbar class="toolbar" color="primary">
+                <button class="home-button" routerLink="/home">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </button>
+                <span>Sélection</span>
+        </mat-toolbar>
+        <div class="container justified">
+            <ngx-slick-carousel class="carousel" #slickModal="slick-carousel" [config]="slideConfig">
+                <div ngxSlickItem *ngFor="let slide of slides" class="slide">
+                    <app-game-card [page] = "selection"></app-game-card>
+                </div>
+            </ngx-slick-carousel>
+        </div>
+    </main>

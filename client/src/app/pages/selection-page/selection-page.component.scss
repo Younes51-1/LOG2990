@@ -1,6 +1,11 @@
-main {
-    height: auto;
-    min-height: 100%;
+* {
+    font-size: 18px;
+}
+
+#main {
+    height: 100%;
+    width: 100%;
+    background: #d6c5fb;
 }
 
 mat-toolbar {
@@ -11,6 +16,7 @@ mat-toolbar {
 
     span {
         margin: auto;
+        ;
     }
 }
 
@@ -24,7 +30,39 @@ mat-toolbar {
     > * {
         margin-top: 20px;
     }
+}
 
+.slide {
+    margin-top: 100px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.btn {
+    font-size: 19px;
+    background-image: linear-gradient(#639ebd 45%, #0f8ed2 55%);
+    border-radius: 20px;
+    box-shadow: 0 2px 2px #888888;
+    transition: color 0.3s, background-image 0.5s, ease-in-out;
+}
+
+.btn:hover {
+    background-image: linear-gradient(#b1ccda 49%, #96b4c5 51%);
+    color: #03324c;
+}
+
+.home-button {
+    border: none;
+    border-radius: 20px;
+    background-image: linear-gradient(#639ebd 45%, #0f8ed2 55%);
+    background-color: transparent;
+    transition: transform 0.2s, color 0.3s, background-image 0.5s, ease-in-out;
+}
+
+.home-button:hover {
+    transform: scale(1.1);
+    background-image: linear-gradient(#b1ccda 49%, #96b4c5 51%);
+    color: #03324c;
 }
 
 @media (min-width: 768px) {
