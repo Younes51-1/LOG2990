@@ -1,4 +1,4 @@
 export const environment = {
     production: true,
-    serverUrl: 'myServerURL', // TODO: Add remote server URL
+    serverUrl: 'http://ec2-18-204-5-229.compute-1.amazonaws.com:3000/api',
 };
