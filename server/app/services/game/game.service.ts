@@ -3,22 +3,26 @@ import { GameData } from '@app/model/dto/game/gameData.dto';
 import { GameForm } from '@app/model/dto/game/gameForm.dto';
 import { NewGame } from '@app/model/dto/game/newGame.dto';
 import { BestTime } from '@app/model/schema/bestTimes.schema';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import * as fs from 'fs';
 import { Model } from 'mongoose';
 
 @Injectable()
 export class GameService {
-    constructor(@InjectModel(Game.name) public gameModel: Model<GameDocument>, private readonly logger: Logger) {}
+    constructor(@InjectModel(Game.name) public gameModel: Model<GameDocument>) {}
 
     async getAllGames(): Promise<GameForm[]> {
         const games = await this.gameModel.find({});
+        if (games === undefined || games === null) {
+            return [];
+        }
         return games.map((game) => this.convertGameToGameForm(game));
     }
 
     async getGame(name: string): Promise<GameData> {
         const game = await this.gameModel.findOne({ name });
-        if (game === null) {
+        if (game === undefined || game === null) {
             return new GameData();
         }
         return this.convertGameToGameData(game);
@@ -34,6 +38,20 @@ export class GameService {
             await this.gameModel.create(gameToSave);
         } catch (error) {
             return Promise.reject(`Failed to insert game: ${error}`);
+        }
+    }
+
+    async deleteGame(name: string): Promise<void> {
+        try {
+            const res = await this.gameModel.deleteOne({
+                name,
+            });
+            if (res.deletedCount === 0) {
+                return Promise.reject('Could not find game');
+            }
+            this.deleteImages(name);
+        } catch (error) {
+            return Promise.reject(`Failed to delete game: ${error}`);
         }
     }
 
@@ -61,14 +79,18 @@ export class GameService {
     // TODO: uncomment this function to save images & remove the eslint-disable-next-line
     // eslint-disable-next-line no-unused-vars
     private async saveImage(bufferObj: Buffer, name: string, index: string): Promise<void> {
-        // const fs = require('fs');
-        // const dirName = `./assets/${name}`;
-        // if (!fs.existsSync(dirName)) fs.mkdirSync(dirName);
-        // fs.writeFile(`${dirName}/image${index}.bmp`, bufferObj, (err) => {
-        //     if (err) {
-        //         return Promise.reject(`Failed to save image: ${err}`);
-        //     }
-        // });
+        const dirName = `./assets/${name}`;
+        if (!fs.existsSync(dirName)) fs.mkdirSync(dirName);
+        fs.writeFile(`${dirName}/image${index}.bmp`, bufferObj, async (err) => {
+            if (err) {
+                return Promise.reject(`Failed to save image: ${err}`);
+            }
+        });
+    }
+
+    private deleteImages(name: string): void {
+        const dirName = `./assets/${name}`;
+        fs.rmSync(dirName, { recursive: true, force: true });
     }
 
     private convertGameToGameForm(game: Game): GameForm {
