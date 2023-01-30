@@ -17,7 +17,7 @@ export class Game {
 
     @ApiProperty()
     @Prop({ required: true })
-    differenceMatrix: string;
+    differenceMatrix: number[][];
 
     @ApiProperty()
     @Prop({ required: true })

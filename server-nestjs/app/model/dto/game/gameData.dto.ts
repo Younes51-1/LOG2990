@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
 import { GameForm } from './gameForm.dto';
 
 export class GameData {
@@ -7,6 +6,5 @@ export class GameData {
     gameForm: GameForm;
 
     @ApiProperty()
-    @IsString()
-    differenceMatrix: string;
+    differenceMatrix: number[][];
 }

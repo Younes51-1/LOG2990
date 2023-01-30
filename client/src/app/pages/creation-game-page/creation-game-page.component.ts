@@ -1,6 +1,9 @@
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.component';
+import { NewGame } from '@app/interfaces/new-game';
+import { CommunicationService } from '@app/services/communication.service';
 import { DetectionDifferenceService } from '@app/services/detection-difference.service';
 
 enum AsciiLetterValue {
@@ -43,10 +46,16 @@ export class CreationGamePageComponent implements AfterViewInit {
     height: number;
     radius: number = 3;
     differenceCount: number;
+    differenceMatrix: number[][];
     possibleRadius: number[] = [PossibleRadius.ZERO, PossibleRadius.THREE, PossibleRadius.NINE, PossibleRadius.FIFTEEN];
     allowDisplayDiff: boolean = false;
     nameGame: string;
-    constructor(public dialog: MatDialog, private detectionService: DetectionDifferenceService) {
+    constructor(
+        private communicationService: CommunicationService,
+        public dialog: MatDialog,
+        private detectionService: DetectionDifferenceService,
+        private router: Router,
+    ) {
         this.width = 640;
         this.height = 480;
     }
@@ -148,8 +157,8 @@ export class CreationGamePageComponent implements AfterViewInit {
                 JSON.parse(JSON.stringify(image2matrix)),
                 this.radius,
             );
-            const differenceMatrix: number[][] = this.detectionService.diffrencesMatrix(image1matrix, image2matrix, this.radius);
-            this.imageDifferencesUrl = this.detectionService.createDifferencesImage(differenceMatrix);
+            this.differenceMatrix = this.detectionService.diffrencesMatrix(image1matrix, image2matrix, this.radius);
+            this.imageDifferencesUrl = this.detectionService.createDifferencesImage(this.differenceMatrix);
             this.updateDisplayDiffButton(true);
         }
     }
@@ -162,7 +171,32 @@ export class CreationGamePageComponent implements AfterViewInit {
     }
     saveNameGame(name: string) {
         this.nameGame = name;
+        const newGame: NewGame = {
+            name,
+            image1: this.convertImageToB64Url(this.canvas1.nativeElement),
+            image2: this.convertImageToB64Url(this.canvas2.nativeElement),
+            nbDifference: this.differenceCount,
+            differenceMatrix: this.differenceMatrix,
+        };
+        this.communicationService.getGame(newGame.name).subscribe((res) => {
+            // eslint-disable-next-line no-console
+            console.log(res);
+            if (res.gameForm === undefined) {
+                this.communicationService.createNewGame(newGame).subscribe({
+                    next: () => {
+                        // TODO: router vers page de configuration
+                        this.router.navigate(['/home']);
+                    },
+                    error: () => {
+                        alert('Erreur lors de la création du jeu');
+                    },
+                });
+            } else {
+                alert('Nom de jeu déjà utilisé');
+            }
+        });
     }
+
     reset(): void {
         this.inputImage1.nativeElement.value = null;
         this.inputImage2.nativeElement.value = null;
@@ -171,5 +205,9 @@ export class CreationGamePageComponent implements AfterViewInit {
         this.context1.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas1.nativeElement.height);
         this.context2.clearRect(0, 0, this.canvas2.nativeElement.width, this.canvas2.nativeElement.height);
         this.updateDisplayDiffButton(false);
+    }
+
+    convertImageToB64Url(canvas: HTMLCanvasElement): string {
+        return canvas.toDataURL().split(',')[1];
     }
 }

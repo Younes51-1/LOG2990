@@ -19,6 +19,5 @@ export class NewGame {
     nbDifference: number;
 
     @ApiProperty()
-    @IsString()
-    differenceMatrix: string;
+    differenceMatrix: number[][];
 }

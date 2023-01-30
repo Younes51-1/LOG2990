@@ -19,7 +19,7 @@ export class GameService {
     async getGame(name: string): Promise<GameData> {
         const game = await this.gameModel.findOne({ name: name });
         if (game === null) {
-            return Promise.reject(`Game ${name} does not exist`);
+            return new GameData();
         }
         return this.convertGameToGameData(game);
     }
