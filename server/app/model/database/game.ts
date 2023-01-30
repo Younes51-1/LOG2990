@@ -1,6 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document } from 'mongoose';
+// TODO: find a way to import this without using a relative path
+// eslint-disable-next-line no-restricted-imports
 import { BestTime } from '../schema/bestTimes.schema';
 
 export type GameDocument = Game & Document;

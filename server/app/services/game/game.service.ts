@@ -17,7 +17,7 @@ export class GameService {
     }
 
     async getGame(name: string): Promise<GameData> {
-        const game = await this.gameModel.findOne({ name: name });
+        const game = await this.gameModel.findOne({ name });
         if (game === null) {
             return new GameData();
         }
@@ -58,15 +58,17 @@ export class GameService {
         await this.saveImage(bufferObjImage, newGame.name, '2');
     }
 
+    // TODO: uncomment this function to save images & remove the eslint-disable-next-line
+    // eslint-disable-next-line no-unused-vars
     private async saveImage(bufferObj: Buffer, name: string, index: string): Promise<void> {
-        const fs = require('fs');
-        const dirName = `./assets/${name}`;
-        if (!fs.existsSync(dirName)) fs.mkdirSync(dirName);
-        fs.writeFile(`${dirName}/image${index}.bmp`, bufferObj, function (err) {
-            if (err) {
-                return Promise.reject(`Failed to save image: ${err}`);
-            }
-        });
+        // const fs = require('fs');
+        // const dirName = `./assets/${name}`;
+        // if (!fs.existsSync(dirName)) fs.mkdirSync(dirName);
+        // fs.writeFile(`${dirName}/image${index}.bmp`, bufferObj, (err) => {
+        //     if (err) {
+        //         return Promise.reject(`Failed to save image: ${err}`);
+        //     }
+        // });
     }
 
     private convertGameToGameForm(game: Game): GameForm {

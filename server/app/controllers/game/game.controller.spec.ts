@@ -21,4 +21,8 @@ describe.only('GameController', () => {
 
         controller = module.get<GameController>(GameController);
     });
+
+    it('should be defined', () => {
+        expect(controller).toBeDefined();
+    });
 });
