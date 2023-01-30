@@ -2,7 +2,7 @@ import { GameData } from '@app/model/dto/game/gameData.dto';
 import { GameForm } from '@app/model/dto/game/gameForm.dto';
 import { NewGame } from '@app/model/dto/game/newGame.dto';
 import { GameService } from '@app/services/game/game.service';
-import { Body, Controller, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
 import { ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 
@@ -20,7 +20,7 @@ export class GameController {
         description: 'Return NOT_FOUND http status when request fails',
     })
     @Get('/')
-    async allCourses(@Res() response: Response) {
+    async getAllGames(@Res() response: Response) {
         try {
             const allGames = await this.gameService.getAllGames();
             response.status(HttpStatus.OK).json(allGames);
@@ -37,7 +37,7 @@ export class GameController {
         description: 'Return NOT_FOUND http status when request fails',
     })
     @Get('/:name')
-    async subjectCode(@Param('name') name: string, @Res() response: Response) {
+    async getGameByName(@Param('name') name: string, @Res() response: Response) {
         try {
             const game = await this.gameService.getGame(name);
             response.status(HttpStatus.OK).json(game);
@@ -53,11 +53,26 @@ export class GameController {
         description: 'Return NOT_FOUND http status when request fails',
     })
     @Post('/')
-    @ApiOkResponse()
-    async getUserInformationById(@Body() newGame: NewGame, @Res() response: Response) {
+    async createNewGame(@Body() newGame: NewGame, @Res() response: Response) {
         try {
             await this.gameService.createNewGame(newGame);
             response.status(HttpStatus.CREATED).send();
+        } catch (error) {
+            response.status(HttpStatus.NOT_FOUND).send(error.message);
+        }
+    }
+
+    @ApiOkResponse({
+        description: 'Delete a game',
+    })
+    @ApiNotFoundResponse({
+        description: 'Return NOT_FOUND http status when request fails',
+    })
+    @Delete('/:name')
+    async deleteGame(@Param('name') name: string, @Res() response: Response) {
+        try {
+            await this.gameService.deleteGame(name);
+            response.status(HttpStatus.OK).send();
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send(error.message);
         }

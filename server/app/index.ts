@@ -12,9 +12,9 @@ const bootstrap = async () => {
     app.use(json({ limit: '50mb' }));
     app.use(urlencoded({ extended: true, limit: '50mb' }));
     const config = new DocumentBuilder()
-        .setTitle('Cadriciel Serveur')
-        .setDescription('Serveur du projet de base pour le cours de LOG2990')
-        .setVersion('1.0.0')
+        .setTitle('Server - Jeu des différences')
+        .setDescription('Serveur du projet 2, équipe 204, pour le cours de LOG2990')
+        .setVersion('0.1.0')
         .build();
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api/docs', app, document);
