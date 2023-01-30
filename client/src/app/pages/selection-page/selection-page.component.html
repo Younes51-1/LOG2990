@@ -1,13 +1,16 @@
-<mat-toolbar color="primary">
-    <span>Sélection du jeu</span>
-</mat-toolbar>
-<div class="container justified">
-    <ngx-slick-carousel class="carousel" #slickModal="slick-carousel" [config]="slideConfig" (init)="slickInit($event)"
-        (breakpoint)="breakpoint($event)" (afterChange)="afterChange($event)" (beforeChange)="beforeChange($event)">
-        <div ngxSlickItem *ngFor="let slide of slides" class="slide">
-            <app-game-card></app-game-card>
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.1/css/all.css" crossorigin="anonymous" />
+    <main id="main" [ngClass]="favoriteTheme" class="mat-app-background">
+        <mat-toolbar class="toolbar" color="primary">
+                <button class="home-button" routerLink="/home">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </button>
+                <span>Sélection</span>
+        </mat-toolbar>
+        <div class="container justified">
+            <ngx-slick-carousel class="carousel" #slickModal="slick-carousel" [config]="slideConfig">
+                <div ngxSlickItem *ngFor="let slide of slides" class="slide">
+                    <app-game-card [page] = "selection"></app-game-card>
+                </div>
+            </ngx-slick-carousel>
         </div>
-    </ngx-slick-carousel>
-</div>
-<button (click)="addSlide()" class="btn">Nouvelle fiche (temporaire)</button>
-<button (click)="removeSlide()" class="btn">Retirer fiche (temporaire)</button>
+    </main>

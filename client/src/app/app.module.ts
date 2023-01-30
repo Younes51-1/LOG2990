@@ -14,6 +14,10 @@ import { SelectionPageComponent } from '@app/pages/selection-page/selection-page
 import { SlickCarouselModule } from 'ngx-slick-carousel';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { GameCardComponent } from './components/game-card/game-card.component';
+import { ConfigPageComponent } from './pages/config-page/config-page.component';
+import { ConfigParamsComponent } from './components/config-params/config-params.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 /**
  * Main module that is used in main.ts.
@@ -30,6 +34,8 @@ import { GameCardComponent } from './components/game-card/game-card.component';
         PlayAreaComponent,
         SidebarComponent,
         GameCardComponent,
+        ConfigPageComponent,
+        ConfigParamsComponent,
     ],
     providers: [],
     bootstrap: [AppComponent],
@@ -42,6 +48,8 @@ import { GameCardComponent } from './components/game-card/game-card.component';
         HttpClientModule,
         SlickCarouselModule,
         MatExpansionModule,
+        MatFormFieldModule,
+        MatInputModule,
     ],
 })
 export class AppModule {}
