@@ -27,7 +27,7 @@ export class GameCardComponent implements OnInit {
     bestPvpThree = 3;
 
     ngOnInit() {
-        const { routeOne, btnOne, routeTwo, btnTwo } = options[this.page];
+        const { routeOne, btnOne, routeTwo, btnTwo } = options[this.page] || {};
         this.routeOne = routeOne;
         this.btnOne = btnOne;
         this.routeTwo = routeTwo;
