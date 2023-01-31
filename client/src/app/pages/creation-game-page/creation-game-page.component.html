@@ -25,8 +25,25 @@
 <fieldset>
     <legend>Choix du rayon d'élargissement</legend>
     <div *ngFor="let radius of possibleRadius">
-        <input *ngIf="radius !== 3" type="radio" #rayon{{radius}} name="choixRayon" value="{{ radius }}" (click)="updateRadius(radius)" />
-        <input *ngIf="radius === 3" type="radio" #rayon{{radius}} name="choixRayon" value="{{ radius }}" (click)="updateRadius(radius)" checked />
+        <input
+            *ngIf="radius !== 3"
+            id="rayon{{ radius }}"
+            type="radio"
+            #rayon{{radius}}
+            name="choixRayon"
+            value="{{ radius }}"
+            (click)="updateRadius(radius)"
+        />
+        <input
+            *ngIf="radius === 3"
+            id="rayon{{ radius }}"
+            type="radio"
+            #rayon{{radius}}
+            name="choixRayon"
+            value="{{ radius }}"
+            (click)="updateRadius(radius)"
+            checked
+        />
         <label for="rayon{{ radius }}">{{ radius }}</label>
     </div>
 </fieldset>
