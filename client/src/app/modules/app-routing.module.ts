@@ -12,6 +12,7 @@ const routes: Routes = [
     { path: 'config', component: ConfigPageComponent },
     { path: 'game', component: GamePageComponent },
     { path: 'selection', component: SelectionPageComponent },
+    { path: 'creation', component: CreationGamePageComponent },
     { path: '**', redirectTo: '/home' },
 ];
 

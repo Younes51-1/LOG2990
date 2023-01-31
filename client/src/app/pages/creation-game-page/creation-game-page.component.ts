@@ -50,6 +50,7 @@ export class CreationGamePageComponent implements AfterViewInit {
     possibleRadius: number[] = [PossibleRadius.ZERO, PossibleRadius.THREE, PossibleRadius.NINE, PossibleRadius.FIFTEEN];
     allowDisplayDiff: boolean = false;
     nameGame: string;
+
     // TODO: Refactor this function
     // eslint-disable-next-line max-params
     constructor(
@@ -187,7 +188,7 @@ export class CreationGamePageComponent implements AfterViewInit {
                 this.communicationService.createNewGame(newGame).subscribe({
                     next: () => {
                         // TODO: router vers page de configuration
-                        this.router.navigate(['/home']);
+                        this.router.navigate(['/config']);
                     },
                     error: () => {
                         alert('Erreur lors de la création du jeu');

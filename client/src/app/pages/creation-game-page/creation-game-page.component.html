@@ -1,4 +1,4 @@
-<button class="button" routerLink="/home">Configuration (mettre le vrai lien)</button>
+<button class="button" routerLink='/config'>Configuration</button>
 <div id="images-container">
     <div class="images-zone">
         <canvas #canvas1 [attr.width]="width" [attr.height]="height"></canvas>
@@ -25,8 +25,8 @@
 <fieldset>
     <legend>Choix du rayon d'élargissement</legend>
     <div *ngFor="let radius of possibleRadius">
-        <input *ngIf="radius !== 3" type="radio" #rayon{{radius}} name="choixRayon" value="{{ radius }}" (click)="updateRadius(radius)" />
-        <input *ngIf="radius === 3" type="radio" #rayon{{radius}} name="choixRayon" value="{{ radius }}" (click)="updateRadius(radius)" checked />
-        <label for="rayon{{ radius }}">{{ radius }}</label>
+        <input *ngIf="radius !== 3" type="radio" #rayon{{radius}} name="choixRayon" value={{(radius)}} (click)="updateRadius(radius)" />
+        <input *ngIf="radius === 3" type="radio" #rayon{{radius}} name="choixRayon" value={{(radius)}} (click)="updateRadius(radius)" checked/>
+        <label for="rayon{{radius}}">{{radius}}</label>
     </div>
 </fieldset>
