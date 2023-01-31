@@ -1,14 +1,5 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatIconModule } from '@angular/material/icon';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatDialog } from '@angular/material/dialog';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { Router } from '@angular/router';
 import { ConfigPageComponent } from '@app/pages/config-page/config-page.component';
@@ -22,19 +13,7 @@ describe('ConfigPageComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [ConfigPageComponent],
-            imports: [
-                BrowserAnimationsModule,
-                FormsModule,
-                MatButtonModule,
-                MatCardModule,
-                MatDialogModule,
-                MatExpansionModule,
-                MatIconModule,
-                MatRadioModule,
-                MatToolbarModule,
-                MatTooltipModule,
-                AppRoutingModule,
-            ],
+            imports: [AppRoutingModule],
             providers: [
                 {
                     provide: MatDialog,
