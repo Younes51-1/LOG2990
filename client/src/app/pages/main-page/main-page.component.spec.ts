@@ -1,8 +1,8 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-// import { fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
-import { RouterTestingModule } from '@angular/router/testing';
-// import { Location } from '@angular/common';
+import { Location } from '@angular/common';
+import { By } from '@angular/platform-browser';
+import { AppRoutingModule } from '@app/modules/app-routing.module';
 
 describe('MainPageComponent', () => {
     let component: MainPageComponent;
@@ -11,7 +11,7 @@ describe('MainPageComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [MainPageComponent],
-            imports: [RouterTestingModule],
+            imports: [AppRoutingModule],
         }).compileComponents();
     });
 
@@ -83,13 +83,11 @@ describe('MainPageComponent', () => {
         expect(limitedBtn.innerHTML).toEqual('CHRONO');
     });
 
-    // it('should show the configuration page on click of the configuration button', fakeAsync(() => {
-    //     const location = TestBed.inject(Location);
-    //     const configSections = fixture.debugElement.nativeElement.getElementsByClassName('header-section')[0];
-    //     const configBtn = configSections.getElementsByTagName('button')[0];
-    //     console.log('location path: ' + location.path());
-    //     configBtn.click();
-    //     tick();
-    //     expect(location.path()).toEqual('/config');
-    // }));
+    it('should show the configuration page on click of the configuration button', fakeAsync(() => {
+        const location = TestBed.inject(Location);
+        const configBtn = fixture.debugElement.query(By.css('.header-section')).children[0].nativeElement;
+        configBtn.click();
+        tick();
+        expect(location.path()).toEqual('/config');
+    }));
 });

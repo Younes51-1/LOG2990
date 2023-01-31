@@ -48,11 +48,16 @@ describe('ConfigPageComponent', () => {
         expect(fixture.componentInstance).toBeTruthy();
     }));
 
+    it('should contain a carousel', () => {
+        const carousel = fixture.debugElement.query(By.css('.carousel')).nativeElement;
+        expect(carousel).not.toBeUndefined();
+    });
+
     it('should have slides in the carousel', () => {
         expect(component.slides.length).toBeGreaterThan(0);
     });
 
-    it('should show 4 slides at a time', () => {
+    it('should show up to 4 slides at a time', () => {
         const slidesToShow = 4;
         expect(component.slideConfig.slidesToShow).toEqual(slidesToShow);
     });
@@ -66,4 +71,12 @@ describe('ConfigPageComponent', () => {
         const centeredBtn = fixture.debugElement.query(By.css('.centered-btn')).children[0].nativeElement;
         expect(centeredBtn.getAttribute('ng-reflect-router-link')).toEqual('/gameCreation');
     });
+
+    it('should show the game creation page on click of the Game Creation button', fakeAsync(() => {
+        const location = TestBed.inject(Location);
+        const centeredBtn = fixture.debugElement.query(By.css('.centered-btn')).children[0].nativeElement;
+        centeredBtn.click();
+        tick();
+        expect(location.path()).toEqual('/gameCreation');
+    }));
 });

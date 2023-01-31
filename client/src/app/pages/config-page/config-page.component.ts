@@ -54,14 +54,14 @@ export class ConfigPageComponent {
 
     config = PageKeys.Config;
 
-    gameCreationLink = '/config';
+    gameCreationLink = '/gameCreation';
 
     // TODO: Remove after the demo.
-    addSlide() {
-        this.slides.push({ img: '..assetslogo.jpg' });
-    }
+    // addSlide() {
+    //     this.slides.push({ img: '..assetslogo.jpg' });
+    // }
 
-    removeSlide() {
-        this.slides.length = this.slides.length - 1;
-    }
+    // removeSlide() {
+    //     this.slides.length = this.slides.length - 1;
+    // }
 }
