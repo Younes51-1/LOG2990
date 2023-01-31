@@ -23,7 +23,7 @@ export class SidebarComponent {
         this.seconds = 0;
         this.milliseconds = 0;
 
-        this.intervalId = setInterval(() => {
+        setInterval(() => {
             this.seconds++;
             if (this.seconds === 60) {
                 this.seconds = 0;

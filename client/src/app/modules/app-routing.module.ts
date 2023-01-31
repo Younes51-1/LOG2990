@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { CreationGamePageComponent } from '@app/pages/creation-game-page/creation-game-page.component';
+// import { CreationGamePageComponent } from '@app/pages/creation-game-page/creation-game-page.component';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { ConfigPageComponent } from '@app/pages/config-page/config-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
