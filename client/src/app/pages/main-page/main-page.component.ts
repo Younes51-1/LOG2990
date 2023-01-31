@@ -17,7 +17,7 @@ export class MainPageComponent {
         ' Dumitru Zlotea',
     ];
 
-    readonly configLink = '/game';
+    readonly configLink = '/config';
     readonly classiqueLink = '/game';
     readonly limitedLink = '/game';
     readonly cheatModeLink = '/game';

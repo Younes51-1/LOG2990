@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+// import { fakeAsync, tick } from '@angular/core/testing';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { RouterTestingModule } from '@angular/router/testing';
+// import { Location } from '@angular/common';
 
 describe('MainPageComponent', () => {
     let component: MainPageComponent;
@@ -80,4 +82,14 @@ describe('MainPageComponent', () => {
         expect(limitedBtn).not.toBeUndefined();
         expect(limitedBtn.innerHTML).toEqual('CHRONO');
     });
+
+    // it('should show the configuration page on click of the configuration button', fakeAsync(() => {
+    //     const location = TestBed.inject(Location);
+    //     const configSections = fixture.debugElement.nativeElement.getElementsByClassName('header-section')[0];
+    //     const configBtn = configSections.getElementsByTagName('button')[0];
+    //     console.log('location path: ' + location.path());
+    //     configBtn.click();
+    //     tick();
+    //     expect(location.path()).toEqual('/config');
+    // }));
 });

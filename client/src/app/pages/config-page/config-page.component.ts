@@ -46,10 +46,17 @@ export class ConfigPageComponent {
     slideConfig = {
         slidesToShow: 4,
         slidesToScroll: 4,
+        lazyLoad: 'ondemand',
+        cssEase: 'linear',
+        dots: true,
+        appendArrows: 'ngx-slick-carousel',
     };
 
     config = PageKeys.Config;
 
+    gameCreationLink = '/config';
+
+    // TODO: Remove after the demo.
     addSlide() {
         this.slides.push({ img: '..assetslogo.jpg' });
     }
