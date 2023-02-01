@@ -1,4 +1,4 @@
-import { SERVER_URL } from '@app/constants';
+import { DIFFICULTY_THRESHOLD, SERVER_URL } from '@app/constants';
 import { Game, GameDocument } from '@app/model/database/game';
 import { GameData } from '@app/model/dto/game/gameData.dto';
 import { GameForm } from '@app/model/dto/game/gameForm.dto';
@@ -100,6 +100,7 @@ export class GameService {
         gameForm.nbDifference = game.nbDifference;
         gameForm.image1url = `${SERVER_URL}/${game.name}/image1.bmp`;
         gameForm.image2url = `${SERVER_URL}/${game.name}/image2.bmp`;
+        gameForm.difficulte = this.calculateDifficulty(game.nbDifference);
         gameForm.soloBestTimes = game.soloBestTimes;
         gameForm.vsBestTimes = game.vsBestTimes;
         return gameForm;
@@ -118,5 +119,13 @@ export class GameService {
             { name: 'Medium', time: '2:00' },
             { name: 'Hard', time: '1:00' },
         ];
+    }
+
+    private calculateDifficulty(nbDifference: number): string {
+        if (nbDifference <= DIFFICULTY_THRESHOLD) {
+            return 'facile';
+        } else {
+            return 'difficile';
+        }
     }
 }

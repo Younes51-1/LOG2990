@@ -21,6 +21,10 @@ export class GameForm {
 
     @ApiProperty()
     @IsString()
+    difficulte: string;
+
+    @ApiProperty()
+    @IsString()
     soloBestTimes: BestTime[];
 
     @ApiProperty()
