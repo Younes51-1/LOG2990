@@ -2,6 +2,7 @@ import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testin
 import { GameCardComponent } from './game-card.component';
 import { PageKeys } from './game-card-options';
 import { Location } from '@angular/common';
+import { AppRoutingModule } from '@app/modules/app-routing.module';
 
 describe('GameCardComponent', () => {
     let component: GameCardComponent;
@@ -10,6 +11,7 @@ describe('GameCardComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [GameCardComponent],
+            imports: [AppRoutingModule],
         }).compileComponents();
 
         fixture = TestBed.createComponent(GameCardComponent);
@@ -60,11 +62,10 @@ describe('GameCardComponent', () => {
         const location = TestBed.inject(Location);
         component.page = PageKeys.Selection;
         component.ngOnInit();
+        fixture.detectChanges();
         const playBtn = fixture.debugElement.nativeElement.getElementsByClassName('btn')[0];
         playBtn.click();
         tick();
-        fixture.detectChanges();
-        console.log(playBtn);
         expect(location.path()).toEqual('/game');
     }));
 });

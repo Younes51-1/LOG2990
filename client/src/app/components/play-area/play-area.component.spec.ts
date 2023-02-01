@@ -55,4 +55,9 @@ describe('PlayAreaComponent', () => {
         component.buttonDetect(buttonEvent);
         expect(component.buttonPressed).toEqual(expectedKey);
     });
+
+    it('should have two canvases', () => {
+        const canvases = fixture.debugElement.nativeElement.getElementsByClassName('canvas-container');
+        expect(canvases.length).toEqual(2);
+    });
 });

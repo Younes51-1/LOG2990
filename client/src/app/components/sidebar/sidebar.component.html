@@ -1,12 +1,12 @@
 <div class="sidebar-container">
     <div>
-        <p>Welcome to {{gameName}} {{player}} !</p>
-        <p>{{gameMode}}</p>
-        <p>{{difficulty}}</p>
-        <p>You have to find a total of {{totalNumber}} differences</p>
-        <p>There is {{totalLeft}} differences left</p>
+        <p class="gameName">Welcome to {{gameName}} {{player}} !</p>
+        <p class="gameMode">{{gameMode}}</p>
+        <p class="difficulty">{{difficulty}}</p>
+        <p class="totalNumber">You have to find a total of {{totalNumber}} differences</p>
+        <p class="totalLeft">There is {{totalLeft}} differences left</p>
     </div>
-    <div>
+    <div class="timer">
         <p>TIMER</p>
         <p>{{ minutes | number:'2.0-0' }}:{{ seconds | number:'2.0-0' }}</p>
     </div>

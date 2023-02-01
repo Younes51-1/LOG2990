@@ -22,4 +22,9 @@ describe('GamePageComponent', () => {
     it('should create', () => {
         expect(component).toBeTruthy();
     });
+
+    it('should contain a sidebar', () => {
+        const sidebar = fixture.debugElement.nativeElement.querySelector('app-sidebar');
+        expect(sidebar).not.toBeNull();
+    });
 });
