@@ -11,7 +11,7 @@ export class ModalDialogComponent implements AfterViewInit {
     width: number;
     height: number;
 
-    constructor(@Inject(MAT_DIALOG_DATA) public data: { imageUrl: string; nbDifferences: number; nbImageFlipped: number }) {
+    constructor(@Inject(MAT_DIALOG_DATA) public data: { imageUrl: string; nbDifferences: number; flipped: boolean }) {
         this.width = 640;
         this.height = 480;
     }
@@ -24,8 +24,10 @@ export class ModalDialogComponent implements AfterViewInit {
         const image = new Image();
         image.src = this.data.imageUrl;
         image.onload = () => {
-            context.translate(0, canvas.height);
-            context.scale(scale.x, scale.y);
+            if (this.data.flipped) {
+                context.translate(0, canvas.height);
+                context.scale(scale.x, scale.y);
+            }
             context.drawImage(image, 0, 0, this.width, this.height);
         };
     }

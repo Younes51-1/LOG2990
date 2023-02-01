@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { PageKeys } from '@app/components/game-card/game-card-options';
 import { GameForm } from '@app/interfaces/game-form';
 import { CommunicationService } from '@app/services/communication.service';
@@ -30,7 +30,7 @@ export const MATERIAL_DEFAULT_PREBUILT_THEME = MATERIAL_PREBUILT_THEMES[0];
     templateUrl: './selection-page.component.html',
     styleUrls: ['./selection-page.component.scss'],
 })
-export class SelectionPageComponent implements OnInit {
+export class SelectionPageComponent {
     readonly themes = MATERIAL_PREBUILT_THEMES;
 
     favoriteTheme: string = MATERIAL_DEFAULT_PREBUILT_THEME.value;
@@ -44,16 +44,14 @@ export class SelectionPageComponent implements OnInit {
 
     selection = PageKeys.Selection;
 
-    constructor(private readonly communicationService: CommunicationService) {}
+    constructor(private readonly communicationService: CommunicationService) {
+        this.getSlidesFromServer();
+    }
 
     getSlidesFromServer(): void {
         const component = this;
         this.communicationService.getAllGames().subscribe((res) => {
             component.slides = res;
         });
-    }
-
-    ngOnInit() {
-        this.getSlidesFromServer();
     }
 }

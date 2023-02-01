@@ -49,6 +49,7 @@ export class CreationGamePageComponent implements AfterViewInit {
     possibleRadius: number[] = [PossibleRadius.ZERO, PossibleRadius.THREE, PossibleRadius.NINE, PossibleRadius.FIFTEEN];
     allowDisplayDiff: boolean = false;
     nameGame: string;
+    flipImage: boolean = false;
 
     // TODO: Refactor this function
     // eslint-disable-next-line max-params
@@ -68,6 +69,7 @@ export class CreationGamePageComponent implements AfterViewInit {
             data: {
                 imageUrl: this.imageDifferencesUrl,
                 nbDifferences: this.differenceCount,
+                flipped: this.flipImage,
             },
         });
     }
@@ -122,7 +124,7 @@ export class CreationGamePageComponent implements AfterViewInit {
                 const data = new Uint8Array(reader.result as ArrayBuffer);
                 const isBmp = data[0] === AsciiLetterValue.B && data[1] === AsciiLetterValue.M;
                 const is24BitPerPixel = data[OffsetValues.DHP] === BIT_PER_PIXEL;
-
+                this.flipImage = new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.HEIGHT, true) < 0;
                 if (!(isBmp && is24BitPerPixel) || !hasCorrectDimensions) {
                     img.value = '';
                 }

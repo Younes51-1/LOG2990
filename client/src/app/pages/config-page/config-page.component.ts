@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { PageKeys } from '@app/components/game-card/game-card-options';
 import { GameForm } from '@app/interfaces/game-form';
 import { CommunicationService } from '@app/services/communication.service';
@@ -30,7 +30,7 @@ export const MATERIAL_DEFAULT_PREBUILT_THEME = MATERIAL_PREBUILT_THEMES[0];
     templateUrl: './config-page.component.html',
     styleUrls: ['./config-page.component.scss'],
 })
-export class ConfigPageComponent implements OnInit {
+export class ConfigPageComponent {
     readonly themes = MATERIAL_PREBUILT_THEMES;
 
     favoriteTheme: string = MATERIAL_DEFAULT_PREBUILT_THEME.value;
@@ -43,7 +43,9 @@ export class ConfigPageComponent implements OnInit {
     };
 
     config = PageKeys.Config;
-    constructor(private readonly communicationService: CommunicationService) {}
+    constructor(private readonly communicationService: CommunicationService) {
+        this.getSlidesFromServer();
+    }
 
     removeSlide(name: string) {
         this.slides = this.slides.filter((slide) => slide.name !== name);
@@ -58,9 +60,5 @@ export class ConfigPageComponent implements OnInit {
         this.communicationService.getAllGames().subscribe((res) => {
             component.slides = res;
         });
-    }
-
-    ngOnInit() {
-        this.getSlidesFromServer();
     }
 }
