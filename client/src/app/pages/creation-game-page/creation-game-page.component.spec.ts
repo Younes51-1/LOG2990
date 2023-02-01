@@ -43,6 +43,7 @@ describe('CreationGamePageComponent', () => {
             expect(component.radius).toBe(radius);
         }
     });
+
     it('by default, radio button 3 must be selected', () => {
         const inputRayon3 = fixture.debugElement.nativeElement.querySelector('#rayon3');
         expect(inputRayon3.checked).toBeTruthy();
@@ -59,5 +60,69 @@ describe('CreationGamePageComponent', () => {
         component.reset();
         expect(spyReset).toHaveBeenCalled();
         expect(spyClearRect).toHaveBeenCalled();
+    });
+
+    it('changing image should call verifyImageFormat', () => {
+        const spy = spyOn(component, 'verifyImageFormat');
+        expect(spy).not.toHaveBeenCalled();
+        const image = fixture.debugElement.nativeElement.querySelector('#image1');
+        image.dispatchEvent(new Event('change'));
+        expect(spy).toHaveBeenCalled();
+    });
+
+    // it('verifyImageFormat should not accept bmp image with wrong depth', () => {
+    //     const spy = spyOn(component, 'verifyImageFormat').and.callThrough();
+    //     const spy2 = spyOn(component, 'updateImageDisplay');
+    //     const image = fixture.debugElement.nativeElement.querySelector('#image1');
+
+    //     const dataTransfer = new DataTransfer();
+    //     const file = new File([''], 'image_wrong_bit_depth.bmp');
+    //     dataTransfer.items.add(file);
+    //     image.files = dataTransfer.files;
+    //     image.dispatchEvent(new Event('change'));
+
+    //     expect(image.value).toEqual('');
+    //     expect(spy).toHaveBeenCalled();
+    //     expect(true).toBeTruthy();
+    //     expect(spy2).toHaveBeenCalled();
+    // });
+
+    it('openDifferencesDialog should call runDetectionSystem and dialog.open', async () => {
+        const spy = spyOn(component, 'runDetectionSystem');
+        const spy2 = spyOn(component.dialog, 'open');
+        await component.openDifferencesDialog();
+        expect(spy).toHaveBeenCalled();
+        expect(spy2).toHaveBeenCalled();
+    });
+
+    it('updateImageDisplay should update image1 display', () => {
+        const spy = spyOn(URL, 'createObjectURL');
+        const image1 = fixture.debugElement.nativeElement.querySelector('#image1');
+        const file = new File([''], 'image_empty.bmp', { type: 'image/bmp' });
+        const event = { target: { files: [file] } } as unknown as Event;
+        component.updateImageDisplay(event, image1);
+        expect(fixture.componentInstance.image1).toEqual(image1);
+        expect(spy).toHaveBeenCalled();
+    });
+
+    it('updateImageDisplay should update image2 display', () => {
+        const spy = spyOn(URL, 'createObjectURL');
+        const image2 = fixture.debugElement.nativeElement.querySelector('#image2');
+        const file = new File([''], 'image_empty.bmp', { type: 'image/bmp' });
+        const event = { target: { files: [file] } } as unknown as Event;
+        component.updateImageDisplay(event, image2);
+        expect(component.image2).toEqual(image2);
+        expect(spy).toHaveBeenCalled();
+    });
+
+    it('updateImageDisplay should update image1et2 display', () => {
+        const spy = spyOn(URL, 'createObjectURL');
+        const image1et2 = fixture.debugElement.nativeElement.querySelector('#images1et2');
+        const file = new File([''], 'image_empty.bmp', { type: 'image/bmp' });
+        const event = { target: { files: [file] } } as unknown as Event;
+        component.updateImageDisplay(event, image1et2);
+        expect(component.image1).toEqual(image1et2);
+        expect(component.image2).toEqual(image1et2);
+        expect(spy).toHaveBeenCalled();
     });
 });

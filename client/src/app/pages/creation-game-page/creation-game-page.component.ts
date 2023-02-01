@@ -55,7 +55,7 @@ export class CreationGamePageComponent implements AfterViewInit {
     constructor(
         private communicationService: CommunicationService,
         public dialog: MatDialog,
-        private detectionService: DetectionDifferenceService,
+        public detectionService: DetectionDifferenceService,
         private router: Router,
     ) {
         this.width = 640;
