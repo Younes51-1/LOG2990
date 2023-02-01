@@ -9,7 +9,7 @@
         <div class="container justified">
             <ngx-slick-carousel class="carousel" [config]="slideConfig">
                 <div ngxSlickItem *ngFor="let slide of slides" class="slide">
-                    <app-game-card [page]="config"></app-game-card>
+                    <app-game-card [slide]="slide" [page]="config" (notify)="deleteNotify($event)"></app-game-card>
                 </div>
             </ngx-slick-carousel>
             <div class="centered-btn">

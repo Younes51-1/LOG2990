@@ -1,9 +1,9 @@
 <div id="grid-container">
-    <img class="image" src="../../../assets/card.png" alt="card" width="95%" />
-    <p>{{gameTitle}}</p>
-    <p>{{difficultyLevel}}</p>
-    <p>Meilleurs temps solo ({{bestSoloTimeOne}},{{bestSoloTimeTwo}},{{bestSoloTimeThree}})</p>
-    <p>Meilleur temps un contre un ({{bestPvpOne}},{{bestPvpTwo}},{{bestPvpThree}})</p>
-    <button class="btn" routerLink="{{ routeOne }}">{{ btnOne }}</button>
-    <button class="btn" routerLink="{{ routeTwo }}">{{ btnTwo }}</button>
+    <img class="image" src="{{slide.image1url}}" alt="card" width="95%" />
+    <p>{{slide.name}}</p>
+    <p>{{slide.nbDifference}}</p>
+    <p>Meilleurs temps solo<p *ngFor = "let time of slide.soloBestTimes">{{time.name}} => {{time.time}}</p>
+    <p>Meilleur temps un contre un <p *ngFor = "let time of slide.vsBestTimes">{{time.name}} => {{time.time}}</p>
+    <button class="btn" routerLink="{{ routeOne }}" (click)="btnOneEmitter()">{{ btnOne }}</button>
+    <button class="btn" routerLink="{{ routeTwo }}" (click)="btnTwoEmitter()">{{ btnTwo }}</button>
 </div>

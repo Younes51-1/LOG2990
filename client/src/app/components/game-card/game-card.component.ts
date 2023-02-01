@@ -1,5 +1,6 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { options, PageKeys } from './game-card-options';
+import { GameForm } from '@app/interfaces/game-form';
 
 @Component({
     selector: 'app-game-card',
@@ -8,23 +9,14 @@ import { options, PageKeys } from './game-card-options';
 })
 export class GameCardComponent implements OnInit {
     @Input() page: PageKeys;
+    @Input() slide: GameForm;
+
+    @Output() notify = new EventEmitter();
 
     routeOne: string;
     btnOne: string;
     routeTwo: string;
     btnTwo: string;
-
-    gameTitle = 'Titre';
-
-    difficultyLevel = 'Niveau de difficulté';
-
-    bestSoloTimeOne = 1;
-    bestSoloTimeTwo = 2;
-    bestSoloTimeThree = 3;
-
-    bestPvpOne = 1;
-    bestPvpTwo = 2;
-    bestPvpThree = 3;
 
     ngOnInit() {
         const { routeOne, btnOne, routeTwo, btnTwo } = options[this.page];
@@ -32,5 +24,13 @@ export class GameCardComponent implements OnInit {
         this.btnOne = btnOne;
         this.routeTwo = routeTwo;
         this.btnTwo = btnTwo;
+    }
+
+    btnOneEmitter() {
+        this.notify.emit(this.slide.name);
+    }
+
+    btnTwoEmitter() {
+        this.notify.emit(this.slide);
     }
 }

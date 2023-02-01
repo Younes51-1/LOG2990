@@ -36,6 +36,10 @@ export class CommunicationService {
         return this.http.post(`${this.baseUrl}/game`, newGame, { observe: 'response', responseType: 'text' });
     }
 
+    deleteGame(name: string): Observable<HttpResponse<string>> {
+        return this.http.delete(`${this.baseUrl}/game/${name}`, { observe: 'response', responseType: 'text' });
+    }
+
     private handleError<T>(request: string, result?: T): (error: Error) => Observable<T> {
         return () => of(result as T);
     }

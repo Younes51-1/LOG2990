@@ -1,5 +1,10 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input } from '@angular/core';
+
+// TODO : Avoir un fichier séparé pour les constantes!
+enum Time {
+    HalfMinute = 30,
+    FiveSeconds = 5,
+}
 
 @Component({
     selector: 'app-config-params',
@@ -7,18 +12,14 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
     styleUrls: ['./config-params.component.scss'],
 })
 export class ConfigParamsComponent {
-    @Input() initialTime = 30;
-    @Input() penaltyTime = 5;
-    @Input() bonusTime = 5;
-
-    @Output() initialTimeChange = new EventEmitter();
-    @Output() penaltyTimeChange = new EventEmitter();
-    @Output() bonusTimeChange = new EventEmitter();
+    @Input() initialTime = Time.HalfMinute;
+    @Input() penaltyTime = Time.FiveSeconds;
+    @Input() bonusTime = Time.FiveSeconds;
 
     increaseValue(time: string) {
         switch (time) {
             case 'initialTime':
-                this.initialTime += 5;
+                this.initialTime += Time.FiveSeconds;
                 break;
             case 'penaltyTime':
                 this.penaltyTime++;
@@ -34,7 +35,7 @@ export class ConfigParamsComponent {
     decreaseValue(time: string) {
         switch (time) {
             case 'initialTime':
-                this.initialTime -= 5;
+                this.initialTime -= Time.FiveSeconds;
                 break;
             case 'penaltyTime':
                 this.penaltyTime--;

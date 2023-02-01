@@ -1,17 +1,17 @@
 <h2>Paramètres:</h2>
-<label> Rnadom ID: </label>
+<label> Random ID: </label>
 <li><label>Temps initial du compte à rebours (s): 
-    <button>-</button>
+    <button (click)="decreaseValue('initialTime')">-</button>
     <input value="{{ initialTime }}"/>
-    <button>+</button>
+    <button (click)="increaseValue('initialTime')">+</button>
 </label></li>
 <li><label>Temps de pénalité pour l’utilisation d’un indice (s): 
-    <button>-</button>
+    <button (click)="decreaseValue('penaltyTime')">-</button>
     <input value="{{ penaltyTime }}"/>
-    <button>+</button>
+    <button (click)="increaseValue('penaltyTime')">+</button>
 </label></li>
 <li><label>Temps gagné avec la découverte d’une différence (s): 
-    <button>-</button>
+    <button (click)="decreaseValue('bonusTime')">-</button>
     <input value="{{ bonusTime }}"/>
-    <button>+</button>
+    <button (click)="increaseValue('bonusTime')">+</button>
 </label></li>
