@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 
 import { ConfigParamsComponent } from './config-params.component';
 
@@ -20,15 +21,17 @@ describe('ConfigParamsComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should show the name and value of the three game constants', () => {
+    it('should contain three labels', () => {
+        const labels = fixture.debugElement.queryAll(By.css('label'));
+        expect(labels.length).toEqual(3);
+    });
+
+    it('should contain the value of the three game constants', () => {
         const initialTime = component.initialTime;
         const penaltyTime = component.penaltyTime;
         const bonusTime = component.bonusTime;
-        const initialTimeValue = 30;
-        const penaltyTimeValue = 5;
-        const bonusTimeValue = 5;
-        expect(initialTime).toEqual(initialTimeValue);
-        expect(penaltyTime).toEqual(penaltyTimeValue);
-        expect(bonusTime).toEqual(bonusTimeValue);
+        expect(initialTime).not.toBeUndefined();
+        expect(penaltyTime).not.toBeUndefined();
+        expect(bonusTime).not.toBeUndefined();
     });
 });

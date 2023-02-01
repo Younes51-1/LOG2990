@@ -15,35 +15,36 @@ export class ConfigParamsComponent {
     @Output() penaltyTimeChange = new EventEmitter();
     @Output() bonusTimeChange = new EventEmitter();
 
-    increaseValue(time: string) {
-        switch (time) {
-            case 'initialTime':
-                this.initialTime += 5;
-                break;
-            case 'penaltyTime':
-                this.penaltyTime++;
-                break;
-            case 'bonusTime':
-                this.bonusTime++;
-                break;
-            default:
-                break;
-        }
-    }
+    // TODO finish implementation for increase/decrease buttons
+    // increaseValue(time: string) {
+    //     switch (time) {
+    //         case 'initialTime':
+    //             this.initialTime += 5;
+    //             break;
+    //         case 'penaltyTime':
+    //             this.penaltyTime++;
+    //             break;
+    //         case 'bonusTime':
+    //             this.bonusTime++;
+    //             break;
+    //         default:
+    //             break;
+    //     }
+    // }
 
-    decreaseValue(time: string) {
-        switch (time) {
-            case 'initialTime':
-                this.initialTime -= 5;
-                break;
-            case 'penaltyTime':
-                this.penaltyTime--;
-                break;
-            case 'bonusTime':
-                this.bonusTime--;
-                break;
-            default:
-                break;
-        }
-    }
+    // decreaseValue(time: string) {
+    //     switch (time) {
+    //         case 'initialTime':
+    //             this.initialTime -= 5;
+    //             break;
+    //         case 'penaltyTime':
+    //             this.penaltyTime--;
+    //             break;
+    //         case 'bonusTime':
+    //             this.bonusTime--;
+    //             break;
+    //         default:
+    //             break;
+    //     }
+    // }
 }
