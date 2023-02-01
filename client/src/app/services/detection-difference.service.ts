@@ -127,8 +127,7 @@ export class DetectionDifferenceService {
         let radiusCoordinatesArraySize = 0;
         for (let i = -radius; i <= radius; i++) {
             for (let j = -radius; j <= radius; j++) {
-                // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-                if ((i ** 2 + j ** 2) ** 0.5 <= radius) {
+                if (Math.sqrt(i ** 2 + j ** 2) <= radius) {
                     radiusCoordinatesArray[radiusCoordinatesArraySize++] = i;
                     radiusCoordinatesArray[radiusCoordinatesArraySize++] = j;
                 }

@@ -18,7 +18,6 @@
     min-width: 160vh;
     min-height: 80vh;
     height: auto;
-    background: transparent;
 }
 
 .justified {
@@ -31,13 +30,12 @@
 .slick-slider {
     min-width: 160vh;
     width: 1080px;
-    background: #d6c5fb;
 }
-  
+
 body .slick-prev, 
 body .slick-next {
     width: 50px;
     height: 50px;
-    background: transparent !important;
+    background: #000000;
     z-index: 100;
 }

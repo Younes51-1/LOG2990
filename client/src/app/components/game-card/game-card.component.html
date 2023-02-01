@@ -1,7 +1,7 @@
 <div id="grid-container">
-    <img class="image" src="{{slide.image1url}}" alt="card" width="95%" />
+    <img class="image" src="{{slide.image1url}}" alt="card" />
     <p>{{slide.name}}</p>
-    <p>{{slide.nbDifference}}</p>
+    <p>Difficulté: {{slide.difficulte}}</p>
     <p>Meilleurs temps solo<p *ngFor = "let time of slide.soloBestTimes">{{time.name}} => {{time.time}}</p>
     <p>Meilleur temps un contre un <p *ngFor = "let time of slide.vsBestTimes">{{time.name}} => {{time.time}}</p>
     <button class="btn" routerLink="{{ routeOne }}" (click)="btnOneEmitter()">{{ btnOne }}</button>

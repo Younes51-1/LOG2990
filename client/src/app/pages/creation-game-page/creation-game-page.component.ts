@@ -50,6 +50,7 @@ export class CreationGamePageComponent implements AfterViewInit {
     allowDisplayDiff: boolean = false;
     nameGame: string;
     flipImage: boolean = false;
+    difficulty: string;
 
     // TODO: Refactor this function
     // eslint-disable-next-line max-params
@@ -157,6 +158,7 @@ export class CreationGamePageComponent implements AfterViewInit {
             );
             this.differenceMatrix = this.detectionService.diffrencesMatrix(image1matrix, image2matrix, this.radius);
             this.imageDifferencesUrl = this.detectionService.createDifferencesImage(this.differenceMatrix);
+            this.difficulty = this.detectionService.computeLevelDifficulty(this.differenceCount, JSON.parse(JSON.stringify(this.differenceMatrix)));
             this.updateDisplayDiffButton(true);
         }
     }
@@ -174,6 +176,7 @@ export class CreationGamePageComponent implements AfterViewInit {
             image1: this.convertImageToB64Url(this.canvas1.nativeElement),
             image2: this.convertImageToB64Url(this.canvas2.nativeElement),
             nbDifference: this.differenceCount,
+            difficulty: this.difficulty,
             differenceMatrix: this.differenceMatrix,
         };
         this.communicationService.getGame(newGame.name).subscribe((res) => {
