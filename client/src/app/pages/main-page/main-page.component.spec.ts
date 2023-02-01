@@ -90,4 +90,28 @@ describe('MainPageComponent', () => {
         tick();
         expect(location.path()).toEqual('/config');
     }));
+
+    it('should show the cheatMode-page on click of the cheat mode button', fakeAsync(() => {
+        const location = TestBed.inject(Location);
+        const cheatBtn = fixture.debugElement.query(By.css('.cheat button')).nativeElement;
+        cheatBtn.click();
+        tick();
+        expect(location.path()).toEqual('/cheatMode');
+    }));
+
+    it('should show the selection-page on click of the classic mode button', fakeAsync(() => {
+        const location = TestBed.inject(Location);
+        const classicBtn = fixture.debugElement.query(By.css('.solo button')).nativeElement;
+        classicBtn.click();
+        tick();
+        expect(location.path()).toEqual('/selection');
+    }));
+
+    it('should show the chronoMode-page on click of the chrono mode button', fakeAsync(() => {
+        const location = TestBed.inject(Location);
+        const chronoBtn = fixture.debugElement.query(By.css('.chrono button')).nativeElement;
+        chronoBtn.click();
+        tick();
+        expect(location.path()).toEqual('/chronoMode');
+    }));
 });

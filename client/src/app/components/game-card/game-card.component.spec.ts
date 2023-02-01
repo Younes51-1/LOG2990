@@ -1,5 +1,7 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { GameCardComponent } from './game-card.component';
+import { PageKeys } from './game-card-options';
+import { Location } from '@angular/common';
 
 describe('GameCardComponent', () => {
     let component: GameCardComponent;
@@ -53,4 +55,16 @@ describe('GameCardComponent', () => {
         const btn2 = fixture.debugElement.nativeElement.getElementsByClassName('btn')[1];
         expect(btn2).not.toBeUndefined();
     });
+
+    it('should navigate to the game-page on click of a "Jouer" button', fakeAsync(() => {
+        const location = TestBed.inject(Location);
+        component.page = PageKeys.Selection;
+        component.ngOnInit();
+        const playBtn = fixture.debugElement.nativeElement.getElementsByClassName('btn')[0];
+        playBtn.click();
+        tick();
+        fixture.detectChanges();
+        console.log(playBtn);
+        expect(location.path()).toEqual('/game');
+    }));
 });
