@@ -17,18 +17,15 @@ export class ModalDialogComponent implements AfterViewInit {
     }
 
     ngAfterViewInit(): void {
+        const scale = { x: 1, y: -1 };
         const canvas = this.canvasDifferences.nativeElement;
         const context = canvas.getContext('2d');
         if (!context) return;
         const image = new Image();
         image.src = this.data.imageUrl;
         image.onload = () => {
-            if (this.data.nbImageFlipped === 2) {
-                context.translate(0, canvas.height);
-                // TODO: remove eslint-disable-next-line
-                // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-                context.scale(1, -1);
-            }
+            context.translate(0, canvas.height);
+            context.scale(scale.x, scale.y);
             context.drawImage(image, 0, 0, this.width, this.height);
         };
     }

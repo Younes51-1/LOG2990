@@ -41,7 +41,6 @@ export class CreationGamePageComponent implements AfterViewInit {
     image1: HTMLInputElement;
     image2: HTMLInputElement;
     imageDifferencesUrl: string;
-    nbImageFlipped: number = 0;
     width: number;
     height: number;
     radius: number = 3;
@@ -69,7 +68,6 @@ export class CreationGamePageComponent implements AfterViewInit {
             data: {
                 imageUrl: this.imageDifferencesUrl,
                 nbDifferences: this.differenceCount,
-                nbImageFlipped: this.nbImageFlipped,
             },
         });
     }
@@ -137,19 +135,14 @@ export class CreationGamePageComponent implements AfterViewInit {
                     alert('Image refusée: elle ne respecte pas le format BMP-24 bit');
                 } else {
                     this.updateImageDisplay(e, img);
-                    if (new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.HEIGHT, true) < 0) {
-                        this.nbImageFlipped++;
-                    }
                 }
             };
         }
     }
 
     async runDetectionSystem() {
-        const img1Src: string = this.image1.value;
-        const img2Src: string = this.image2.value;
-        const img1HasContent: boolean = img1Src !== '';
-        const img2HasContent: boolean = img2Src !== '';
+        const img1HasContent: boolean = this.image1.value !== '';
+        const img2HasContent: boolean = this.image2.value !== '';
 
         if (img1HasContent && img2HasContent) {
             const image1matrix: number[][] = await this.detectionService.readThenConvertImage(this.image1);
@@ -182,12 +175,9 @@ export class CreationGamePageComponent implements AfterViewInit {
             differenceMatrix: this.differenceMatrix,
         };
         this.communicationService.getGame(newGame.name).subscribe((res) => {
-            // eslint-disable-next-line no-console
-            console.log(res);
-            if (res.gameForm === undefined) {
+            if (!res.gameForm) {
                 this.communicationService.createNewGame(newGame).subscribe({
                     next: () => {
-                        // TODO: router vers page de configuration
                         this.router.navigate(['/config']);
                     },
                     error: () => {
@@ -204,7 +194,6 @@ export class CreationGamePageComponent implements AfterViewInit {
         this.inputImage1.nativeElement.value = null;
         this.inputImage2.nativeElement.value = null;
         this.inputImages1et2.nativeElement.value = null;
-        this.nbImageFlipped = 0;
         this.context1.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas1.nativeElement.height);
         this.context2.clearRect(0, 0, this.canvas2.nativeElement.width, this.canvas2.nativeElement.height);
         this.updateDisplayDiffButton(false);

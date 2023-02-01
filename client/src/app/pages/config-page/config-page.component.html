@@ -7,7 +7,7 @@
             <span>Configuration</span>
         </mat-toolbar>
         <div class="container justified">
-            <ngx-slick-carousel class="carousel" #slickModal="slick-carousel" [config]="slideConfig">
+            <ngx-slick-carousel class="carousel" [config]="slideConfig">
                 <div ngxSlickItem *ngFor="let slide of slides" class="slide">
                     <app-game-card [page]="config"></app-game-card>
                 </div>

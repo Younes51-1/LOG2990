@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Component } from '@angular/core';
 import { PageKeys } from '@app/components/game-card/game-card-options';
 

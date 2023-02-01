@@ -57,11 +57,4 @@ describe('SelectionPageComponent', () => {
     it('should create', () => {
         expect(component).toBeTruthy();
     });
-
-    it('onLikeLoremTheme() should open a dialog', () => {
-        // eslint-disable-next-line -- matDialog is private and we need access for the test
-        const spy = spyOn(component['matDialog'], 'open');
-        component.onLikeTheme();
-        expect(spy).toHaveBeenCalled();
-    });
 });
