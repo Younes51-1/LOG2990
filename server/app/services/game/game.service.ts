@@ -1,3 +1,4 @@
+import { SERVER_URL } from '@app/constants';
 import { Game, GameDocument } from '@app/model/database/game';
 import { GameData } from '@app/model/dto/game/gameData.dto';
 import { GameForm } from '@app/model/dto/game/gameForm.dto';
@@ -97,6 +98,8 @@ export class GameService {
         const gameForm = new GameForm();
         gameForm.name = game.name;
         gameForm.nbDifference = game.nbDifference;
+        gameForm.image1url = `${SERVER_URL}/${game.name}/image1.bmp`;
+        gameForm.image2url = `${SERVER_URL}/${game.name}/image2.bmp`;
         gameForm.soloBestTimes = game.soloBestTimes;
         gameForm.vsBestTimes = game.vsBestTimes;
         return gameForm;

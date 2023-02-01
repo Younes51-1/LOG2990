@@ -13,6 +13,14 @@ export class GameForm {
 
     @ApiProperty()
     @IsString()
+    image1url: string;
+
+    @ApiProperty()
+    @IsString()
+    image2url: string;
+
+    @ApiProperty()
+    @IsString()
     soloBestTimes: BestTime[];
 
     @ApiProperty()
