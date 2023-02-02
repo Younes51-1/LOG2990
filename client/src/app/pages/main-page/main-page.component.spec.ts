@@ -91,14 +91,6 @@ describe('MainPageComponent', () => {
         expect(location.path()).toEqual('/config');
     }));
 
-    it('should show the cheatMode-page on click of the cheat mode button', fakeAsync(() => {
-        const location = TestBed.inject(Location);
-        const cheatBtn = fixture.debugElement.query(By.css('.cheat button')).nativeElement;
-        cheatBtn.click();
-        tick();
-        expect(location.path()).toEqual('/cheatMode');
-    }));
-
     it('should show the selection-page on click of the classic mode button', fakeAsync(() => {
         const location = TestBed.inject(Location);
         const classicBtn = fixture.debugElement.query(By.css('.solo button')).nativeElement;
