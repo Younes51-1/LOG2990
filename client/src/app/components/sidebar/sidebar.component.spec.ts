@@ -93,6 +93,7 @@ describe('SidebarComponent', () => {
         tick(oneSecond);
         clearInterval(component.intervalId);
         expect(component.seconds).toEqual(1);
+        expect(component.minutes).toEqual(0);
     }));
 
     it('should spend one minute after a minute is displayed on the timer', fakeAsync(() => {
@@ -113,11 +114,11 @@ describe('SidebarComponent', () => {
     }));
 
     it('should call clearInterval after 61 seconds', fakeAsync(() => {
-        spyOn(window, 'clearInterval');
+        spyOn(component, 'stopTimer');
         const sixtyOneSeconds = 61000;
         component.ngOnInit();
         tick(sixtyOneSeconds);
         clearInterval(component.intervalId);
-        expect(window.clearInterval).toHaveBeenCalled();
+        expect(component.stopTimer).toHaveBeenCalled();
     }));
 });
