@@ -12,13 +12,14 @@ mat-toolbar {
     }
 }
 
-.home-button {
+.config-button {
     border: none;
     background-color: transparent;
+    margin-right: 30px;
     transition: transform 0.2s ease-in-out;
 }
 
-.home-button:hover {
+.config-button:hover {
     transform: scale(1.2);
 }
 
