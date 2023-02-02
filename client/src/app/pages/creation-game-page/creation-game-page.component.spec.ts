@@ -2,6 +2,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { RouterTestingModule } from '@angular/router/testing';
+import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.component';
 import { CreationGamePageComponent } from './creation-game-page.component';
 
 describe('CreationGamePageComponent', () => {
@@ -70,29 +71,31 @@ describe('CreationGamePageComponent', () => {
         expect(spy).toHaveBeenCalled();
     });
 
-    // it('verifyImageFormat should not accept bmp image with wrong depth', () => {
-    //     const spy = spyOn(component, 'verifyImageFormat').and.callThrough();
-    //     const spy2 = spyOn(component, 'updateImageDisplay');
-    //     const image = fixture.debugElement.nativeElement.querySelector('#image1');
-
-    //     const dataTransfer = new DataTransfer();
-    //     const file = new File([''], 'image_wrong_bit_depth.bmp');
-    //     dataTransfer.items.add(file);
-    //     image.files = dataTransfer.files;
-    //     image.dispatchEvent(new Event('change'));
-
-    //     expect(image.value).toEqual('');
-    //     expect(spy).toHaveBeenCalled();
-    //     expect(true).toBeTruthy();
-    //     expect(spy2).toHaveBeenCalled();
-    // });
+    it('verifyImageFormat should call updateDisplayDiffButton and execute the load Event', () => {
+        const spy1 = spyOn(component, 'updateDisplayDiffButton');
+        const spy2 = spyOn(window, 'FileReader');
+        const image = fixture.debugElement.nativeElement.querySelector('#image1');
+        const dataTransfer = new DataTransfer();
+        const file = new File([''], 'image_wrong_bit_depth.bmp');
+        dataTransfer.items.add(file);
+        image.files = dataTransfer.files;
+        image.dispatchEvent(new Event('change'));
+        expect(spy1).toHaveBeenCalledOnceWith(false);
+        expect(spy2).toHaveBeenCalled();
+    });
 
     it('openDifferencesDialog should call runDetectionSystem and dialog.open', async () => {
         const spy = spyOn(component, 'runDetectionSystem');
         const spy2 = spyOn(component.dialog, 'open');
         await component.openDifferencesDialog();
         expect(spy).toHaveBeenCalled();
-        expect(spy2).toHaveBeenCalled();
+        expect(spy2).toHaveBeenCalledOnceWith(ModalDialogComponent, {
+            data: {
+                imageUrl: component.imageDifferencesUrl,
+                nbDifferences: component.differenceCount,
+                nbImageFlipped: component.nbImageFlipped,
+            },
+        });
     });
 
     it('updateImageDisplay should update image1 display', () => {
@@ -101,7 +104,7 @@ describe('CreationGamePageComponent', () => {
         const file = new File([''], 'image_empty.bmp', { type: 'image/bmp' });
         const event = { target: { files: [file] } } as unknown as Event;
         component.updateImageDisplay(event, image1);
-        expect(fixture.componentInstance.image1).toEqual(image1);
+        expect(component.image1).toEqual(image1);
         expect(spy).toHaveBeenCalled();
     });
 
