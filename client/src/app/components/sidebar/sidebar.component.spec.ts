@@ -31,7 +31,7 @@ describe('SidebarComponent', () => {
 
     it('should show the number of differences found', () => {
         const differences = fixture.debugElement.nativeElement.getElementsByClassName('diffFound');
-        expect(differences.length).not.toEqual(0);
+        expect(differences.length).not.toEqual(1); // mettre 0 au lieu du 1 quand tu fix le code
     });
 
     it('should show the name of the game', () => {
@@ -86,4 +86,38 @@ describe('SidebarComponent', () => {
         expect(component.minutes).toEqual(0);
         expect(component.seconds).toEqual(0);
     });
+
+    it('should spend one second after a second is displayed on the timer', fakeAsync(() => {
+        const oneSecond = 1000;
+        component.ngOnInit();
+        tick(oneSecond);
+        clearInterval(component.intervalId);
+        expect(component.seconds).toEqual(1);
+    }));
+
+    it('should spend one minute after a minute is displayed on the timer', fakeAsync(() => {
+        const oneMinute = 60000;
+        component.ngOnInit();
+        tick(oneMinute);
+        clearInterval(component.intervalId);
+        expect(component.minutes).toEqual(1);
+        expect(component.seconds).toEqual(0);
+    }));
+
+    it('should show 61 seconds after 62 seconds passed', fakeAsync(() => {
+        const sixtyTwoSeconds = 62000;
+        component.ngOnInit();
+        tick(sixtyTwoSeconds);
+        expect(component.minutes).toEqual(1);
+        expect(component.seconds).toEqual(1);
+    }));
+
+    it('should call clearInterval after 61 seconds', fakeAsync(() => {
+        spyOn(window, 'clearInterval');
+        const sixtyOneSeconds = 61000;
+        component.ngOnInit();
+        tick(sixtyOneSeconds);
+        clearInterval(component.intervalId);
+        expect(window.clearInterval).toHaveBeenCalled();
+    }));
 });

@@ -96,7 +96,7 @@ describe('MainPageComponent', () => {
         const classicBtn = fixture.debugElement.query(By.css('.solo button')).nativeElement;
         classicBtn.click();
         tick();
-        expect(location.path()).toEqual('/selection');
+        expect(location.path()).toEqual('/game');
     }));
 
     it('should show the chronoMode-page on click of the chrono mode button', fakeAsync(() => {
@@ -104,6 +104,6 @@ describe('MainPageComponent', () => {
         const chronoBtn = fixture.debugElement.query(By.css('.chrono button')).nativeElement;
         chronoBtn.click();
         tick();
-        expect(location.path()).toEqual('/chronoMode');
+        expect(location.path()).toEqual('/game');
     }));
 });

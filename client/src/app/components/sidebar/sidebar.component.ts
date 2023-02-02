@@ -16,21 +16,22 @@ export class SidebarComponent implements OnInit {
     minutes: number;
     seconds: number;
     milliseconds: number;
+    intervalId: number;
 
     ngOnInit() {
         this.minutes = 0;
         this.seconds = 0;
         this.milliseconds = 0;
 
-        const intervalId = setInterval(() => {
+        this.intervalId = window.setInterval(() => {
             this.seconds++;
             if (this.seconds === 60) {
                 this.seconds = 0;
                 this.minutes++;
             }
-            if (this.seconds === 10) {
+            if (this.minutes === 1 && this.seconds === 1) {
                 // IF END OF THE GAME
-                clearInterval(intervalId);
+                clearInterval(this.intervalId);
             }
         }, 1000);
     }
