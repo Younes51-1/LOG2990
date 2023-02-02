@@ -18,6 +18,9 @@ export class GameCardComponent implements OnInit {
     routeTwo: string;
     btnTwo: string;
 
+    showInput = false;
+    inputValue: string;
+
     ngOnInit() {
         const { routeOne, btnOne, routeTwo, btnTwo } = options[this.page];
         this.routeOne = routeOne;

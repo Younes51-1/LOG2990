@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+
 enum Times {
     MinInSec = 60,
     SecInMil = 1000,
@@ -10,12 +11,10 @@ enum Times {
     styleUrls: ['./sidebar.component.scss'],
 })
 export class SidebarComponent implements OnInit {
-    gameName = 'Spot the differences game';
     gameMode = 'Classic mode';
     difficulty = 'Easy mode';
     totalNumber = '10';
     totalLeft = '3'; // CALL SERVICE DIFFERENCESCOUNT
-    player = 'Player name';
 
     minutes = 0;
     seconds = 0;

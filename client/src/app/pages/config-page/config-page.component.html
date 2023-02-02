@@ -4,7 +4,7 @@
             <button class="home-button" routerLink="/home">
                 <i class="fa fa-home fa-2x" aria-hidden="true"></i>
             </button>
-            <span>Configuration</span>
+            <span>GAME PARAMETERS</span>
         </mat-toolbar>
         <div class="container justified">
             <ngx-slick-carousel class="carousel" [config]="slideConfig">
@@ -12,9 +12,7 @@
                     <app-game-card [slide]="slide" [page]="config" (notify)="deleteNotify($event)"></app-game-card>
                 </div>
             </ngx-slick-carousel>
-            <div class="centered-btn">
-                <button class="btn" routerLink="/creation">Créer un jeu</button>
-            </div>
+            <button class="btn" routerLink="/creation">CREATE NEW GAME</button>
             <div class="centered-text">
                 <app-config-params></app-config-params>
             </div>

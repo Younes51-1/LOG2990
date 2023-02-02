@@ -1,9 +1,22 @@
 <div id="grid-container">
-    <img class="image" src="{{slide.image1url}}" alt="card" />
+    <div class="flip-card">
+        <div class="flip-card-inner">
+            <div class="flip-card-front">
+                <img class="image" src="{{slide.image1url}}" alt="card" />
+            </div>
+            <div class="flip-card-back">
+                <p>Difficulty : {{slide.difficulte}}</p><p></p>
+                <p>Best solo scores<p *ngFor = "let time of slide.soloBestTimes">{{time.name}} : {{time.time}}</p><p></p>
+                <p>Best 1v1 scores<p *ngFor = "let time of slide.vsBestTimes">{{time.name}} : {{time.time}}</p>
+            </div>
+        </div>
+    </div>
     <p>{{slide.name}}</p>
-    <p>Difficulté: {{slide.difficulte}}</p>
-    <p>Meilleurs temps solo<p *ngFor = "let time of slide.soloBestTimes">{{time.name}} => {{time.time}}</p>
-    <p>Meilleur temps un contre un <p *ngFor = "let time of slide.vsBestTimes">{{time.name}} => {{time.time}}</p>
-    <button class="btn" routerLink="{{ routeOne }}" (click)="btnOneEmitter()">{{ btnOne }}</button>
-    <button class="btn" routerLink="{{ routeTwo }}" (click)="btnTwoEmitter()">{{ btnTwo }}</button>
+    <button routerLink="{{ routeOne }}" (click)="btnOneEmitter()">{{ btnOne }}</button>
+    <button routerLink="{{ routeTwo }}" (click)="btnTwoEmitter()">{{ btnTwo }}</button>
+    <!-- <button (click)="showInput = true">PLAY</button>
+    <div class="player-name" *ngIf="showInput">
+        <input type="text" [(ngModel)]="inputValue" placeholder="Enter your player name">
+        <button routerLink="{{ routeOne }}" (click)="btnOneEmitter()">{{ btnOne }}</button>
+    </div> -->
 </div>

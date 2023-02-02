@@ -1,5 +1,22 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+
+@mixin theme($theme) {
+    // Get the color config from the theme.
+    $color-config: mat.get-color-config($theme);
+
+    // Get the primary color palette from the color-config.
+    $primary-palette: map.get($color-config, 'primary');
+
+    mat-card-title {
+        // Read the 500 hue from the primary color palette.
+        color: mat.get-color-from-palette($primary-palette, 500);
+    }
+}
+
 * {
-    font-size: 18px;
+    font-family: 'Verdana ', sans-serif, monospace;
+    font-size: 20px;
 }
 
 #main {
@@ -16,8 +33,20 @@ mat-toolbar {
 
     span {
         margin: auto;
+        font-size: 50px;
+        color: black;
         ;
     }
+}
+
+.home-button {
+    border: none;
+    background-color: transparent;
+    transition: transform 0.2s ease-in-out;
+}
+
+.home-button:hover {
+    transform: scale(1.2);
 }
 
 .container {
@@ -27,94 +56,33 @@ mat-toolbar {
     margin-left: auto;
     padding-bottom: 20px;
 
-    > * {
+    >* {
         margin-top: 20px;
     }
+}
+
+.justified {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.slick-slider {
+    min-width: 160vh;
+    width: 1080px;
+    background: #ffffff;
+}
+
+body .slick-prev,
+body .slick-next {
+    width: 25px;
+    height: 25px;
+    background: black !important;
 }
 
 .slide {
     margin-top: 100px;
     margin-left: 20px;
     margin-right: 20px;
-}
-
-.btn {
-    font-size: 19px;
-    background-image: linear-gradient(#639ebd 45%, #0f8ed2 55%);
-    border-radius: 20px;
-    box-shadow: 0 2px 2px #888888;
-    transition: color 0.3s, background-image 0.5s, ease-in-out;
-}
-
-.btn:hover {
-    background-image: linear-gradient(#b1ccda 49%, #96b4c5 51%);
-    color: #03324c;
-}
-
-.home-button {
-    border: none;
-    border-radius: 20px;
-    background-image: linear-gradient(#639ebd 45%, #0f8ed2 55%);
-    background-color: transparent;
-    transition: transform 0.2s, color 0.3s, background-image 0.5s, ease-in-out;
-}
-
-.home-button:hover {
-    transform: scale(1.1);
-    background-image: linear-gradient(#b1ccda 49%, #96b4c5 51%);
-    color: #03324c;
-}
-
-@media (min-width: 768px) {
-    .container {
-        width: 750px;
-    }
-}
-
-@media (min-width: 992px) {
-    .container {
-        width: 970px;
-    }
-}
-
-@media (min-width: 1200px) {
-    .container {
-        width: 1000px;
-    }
-}
-
-.banner {
-
-    display: grid;
-    grid-template-columns: 50px auto;
-    justify-content: center;
-
-    .danger-icon {
-        display: flex;
-        justify-content: center;
-    }
-
-}
-
-.theme-selector {
-
-    position: relative;
-
-    .fav-icon {
-        position: absolute;
-        top: 0px;
-        right: 0px;
-    }
-
-    mat-radio-group {
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
-
-        >* {
-            margin: auto 10px;
-        }
-
-    }
-
 }
