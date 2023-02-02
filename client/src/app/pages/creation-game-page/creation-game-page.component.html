@@ -6,9 +6,9 @@
     <span>GAME CREATION</span>
 </mat-toolbar>
 <div id="images-container">
-    <p>Download original image : <input #image1 type="file" accept="image/bmp" (change)="verifyImageFormat($event, image1)"/></p>
-    <p>Download modified image : <input #image2 type="file" accept="image/bmp" (change)="verifyImageFormat($event, image2)"/></p>
-    <p>Download same image : <input #images1et2 type="file" accept="image/bmp" (change)="verifyImageFormat($event, images1et2)"/></p>
+    <p>Download original image : <input #image1 type="file" accept="image/bmp" (change)="verifyImageFormat($event, image1)" /></p>
+    <p>Download modified image : <input #image2 type="file" accept="image/bmp" (change)="verifyImageFormat($event, image2)" /></p>
+    <p>Download same image : <input #images1et2 type="file" accept="image/bmp" (change)="verifyImageFormat($event, images1et2)" /></p>
     <p>Image must be in a 24-bit bitmap (BPM) format with size 640x480 px</p>
 </div>
 <div class="images-zone">
@@ -18,9 +18,8 @@
 <div id="creation-game-buttons-container">
     <button class="button" (click)="reset()">RESET IMAGES</button>
     <button class="button" (click)="runDetectionSystem()">DETECT DIFFERENCES</button>
-    <button *ngIf="allowDisplayDiff" class="button" (click)="openDifferencesDialog()">SHOW DIFFERENCES</button>
 </div>
-<div *ngIf="allowDisplayDiff && 3 <= differenceCount && differenceCount <= 9">
+<div *ngIf="3 <= differenceCount && differenceCount <= 9">
     <label for="nameGame">Enter game name </label>
     <input #nameGame type="text" />
     <button class="button" (click)="saveNameGame(nameGame.value)">Create</button>
@@ -28,8 +27,8 @@
 <fieldset>
     <legend>Widening radius parameters</legend>
     <div *ngFor="let radius of possibleRadius">
-        <input *ngIf="radius !== 3" type="radio" #rayon{{radius}} name="choixRayon" value={{(radius)}} (click)="updateRadius(radius)"/>
-        <input *ngIf="radius === 3" type="radio" #rayon{{radius}} name="choixRayon" value={{(radius)}} (click)="updateRadius(radius)" checked/>
-        <label for="rayon{{radius}}">{{radius}} </label>
+        <input *ngIf="radius !== 3" type="radio" #rayon{{radius}} name="choixRayon" value="{{ radius }}" (click)="updateRadius(radius)" />
+        <input *ngIf="radius === 3" type="radio" #rayon{{radius}} name="choixRayon" value="{{ radius }}" (click)="updateRadius(radius)" checked />
+        <label for="rayon{{ radius }}">{{ radius }} </label>
     </div>
 </fieldset>

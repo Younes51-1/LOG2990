@@ -47,7 +47,6 @@ export class CreationGamePageComponent implements AfterViewInit {
     differenceCount: number;
     differenceMatrix: number[][];
     possibleRadius: number[] = [PossibleRadius.ZERO, PossibleRadius.THREE, PossibleRadius.NINE, PossibleRadius.FIFTEEN];
-    allowDisplayDiff: boolean = false;
     nameGame: string;
     flipImage: boolean = false;
     difficulty: string;
@@ -65,7 +64,6 @@ export class CreationGamePageComponent implements AfterViewInit {
     }
 
     async openDifferencesDialog() {
-        await this.runDetectionSystem();
         this.dialog.open(ModalDialogComponent, {
             data: {
                 imageUrl: this.imageDifferencesUrl,
@@ -114,7 +112,6 @@ export class CreationGamePageComponent implements AfterViewInit {
 
     verifyImageFormat(e: Event, img: HTMLInputElement): void {
         const file = (e.target as HTMLInputElement).files;
-        this.updateDisplayDiffButton(false);
         if (file) {
             const reader = new FileReader();
             reader.readAsArrayBuffer(file[0]);
@@ -159,16 +156,14 @@ export class CreationGamePageComponent implements AfterViewInit {
             this.differenceMatrix = this.detectionService.diffrencesMatrix(image1matrix, image2matrix, this.radius);
             this.imageDifferencesUrl = this.detectionService.createDifferencesImage(this.differenceMatrix);
             this.difficulty = this.detectionService.computeLevelDifficulty(this.differenceCount, JSON.parse(JSON.stringify(this.differenceMatrix)));
-            this.updateDisplayDiffButton(true);
+            this.openDifferencesDialog();
         }
     }
 
     updateRadius(newRadius: number) {
         this.radius = newRadius;
     }
-    updateDisplayDiffButton(bool: boolean) {
-        this.allowDisplayDiff = bool;
-    }
+
     saveNameGame(name: string) {
         this.nameGame = name;
         const newGame: NewGame = {
@@ -201,7 +196,6 @@ export class CreationGamePageComponent implements AfterViewInit {
         this.inputImages1et2.nativeElement.value = null;
         this.context1.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas1.nativeElement.height);
         this.context2.clearRect(0, 0, this.canvas2.nativeElement.width, this.canvas2.nativeElement.height);
-        this.updateDisplayDiffButton(false);
     }
 
     convertImageToB64Url(canvas: HTMLCanvasElement): string {
