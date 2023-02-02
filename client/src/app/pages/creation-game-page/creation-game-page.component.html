@@ -16,7 +16,9 @@
     <canvas #canvas2 [attr.width]="width" [attr.height]="height"></canvas>
 </div>
 <div id="creation-game-buttons-container">
-    <button class="button" (click)="reset()">RESET IMAGES</button>
+    <button class="button" (click)="reset(images1et2)">RESET IMAGES</button>
+    <button class="button" (click)="reset(image1)">RESET IMAGE 1</button>
+    <button class="button" (click)="reset(image2)">RESET IMAGE 2</button>
     <button class="button" (click)="runDetectionSystem()">DETECT DIFFERENCES</button>
 </div>
 <div *ngIf="3 <= differenceCount && differenceCount <= 9">

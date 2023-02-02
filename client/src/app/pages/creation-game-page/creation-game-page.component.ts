@@ -85,18 +85,24 @@ export class CreationGamePageComponent implements AfterViewInit {
             const file = (event.target as HTMLInputElement).files;
             if (file) {
                 const urlPath = URL.createObjectURL(file[0]);
-                if (input === this.inputImage1.nativeElement) {
-                    this.updateContext(this.context1, urlPath);
-                    this.image1 = this.inputImage1.nativeElement;
-                }
-                if (input === this.inputImage2.nativeElement) {
-                    this.updateContext(this.context2, urlPath);
-                    this.image2 = this.inputImage2.nativeElement;
-                }
-                if (input === this.inputImages1et2.nativeElement) {
-                    this.updateContext(this.context1, urlPath);
-                    this.updateContext(this.context2, urlPath);
-                    this.image1 = this.image2 = this.inputImages1et2.nativeElement;
+                switch (input) {
+                    case this.inputImage1.nativeElement: {
+                        this.updateContext(this.context1, urlPath);
+                        this.image1 = this.inputImage1.nativeElement;
+                        break;
+                    }
+                    case this.inputImage2.nativeElement: {
+                        this.updateContext(this.context2, urlPath);
+                        this.image2 = this.inputImage2.nativeElement;
+                        break;
+                    }
+                    case this.inputImages1et2.nativeElement: {
+                        this.updateContext(this.context1, urlPath);
+                        this.updateContext(this.context2, urlPath);
+                        this.image1 = this.image2 = this.inputImages1et2.nativeElement;
+                        break;
+                    }
+                    // No default
                 }
             }
         }
@@ -190,12 +196,28 @@ export class CreationGamePageComponent implements AfterViewInit {
         });
     }
 
-    reset(): void {
-        this.inputImage1.nativeElement.value = null;
-        this.inputImage2.nativeElement.value = null;
-        this.inputImages1et2.nativeElement.value = null;
-        this.context1.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas1.nativeElement.height);
-        this.context2.clearRect(0, 0, this.canvas2.nativeElement.width, this.canvas2.nativeElement.height);
+    reset(input: HTMLInputElement): void {
+        switch (input) {
+            case this.inputImage1.nativeElement: {
+                this.inputImage1.nativeElement.value = null;
+                this.context1.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas1.nativeElement.height);
+                break;
+            }
+            case this.inputImage2.nativeElement: {
+                this.inputImage2.nativeElement.value = null;
+                this.context2.clearRect(0, 0, this.canvas2.nativeElement.width, this.canvas2.nativeElement.height);
+                break;
+            }
+            case this.inputImages1et2.nativeElement: {
+                this.inputImage1.nativeElement.value = null;
+                this.inputImage2.nativeElement.value = null;
+                this.inputImages1et2.nativeElement.value = null;
+                this.context1.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas1.nativeElement.height);
+                this.context2.clearRect(0, 0, this.canvas2.nativeElement.width, this.canvas2.nativeElement.height);
+                break;
+            }
+            // No default
+        }
     }
 
     convertImageToB64Url(canvas: HTMLCanvasElement): string {
