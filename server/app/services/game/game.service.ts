@@ -14,7 +14,7 @@ export class GameService {
     constructor(@InjectModel(Game.name) public gameModel: Model<GameDocument>) {}
 
     async getAllGames(): Promise<GameForm[]> {
-        const games = await this.gameModel.find({});
+        const games = await this.gameModel.find({}).select('-differenceMatrix');
         if (games === undefined || games === null) {
             return [];
         }
