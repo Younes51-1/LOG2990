@@ -132,7 +132,6 @@ export class CreationGamePageComponent implements AfterViewInit {
                 if (!(isBmp && is24BitPerPixel) || !hasCorrectDimensions) {
                     img.value = '';
                 }
-
                 if (!hasCorrectDimensions && !(isBmp && is24BitPerPixel)) {
                     alert('Image refusée: elle ne respecte pas le format BMP-24 bit de taille 640x480');
                 } else if (!hasCorrectDimensions) {

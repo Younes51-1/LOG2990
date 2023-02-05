@@ -1,4 +1,4 @@
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClientModule, HttpResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -30,9 +30,37 @@ describe('SelectionPageComponent', () => {
     let communicationServiceSpy: SpyObj<CommunicationService>;
 
     beforeEach(async () => {
-        communicationServiceSpy = jasmine.createSpyObj('ExampleService', ['basicGet', 'basicPost']);
+        communicationServiceSpy = jasmine.createSpyObj('ExampleService', ['basicGet', 'basicPost', 'getAllGames']);
         communicationServiceSpy.basicGet.and.returnValue(of({ title: '', body: '' }));
         communicationServiceSpy.basicPost.and.returnValue(of(new HttpResponse<string>({ status: 201, statusText: 'Created' })));
+        communicationServiceSpy.getAllGames.and.returnValue(
+            of([
+                {
+                    name: 'Find the Differences 1',
+                    nbDifference: 10,
+                    image1url: 'https://example.com/image1.jpg',
+                    image2url: 'https://example.com/image2.jpg',
+                    difficulte: 'easy',
+                    soloBestTimes: [
+                        { name: 'player1', time: 200 },
+                        { name: 'player2', time: 150 },
+                    ],
+                    vsBestTimes: [{ name: 'player1', time: 200 }],
+                },
+                {
+                    name: 'Find the Differences 2',
+                    nbDifference: 15,
+                    image1url: 'https://example.com/image3.jpg',
+                    image2url: 'https://example.com/image4.jpg',
+                    difficulte: 'medium',
+                    soloBestTimes: [
+                        { name: 'player3', time: 300 },
+                        { name: 'player4', time: 250 },
+                    ],
+                    vsBestTimes: [{ name: 'player3', time: 200 }],
+                },
+            ]),
+        );
 
         await TestBed.configureTestingModule({
             declarations: [SelectionPageComponent],
@@ -47,7 +75,7 @@ describe('SelectionPageComponent', () => {
                 MatRadioModule,
                 MatToolbarModule,
                 MatTooltipModule,
-                HttpClient,
+                HttpClientModule,
                 RouterTestingModule,
             ],
             providers: [

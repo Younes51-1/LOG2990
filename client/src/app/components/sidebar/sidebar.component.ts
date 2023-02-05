@@ -32,7 +32,7 @@ export class SidebarComponent implements OnInit {
                 this.seconds = 0;
                 this.minutes++;
             }
-            if (this.seconds === Times.TenSec) {
+            if (this.minutes === 1 && this.seconds === 1) {
                 // IF END OF THE GAME
                 clearInterval(this.intervalId);
             }
