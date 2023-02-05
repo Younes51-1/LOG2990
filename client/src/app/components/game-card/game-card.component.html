@@ -12,11 +12,16 @@
         </div>
     </div>
     <p>{{slide.name}}</p>
-    <button routerLink="{{ routeOne }}" (click)="btnOneEmitter()">{{ btnOne }}</button>
-    <button routerLink="{{ routeTwo }}" (click)="btnTwoEmitter()">{{ btnTwo }}</button>
-    <!-- <button (click)="showInput = true">PLAY</button>
-    <div class="player-name" *ngIf="showInput">
-        <input type="text" [(ngModel)]="inputValue" placeholder="Enter your player name">
+    <button *ngIf = "this.page === 'config'" routerLink="{{ routeOne }}" (click)="btnOneEmitter()">{{ btnOne }}</button>
+    <button *ngIf = "this.page === 'config'" routerLink="{{ routeTwo }}" (click)="btnTwoEmitter()">{{ btnTwo }}</button>
+    <button *ngIf="this.page === 'selection'" (click)="showInput1 = true">PLAY SOLO</button>
+    <button *ngIf="this.page === 'selection'" (click)="showInput2 = true">PLAY 1v1</button>
+    <div class="player-name" *ngIf="showInput1">
+        <input type="text" [(ngModel)]="inputValue1" placeholder="Enter your player name">
         <button routerLink="{{ routeOne }}" (click)="btnOneEmitter()">{{ btnOne }}</button>
-    </div> -->
+    </div>
+    <div class="player-name" *ngIf="showInput2">
+        <input type="text" [(ngModel)]="inputValue2" placeholder="Enter your player name">
+        <button routerLink="{{ routeTwo }}" (click)="btnTwoEmitter()">{{ btnTwo }}</button>
+    </div>
 </div>

@@ -47,7 +47,6 @@ export class CreationGamePageComponent implements AfterViewInit {
     differenceCount: number;
     differenceMatrix: number[][];
     possibleRadius: number[] = [PossibleRadius.ZERO, PossibleRadius.THREE, PossibleRadius.NINE, PossibleRadius.FIFTEEN];
-    allowDisplayDiff: boolean = false;
     nameGame: string;
     flipImage: boolean = false;
     difficulty: string;
@@ -65,7 +64,6 @@ export class CreationGamePageComponent implements AfterViewInit {
     }
 
     async openDifferencesDialog() {
-        await this.runDetectionSystem();
         this.dialog.open(ModalDialogComponent, {
             data: {
                 imageUrl: this.imageDifferencesUrl,
@@ -87,18 +85,24 @@ export class CreationGamePageComponent implements AfterViewInit {
             const file = (event.target as HTMLInputElement).files;
             if (file) {
                 const urlPath = URL.createObjectURL(file[0]);
-                if (input === this.inputImage1.nativeElement) {
-                    this.updateContext(this.context1, urlPath);
-                    this.image1 = this.inputImage1.nativeElement;
-                }
-                if (input === this.inputImage2.nativeElement) {
-                    this.updateContext(this.context2, urlPath);
-                    this.image2 = this.inputImage2.nativeElement;
-                }
-                if (input === this.inputImages1et2.nativeElement) {
-                    this.updateContext(this.context1, urlPath);
-                    this.updateContext(this.context2, urlPath);
-                    this.image1 = this.image2 = this.inputImages1et2.nativeElement;
+                switch (input) {
+                    case this.inputImage1.nativeElement: {
+                        this.updateContext(this.context1, urlPath);
+                        this.image1 = this.inputImage1.nativeElement;
+                        break;
+                    }
+                    case this.inputImage2.nativeElement: {
+                        this.updateContext(this.context2, urlPath);
+                        this.image2 = this.inputImage2.nativeElement;
+                        break;
+                    }
+                    case this.inputImages1et2.nativeElement: {
+                        this.updateContext(this.context1, urlPath);
+                        this.updateContext(this.context2, urlPath);
+                        this.image1 = this.image2 = this.inputImages1et2.nativeElement;
+                        break;
+                    }
+                    // No default
                 }
             }
         }
@@ -114,7 +118,6 @@ export class CreationGamePageComponent implements AfterViewInit {
 
     verifyImageFormat(e: Event, img: HTMLInputElement): void {
         const file = (e.target as HTMLInputElement).files;
-        this.updateDisplayDiffButton(false);
         if (file) {
             const reader = new FileReader();
             reader.readAsArrayBuffer(file[0]);
@@ -159,16 +162,14 @@ export class CreationGamePageComponent implements AfterViewInit {
             this.differenceMatrix = this.detectionService.diffrencesMatrix(image1matrix, image2matrix, this.radius);
             this.imageDifferencesUrl = this.detectionService.createDifferencesImage(this.differenceMatrix);
             this.difficulty = this.detectionService.computeLevelDifficulty(this.differenceCount, JSON.parse(JSON.stringify(this.differenceMatrix)));
-            this.updateDisplayDiffButton(true);
+            this.openDifferencesDialog();
         }
     }
 
     updateRadius(newRadius: number) {
         this.radius = newRadius;
     }
-    updateDisplayDiffButton(bool: boolean) {
-        this.allowDisplayDiff = bool;
-    }
+
     saveNameGame(name: string) {
         this.nameGame = name;
         const newGame: NewGame = {
@@ -195,13 +196,28 @@ export class CreationGamePageComponent implements AfterViewInit {
         });
     }
 
-    reset(): void {
-        this.inputImage1.nativeElement.value = null;
-        this.inputImage2.nativeElement.value = null;
-        this.inputImages1et2.nativeElement.value = null;
-        this.context1.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas1.nativeElement.height);
-        this.context2.clearRect(0, 0, this.canvas2.nativeElement.width, this.canvas2.nativeElement.height);
-        this.updateDisplayDiffButton(false);
+    reset(input: HTMLInputElement): void {
+        switch (input) {
+            case this.inputImage1.nativeElement: {
+                this.inputImage1.nativeElement.value = null;
+                this.context1.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas1.nativeElement.height);
+                break;
+            }
+            case this.inputImage2.nativeElement: {
+                this.inputImage2.nativeElement.value = null;
+                this.context2.clearRect(0, 0, this.canvas2.nativeElement.width, this.canvas2.nativeElement.height);
+                break;
+            }
+            case this.inputImages1et2.nativeElement: {
+                this.inputImage1.nativeElement.value = null;
+                this.inputImage2.nativeElement.value = null;
+                this.inputImages1et2.nativeElement.value = null;
+                this.context1.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas1.nativeElement.height);
+                this.context2.clearRect(0, 0, this.canvas2.nativeElement.width, this.canvas2.nativeElement.height);
+                break;
+            }
+            // No default
+        }
     }
 
     convertImageToB64Url(canvas: HTMLCanvasElement): string {
