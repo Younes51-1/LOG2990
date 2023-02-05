@@ -1,7 +1,7 @@
 import { GameController } from '@app/controllers/game/game.controller';
-import { GameData } from '@app/model/dto/game/gameData.dto';
-import { GameForm } from '@app/model/dto/game/gameForm.dto';
-import { NewGame } from '@app/model/dto/game/newGame.dto';
+import { GameData } from '@app/model/dto/game/game-data.dto';
+import { GameForm } from '@app/model/dto/game/game-form.dto';
+import { NewGame } from '@app/model/dto/game/new-game.dto';
 import { GameService } from '@app/services/game/game.service';
 import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -117,5 +117,31 @@ describe.only('GameController', () => {
         res.send = () => res;
 
         await controller.createNewGame(fakeNewGame, res);
+    });
+
+    it('deleteGame() should return OK when service successfully deletes a game', async () => {
+        gameService.deleteGame.resolves();
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.deleteGame('', res);
+    });
+
+    it('deleteGame() should return NOT_FOUND when service unable to delete a game', async () => {
+        gameService.deleteGame.rejects();
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.deleteGame('', res);
     });
 });

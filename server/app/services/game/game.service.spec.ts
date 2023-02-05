@@ -1,5 +1,7 @@
 import { DELAY_BEFORE_CLOSING_CONNECTION } from '@app/constants';
 import { Game, GameDocument, gameSchema } from '@app/model/database/game';
+import { GameData } from '@app/model/dto/game/game-data.dto';
+import { BestTime } from '@app/model/schema/best-time.schema';
 import { getConnectionToken, getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
@@ -50,7 +52,7 @@ describe('GameService', () => {
 
     it('getAllGames() return all games in database', async () => {
         await gameModel.deleteMany({});
-        expect((await service.getAllGames()).length).toEqual(0);
+        expect(await service.getAllGames()).toEqual([]);
         const game = getFakeGame();
         await gameModel.create(game);
         expect((await service.getAllGames()).length).toEqual(1);
@@ -94,6 +96,21 @@ describe('GameService', () => {
         ).rejects.toBeTruthy();
     });
 
+    it('addGame() should fail if fs.write of saveImage fails', async () => {
+        jest.spyOn(service, 'saveImage').mockImplementation(async () => Promise.reject(''));
+        await gameModel.deleteMany({});
+        const game = getFakeGameData();
+        await expect(
+            service.createNewGame({
+                name: game.gameForm.name,
+                nbDifference: game.gameForm.nbDifference,
+                image1: '...',
+                image2: '...',
+                differenceMatrix: game.differenceMatrix,
+            }),
+        ).rejects.toBeTruthy();
+    });
+
     it('deleteGame() should delete the game', async () => {
         await gameModel.deleteMany({});
         const game = getFakeGame();
@@ -113,6 +130,12 @@ describe('GameService', () => {
         const game = getFakeGame();
         await expect(service.deleteGame(game.name)).rejects.toBeTruthy();
     });
+
+    it('BestTime should return an array of type BestTime', () => {
+        const game = getFakeGame();
+        expect(game.soloBestTimes).toBeInstanceOf(Array);
+        expect(game.soloBestTimes[0]).toBeInstanceOf(BestTime);
+    });
 });
 
 const getFakeGame = (): Game => ({
@@ -123,34 +146,8 @@ const getFakeGame = (): Game => ({
         [0, 0, 0],
         [0, 0, 0],
     ],
-    soloBestTimes: [
-        {
-            name: 'Easy',
-            time: '3:00',
-        },
-        {
-            name: 'Easy',
-            time: '3:00',
-        },
-        {
-            name: 'Easy',
-            time: '3:00',
-        },
-    ],
-    vsBestTimes: [
-        {
-            name: 'Easy',
-            time: '3:00',
-        },
-        {
-            name: 'Easy',
-            time: '3:00',
-        },
-        {
-            name: 'Easy',
-            time: '3:00',
-        },
-    ],
+    soloBestTimes: [new BestTime(), new BestTime(), new BestTime()],
+    vsBestTimes: [new BestTime(), new BestTime(), new BestTime()],
 });
 
 const getFakeGameData = (): GameData => ({
@@ -162,45 +159,7 @@ const getFakeGameData = (): GameData => ({
     gameForm: {
         name: 'FakeGame',
         nbDifference: 5,
-        soloBestTimes: [
-            {
-                name: 'Easy',
-                time: '3:00',
-            },
-            {
-                name: 'Easy',
-                time: '3:00',
-            },
-            {
-                name: 'Easy',
-                time: '3:00',
-            },
-        ],
-        vsBestTimes: [
-            {
-                name: 'Easy',
-                time: '3:00',
-            },
-            {
-                name: 'Easy',
-                time: '3:00',
-            },
-            {
-                name: 'Easy',
-                time: '3:00',
-            },
-        ],
+        soloBestTimes: [new BestTime(), new BestTime(), new BestTime()],
+        vsBestTimes: [new BestTime(), new BestTime(), new BestTime()],
     },
-});
-
-const getFakeNewGame = (): NewGame => ({
-    name: 'FakeGame',
-    nbDifference: 5,
-    image1: '...',
-    image2: '...',
-    differenceMatrix: [
-        [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0],
-    ],
 });

@@ -40,6 +40,10 @@ export class SelectionPageComponent {
     slideConfig = {
         slidesToShow: 4,
         slidesToScroll: 4,
+        lazyLoad: 'ondemand',
+        cssEase: 'linear',
+        dots: true,
+        appendArrows: 'ngx-slick-carousel',
     };
 
     selection = PageKeys.Selection;

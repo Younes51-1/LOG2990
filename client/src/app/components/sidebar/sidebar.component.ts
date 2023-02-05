@@ -16,10 +16,10 @@ export class SidebarComponent implements OnInit {
     totalNumber = '10';
     totalLeft = '3'; // CALL SERVICE DIFFERENCESCOUNT
 
-    minutes = 0;
-    seconds = 0;
-    milliseconds = 0;
-    intervalId = 0;
+    minutes: number;
+    seconds: number;
+    milliseconds: number;
+    intervalId: number;
 
     ngOnInit() {
         this.minutes = 0;
@@ -37,5 +37,9 @@ export class SidebarComponent implements OnInit {
                 clearInterval(this.intervalId);
             }
         }, Times.SecInMil);
+    }
+
+    stopTimer() {
+        clearInterval(this.intervalId);
     }
 }
