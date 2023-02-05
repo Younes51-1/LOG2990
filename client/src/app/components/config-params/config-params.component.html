@@ -1,16 +1,19 @@
-<h2>Paramètres:</h2>
-<li><label>Temps initial du compte à rebours (s): 
-    <button>-</button>
-    <input value="{{ initialTime }}"/>
-    <button>+</button>
-</label></li>
-<li><label>Temps de pénalité pour l’utilisation d’un indice (s): 
-    <button>-</button>
-    <input value="{{ penaltyTime }}"/>
-    <button>+</button>
-</label></li>
-<li><label>Temps gagné avec la découverte d’une différence (s): 
-    <button>-</button>
-    <input value="{{ bonusTime }}"/>
-    <button>+</button>
-</label></li>
+<!-- <h2>Paramètres:</h2>
+<label> Random ID: </label> -->
+<div class="config-container">
+    <p><label>Countdown start time (s) : 
+        <button (click)="decreaseValue('initialTime')">-</button>
+        <input value="{{ initialTime }}"/>
+        <button (click)="increaseValue('initialTime')">+</button>
+    </label></p>
+    <p><label>Penalty time for using a hint (s) : 
+        <button (click)="decreaseValue('penaltyTime')">-</button>
+        <input value="{{ penaltyTime }}"/>
+        <button (click)="increaseValue('penaltyTime')">+</button>
+    </label></p>
+    <p><label>Bonus time for finding a difference (s) : 
+        <button (click)="decreaseValue('bonusTime')">-</button>
+        <input value="{{ bonusTime }}"/>
+        <button (click)="increaseValue('bonusTime')">+</button>
+    </label></p>
+</div>

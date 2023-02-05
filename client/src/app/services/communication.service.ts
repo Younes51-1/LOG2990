@@ -6,7 +6,7 @@ import { NewGame } from '@app/interfaces/new-game';
 import { Message } from '@common/message';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
     providedIn: 'root',
@@ -34,6 +34,10 @@ export class CommunicationService {
 
     createNewGame(newGame: NewGame): Observable<HttpResponse<string>> {
         return this.http.post(`${this.baseUrl}/game`, newGame, { observe: 'response', responseType: 'text' });
+    }
+
+    deleteGame(name: string): Observable<HttpResponse<string>> {
+        return this.http.delete(`${this.baseUrl}/game/${name}`, { observe: 'response', responseType: 'text' });
     }
 
     private handleError<T>(request: string, result?: T): (error: Error) => Observable<T> {

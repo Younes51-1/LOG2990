@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { PageKeys } from '@app/components/game-card/game-card-options';
+import { GameForm } from '@app/interfaces/game-form';
+import { CommunicationService } from '@app/services/communication.service';
 
 // TODO : Avoir un fichier séparé pour les constantes!
 export const MATERIAL_PREBUILT_THEMES = [
@@ -33,15 +35,8 @@ export class SelectionPageComponent {
 
     favoriteTheme: string = MATERIAL_DEFAULT_PREBUILT_THEME.value;
 
-    slides = [
-        { img: '..assetslogo.jpg' },
-        { img: '..assetslogo.jpg' },
-        { img: '..assetslogo.jpg' },
-        { img: '..assetslogo.jpg' },
-        { img: '..assetslogo.jpg' },
-        { img: '..assetslogo.jpg' },
-        { img: '..assetslogo.jpg' },
-    ];
+    slides: GameForm[];
+
     slideConfig = {
         slidesToShow: 4,
         slidesToScroll: 4,
@@ -53,11 +48,14 @@ export class SelectionPageComponent {
 
     selection = PageKeys.Selection;
 
-    addSlide() {
-        this.slides.push({ img: '..assetslogo.jpg' });
+    constructor(private readonly communicationService: CommunicationService) {
+        this.getSlidesFromServer();
     }
 
-    removeSlide() {
-        this.slides.length = this.slides.length - 1;
+    getSlidesFromServer(): void {
+        const component = this;
+        this.communicationService.getAllGames().subscribe((res) => {
+            component.slides = res;
+        });
     }
 }

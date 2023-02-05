@@ -1,17 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 
+enum Times {
+    MinInSec = 60,
+    SecInMil = 1000,
+    TenSec = 10,
+}
 @Component({
     selector: 'app-sidebar',
     templateUrl: './sidebar.component.html',
     styleUrls: ['./sidebar.component.scss'],
 })
 export class SidebarComponent implements OnInit {
-    gameName = 'Spot the differences game';
     gameMode = 'Classic mode';
     difficulty = 'Easy mode';
     totalNumber = '10';
     totalLeft = '3'; // CALL SERVICE DIFFERENCESCOUNT
-    player = 'Player name';
 
     minutes: number;
     seconds: number;
@@ -25,15 +28,15 @@ export class SidebarComponent implements OnInit {
 
         this.intervalId = window.setInterval(() => {
             this.seconds++;
-            if (this.seconds === 60) {
+            if (this.seconds === Times.MinInSec) {
                 this.seconds = 0;
                 this.minutes++;
             }
-            if (this.minutes === 1 && this.seconds === 1) {
+            if (this.seconds === Times.TenSec) {
                 // IF END OF THE GAME
-                this.stopTimer();
+                clearInterval(this.intervalId);
             }
-        }, 1000);
+        }, Times.SecInMil);
     }
 
     stopTimer() {

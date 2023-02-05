@@ -1,3 +1,4 @@
+import { DIFFICULTY_THRESHOLD, SERVER_URL } from '@app/constants';
 import { Game, GameDocument } from '@app/model/database/game';
 import { GameData } from '@app/model/dto/game/game-data.dto';
 import { GameForm } from '@app/model/dto/game/game-form.dto';
@@ -13,7 +14,10 @@ export class GameService {
     constructor(@InjectModel(Game.name) public gameModel: Model<GameDocument>) {}
 
     async getAllGames(): Promise<GameForm[]> {
-        const games = await this.gameModel.find({});
+        const games = await this.gameModel.find({}).select('-differenceMatrix');
+        if (games === undefined || games === null) {
+            return [];
+        }
         return games.map((game) => this.convertGameToGameForm(game));
     }
 
@@ -85,6 +89,9 @@ export class GameService {
         const gameForm = new GameForm();
         gameForm.name = game.name;
         gameForm.nbDifference = game.nbDifference;
+        gameForm.image1url = `${SERVER_URL}/${game.name}/image1.bmp`;
+        gameForm.image2url = `${SERVER_URL}/${game.name}/image2.bmp`;
+        gameForm.difficulte = this.calculateDifficulty(game.nbDifference);
         gameForm.soloBestTimes = game.soloBestTimes;
         gameForm.vsBestTimes = game.vsBestTimes;
         return gameForm;
@@ -103,5 +110,13 @@ export class GameService {
             { name: 'Medium', time: '2:00' },
             { name: 'Hard', time: '1:00' },
         ];
+    }
+
+    private calculateDifficulty(nbDifference: number): string {
+        if (nbDifference <= DIFFICULTY_THRESHOLD) {
+            return 'facile';
+        } else {
+            return 'difficile';
+        }
     }
 }

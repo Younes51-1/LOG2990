@@ -1,9 +1,27 @@
 <div id="grid-container">
-    <img class="image" src="../../../assets/card.png" alt="card" width="95%" />
-    <p>{{gameTitle}}</p>
-    <p>{{difficultyLevel}}</p>
-    <p class="solo">Meilleurs temps solo ({{bestSoloTimeOne}},{{bestSoloTimeTwo}},{{bestSoloTimeThree}})</p>
-    <p class="1v1">Meilleur temps un contre un ({{bestPvpOne}},{{bestPvpTwo}},{{bestPvpThree}})</p>
-    <button class="btn routeOne" routerLink="{{ routeOne }}">{{ btnOne }}</button>
-    <button class="btn routeOne" routerLink="{{ routeTwo }}">{{ btnTwo }}</button>
+    <div class="flip-card">
+        <div class="flip-card-inner">
+            <div class="flip-card-front">
+                <img class="image" src="{{slide.image1url}}" alt="card" />
+            </div>
+            <div class="flip-card-back">
+                <p>Difficulty : {{slide.difficulte}}</p><p></p>
+                <p>Best solo scores<p *ngFor = "let time of slide.soloBestTimes">{{time.name}} : {{time.time}}</p><p></p>
+                <p>Best 1v1 scores<p *ngFor = "let time of slide.vsBestTimes">{{time.name}} : {{time.time}}</p>
+            </div>
+        </div>
+    </div>
+    <p>{{slide.name}}</p>
+    <button *ngIf = "this.page === 'config'" routerLink="{{ routeOne }}" (click)="btnOneEmitter()">{{ btnOne }}</button>
+    <button *ngIf = "this.page === 'config'" routerLink="{{ routeTwo }}" (click)="btnTwoEmitter()">{{ btnTwo }}</button>
+    <button *ngIf="this.page === 'selection'" (click)="showInput1 = true">PLAY SOLO</button>
+    <button *ngIf="this.page === 'selection'" (click)="showInput2 = true">PLAY 1v1</button>
+    <div class="player-name" *ngIf="showInput1">
+        <input type="text" [(ngModel)]="inputValue1" placeholder="Enter your player name">
+        <button routerLink="{{ routeOne }}" (click)="btnOneEmitter()">{{ btnOne }}</button>
+    </div>
+    <div class="player-name" *ngIf="showInput2">
+        <input type="text" [(ngModel)]="inputValue2" placeholder="Enter your player name">
+        <button routerLink="{{ routeTwo }}" (click)="btnTwoEmitter()">{{ btnTwo }}</button>
+    </div>
 </div>

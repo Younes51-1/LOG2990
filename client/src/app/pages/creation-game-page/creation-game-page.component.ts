@@ -41,15 +41,16 @@ export class CreationGamePageComponent implements AfterViewInit {
     image1: HTMLInputElement;
     image2: HTMLInputElement;
     imageDifferencesUrl: string;
-    nbImageFlipped: number = 0;
     width: number;
     height: number;
     radius: number = 3;
     differenceCount: number;
     differenceMatrix: number[][];
     possibleRadius: number[] = [PossibleRadius.ZERO, PossibleRadius.THREE, PossibleRadius.NINE, PossibleRadius.FIFTEEN];
-    allowDisplayDiff: boolean = false;
     nameGame: string;
+    flipImage: boolean = false;
+    difficulty: string;
+
     // TODO: Refactor this function
     // eslint-disable-next-line max-params
     constructor(
@@ -63,12 +64,11 @@ export class CreationGamePageComponent implements AfterViewInit {
     }
 
     async openDifferencesDialog() {
-        await this.runDetectionSystem();
         this.dialog.open(ModalDialogComponent, {
             data: {
                 imageUrl: this.imageDifferencesUrl,
                 nbDifferences: this.differenceCount,
-                nbImageFlipped: this.nbImageFlipped,
+                flipped: this.flipImage,
             },
         });
     }
@@ -85,18 +85,24 @@ export class CreationGamePageComponent implements AfterViewInit {
             const file = (event.target as HTMLInputElement).files;
             if (file) {
                 const urlPath = URL.createObjectURL(file[0]);
-                if (input === this.inputImage1.nativeElement) {
-                    this.updateContext(this.context1, urlPath);
-                    this.image1 = this.inputImage1.nativeElement;
-                }
-                if (input === this.inputImage2.nativeElement) {
-                    this.updateContext(this.context2, urlPath);
-                    this.image2 = this.inputImage2.nativeElement;
-                }
-                if (input === this.inputImages1et2.nativeElement) {
-                    this.updateContext(this.context1, urlPath);
-                    this.updateContext(this.context2, urlPath);
-                    this.image1 = this.image2 = this.inputImages1et2.nativeElement;
+                switch (input) {
+                    case this.inputImage1.nativeElement: {
+                        this.updateContext(this.context1, urlPath);
+                        this.image1 = this.inputImage1.nativeElement;
+                        break;
+                    }
+                    case this.inputImage2.nativeElement: {
+                        this.updateContext(this.context2, urlPath);
+                        this.image2 = this.inputImage2.nativeElement;
+                        break;
+                    }
+                    case this.inputImages1et2.nativeElement: {
+                        this.updateContext(this.context1, urlPath);
+                        this.updateContext(this.context2, urlPath);
+                        this.image1 = this.image2 = this.inputImages1et2.nativeElement;
+                        break;
+                    }
+                    // No default
                 }
             }
         }
@@ -112,7 +118,6 @@ export class CreationGamePageComponent implements AfterViewInit {
 
     verifyImageFormat(e: Event, img: HTMLInputElement): void {
         const file = (e.target as HTMLInputElement).files;
-        this.updateDisplayDiffButton(false);
         if (file) {
             const reader = new FileReader();
             reader.readAsArrayBuffer(file[0]);
@@ -123,7 +128,7 @@ export class CreationGamePageComponent implements AfterViewInit {
                 const data = new Uint8Array(reader.result as ArrayBuffer);
                 const isBmp = data[0] === AsciiLetterValue.B && data[1] === AsciiLetterValue.M;
                 const is24BitPerPixel = data[OffsetValues.DHP] === BIT_PER_PIXEL;
-
+                this.flipImage = new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.HEIGHT, true) < 0;
                 if (!(isBmp && is24BitPerPixel) || !hasCorrectDimensions) {
                     img.value = '';
                 }
@@ -136,19 +141,14 @@ export class CreationGamePageComponent implements AfterViewInit {
                     alert('Image refusée: elle ne respecte pas le format BMP-24 bit');
                 } else {
                     this.updateImageDisplay(e, img);
-                    if (new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.HEIGHT, true) < 0) {
-                        this.nbImageFlipped++;
-                    }
                 }
             };
         }
     }
 
     async runDetectionSystem() {
-        const img1Src: string = this.image1.value;
-        const img2Src: string = this.image2.value;
-        const img1HasContent: boolean = img1Src !== '';
-        const img2HasContent: boolean = img2Src !== '';
+        const img1HasContent: boolean = this.image1.value !== '';
+        const img2HasContent: boolean = this.image2.value !== '';
 
         if (img1HasContent && img2HasContent) {
             const image1matrix: number[][] = await this.detectionService.readThenConvertImage(this.image1);
@@ -161,16 +161,15 @@ export class CreationGamePageComponent implements AfterViewInit {
             );
             this.differenceMatrix = this.detectionService.diffrencesMatrix(image1matrix, image2matrix, this.radius);
             this.imageDifferencesUrl = this.detectionService.createDifferencesImage(this.differenceMatrix);
-            this.updateDisplayDiffButton(true);
+            this.difficulty = this.detectionService.computeLevelDifficulty(this.differenceCount, JSON.parse(JSON.stringify(this.differenceMatrix)));
+            this.openDifferencesDialog();
         }
     }
 
     updateRadius(newRadius: number) {
         this.radius = newRadius;
     }
-    updateDisplayDiffButton(bool: boolean) {
-        this.allowDisplayDiff = bool;
-    }
+
     saveNameGame(name: string) {
         this.nameGame = name;
         const newGame: NewGame = {
@@ -178,16 +177,14 @@ export class CreationGamePageComponent implements AfterViewInit {
             image1: this.convertImageToB64Url(this.canvas1.nativeElement),
             image2: this.convertImageToB64Url(this.canvas2.nativeElement),
             nbDifference: this.differenceCount,
+            difficulty: this.difficulty,
             differenceMatrix: this.differenceMatrix,
         };
         this.communicationService.getGame(newGame.name).subscribe((res) => {
-            // eslint-disable-next-line no-console
-            console.log(res);
-            if (res.gameForm === undefined) {
+            if (!res.gameForm) {
                 this.communicationService.createNewGame(newGame).subscribe({
                     next: () => {
-                        // TODO: router vers page de configuration
-                        this.router.navigate(['/home']);
+                        this.router.navigate(['/config']);
                     },
                     error: () => {
                         alert('Erreur lors de la création du jeu');
@@ -199,14 +196,28 @@ export class CreationGamePageComponent implements AfterViewInit {
         });
     }
 
-    reset(): void {
-        this.inputImage1.nativeElement.value = null;
-        this.inputImage2.nativeElement.value = null;
-        this.inputImages1et2.nativeElement.value = null;
-        this.nbImageFlipped = 0;
-        this.context1.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas1.nativeElement.height);
-        this.context2.clearRect(0, 0, this.canvas2.nativeElement.width, this.canvas2.nativeElement.height);
-        this.updateDisplayDiffButton(false);
+    reset(input: HTMLInputElement): void {
+        switch (input) {
+            case this.inputImage1.nativeElement: {
+                this.inputImage1.nativeElement.value = null;
+                this.context1.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas1.nativeElement.height);
+                break;
+            }
+            case this.inputImage2.nativeElement: {
+                this.inputImage2.nativeElement.value = null;
+                this.context2.clearRect(0, 0, this.canvas2.nativeElement.width, this.canvas2.nativeElement.height);
+                break;
+            }
+            case this.inputImages1et2.nativeElement: {
+                this.inputImage1.nativeElement.value = null;
+                this.inputImage2.nativeElement.value = null;
+                this.inputImages1et2.nativeElement.value = null;
+                this.context1.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas1.nativeElement.height);
+                this.context2.clearRect(0, 0, this.canvas2.nativeElement.width, this.canvas2.nativeElement.height);
+                break;
+            }
+            // No default
+        }
     }
 
     convertImageToB64Url(canvas: HTMLCanvasElement): string {

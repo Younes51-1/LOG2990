@@ -18,7 +18,7 @@ export class MainPageComponent {
     ];
 
     readonly configLink = '/config';
-    readonly classiqueLink = '/game';
-    readonly limitedLink = '/game';
-    readonly cheatModeLink = '/game';
+    readonly classiqueLink = '/selection';
+    readonly limitedLink = '/home';
+    readonly cheatModeLink = '/home';
 }

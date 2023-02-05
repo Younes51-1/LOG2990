@@ -1,5 +1,10 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input } from '@angular/core';
+
+// TODO : Avoir un fichier séparé pour les constantes!
+enum Time {
+    HalfMinute = 30,
+    FiveSeconds = 5,
+}
 
 @Component({
     selector: 'app-config-params',
@@ -7,44 +12,39 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
     styleUrls: ['./config-params.component.scss'],
 })
 export class ConfigParamsComponent {
-    @Input() initialTime = 30;
-    @Input() penaltyTime = 5;
-    @Input() bonusTime = 5;
+    @Input() initialTime = Time.HalfMinute;
+    @Input() penaltyTime = Time.FiveSeconds;
+    @Input() bonusTime = Time.FiveSeconds;
 
-    @Output() initialTimeChange = new EventEmitter();
-    @Output() penaltyTimeChange = new EventEmitter();
-    @Output() bonusTimeChange = new EventEmitter();
+    increaseValue(time: string) {
+        switch (time) {
+            case 'initialTime':
+                this.initialTime += Time.FiveSeconds;
+                break;
+            case 'penaltyTime':
+                this.penaltyTime++;
+                break;
+            case 'bonusTime':
+                this.bonusTime++;
+                break;
+            default:
+                break;
+        }
+    }
 
-    // TODO finish implementation for increase/decrease buttons
-    // increaseValue(time: string) {
-    //     switch (time) {
-    //         case 'initialTime':
-    //             this.initialTime += 5;
-    //             break;
-    //         case 'penaltyTime':
-    //             this.penaltyTime++;
-    //             break;
-    //         case 'bonusTime':
-    //             this.bonusTime++;
-    //             break;
-    //         default:
-    //             break;
-    //     }
-    // }
-
-    // decreaseValue(time: string) {
-    //     switch (time) {
-    //         case 'initialTime':
-    //             this.initialTime -= 5;
-    //             break;
-    //         case 'penaltyTime':
-    //             this.penaltyTime--;
-    //             break;
-    //         case 'bonusTime':
-    //             this.bonusTime--;
-    //             break;
-    //         default:
-    //             break;
-    //     }
-    // }
+    decreaseValue(time: string) {
+        switch (time) {
+            case 'initialTime':
+                this.initialTime -= Time.FiveSeconds;
+                break;
+            case 'penaltyTime':
+                this.penaltyTime--;
+                break;
+            case 'bonusTime':
+                this.bonusTime--;
+                break;
+            default:
+                break;
+        }
+    }
 }

@@ -13,20 +13,21 @@ export class ModalDialogComponent implements AfterViewInit {
     context: CanvasRenderingContext2D;
     scaleNumber: number = 1;
 
-    constructor(@Inject(MAT_DIALOG_DATA) public data: { imageUrl: string; nbDifferences: number; nbImageFlipped: number }) {
+    constructor(@Inject(MAT_DIALOG_DATA) public data: { imageUrl: string; nbDifferences: number; flipped: boolean }) {
         this.width = 640;
         this.height = 480;
     }
 
     ngAfterViewInit(): void {
+        const scale = { x: 1, y: -1 };
         const canvas = this.canvasDifferences.nativeElement;
         this.context = canvas.getContext('2d') as CanvasRenderingContext2D;
         const image = new Image();
         image.src = this.data.imageUrl;
         image.onload = () => {
-            if (this.data.nbImageFlipped === 2) {
-                this.context.translate(0, canvas.height);
-                this.context.scale(this.scaleNumber, -this.scaleNumber);
+            if (this.data.flipped) {
+                context.translate(0, canvas.height);
+                context.scale(scale.x, scale.y);
             }
             this.context.drawImage(image, 0, 0, this.width, this.height);
         };

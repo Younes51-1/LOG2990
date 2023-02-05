@@ -57,19 +57,12 @@ describe('MainPageComponent', () => {
         expect(configBtn).not.toBeUndefined();
     });
 
-    it('should have three game mode', () => {
+    it('should have 2 game mode', () => {
         const gameModeSections = fixture.debugElement.nativeElement.getElementsByClassName('card')[0];
-        expect(gameModeSections.childElementCount).toEqual(3);
+        expect(gameModeSections.childElementCount).toEqual(2);
     });
 
-    it('should have cheat mode button', () => {
-        const cheatSection = fixture.debugElement.nativeElement.getElementsByClassName('cheat button')[0];
-        const limitedBtn = cheatSection.getElementsByTagName('button')[0];
-        expect(limitedBtn).not.toBeUndefined();
-        expect(limitedBtn.innerHTML).toEqual('CHEAT');
-    });
-
-    it('should have clasique mode button', () => {
+    it('should have classique mode button', () => {
         const classicSection = fixture.debugElement.nativeElement.getElementsByClassName('solo button')[0];
         const classiqueBtn = classicSection.getElementsByTagName('button')[0];
         expect(classiqueBtn).not.toBeUndefined();

@@ -1,49 +1,36 @@
-<button class="button" routerLink="/home">Configuration (mettre le vrai lien)</button>
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.1/css/all.css" crossorigin="anonymous" />
+<mat-toolbar color="primary">
+    <button class="config-button right-element" routerLink="/config">
+        <i class="fa fa-cog fa-3x" aria-hidden="true"></i>
+    </button>
+    <span>GAME CREATION</span>
+</mat-toolbar>
 <div id="images-container">
-    <div class="images-zone">
-        <canvas #canvas1 [attr.width]="width" [attr.height]="height"></canvas>
-        <canvas #canvas2 [attr.width]="width" [attr.height]="height"></canvas>
-    </div>
-    <p>Téléverser une image dans la zone de gauche :</p>
-    <input #image1 id="image1" type="file" accept="image/bmp" (change)="verifyImageFormat($event, image1)" />
-    <p>Téléverser une image dans la zone de droite :</p>
-    <input #image2 id="image2" type="file" accept="image/bmp" (change)="verifyImageFormat($event, image2)" />
-    <p>Téléverser la même image dans les deux zones :</p>
-    <input #images1et2 id="images1et2" type="file" accept="image/bmp" (change)="verifyImageFormat($event, images1et2)" />
-    <p>L'image doit être dans un format bitmap (BMP) 24-bit de taille 640x480 pixels</p>
+    <p>Download original image : <input #image1 type="file" accept="image/bmp" (change)="verifyImageFormat($event, image1)" /></p>
+    <p>Download modified image : <input #image2 type="file" accept="image/bmp" (change)="verifyImageFormat($event, image2)" /></p>
+    <p>Download same image : <input #images1et2 type="file" accept="image/bmp" (change)="verifyImageFormat($event, images1et2)" /></p>
+    <p>Image must be in a 24-bit bitmap (BPM) format with size 640x480 px</p>
+</div>
+<div class="images-zone">
+    <canvas #canvas1 [attr.width]="width" [attr.height]="height"></canvas>
+    <canvas #canvas2 [attr.width]="width" [attr.height]="height"></canvas>
 </div>
 <div id="creation-game-buttons-container">
-    <button class="button" (click)="reset()">Reset</button>
-    <button class="button" (click)="runDetectionSystem()">Detecter les differences</button>
-    <button *ngIf="allowDisplayDiff" class="button" (click)="openDifferencesDialog()">Afficher les differences</button>
+    <button class="button" (click)="reset(images1et2)">RESET IMAGES</button>
+    <button class="button" (click)="reset(image1)">RESET IMAGE 1</button>
+    <button class="button" (click)="reset(image2)">RESET IMAGE 2</button>
+    <button class="button" (click)="runDetectionSystem()">DETECT DIFFERENCES</button>
 </div>
-<div *ngIf="allowDisplayDiff && 3 <= differenceCount && differenceCount <= 9">
-    <label for="nameGame">Entrez le nom du jeu </label>
+<div *ngIf="3 <= differenceCount && differenceCount <= 9">
+    <label for="nameGame">Enter game name </label>
     <input #nameGame type="text" />
-    <button class="button" (click)="saveNameGame(nameGame.value)">Envoyer</button>
+    <button class="button" (click)="saveNameGame(nameGame.value)">Create</button>
 </div>
 <fieldset>
-    <legend>Choix du rayon d'élargissement</legend>
+    <legend>Widening radius parameters</legend>
     <div *ngFor="let radius of possibleRadius">
-        <input
-            *ngIf="radius !== 3"
-            id="rayon{{ radius }}"
-            type="radio"
-            #rayon{{radius}}
-            name="choixRayon"
-            value="{{ radius }}"
-            (click)="updateRadius(radius)"
-        />
-        <input
-            *ngIf="radius === 3"
-            id="rayon{{ radius }}"
-            type="radio"
-            #rayon{{radius}}
-            name="choixRayon"
-            value="{{ radius }}"
-            (click)="updateRadius(radius)"
-            checked
-        />
-        <label for="rayon{{ radius }}">{{ radius }}</label>
+        <input *ngIf="radius !== 3" type="radio" #rayon{{radius}} name="choixRayon" value="{{ radius }}" (click)="updateRadius(radius)" />
+        <input *ngIf="radius === 3" type="radio" #rayon{{radius}} name="choixRayon" value="{{ radius }}" (click)="updateRadius(radius)" checked />
+        <label for="rayon{{ radius }}">{{ radius }} </label>
     </div>
 </fieldset>

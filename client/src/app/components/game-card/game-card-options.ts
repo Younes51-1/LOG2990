@@ -1,6 +1,6 @@
 export const options = {
-    config: { routeOne: '/config', btnOne: 'Supprimer la partie', routeTwo: '/config', btnTwo: 'Réinitialiser les scores' },
-    selection: { routeOne: '/game', btnOne: 'Jouer', routeTwo: '/creation', btnTwo: 'Créer' },
+    config: { routeOne: '/config', btnOne: 'DELETE', routeTwo: '/config', btnTwo: 'RESTART' },
+    selection: { routeOne: '/game', btnOne: 'SUBMIT', routeTwo: '/game', btnTwo: 'SUBMIT' },
 };
 
 export enum PageKeys {

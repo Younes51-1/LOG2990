@@ -13,11 +13,13 @@ import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { SelectionPageComponent } from '@app/pages/selection-page/selection-page.component';
 import { SlickCarouselModule } from 'ngx-slick-carousel';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { GameCardComponent } from './components/game-card/game-card.component';
-import { ConfigPageComponent } from './pages/config-page/config-page.component';
-import { ConfigParamsComponent } from './components/config-params/config-params.component';
+import { GameCardComponent } from '@app/components/game-card/game-card.component';
+import { ConfigPageComponent } from '@app/pages/config-page/config-page.component';
+import { ConfigParamsComponent } from '@app/components/config-params/config-params.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { CommonModule } from '@angular/common';
+import { CreationGamePageComponent } from '@app/pages/creation-game-page/creation-game-page.component';
 
 /**
  * Main module that is used in main.ts.
@@ -35,6 +37,7 @@ import { MatInputModule } from '@angular/material/input';
         SidebarComponent,
         GameCardComponent,
         ConfigPageComponent,
+        CreationGamePageComponent,
         ConfigParamsComponent,
     ],
     providers: [],
@@ -50,6 +53,7 @@ import { MatInputModule } from '@angular/material/input';
         MatExpansionModule,
         MatFormFieldModule,
         MatInputModule,
+        CommonModule,
     ],
 })
 export class AppModule {}
