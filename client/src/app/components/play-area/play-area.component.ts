@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { Vec2 } from '@app/interfaces/vec2';
 import { MouseService } from '@app/services/mouse.service';
+import { DifferencesFoundService } from '@app/services/differencesFound/differences-found.service';
 
 // TODO : Avoir un fichier séparé pour les constantes!
 export const DEFAULT_WIDTH = 640;
@@ -35,7 +36,7 @@ export class PlayAreaComponent implements AfterViewInit {
     audioInvalid = new Audio('https://dl.dropboxusercontent.com/s/8eh3p45prkuvw8b/invalid_sound.mp3');
     private canvasSize = { x: DEFAULT_WIDTH, y: DEFAULT_HEIGHT };
 
-    constructor(private mouseService: MouseService) {}
+    constructor(private mouseService: MouseService, private differencesFoundService: DifferencesFoundService) {}
 
     get width(): number {
         return this.canvasSize.x;
@@ -81,9 +82,11 @@ export class PlayAreaComponent implements AfterViewInit {
         if (this.playerIsAllowedToClick) {
             this.mousePosition = this.mouseService.mouseClick(event, this.mousePosition);
             // isValidated doit utiliser doit prendre la validation de la tentative du serveur dynamique
-            const isValidated = this.mousePosition.x === 2;
+            const isValidated = this.mousePosition.x <= 200;
             switch (isValidated) {
                 case true: {
+                    this.handleDifferenceCount();
+                    this.correctAnswerVisuals(canvas);
                     this.audioValid.pause();
                     this.audioValid.currentTime = 0;
                     this.audioValid.play();
@@ -125,6 +128,31 @@ export class PlayAreaComponent implements AfterViewInit {
                 this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
                 this.playerIsAllowedToClick = true;
             }, nMilliseconds);
+        }
+    }
+
+    handleDifferenceCount() {
+        const count = this.differencesFoundService.getDifferencesFound();
+        this.differencesFoundService.updateDifferencesFound(count + 1);
+    }
+
+    correctAnswerVisuals(canvas: HTMLCanvasElement) {
+        const timeOut = 500;
+        const context1 = canvas.getContext('2d');
+        const layer = document.createElement('canvas');
+        layer.width = this.width;
+        layer.height = this.height;
+        const layerContext = layer.getContext('2d');
+        if (context1 && layerContext) {
+            layerContext.fillStyle = 'red';
+            layerContext.fillRect(this.mousePosition.x, this.mousePosition.y, 20, 20);
+
+            context1.drawImage(layer, 0, 0, this.width, this.height);
+
+            setTimeout(() => {
+                context1.clearRect(0, 0, this.width, this.height);
+                context1.drawImage(this.original, 0, 0, this.width, this.height);
+            }, timeOut);
         }
     }
 }

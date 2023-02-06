@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { DifferencesFoundService } from '@app/services/differencesFound/differences-found.service';
 
 enum Times {
     MinInSec = 60,
@@ -15,11 +16,18 @@ export class SidebarComponent implements OnInit {
     difficulty = 'Easy mode';
     totalNumber = '10';
     totalLeft = '3'; // CALL SERVICE DIFFERENCESCOUNT
+    differencesFound = 0;
 
     minutes = 0;
     seconds = 0;
     milliseconds = 0;
     intervalId = 0;
+
+    constructor(private differencesFoundService: DifferencesFoundService) {
+        this.differencesFoundService.differencesFound$.subscribe((count) => {
+            this.differencesFound = count;
+        });
+    }
 
     ngOnInit() {
         this.minutes = 0;
