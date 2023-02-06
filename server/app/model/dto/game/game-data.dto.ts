@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { GameForm } from './gameForm.dto';
+import { GameForm } from './game-form.dto';
 
 export class GameData {
     @ApiProperty()

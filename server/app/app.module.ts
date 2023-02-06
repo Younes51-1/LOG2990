@@ -3,7 +3,9 @@ import { GameService } from '@app/services/game/game.service';
 import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ClassicModeGateway } from './gateways/classicMode/classic-mode.gateway';
 import { Game, gameSchema } from './model/database/game';
+import { ClassicModeService } from './services/classicMode/classic-mode.service';
 
 @Module({
     imports: [
@@ -18,6 +20,6 @@ import { Game, gameSchema } from './model/database/game';
         MongooseModule.forFeature([{ name: Game.name, schema: gameSchema }]),
     ],
     controllers: [GameController],
-    providers: [GameService, Logger],
+    providers: [GameService, ClassicModeGateway, ClassicModeService, Logger],
 })
 export class AppModule {}

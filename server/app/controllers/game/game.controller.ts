@@ -1,6 +1,6 @@
-import { GameData } from '@app/model/dto/game/gameData.dto';
-import { GameForm } from '@app/model/dto/game/gameForm.dto';
-import { NewGame } from '@app/model/dto/game/newGame.dto';
+import { GameData } from '@app/model/dto/game/game-data.dto';
+import { GameForm } from '@app/model/dto/game/game-form.dto';
+import { NewGame } from '@app/model/dto/game/new-game.dto';
 import { GameService } from '@app/services/game/game.service';
 import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
 import { ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';

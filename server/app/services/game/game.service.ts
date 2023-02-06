@@ -1,9 +1,9 @@
 import { DIFFICULTY_THRESHOLD, SERVER_URL } from '@app/constants';
 import { Game, GameDocument } from '@app/model/database/game';
-import { GameData } from '@app/model/dto/game/gameData.dto';
-import { GameForm } from '@app/model/dto/game/gameForm.dto';
-import { NewGame } from '@app/model/dto/game/newGame.dto';
-import { BestTime } from '@app/model/schema/bestTimes.schema';
+import { GameData } from '@app/model/dto/game/game-data.dto';
+import { GameForm } from '@app/model/dto/game/game-form.dto';
+import { NewGame } from '@app/model/dto/game/new-game.dto';
+import { BestTime } from '@app/model/schema/best-times.schema';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as fs from 'fs';

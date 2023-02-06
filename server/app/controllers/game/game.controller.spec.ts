@@ -1,7 +1,7 @@
 import { GameController } from '@app/controllers/game/game.controller';
-import { GameData } from '@app/model/dto/game/gameData.dto';
-import { GameForm } from '@app/model/dto/game/gameForm.dto';
-import { NewGame } from '@app/model/dto/game/newGame.dto';
+import { GameData } from '@app/model/dto/game/game-data.dto';
+import { GameForm } from '@app/model/dto/game/game-form.dto';
+import { NewGame } from '@app/model/dto/game/new-game.dto';
 import { GameService } from '@app/services/game/game.service';
 import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
