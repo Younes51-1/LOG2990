@@ -16,8 +16,8 @@ enum Times {
 export class SidebarComponent implements OnInit {
     gameMode = 'Classic mode';
     difficulty = 'Easy mode';
-    totalNumber = '10';
-    totalLeft = '3'; // CALL SERVICE DIFFERENCESCOUNT
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+    totalNumber = 10;
     differencesFound = 0;
 
     minutes = 0;
@@ -41,8 +41,7 @@ export class SidebarComponent implements OnInit {
                 this.seconds = 0;
                 this.minutes++;
             }
-            if (this.seconds === Times.TenSec) {
-                // IF END OF THE GAME
+            if (this.differencesFound === this.totalNumber) {
                 clearInterval(this.intervalId);
                 this.openDialog();
             }
