@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DifferencesFoundService } from '@app/services/differencesFound/differences-found.service';
+import { MatDialog } from '@angular/material/dialog';
+import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
 
 enum Times {
     MinInSec = 60,
@@ -23,12 +25,11 @@ export class SidebarComponent implements OnInit {
     milliseconds = 0;
     intervalId = 0;
 
-    constructor(private differencesFoundService: DifferencesFoundService) {
+    constructor(private differencesFoundService: DifferencesFoundService, private dialog: MatDialog) {
         this.differencesFoundService.differencesFound$.subscribe((count) => {
             this.differencesFound = count;
         });
     }
-
     ngOnInit() {
         this.minutes = 0;
         this.seconds = 0;
@@ -43,7 +44,12 @@ export class SidebarComponent implements OnInit {
             if (this.seconds === Times.TenSec) {
                 // IF END OF THE GAME
                 clearInterval(this.intervalId);
+                this.openDialog();
             }
         }, Times.SecInMil);
+    }
+
+    openDialog() {
+        this.dialog.open(EndgameDialogComponent, { panelClass: 'mat-dialog-container-global', disableClose: true });
     }
 }

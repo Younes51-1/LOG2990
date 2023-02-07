@@ -7,15 +7,15 @@
         </button>
         <img src="../../../assets/logo.png" class="middle-element" alt="Logo Projet">
     </section>
-    <h1 class="header-item">GAME MODES</h1>
+    <h1 class="header-item">MODES DE JEU</h1>
     <section class="section">
         <div class="card">
-            <p class="solo button"><button routerLink={{classiqueLink}}>CLASSIC</button></p>
-            <p class="chrono button"><button routerLink={{limitedLink}}>CHRONO</button></p>
+            <p class="solo button"><button routerLink={{classiqueLink}}>CLASSIQUE</button></p>
+            <p class="chrono button"><button routerLink={{limitedLink}}>TEMPS LIMITÉ</button></p>
         </div>
     </section>
     <footer class="footer-item">
-        <p>TEAM {{teamName}}</p>
+        <p>ÉQUIPE {{teamName}}</p>
         <p>
             <span *ngFor="let teamMate of teamMembers; let isLast=last">{{teamMate}}{{isLast ? '' : ', '}}</span>
         </p>
