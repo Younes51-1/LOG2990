@@ -1,12 +1,9 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
-import { Vec2 } from '@app/interfaces/vec2';
 
 describe('PlayAreaComponent', () => {
     let component: PlayAreaComponent;
     let fixture: ComponentFixture<PlayAreaComponent>;
-    let mouseEvent: MouseEvent;
-
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [PlayAreaComponent],
@@ -23,30 +20,6 @@ describe('PlayAreaComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('mouseHitDetect should assign the mouse position to mousePosition variable', () => {
-        const expectedPosition: Vec2 = { x: 100, y: 200 };
-        mouseEvent = {
-            offsetX: expectedPosition.x,
-            offsetY: expectedPosition.y,
-            button: 0,
-        } as MouseEvent;
-        component.mouseHitDetect(mouseEvent);
-        expect(component.mousePosition).toEqual(expectedPosition);
-    });
-
-    /* eslint-disable @typescript-eslint/no-magic-numbers -- Add reason */
-    it('mouseHitDetect should not change the mouse position if it is not a left click', () => {
-        const expectedPosition: Vec2 = { x: 0, y: 0 };
-        mouseEvent = {
-            offsetX: expectedPosition.x + 10,
-            offsetY: expectedPosition.y + 10,
-            button: 1,
-        } as MouseEvent;
-        component.mouseHitDetect(mouseEvent);
-        expect(component.mousePosition).not.toEqual({ x: mouseEvent.offsetX, y: mouseEvent.offsetY });
-        expect(component.mousePosition).toEqual(expectedPosition);
-    });
-
     it('buttonDetect should modify the buttonPressed variable', () => {
         const expectedKey = 'a';
         const buttonEvent = {
@@ -55,4 +28,46 @@ describe('PlayAreaComponent', () => {
         component.buttonDetect(buttonEvent);
         expect(component.buttonPressed).toEqual(expectedKey);
     });
+
+    it('should draw ERREUR on canvas1', () => {
+        const textDimensions = { x: 50, y: 30 };
+        const spy = spyOn(component.context1, 'fillText');
+        component.visualRetroaction(component.canvas1.nativeElement);
+        expect(spy).toHaveBeenCalledWith(
+            'ERREUR',
+            component.mousePosition.x - textDimensions.x / 2,
+            component.mousePosition.y + textDimensions.y / 2,
+            textDimensions.x,
+        );
+    });
+
+    it('should draw ERREUR on canvas2', () => {
+        const textDimensions = { x: 50, y: 30 };
+        const spy = spyOn(component.context2, 'fillText');
+        component.visualRetroaction(component.canvas2.nativeElement);
+        expect(spy).toHaveBeenCalledWith(
+            'ERREUR',
+            component.mousePosition.x - textDimensions.x / 2,
+            component.mousePosition.y + textDimensions.y / 2,
+            textDimensions.x,
+        );
+    });
+
+    it('should make ERREUR disappear after 1 second on canvas1', fakeAsync(() => {
+        const spy = spyOn(component.context1, 'drawImage');
+        component.visualRetroaction(component.canvas1.nativeElement);
+        const ms = 1000;
+        tick(ms);
+        expect(spy).toHaveBeenCalled();
+        expect(component.playerIsAllowedToClick).toBeTruthy();
+    }));
+
+    it('should make ERREUR disappear after 1 second on canvas2', fakeAsync(() => {
+        const spy = spyOn(component.context2, 'drawImage');
+        component.visualRetroaction(component.canvas2.nativeElement);
+        const ms = 1000;
+        tick(ms);
+        expect(spy).toHaveBeenCalled();
+        expect(component.playerIsAllowedToClick).toBeTruthy();
+    }));
 });
