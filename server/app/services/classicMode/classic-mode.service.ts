@@ -18,7 +18,7 @@ export class ClassicModeService {
     }
 
     validateDifference(differencePos: Vector2D): boolean {
-        const validated = this.userGame.gameData.differenceMatrix[differencePos.x][differencePos.y] !== EMPTY_PIXEL_VALUE;
+        const validated = this.userGame.gameData.differenceMatrix[differencePos.y][differencePos.x] !== EMPTY_PIXEL_VALUE;
         if (validated) {
             this.userGame.nbDifferenceToFind--;
         }

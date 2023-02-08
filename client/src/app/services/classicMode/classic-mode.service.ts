@@ -4,7 +4,7 @@ import { GameData } from '@app/interfaces/game-data';
 import { Timer } from '@app/interfaces/timer';
 import { UserGame } from '@app/interfaces/user-game';
 import { Vec2 } from '@app/interfaces/vec2';
-import { CommunicationSocketService } from '@app/services/socketManager/communication-socket.service';
+import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
 
 @Injectable({
     providedIn: 'root',
