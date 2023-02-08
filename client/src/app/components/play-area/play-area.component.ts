@@ -1,8 +1,9 @@
-import { AfterViewInit, Component, ElementRef, HostListener, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, Input, ViewChild } from '@angular/core';
 import { Vec2 } from '@app/interfaces/vec2';
 import { MouseService } from '@app/services/mouse.service';
 import { DifferencesFoundService } from '@app/services/differencesFound/differences-found.service';
 import { DetectionDifferenceService } from '@app/services/detection-difference.service';
+import { CommunicationService } from '@app/services/communication.service';
 
 // TODO : Avoir un fichier séparé pour les constantes!
 export const DEFAULT_WIDTH = 640;
@@ -25,6 +26,9 @@ export enum MouseButton {
 export class PlayAreaComponent implements AfterViewInit {
     @ViewChild('canvas1', { static: false }) canvas1: ElementRef<HTMLCanvasElement>;
     @ViewChild('canvas2', { static: false }) canvas2: ElementRef<HTMLCanvasElement>;
+
+    @Input() gameName: string;
+
     playerIsAllowedToClick = true;
     context1: CanvasRenderingContext2D;
     context1text: CanvasRenderingContext2D;
@@ -36,12 +40,14 @@ export class PlayAreaComponent implements AfterViewInit {
     audioValid = new Audio('https://dl.dropboxusercontent.com/s/dxe6u6194129egw/valid_sound.mp3');
     audioInvalid = new Audio('https://dl.dropboxusercontent.com/s/8eh3p45prkuvw8b/invalid_sound.mp3');
     radius: number = 3;
+    differenceMatrix: number[][];
     private canvasSize = { x: DEFAULT_WIDTH, y: DEFAULT_HEIGHT };
 
     constructor(
         private mouseService: MouseService,
         private differencesFoundService: DifferencesFoundService,
         private detectionService: DetectionDifferenceService,
+        private communicationService: CommunicationService,
     ) {}
 
     get width(): number {
@@ -58,6 +64,11 @@ export class PlayAreaComponent implements AfterViewInit {
     }
 
     ngAfterViewInit(): void {
+        this.communicationService.getGame(this.gameName).subscribe((res) => {
+            if (res.differenceMatrix) {
+                this.differenceMatrix = res.differenceMatrix;
+            }
+        });
         const context1 = this.canvas1.nativeElement.getContext('2d');
         if (context1) {
             this.context1 = context1;
@@ -70,10 +81,12 @@ export class PlayAreaComponent implements AfterViewInit {
             this.context2.fillStyle = 'red';
             this.context2.font = '30px comic sans ms';
         }
-        // this.original.src = '../../../assets/card.png';
-        // this.modified.src = '../../../assets/card.png';
-        this.original.src = '../../../assets/image_2_diff.bmp';
-        this.modified.src = '../../../assets/image_2_diff.bmp';
+        this.communicationService.getGame(this.gameName).subscribe((res) => {
+            if (res.gameForm) {
+                this.original.src = res.gameForm.image1url;
+                this.modified.src = res.gameForm.image2url;
+            }
+        });
         this.original.onload = () => {
             if (context1 != null) {
                 context1.drawImage(this.original, 0, 0, this.width, this.height);
@@ -90,11 +103,11 @@ export class PlayAreaComponent implements AfterViewInit {
         if (this.playerIsAllowedToClick) {
             this.mousePosition = this.mouseService.mouseClick(event, this.mousePosition);
             // isValidated doit utiliser doit prendre la validation de la tentative du serveur dynamique
-            const isValidated = this.mousePosition.x <= 200;
+            const isValidated = this.differenceMatrix[this.mousePosition.y][this.mousePosition.x] === 0;
             switch (isValidated) {
                 case true: {
                     this.handleDifferenceCount();
-                    this.correctAnswerVisuals(canvas, this.mousePosition.x, this.mousePosition.y);
+                    this.correctAnswerVisuals(this.mousePosition.x, this.mousePosition.y);
                     this.audioValid.pause();
                     this.audioValid.currentTime = 0;
                     this.audioValid.play();
@@ -144,66 +157,51 @@ export class PlayAreaComponent implements AfterViewInit {
         this.differencesFoundService.updateDifferencesFound(count + 1);
     }
 
-    correctAnswerVisuals(canvas: HTMLCanvasElement, xCoord: number, yCoord: number) {
-        // const testImageData = this.canvasToBmp(this.canvas1.nativeElement);
-        // console.log(testImageData);
-        const imageRgbtData1 = this.context1.getImageData(0, 0, this.width, this.height);
-        const imageRgbtData2 = this.context2.getImageData(0, 0, this.width, this.height);
-        const imageData1 = this.rgbtToRgb(imageRgbtData1);
-        const imageData2 = this.rgbtToRgb(imageRgbtData2);
-        const arrayBuffer1 = imageData1.buffer;
-        const arrayBuffer2 = imageData2.buffer;
-        console.log(imageData1);
-
-        const image1Matrix: number[][] = this.detectionService.convertImageToMatrix(arrayBuffer1);
-        const image2Matrix: number[][] = this.detectionService.convertImageToMatrix(arrayBuffer2);
-
-        const differenceMatrix = this.detectionService.diffrencesMatrix(image1Matrix, image2Matrix, this.radius);
-
-        const difference: number[][] = this.detectionService.extractDifference(differenceMatrix, xCoord, yCoord);
-
-        this.flashDifference(canvas, difference);
+    correctAnswerVisuals(xCoord: number, yCoord: number) {
+        this.communicationService.getGame(this.gameName).subscribe(async (res) => {
+            if (res.differenceMatrix) {
+                this.differenceMatrix = res.differenceMatrix;
+            }
+        });
+        // console.log(this.mousePosition.x, this.mousePosition.y);
+        const difference: number[][] = this.detectionService.extractDifference(this.differenceMatrix, xCoord, yCoord);
+        // console.log(difference[this.mousePosition.y][this.mousePosition.x]);
+        this.flashDifference(difference);
     }
 
-    flashDifference(canvas: HTMLCanvasElement, difference: number[][]) {
-        const timeOut = 500;
-        const context1 = canvas.getContext('2d');
-        const layer = document.createElement('canvas');
-        layer.width = this.width;
-        layer.height = this.height;
-        const layerContext = layer.getContext('2d');
-        if (context1 && layerContext) {
-            // layerContext.fillStyle = 'red';
-            // for (let i = 0; i < difference.length; i++) {
-            //     for (let j = 0; j < difference[i].length; j++) {
-            //         if (difference[i][j] === 1) {
-            //             layerContext.fillRect(j, i, 1, 1);
-            //             layerContext.drawImage(layer, 0, 0, this.width, this.height);
-            //         }
-            //     }
-            // }
-            //
-            layerContext.fillStyle = 'red';
-            layerContext.fillRect(this.mousePosition.x, this.mousePosition.y, 20, 20);
+    flashDifference(difference: number[][]) {
+        const timeOut = 800;
+        const layer1 = document.createElement('canvas');
+        const layer2 = document.createElement('canvas');
+        layer1.width = this.width;
+        layer1.height = this.height;
+        layer2.width = this.width;
+        layer2.height = this.height;
+        const layerContext1 = layer1.getContext('2d');
+        const layerContext2 = layer2.getContext('2d');
+        if (this.context1 && layerContext1 && this.context2 && layerContext2) {
+            layerContext1.fillStyle = 'red';
+            layerContext2.fillStyle = 'red';
+            for (let i = 0; i < difference.length; i++) {
+                for (let j = 0; j < difference[i].length; j++) {
+                    if (difference[i][j] === 1) {
+                        layerContext1.fillRect(j, i, 1, 1);
+                        layerContext2.fillRect(j, i, 1, 1);
+                    }
+                }
+            }
+            layerContext1.drawImage(layer1, 0, 0, this.width, this.height);
+            layerContext2.drawImage(layer2, 0, 0, this.width, this.height);
 
-            context1.drawImage(layer, 0, 0, this.width, this.height);
+            this.context1.drawImage(layer1, 0, 0, this.width, this.height);
+            this.context2.drawImage(layer2, 0, 0, this.width, this.height);
 
             setTimeout(() => {
-                context1.clearRect(0, 0, this.width, this.height);
-                context1.drawImage(this.original, 0, 0, this.width, this.height);
+                this.context1.clearRect(0, 0, this.width, this.height);
+                this.context1.drawImage(this.original, 0, 0, this.width, this.height);
+                this.context2.clearRect(0, 0, this.width, this.height);
+                this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
             }, timeOut);
         }
-    }
-
-    rgbtToRgb(rgbtImage: ImageData) {
-        const rgbData = new Uint8ClampedArray((rgbtImage.data.length / 4) * 3);
-
-        for (let i = 0; i < rgbtImage.data.length; i += 4) {
-            rgbData[(i / 4) * 3] = rgbtImage.data[i];
-            rgbData[(i / 4) * 3 + 1] = rgbtImage.data[i + 1];
-            rgbData[(i / 4) * 3 + 2] = rgbtImage.data[i + 2];
-        }
-
-        return rgbData;
     }
 }

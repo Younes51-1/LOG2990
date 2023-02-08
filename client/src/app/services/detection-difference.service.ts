@@ -41,7 +41,6 @@ export class DetectionDifferenceService {
         const offset = new DataView(buffer).getInt32(OffsetValues.OFFSET, true);
         const width = Math.abs(new DataView(buffer).getInt32(OffsetValues.WIDTH, true));
         const height = Math.abs(new DataView(buffer).getInt32(OffsetValues.HEIGHT, true));
-        console.log(buffer, offset, width, height);
 
         const matrix = this.createEmptyMatrix(height, width, emptyPixelValue);
 
@@ -208,14 +207,14 @@ export class DetectionDifferenceService {
         const result = Array(differenceMatrix.length)
             .fill(0)
             .map(() => Array(differenceMatrix[0].length).fill(0));
-        const difference = this.findDifference(differenceMatrix, xCoord, yCoord);
+        const difference = this.findDifference(differenceMatrix, yCoord, xCoord);
         for (const [x, y] of difference) {
             result[x][y] = 1;
         }
         return result;
     }
 
-    findDifference(differenceMatrix: number[][], xCoord: number, yCoord: number) {
+    findDifference(differenceMatrix: number[][], yCoord: number, xCoord: number) {
         const difference: [number, number][] = [];
         const visited = Array(differenceMatrix.length)
             .fill(0)
@@ -239,15 +238,15 @@ export class DetectionDifferenceService {
                     ny >= 0 &&
                     ny < differenceMatrix[0].length &&
                     !visited[nx][ny] &&
-                    differenceMatrix[nx][ny] === 1
+                    differenceMatrix[nx][ny] === 0
                 ) {
                     dfs(nx, ny);
                 }
             }
         };
 
-        if (differenceMatrix[xCoord][yCoord] === 1) {
-            dfs(xCoord, yCoord);
+        if (differenceMatrix[yCoord][xCoord] === 0) {
+            dfs(yCoord, xCoord);
         }
 
         return difference;
