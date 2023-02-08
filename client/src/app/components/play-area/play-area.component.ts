@@ -41,6 +41,7 @@ export class PlayAreaComponent implements AfterViewInit {
     audioInvalid = new Audio('https://dl.dropboxusercontent.com/s/8eh3p45prkuvw8b/invalid_sound.mp3');
     radius: number = 3;
     differenceMatrix: number[][];
+    currentDifferenceMatrix: number[][];
     private canvasSize = { x: DEFAULT_WIDTH, y: DEFAULT_HEIGHT };
 
     constructor(
@@ -87,6 +88,8 @@ export class PlayAreaComponent implements AfterViewInit {
                 this.modified.src = res.gameForm.image2url;
             }
         });
+        this.original.crossOrigin = 'Anonymous';
+        this.modified.crossOrigin = 'Anonymous';
         this.original.onload = () => {
             if (context1 != null) {
                 context1.drawImage(this.original, 0, 0, this.width, this.height);
@@ -111,6 +114,7 @@ export class PlayAreaComponent implements AfterViewInit {
                     this.audioValid.pause();
                     this.audioValid.currentTime = 0;
                     this.audioValid.play();
+                    // this.removeDifference(canvas);
                     // appel fonctions Tentative validee
                     break;
                 }
@@ -128,6 +132,7 @@ export class PlayAreaComponent implements AfterViewInit {
         const nMilliseconds = 1000;
 
         if (canvas === this.canvas1.nativeElement) {
+            this.context1.fillStyle = 'red';
             this.context1.fillText(
                 'ERREUR',
                 this.mousePosition.x - textDimensions.x / 2,
@@ -139,6 +144,7 @@ export class PlayAreaComponent implements AfterViewInit {
                 this.playerIsAllowedToClick = true;
             }, nMilliseconds);
         } else if (canvas === this.canvas2.nativeElement) {
+            this.context2.fillStyle = 'red';
             this.context2.fillText(
                 'ERREUR',
                 this.mousePosition.x - textDimensions.x / 2,
@@ -158,15 +164,8 @@ export class PlayAreaComponent implements AfterViewInit {
     }
 
     correctAnswerVisuals(xCoord: number, yCoord: number) {
-        this.communicationService.getGame(this.gameName).subscribe(async (res) => {
-            if (res.differenceMatrix) {
-                this.differenceMatrix = res.differenceMatrix;
-            }
-        });
-        // console.log(this.mousePosition.x, this.mousePosition.y);
-        const difference: number[][] = this.detectionService.extractDifference(this.differenceMatrix, xCoord, yCoord);
-        // console.log(difference[this.mousePosition.y][this.mousePosition.x]);
-        this.flashDifference(difference);
+        this.currentDifferenceMatrix = this.detectionService.extractDifference(this.differenceMatrix, xCoord, yCoord);
+        this.flashDifference(this.currentDifferenceMatrix);
     }
 
     flashDifference(difference: number[][]) {
@@ -202,6 +201,42 @@ export class PlayAreaComponent implements AfterViewInit {
                 this.context2.clearRect(0, 0, this.width, this.height);
                 this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
             }, timeOut);
+        }
+    }
+
+    removeDifference(canvas: HTMLCanvasElement) {
+        const newLayer = document.createElement('canvas');
+        newLayer.width = this.width;
+        newLayer.height = this.height;
+        const layerContext = newLayer.getContext('2d');
+        if (this.context1 && this.context2 && layerContext) {
+            if (canvas === this.canvas1.nativeElement) {
+                for (let i = 0; i < this.currentDifferenceMatrix.length; i++) {
+                    for (let j = 0; j < this.currentDifferenceMatrix[0].length; j++) {
+                        if (this.currentDifferenceMatrix[i][j] === 1) {
+                            const imageData = this.context2.getImageData(i, j, 1, 1);
+                            const fillStyle = 'rgb(' + imageData.data[0] + ',' + imageData.data[1] + ', ' + imageData.data[2] + ')';
+                            layerContext.fillStyle = fillStyle;
+                            layerContext.fillRect(j, i, 1, 1);
+                        }
+                    }
+                }
+                layerContext.drawImage(newLayer, 0, 0, this.width, this.height);
+                this.context1.drawImage(newLayer, 0, 0, this.width, this.height);
+            } else if (canvas === this.canvas2.nativeElement) {
+                for (let i = 0; i < this.currentDifferenceMatrix.length; i++) {
+                    for (let j = 0; j < this.currentDifferenceMatrix[0].length; j++) {
+                        if (this.currentDifferenceMatrix[i][j] === 1) {
+                            const imageData = this.context1.getImageData(i, j, 1, 1);
+                            const fillStyle = 'rgb(' + imageData.data[0] + ',' + imageData.data[1] + ', ' + imageData.data[2] + ')';
+                            layerContext.fillStyle = fillStyle;
+                            layerContext.fillRect(j, i, 1, 1);
+                        }
+                    }
+                }
+                layerContext.drawImage(newLayer, 0, 0, this.width, this.height);
+                this.context2.drawImage(newLayer, 0, 0, this.width, this.height);
+            }
         }
     }
 }
