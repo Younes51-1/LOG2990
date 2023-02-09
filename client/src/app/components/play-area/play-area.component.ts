@@ -114,7 +114,6 @@ export class PlayAreaComponent implements AfterViewInit {
                     this.audioValid.pause();
                     this.audioValid.currentTime = 0;
                     this.audioValid.play();
-                    // this.removeDifference(canvas);
                     // appel fonctions Tentative validee
                     break;
                 }
@@ -200,43 +199,37 @@ export class PlayAreaComponent implements AfterViewInit {
                 this.context1.drawImage(this.original, 0, 0, this.width, this.height);
                 this.context2.clearRect(0, 0, this.width, this.height);
                 this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
+                this.removeDifference(this.currentDifferenceMatrix);
             }, timeOut);
         }
     }
 
-    removeDifference(canvas: HTMLCanvasElement) {
-        const newLayer = document.createElement('canvas');
-        newLayer.width = this.width;
-        newLayer.height = this.height;
-        const layerContext = newLayer.getContext('2d');
-        if (this.context1 && this.context2 && layerContext) {
-            if (canvas === this.canvas1.nativeElement) {
-                for (let i = 0; i < this.currentDifferenceMatrix.length; i++) {
-                    for (let j = 0; j < this.currentDifferenceMatrix[0].length; j++) {
-                        if (this.currentDifferenceMatrix[i][j] === 1) {
-                            const imageData = this.context2.getImageData(i, j, 1, 1);
-                            const fillStyle = 'rgb(' + imageData.data[0] + ',' + imageData.data[1] + ', ' + imageData.data[2] + ')';
-                            layerContext.fillStyle = fillStyle;
-                            layerContext.fillRect(j, i, 1, 1);
-                        }
-                    }
+    removeDifference(differenceMatrix: number[][]) {
+        const differencePositions: Vec2[] = [];
+        const image1 = this.context1.getImageData(0, 0, this.width, this.height);
+        const image2 = this.context2.getImageData(0, 0, this.width, this.height);
+
+        for (let i = 0; i < differenceMatrix.length; i++) {
+            for (let j = 0; j < differenceMatrix[0].length; j++) {
+                if (differenceMatrix[i][j] === 1) {
+                    differencePositions.push({ x: i, y: j });
                 }
-                layerContext.drawImage(newLayer, 0, 0, this.width, this.height);
-                this.context1.drawImage(newLayer, 0, 0, this.width, this.height);
-            } else if (canvas === this.canvas2.nativeElement) {
-                for (let i = 0; i < this.currentDifferenceMatrix.length; i++) {
-                    for (let j = 0; j < this.currentDifferenceMatrix[0].length; j++) {
-                        if (this.currentDifferenceMatrix[i][j] === 1) {
-                            const imageData = this.context1.getImageData(i, j, 1, 1);
-                            const fillStyle = 'rgb(' + imageData.data[0] + ',' + imageData.data[1] + ', ' + imageData.data[2] + ')';
-                            layerContext.fillStyle = fillStyle;
-                            layerContext.fillRect(j, i, 1, 1);
-                        }
-                    }
-                }
-                layerContext.drawImage(newLayer, 0, 0, this.width, this.height);
-                this.context2.drawImage(newLayer, 0, 0, this.width, this.height);
             }
         }
+
+        // eslint-disable-next-line guard-for-in
+        for (const i in differencePositions) {
+            const x = differencePositions[i].x;
+            const y = differencePositions[i].y;
+            const index = (x * this.width + y) * 4;
+
+            image2.data[index] = image1.data[index];
+            image2.data[index + 1] = image1.data[index + 1];
+            image2.data[index + 2] = image1.data[index + 2];
+            image2.data[index + 3] = image1.data[index + 3];
+        }
+        this.context2.clearRect(0, 0, this.width, this.height);
+        this.context2.putImageData(image2, 0, 0);
+        this.modified.src = this.canvas2.nativeElement.toDataURL();
     }
 }
