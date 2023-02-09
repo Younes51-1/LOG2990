@@ -1,8 +1,8 @@
 <div id="playarea-container">
     <div class="canvas-container">
-        <canvas #canvas1 (click)="mouseHitDetect($event)" [attr.width]="width" [attr.height]="height"></canvas>
+        <canvas #canvas1 (click)="mouseClickAttempt($event, canvas1)" [attr.width]="width" [attr.height]="height"></canvas>
     </div>
     <div class="canvas-container">
-        <canvas #canvas2 (click)="mouseHitDetect($event)" [attr.width]="width" [attr.height]="height"></canvas>
+        <canvas #canvas2 (click)="mouseClickAttempt($event, canvas2)" [attr.width]="width" [attr.height]="height"></canvas>
     </div>
 </div>

@@ -1,14 +1,13 @@
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { MatDialog } from '@angular/material/dialog';
-import { AppRoutingModule } from '@app/modules/app-routing.module';
-import { Router } from '@angular/router';
+import { HttpClientModule } from '@angular/common/http';
+import { NgModule } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialogModule } from '@angular/material/dialog';
 import { ConfigPageComponent } from '@app/pages/config-page/config-page.component';
-import { Location } from '@angular/common';
-import { By } from '@angular/platform-browser';
-import { CommunicationService } from '@app/services/communication.service';
-import SpyObj = jasmine.SpyObj;
-import { HttpResponse } from '@angular/common/http';
-import { of } from 'rxjs';
+
+@NgModule({
+    imports: [MatDialogModule, HttpClientModule],
+})
+export class DynamicTestModule {}
 
 describe('ConfigPageComponent', () => {
     let component: ConfigPageComponent;
@@ -50,16 +49,7 @@ describe('ConfigPageComponent', () => {
 
         await TestBed.configureTestingModule({
             declarations: [ConfigPageComponent],
-            imports: [AppRoutingModule],
-            providers: [
-                {
-                    provide: MatDialog,
-                },
-                {
-                    provide: CommunicationService,
-                    useValue: communicationServiceSpy,
-                },
-            ],
+            imports: [DynamicTestModule],
         }).compileComponents();
     });
 

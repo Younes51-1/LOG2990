@@ -1,7 +1,13 @@
+import { HttpClientModule } from '@angular/common/http';
+import { NgModule } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { MatDialogModule } from '@angular/material/dialog';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
-import { AppRoutingModule } from '@app/modules/app-routing.module';
-import { Location } from '@angular/common';
+
+@NgModule({
+    imports: [MatDialogModule, HttpClientModule],
+})
+export class DynamicTestModule {}
 
 describe('SidebarComponent', () => {
     let component: SidebarComponent;
@@ -10,7 +16,7 @@ describe('SidebarComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [SidebarComponent],
-            imports: [AppRoutingModule],
+            imports: [DynamicTestModule],
         }).compileComponents();
     });
 

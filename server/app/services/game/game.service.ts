@@ -3,7 +3,7 @@ import { Game, GameDocument } from '@app/model/database/game';
 import { GameData } from '@app/model/dto/game/game-data.dto';
 import { GameForm } from '@app/model/dto/game/game-form.dto';
 import { NewGame } from '@app/model/dto/game/new-game.dto';
-import { BestTime } from '@app/model/schema/best-time.schema';
+import { BestTime } from '@app/model/schema/best-times.schema';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as fs from 'fs';

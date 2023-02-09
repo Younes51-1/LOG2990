@@ -1,4 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
+import { GameData } from '@app/interfaces/game-data';
+import { Timer } from '@app/interfaces/timer';
+import { DifferencesFoundService } from '@app/services/differencesFound/differences-found.service';
 
 enum Times {
     MinInSec = 60,
@@ -10,18 +15,33 @@ enum Times {
     templateUrl: './sidebar.component.html',
     styleUrls: ['./sidebar.component.scss'],
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent implements OnChanges, OnDestroy {
+    @Input() gameName: string;
+    @Input() gameData: GameData;
+    @Input() timer: Timer;
+
     gameMode = 'Classic mode';
     difficulty = 'Easy mode';
-    totalNumber = '10';
-    totalLeft = '3'; // CALL SERVICE DIFFERENCESCOUNT
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+    totalNumber: number;
+    differencesFound = 0;
+    dialogOpened = false;
 
     minutes: number;
     seconds: number;
     milliseconds: number;
     intervalId: number;
 
-    ngOnInit() {
+    constructor(private differencesFoundService: DifferencesFoundService, private dialog: MatDialog) {
+        this.differencesFoundService.differencesFound$.subscribe((count) => {
+            this.differencesFound = count;
+            if (this.differencesFound === this.totalNumber) {
+                this.endGame();
+            }
+        });
+    }
+    ngOnChanges() {
+        this.totalNumber = this.gameData.gameForm.nbDifference;
         this.minutes = 0;
         this.seconds = 0;
         this.milliseconds = 0;
@@ -32,11 +52,18 @@ export class SidebarComponent implements OnInit {
                 this.seconds = 0;
                 this.minutes++;
             }
-            if (this.minutes === 1 && this.seconds === 1) {
-                // IF END OF THE GAME
-                clearInterval(this.intervalId);
-            }
         }, Times.SecInMil);
+        this.difficulty = this.gameData.gameForm.difficulte;
+    }
+    endGame() {
+        if (this.differencesFound === this.totalNumber) {
+            clearInterval(this.intervalId);
+            this.dialog.open(EndgameDialogComponent, { disableClose: true });
+        }
+    }
+    ngOnDestroy() {
+        this.differencesFoundService.resetDifferencesFound();
+        clearInterval(this.intervalId);
     }
 
     stopTimer() {
