@@ -134,7 +134,7 @@ export class PlayAreaComponent implements AfterViewInit {
         const image = canvas === this.canvas1.nativeElement ? this.original : this.modified;
         if (context) {
             context.fillStyle = 'red';
-            context.fillText('ERREUR', this.mousePosition.x - textDimensions.x / 2, this.mousePosition.y - textDimensions.y / 2, textDimensions.x);
+            context.fillText('ERREUR', this.mousePosition.x - textDimensions.x / 2, this.mousePosition.y + textDimensions.y / 2, textDimensions.x);
             setTimeout(() => {
                 context.drawImage(image, 0, 0, this.width, this.height);
                 this.playerIsAllowedToClick = true;

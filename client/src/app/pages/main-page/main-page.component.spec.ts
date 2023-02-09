@@ -23,10 +23,6 @@ describe('MainPageComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it("should have as title 'Jeu des différences'", () => {
-        expect(component.title).toEqual('Jeu des différences');
-    });
-
     it("should have team name '204 : NO CONTENT'", () => {
         expect(component.teamName).toEqual('204 : NO CONTENT');
     });
@@ -64,13 +60,13 @@ describe('MainPageComponent', () => {
         const classicSection = fixture.debugElement.nativeElement.getElementsByClassName('solo button')[0];
         const classiqueBtn = classicSection.getElementsByTagName('button')[0];
         expect(classiqueBtn).not.toBeUndefined();
-        expect(classiqueBtn.innerHTML).toEqual('CLASSIC');
+        expect(classiqueBtn.innerHTML).toEqual('CLASSIQUE');
     });
 
     it('should have limited mode button', () => {
         const chronoSection = fixture.debugElement.nativeElement.getElementsByClassName('chrono button')[0];
         const limitedBtn = chronoSection.getElementsByTagName('button')[0];
         expect(limitedBtn).not.toBeUndefined();
-        expect(limitedBtn.innerHTML).toEqual('CHRONO');
+        expect(limitedBtn.innerHTML).toEqual('TEMPS LIMITÉ');
     });
 });

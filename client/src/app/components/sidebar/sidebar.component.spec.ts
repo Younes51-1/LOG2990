@@ -1,5 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { HttpClientModule } from '@angular/common/http';
+import { NgModule } from '@angular/core';
+
+@NgModule({
+    imports: [MatDialogModule, HttpClientModule],
+})
+export class DynamicTestModule {}
 
 describe('SidebarComponent', () => {
     let component: SidebarComponent;
@@ -8,6 +16,7 @@ describe('SidebarComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [SidebarComponent],
+            imports: [DynamicTestModule],
         }).compileComponents();
     });
 

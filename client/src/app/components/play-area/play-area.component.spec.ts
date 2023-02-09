@@ -1,5 +1,12 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
+import { HttpClientModule } from '@angular/common/http';
+import { NgModule } from '@angular/core';
+
+@NgModule({
+    imports: [HttpClientModule],
+})
+export class DynamicTestModule {}
 
 describe('PlayAreaComponent', () => {
     let component: PlayAreaComponent;
@@ -7,6 +14,7 @@ describe('PlayAreaComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [PlayAreaComponent],
+            imports: [DynamicTestModule],
         }).compileComponents();
     });
 
