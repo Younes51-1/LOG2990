@@ -16,4 +16,8 @@ export class DifferencesFoundService {
     getDifferencesFound() {
         return this.differencesFound;
     }
+
+    resetDifferencesFound() {
+        this.differencesFound = 0;
+    }
 }
