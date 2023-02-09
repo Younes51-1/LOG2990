@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 
 // TODO : Avoir un fichier séparé pour les constantes!
-enum Time {
+export enum Time {
     HalfMinute = 30,
     FiveSeconds = 5,
 }
