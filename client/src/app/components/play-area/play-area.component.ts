@@ -64,11 +64,6 @@ export class PlayAreaComponent implements AfterViewInit {
     }
 
     ngAfterViewInit(): void {
-        this.communicationService.getGame(this.gameName).subscribe((res) => {
-            if (res.differenceMatrix) {
-                this.differenceMatrix = res.differenceMatrix;
-            }
-        });
         const context1 = this.canvas1.nativeElement.getContext('2d');
         if (context1) {
             this.context1 = context1;
@@ -82,9 +77,10 @@ export class PlayAreaComponent implements AfterViewInit {
             this.context2.font = '30px comic sans ms';
         }
         this.communicationService.getGame(this.gameName).subscribe((res) => {
-            if (res.gameForm) {
+            if (res.gameForm && res.differenceMatrix) {
                 this.original.src = res.gameForm.image1url;
                 this.modified.src = res.gameForm.image2url;
+                this.differenceMatrix = res.differenceMatrix;
             }
         });
         this.original.crossOrigin = 'Anonymous';
@@ -105,12 +101,12 @@ export class PlayAreaComponent implements AfterViewInit {
         if (this.playerIsAllowedToClick) {
             this.mousePosition = this.mouseService.mouseClick(event, this.mousePosition);
             // isValidated doit utiliser doit prendre la validation de la tentative du serveur dynamique
-            const isValidated = this.differenceMatrix[this.mousePosition.y][this.mousePosition.x] === 0;
+            const isValidated = this.differenceMatrix[this.mousePosition.y][this.mousePosition.x] !== -1;
             switch (isValidated) {
                 case true: {
                     this.playerIsAllowedToClick = false;
                     this.handleDifferenceCount();
-                    this.correctAnswerVisuals(this.mousePosition.x, this.mousePosition.y);
+                    this.correctAnswerVisuals(this.mousePosition.y, this.mousePosition.x);
                     this.audioValid.pause();
                     this.audioValid.currentTime = 0;
                     this.audioValid.play();
@@ -148,7 +144,7 @@ export class PlayAreaComponent implements AfterViewInit {
     }
 
     correctAnswerVisuals(xCoord: number, yCoord: number) {
-        this.currentDifferenceMatrix = this.detectionService.extractDifference(this.differenceMatrix, xCoord, yCoord);
+        this.currentDifferenceMatrix = this.detectionService.extractDifference(JSON.parse(JSON.stringify(this.differenceMatrix)), yCoord, xCoord);
         this.flashDifference(this.currentDifferenceMatrix);
     }
 
