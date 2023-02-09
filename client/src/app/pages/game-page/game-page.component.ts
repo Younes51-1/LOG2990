@@ -1,34 +1,26 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
-import { GameData } from '@app/interfaces/game-data';
-import { Timer } from '@app/interfaces/timer';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
-import { CommunicationService } from '@app/services/communication.service';
 
 @Component({
     selector: 'app-game-page',
     templateUrl: './game-page.component.html',
     styleUrls: ['./game-page.component.scss'],
 })
-export class GamePageComponent implements OnInit, AfterViewInit {
-    // gameName = 'title of the game';
+export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     gameName = 'testset';
-    gameData: GameData;
-    timer: Timer;
     player: string = 'player1';
 
-    constructor(private communicationService: CommunicationService, private classicModeService: ClassicModeService) {}
+    constructor(private classicModeService: ClassicModeService) {}
 
     ngOnInit() {
-        this.communicationService.getGame(this.gameName).subscribe((res) => {
-            if (Object.keys(res).length !== 0) {
-                this.gameData = res;
-            } else {
-                alert('Jeu introuvable');
-            }
-        });
+        this.classicModeService.initClassicMode(this.gameName, this.player);
     }
+
     ngAfterViewInit() {
-        this.classicModeService.initClassicMode(this.gameData, this.player);
-        this.timer = this.classicModeService.userGame.timer;
+        this.classicModeService.startGame();
+    }
+
+    ngOnDestroy() {
+        this.classicModeService.quitGame();
     }
 }

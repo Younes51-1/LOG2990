@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, HostListener, Input, ViewChild } from '@angular/core';
-import { GameData } from '@app/interfaces/game-data';
 import { Vec2 } from '@app/interfaces/vec2';
+import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { DetectionDifferenceService } from '@app/services/detection-difference.service';
 import { DifferencesFoundService } from '@app/services/differencesFound/differences-found.service';
 import { MouseService } from '@app/services/mouse.service';
@@ -23,7 +23,6 @@ export class PlayAreaComponent implements AfterViewInit {
     @ViewChild('canvas2', { static: false }) canvas2: ElementRef<HTMLCanvasElement>;
 
     @Input() gameName: string;
-    @Input() gameData: GameData;
 
     playerIsAllowedToClick = true;
     context1: CanvasRenderingContext2D;
@@ -42,7 +41,8 @@ export class PlayAreaComponent implements AfterViewInit {
     constructor(
         private mouseService: MouseService,
         private differencesFoundService: DifferencesFoundService,
-        private detectionService: DetectionDifferenceService, // private classicModeService: ClassicModeService,
+        private detectionService: DetectionDifferenceService,
+        private classicModeService: ClassicModeService,
     ) {}
 
     get width(): number {
@@ -59,9 +59,9 @@ export class PlayAreaComponent implements AfterViewInit {
     }
 
     ngAfterViewInit(): void {
-        this.differenceMatrix = this.gameData.differenceMatrix;
-        this.original.src = this.gameData.gameForm.image1url;
-        this.modified.src = this.gameData.gameForm.image2url;
+        this.differenceMatrix = this.classicModeService.userGame.gameData.differenceMatrix;
+        this.original.src = this.classicModeService.userGame.gameData.gameForm.image1url;
+        this.modified.src = this.classicModeService.userGame.gameData.gameForm.image2url;
         const context1 = this.canvas1.nativeElement.getContext('2d');
         if (context1) {
             this.context1 = context1;

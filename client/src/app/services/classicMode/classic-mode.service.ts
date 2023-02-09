@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { DifferenceTry } from '@app/interfaces/difference-try';
-import { GameData } from '@app/interfaces/game-data';
 import { Timer } from '@app/interfaces/timer';
 import { UserGame } from '@app/interfaces/user-game';
 import { Vec2 } from '@app/interfaces/vec2';
+import { CommunicationService } from '@app/services/communication.service';
 import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
 
 @Injectable({
@@ -14,28 +14,46 @@ export class ClassicModeService {
     canSendValidate = true;
     differencesFound: Vec2[] = [];
 
-    constructor(private readonly socket: CommunicationSocketService) {}
+    constructor(private readonly socketService: CommunicationSocketService, private communicationService: CommunicationService) {}
 
-    initClassicMode(gameData: GameData): void {
-        this.userGame.gameData = gameData;
-        this.userGame.nbDifferenceToFind = gameData.gameForm.nbDifference;
-        this.userGame.timer = { minutes: 0, seconds: 0, intervalId: 0 };
+    initClassicMode(gameName: string, username: string): void {
+        this.communicationService.getGame(gameName).subscribe((res) => {
+            if (Object.keys(res).length !== 0) {
+                this.userGame = {
+                    gameData: res,
+                    nbDifferenceToFind: res.gameForm.nbDifference,
+                    timer: { minutes: 0, seconds: 0, intervalId: 0 },
+                    username,
+                };
+                this.connect();
+            } else {
+                alert('Jeu introuvable');
+            }
+        });
     }
 
     connect(): void {
-        this.socket.connect();
+        if (!this.socketService.isSocketAlive()) {
+            // eslint-disable-next-line no-console
+            console.log('socket not connected, connecting...');
+            this.socketService.connect();
+            this.handleSocket();
+        } else {
+            // eslint-disable-next-line no-console
+            console.log('socket already connected');
+        }
     }
 
     handleSocket(): void {
-        this.socket.on('waiting', () => {
+        this.socketService.on('waiting', () => {
             this.startGame();
         });
 
-        this.socket.on('started', () => {
+        this.socketService.on('started', () => {
             // TODO: handle start
         });
 
-        this.socket.on('validated', (differenceTry: DifferenceTry) => {
+        this.socketService.on('validated', (differenceTry: DifferenceTry) => {
             if (differenceTry.validated) {
                 this.userGame.nbDifferenceToFind--;
                 this.differencesFound.push(differenceTry.differencePos);
@@ -43,30 +61,31 @@ export class ClassicModeService {
             // TODO: handle validated for differencePos
         });
 
-        this.socket.on('GameFinished', (timer: Timer) => {
+        this.socketService.on('GameFinished', (timer: Timer) => {
             this.userGame.timer = timer;
-            this.socket.disconnect();
+            this.socketService.disconnect();
         });
 
-        this.socket.on('timer', (timer: Timer) => {
+        this.socketService.on('timer', (timer: Timer) => {
             this.userGame.timer = timer;
             this.canSendValidate = true;
         });
     }
 
     startGame(): void {
-        this.socket.send('start', this.userGame);
+        this.socketService.send('connection', this.userGame.username);
+        this.socketService.send('start', this.userGame);
     }
 
     validateDifference(differencePos: Vec2) {
         if (!this.canSendValidate) {
             return;
         }
-        this.socket.send('validate', differencePos);
+        this.socketService.send('validate', differencePos);
         this.canSendValidate = false;
     }
 
     quitGame(): void {
-        this.socket.send('endGame');
+        this.socketService.send('endGame');
     }
 }
