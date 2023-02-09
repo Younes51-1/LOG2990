@@ -1,12 +1,12 @@
 <div class="sidebar-container">
     <div>
-        <p>{{gameMode}}</p>
-        <p>{{difficulty}}</p>
-        <p>You have to find a total of {{totalNumber}} differences</p>
-        <p>You have found {{differencesFound}} differences</p>
+        <p>{{ gameMode }}</p>
+        <p>{{ difficulty }}</p>
+        <p>You have to find a total of {{ totalNumber }} differences</p>
+        <p>You have found {{ differencesFound }} differences</p>
     </div>
     <div>
-        <p>Timer : {{ minutes | number:'2.0-0' }}:{{ seconds | number:'2.0-0' }}</p>
+        <p>Timer : {{ minutes | number: '2.0-0' }}:{{ seconds | number: '2.0-0' }}</p>
     </div>
     <button routerLink="/selection">QUIT GAME</button>
 </div>
