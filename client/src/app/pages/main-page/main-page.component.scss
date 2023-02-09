@@ -3,111 +3,72 @@
     text-align: center;
 }
 
-h1 {
-    font-family: 'Verdana ', sans-serif, monospace;
-    font-size: 2vw;
-}
-
 .container {
-    min-height: 95vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    height: 95%;
     background: #fff;
 }
 
-.justified {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-}
-
-.header-section {
-    width: 100%;
+header {
     display: grid;
     justify-items: center;
-}
-
-.middle-element {
-    width: 80%;
-    display: flex;
-    justify-content: center;
-}
-
-.right-element {
-    margin-left: auto;
+    width: 100%;
 }
 
 .config-button {
     border: none;
     background-color: transparent;
-    margin-right: 30px;
-    transition: transform 0.2s ease-in-out;
+    margin-left: auto;
+    transition: transform 0.3s ease-in-out;
 }
 
 .config-button:hover {
-    transform: scale(1.2);
+    transform: scale(1.1);
 }
 
-.card {
+.modes {
     display: flex;
-    width: 500px;
+    width: 450px;
     height: 200px;
-    gap: 5px;
-    font-size: 20px;
+    gap: 5%;
 }
 
-.card p {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
+.modes p {
     flex: 1;
-    border-radius: 5px;
     border: 3px solid #8200FF;
     overflow: hidden;
     transition: all 0.7s;
 }
 
-.card p:hover {
+.modes p:hover {
     flex: 2;
 }
 
-.cheat:hover {
-    background-image: url("../../../assets/cheat.png");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 300px;
-}
-
-.solo:hover {
+.solo-mode :hover {
     background-image: url("../../../assets/loupe.png");
     background-repeat: no-repeat;
     background-position: center;
-    background-size: 160px;
+    background-size: 60%;
 }
 
-.chrono:hover {
+.chrono-mode :hover {
     background-image: url("../../../assets/chrono.png");
     background-repeat: no-repeat;
     background-position: center;
-    background-size: 150px;
+    background-size: 55%;
 }
 
-.card p button {
+.modes p button {
     background-color: transparent;
     width: 100%;
     height: 100%;
-    font-size: 100%;
-    letter-spacing: .1em;
-    text-align: center;
     transition: all 3s;
 }
 
-.card p button:hover {
+.modes p button:hover {
     color: transparent;
-    transition: all 0.2s;
-}
-
-.footer-item {
-    font-size: 1.2vw;
-    text-align: center;
+    transition: all 0.3s;
 }
