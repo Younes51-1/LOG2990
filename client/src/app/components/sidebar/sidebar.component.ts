@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DifferencesFoundService } from '@app/services/differencesFound/differences-found.service';
 import { MatDialog } from '@angular/material/dialog';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
@@ -13,12 +13,13 @@ enum Times {
     templateUrl: './sidebar.component.html',
     styleUrls: ['./sidebar.component.scss'],
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent implements OnInit, OnDestroy {
     gameMode = 'Classic mode';
     difficulty = 'Easy mode';
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     totalNumber = 10;
     differencesFound = 0;
+    dialogOpened = false;
 
     minutes = 0;
     seconds = 0;
@@ -43,9 +44,15 @@ export class SidebarComponent implements OnInit {
             }
             if (this.differencesFound === this.totalNumber) {
                 clearInterval(this.intervalId);
-                this.openDialog();
+                if (!this.dialogOpened) {
+                    this.openDialog();
+                    this.dialogOpened = true;
+                }
             }
         }, Times.SecInMil);
+    }
+    ngOnDestroy() {
+        this.differencesFoundService.resetDifferencesFound();
     }
 
     openDialog() {
