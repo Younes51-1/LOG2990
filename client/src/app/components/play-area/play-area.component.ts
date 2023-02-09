@@ -39,7 +39,6 @@ export class PlayAreaComponent implements AfterViewInit {
     modified = new Image();
     audioValid = new Audio('https://dl.dropboxusercontent.com/s/dxe6u6194129egw/valid_sound.mp3');
     audioInvalid = new Audio('https://dl.dropboxusercontent.com/s/8eh3p45prkuvw8b/invalid_sound.mp3');
-    radius: number = 3;
     differenceMatrix: number[][];
     currentDifferenceMatrix: number[][];
     private canvasSize = { x: DEFAULT_WIDTH, y: DEFAULT_HEIGHT };
@@ -131,28 +130,13 @@ export class PlayAreaComponent implements AfterViewInit {
         const textDimensions = { x: 50, y: 30 };
         const nMilliseconds = 1000;
 
-        if (canvas === this.canvas1.nativeElement) {
-            this.context1.fillStyle = 'red';
-            this.context1.fillText(
-                'ERREUR',
-                this.mousePosition.x - textDimensions.x / 2,
-                this.mousePosition.y + textDimensions.y / 2,
-                textDimensions.x,
-            );
+        const context = canvas.getContext('2d');
+        const image = canvas === this.canvas1.nativeElement ? this.original : this.modified;
+        if (context) {
+            context.fillStyle = 'red';
+            context.fillText('ERREUR', this.mousePosition.x - textDimensions.x / 2, this.mousePosition.y - textDimensions.y / 2, textDimensions.x);
             setTimeout(() => {
-                this.context1.drawImage(this.original, 0, 0, this.width, this.height);
-                this.playerIsAllowedToClick = true;
-            }, nMilliseconds);
-        } else if (canvas === this.canvas2.nativeElement) {
-            this.context2.fillStyle = 'red';
-            this.context2.fillText(
-                'ERREUR',
-                this.mousePosition.x - textDimensions.x / 2,
-                this.mousePosition.y + textDimensions.y / 2,
-                textDimensions.x,
-            );
-            setTimeout(() => {
-                this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
+                context.drawImage(image, 0, 0, this.width, this.height);
                 this.playerIsAllowedToClick = true;
             }, nMilliseconds);
         }
