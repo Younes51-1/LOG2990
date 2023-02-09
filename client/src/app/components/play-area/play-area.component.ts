@@ -213,6 +213,7 @@ export class PlayAreaComponent implements AfterViewInit {
             for (let j = 0; j < differenceMatrix[0].length; j++) {
                 if (differenceMatrix[i][j] === 1) {
                     differencePositions.push({ x: i, y: j });
+                    this.differenceMatrix[i][j] = -1;
                 }
             }
         }
