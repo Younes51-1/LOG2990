@@ -3,7 +3,7 @@
 </mat-toolbar>
 <h1>Welcome to {{gameName}} {{player}} !</h1>
 <div class="container">
-    <app-sidebar></app-sidebar>
+    <app-sidebar [gameName] = gameName></app-sidebar>
     <section class="play-area-container">
         <app-play-area class="play-area" tabindex="0" [gameName] = gameName></app-play-area>
     </section>

@@ -109,6 +109,7 @@ export class PlayAreaComponent implements AfterViewInit {
             const isValidated = this.differenceMatrix[this.mousePosition.y][this.mousePosition.x] === 0;
             switch (isValidated) {
                 case true: {
+                    this.playerIsAllowedToClick = false;
                     this.handleDifferenceCount();
                     this.correctAnswerVisuals(this.mousePosition.x, this.mousePosition.y);
                     this.audioValid.pause();
@@ -200,6 +201,7 @@ export class PlayAreaComponent implements AfterViewInit {
                 this.context2.clearRect(0, 0, this.width, this.height);
                 this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
                 this.removeDifference(this.currentDifferenceMatrix);
+                this.playerIsAllowedToClick = true;
             }, timeOut);
         }
     }
