@@ -1,8 +1,9 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { DifferencesFoundService } from '@app/services/differencesFound/differences-found.service';
+import { Component, Input, OnChanges, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
-import { CommunicationService } from '@app/services/communication.service';
+import { GameData } from '@app/interfaces/game-data';
+import { Timer } from '@app/interfaces/timer';
+import { DifferencesFoundService } from '@app/services/differencesFound/differences-found.service';
 
 enum Times {
     MinInSec = 60,
@@ -14,13 +15,15 @@ enum Times {
     templateUrl: './sidebar.component.html',
     styleUrls: ['./sidebar.component.scss'],
 })
-export class SidebarComponent implements OnInit, OnDestroy {
+export class SidebarComponent implements OnChanges, OnDestroy {
     @Input() gameName: string;
+    @Input() gameData: GameData;
+    @Input() timer: Timer;
 
     gameMode = 'Classic mode';
     difficulty = 'Easy mode';
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-    totalNumber = 10;
+    totalNumber: number;
     differencesFound = 0;
     dialogOpened = false;
 
@@ -29,16 +32,13 @@ export class SidebarComponent implements OnInit, OnDestroy {
     milliseconds = 0;
     intervalId = 0;
 
-    constructor(
-        private differencesFoundService: DifferencesFoundService,
-        private dialog: MatDialog,
-        private communicationService: CommunicationService,
-    ) {
+    constructor(private differencesFoundService: DifferencesFoundService, private dialog: MatDialog) {
         this.differencesFoundService.differencesFound$.subscribe((count) => {
             this.differencesFound = count;
         });
     }
-    ngOnInit() {
+    ngOnChanges() {
+        this.totalNumber = this.gameData.gameForm.nbDifference;
         this.minutes = 0;
         this.seconds = 0;
         this.milliseconds = 0;
@@ -57,12 +57,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
                 }
             }
         }, Times.SecInMil);
-        this.communicationService.getGame(this.gameName).subscribe((res) => {
-            if (res.gameForm) {
-                this.totalNumber = res.gameForm.nbDifference;
-                this.difficulty = res.gameForm.difficulte;
-            }
-        });
+        this.difficulty = this.gameData.gameForm.difficulte;
     }
     ngOnDestroy() {
         this.differencesFoundService.resetDifferencesFound();

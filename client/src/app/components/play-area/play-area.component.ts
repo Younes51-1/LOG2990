@@ -1,9 +1,9 @@
 import { AfterViewInit, Component, ElementRef, HostListener, Input, ViewChild } from '@angular/core';
+import { GameData } from '@app/interfaces/game-data';
 import { Vec2 } from '@app/interfaces/vec2';
-import { MouseService } from '@app/services/mouse.service';
-import { DifferencesFoundService } from '@app/services/differencesFound/differences-found.service';
 import { DetectionDifferenceService } from '@app/services/detection-difference.service';
-import { CommunicationService } from '@app/services/communication.service';
+import { DifferencesFoundService } from '@app/services/differencesFound/differences-found.service';
+import { MouseService } from '@app/services/mouse.service';
 
 // TODO : Avoir un fichier séparé pour les constantes!
 export const DEFAULT_WIDTH = 640;
@@ -28,6 +28,7 @@ export class PlayAreaComponent implements AfterViewInit {
     @ViewChild('canvas2', { static: false }) canvas2: ElementRef<HTMLCanvasElement>;
 
     @Input() gameName: string;
+    @Input() gameData: GameData;
 
     playerIsAllowedToClick = true;
     context1: CanvasRenderingContext2D;
@@ -47,7 +48,7 @@ export class PlayAreaComponent implements AfterViewInit {
         private mouseService: MouseService,
         private differencesFoundService: DifferencesFoundService,
         private detectionService: DetectionDifferenceService,
-        private communicationService: CommunicationService,
+        //private classicModeService: ClassicModeService,
     ) {}
 
     get width(): number {
@@ -64,11 +65,9 @@ export class PlayAreaComponent implements AfterViewInit {
     }
 
     ngAfterViewInit(): void {
-        this.communicationService.getGame(this.gameName).subscribe((res) => {
-            if (res.differenceMatrix) {
-                this.differenceMatrix = res.differenceMatrix;
-            }
-        });
+        this.differenceMatrix = this.gameData.differenceMatrix;
+        this.original.src = this.gameData.gameForm.image1url;
+        this.modified.src = this.gameData.gameForm.image2url;
         const context1 = this.canvas1.nativeElement.getContext('2d');
         if (context1) {
             this.context1 = context1;
@@ -81,12 +80,6 @@ export class PlayAreaComponent implements AfterViewInit {
             this.context2.fillStyle = 'red';
             this.context2.font = '30px comic sans ms';
         }
-        this.communicationService.getGame(this.gameName).subscribe((res) => {
-            if (res.gameForm) {
-                this.original.src = res.gameForm.image1url;
-                this.modified.src = res.gameForm.image2url;
-            }
-        });
         this.original.crossOrigin = 'Anonymous';
         this.modified.crossOrigin = 'Anonymous';
         this.original.onload = () => {
