@@ -18,7 +18,7 @@ describe('DetectionDifferenceService', () => {
 
         differentmatrix = [
             [1, 0, 1],
-            [1, 0, 1],
+            [1, 1, 1],
             [1, 0, 1],
         ];
     });
@@ -53,16 +53,16 @@ describe('DetectionDifferenceService', () => {
         expect(differenceMatrix).toEqual(service.createEmptyMatrix(matrix.length, matrix[0].length, emptyPixelValue));
     });
 
-    it('Difference Matrix should return 3 differences when given differents matrix and 0 in a radius', () => {
+    it('Difference Matrix should return 2 differences when given differents matrix and 0 in a radius', () => {
         const differencesCount = service.countDifferences(matrix, differentmatrix, 0);
-        expect(differencesCount).toEqual(3);
+        expect(differencesCount).toEqual(2);
     });
 
     it('Difference Matrix should return a correct matrix when given differents matrix and 0 in a radius', () => {
         const differenceMatrix = service.diffrencesMatrix(matrix, differentmatrix, 0);
         const matrixRes = [
             [emptyPixelValue, 0, emptyPixelValue],
-            [emptyPixelValue, 0, emptyPixelValue],
+            [emptyPixelValue, emptyPixelValue, emptyPixelValue],
             [emptyPixelValue, 0, emptyPixelValue],
         ];
         expect(differenceMatrix).toEqual(matrixRes);
@@ -77,10 +77,9 @@ describe('DetectionDifferenceService', () => {
         const differenceMatrix = service.diffrencesMatrix(matrix, differentmatrix, 3);
         const matrixRes = [
             [1, 0, 1],
-            [1, 0, 1],
+            [1, 1, 1],
             [1, 0, 1],
         ];
-
         expect(differenceMatrix).toEqual(matrixRes);
     });
 });

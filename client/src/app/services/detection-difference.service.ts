@@ -125,8 +125,8 @@ export class DetectionDifferenceService {
         }
         const radiusCoordinatesArray = [];
         let radiusCoordinatesArraySize = 0;
-        for (let i = -radius - 1; i <= radius + 1; i++) {
-            for (let j = -radius - 1; j <= radius + 1; j++) {
+        for (let i = -radius; i <= radius; i++) {
+            for (let j = -radius; j <= radius; j++) {
                 if (Math.sqrt(i ** 2 + j ** 2) <= radius) {
                     radiusCoordinatesArray[radiusCoordinatesArraySize++] = i;
                     radiusCoordinatesArray[radiusCoordinatesArraySize++] = j;
