@@ -6,7 +6,10 @@ import { Component } from '@angular/core';
     styleUrls: ['./game-page.component.scss'],
 })
 export class GamePageComponent {
-    // gameName = 'title of the game';
+    // @ViewChild('name', { static: false }) name: SidebarComponent;
+
     gameName = 'testClient';
     player: string;
+
+    // gameName = this.name.gameName;
 }
