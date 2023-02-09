@@ -5,17 +5,12 @@ import { DetectionDifferenceService } from '@app/services/detection-difference.s
 import { DifferencesFoundService } from '@app/services/differencesFound/differences-found.service';
 import { MouseService } from '@app/services/mouse.service';
 
-// TODO : Avoir un fichier séparé pour les constantes!
 export const DEFAULT_WIDTH = 640;
 export const DEFAULT_HEIGHT = 480;
 
-// TODO : Déplacer ça dans un fichier séparé accessible par tous
-export enum MouseButton {
-    Left = 0,
-    Middle = 1,
-    Right = 2,
-    Back = 3,
-    Forward = 4,
+enum Color {
+    Luigi = '#08A936',
+    Mario = '#E0120F',
 }
 
 @Component({
@@ -47,8 +42,7 @@ export class PlayAreaComponent implements AfterViewInit {
     constructor(
         private mouseService: MouseService,
         private differencesFoundService: DifferencesFoundService,
-        private detectionService: DetectionDifferenceService,
-        //private classicModeService: ClassicModeService,
+        private detectionService: DetectionDifferenceService, // private classicModeService: ClassicModeService,
     ) {}
 
     get width(): number {
@@ -71,13 +65,11 @@ export class PlayAreaComponent implements AfterViewInit {
         const context1 = this.canvas1.nativeElement.getContext('2d');
         if (context1) {
             this.context1 = context1;
-            this.context1.fillStyle = 'red';
             this.context1.font = '30px comic sans ms';
         }
         const context2 = this.canvas2.nativeElement.getContext('2d');
         if (context2) {
             this.context2 = context2;
-            this.context2.fillStyle = 'red';
             this.context2.font = '30px comic sans ms';
         }
         this.original.crossOrigin = 'Anonymous';
@@ -98,12 +90,12 @@ export class PlayAreaComponent implements AfterViewInit {
         if (this.playerIsAllowedToClick) {
             this.mousePosition = this.mouseService.mouseClick(event, this.mousePosition);
             // isValidated doit utiliser doit prendre la validation de la tentative du serveur dynamique
-            const isValidated = this.differenceMatrix[this.mousePosition.y][this.mousePosition.x] === 0;
+            const isValidated = this.differenceMatrix[this.mousePosition.y][this.mousePosition.x] !== -1;
             switch (isValidated) {
                 case true: {
                     this.playerIsAllowedToClick = false;
                     this.handleDifferenceCount();
-                    this.correctAnswerVisuals(this.mousePosition.x, this.mousePosition.y);
+                    this.correctAnswerVisuals(this.mousePosition.y, this.mousePosition.x);
                     this.audioValid.pause();
                     this.audioValid.currentTime = 0;
                     this.audioValid.play();
@@ -126,7 +118,7 @@ export class PlayAreaComponent implements AfterViewInit {
         const context = canvas.getContext('2d');
         const image = canvas === this.canvas1.nativeElement ? this.original : this.modified;
         if (context) {
-            context.fillStyle = 'red';
+            context.fillStyle = Color.Mario;
             context.fillText('ERREUR', this.mousePosition.x - textDimensions.x / 2, this.mousePosition.y + textDimensions.y / 2, textDimensions.x);
             setTimeout(() => {
                 context.drawImage(image, 0, 0, this.width, this.height);
@@ -141,12 +133,12 @@ export class PlayAreaComponent implements AfterViewInit {
     }
 
     correctAnswerVisuals(xCoord: number, yCoord: number) {
-        this.currentDifferenceMatrix = this.detectionService.extractDifference(this.differenceMatrix, xCoord, yCoord);
+        this.currentDifferenceMatrix = this.detectionService.extractDifference(JSON.parse(JSON.stringify(this.differenceMatrix)), yCoord, xCoord);
         this.flashDifference(this.currentDifferenceMatrix);
     }
 
     flashDifference(difference: number[][]) {
-        const timeOut = 800;
+        const timeOut = 100;
         const layer1 = document.createElement('canvas');
         const layer2 = document.createElement('canvas');
         layer1.width = this.width;
@@ -156,8 +148,8 @@ export class PlayAreaComponent implements AfterViewInit {
         const layerContext1 = layer1.getContext('2d');
         const layerContext2 = layer2.getContext('2d');
         if (this.context1 && layerContext1 && this.context2 && layerContext2) {
-            layerContext1.fillStyle = 'red';
-            layerContext2.fillStyle = 'red';
+            layerContext1.fillStyle = Color.Luigi;
+            layerContext2.fillStyle = Color.Luigi;
             for (let i = 0; i < difference.length; i++) {
                 for (let j = 0; j < difference[i].length; j++) {
                     if (difference[i][j] === 1) {
@@ -166,20 +158,18 @@ export class PlayAreaComponent implements AfterViewInit {
                     }
                 }
             }
-            layerContext1.drawImage(layer1, 0, 0, this.width, this.height);
-            layerContext2.drawImage(layer2, 0, 0, this.width, this.height);
-
-            this.context1.drawImage(layer1, 0, 0, this.width, this.height);
-            this.context2.drawImage(layer2, 0, 0, this.width, this.height);
-
-            setTimeout(() => {
-                this.context1.clearRect(0, 0, this.width, this.height);
-                this.context1.drawImage(this.original, 0, 0, this.width, this.height);
-                this.context2.clearRect(0, 0, this.width, this.height);
-                this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
-                this.removeDifference(this.currentDifferenceMatrix);
-                this.playerIsAllowedToClick = true;
-            }, timeOut);
+            for (let i = 1; i <= 5; i++) {
+                setTimeout(() => {
+                    this.context1.drawImage(layer1, 0, 0, this.width, this.height);
+                    this.context2.drawImage(layer2, 0, 0, this.width, this.height);
+                    setTimeout(() => {
+                        this.context1.drawImage(this.original, 0, 0, this.width, this.height);
+                        this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
+                        if (i === 1) this.removeDifference(this.currentDifferenceMatrix);
+                        if (i === 5) this.playerIsAllowedToClick = true;
+                    }, timeOut);
+                }, 2 * i * timeOut);
+            }
         }
     }
 

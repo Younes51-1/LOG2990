@@ -35,6 +35,9 @@ export class SidebarComponent implements OnChanges, OnDestroy {
     constructor(private differencesFoundService: DifferencesFoundService, private dialog: MatDialog) {
         this.differencesFoundService.differencesFound$.subscribe((count) => {
             this.differencesFound = count;
+            if (this.differencesFound === this.totalNumber) {
+                this.endGame();
+            }
         });
     }
     ngOnChanges() {
@@ -49,21 +52,17 @@ export class SidebarComponent implements OnChanges, OnDestroy {
                 this.seconds = 0;
                 this.minutes++;
             }
-            if (this.differencesFound === this.totalNumber) {
-                clearInterval(this.intervalId);
-                if (!this.dialogOpened) {
-                    this.openDialog();
-                    this.dialogOpened = true;
-                }
-            }
         }, Times.SecInMil);
         this.difficulty = this.gameData.gameForm.difficulte;
     }
+    endGame() {
+        if (this.differencesFound === this.totalNumber) {
+            clearInterval(this.intervalId);
+            this.dialog.open(EndgameDialogComponent, { disableClose: true });
+        }
+    }
     ngOnDestroy() {
         this.differencesFoundService.resetDifferencesFound();
-    }
-
-    openDialog() {
-        this.dialog.open(EndgameDialogComponent, { panelClass: 'mat-dialog-container-global', disableClose: true });
+        clearInterval(this.intervalId);
     }
 }
