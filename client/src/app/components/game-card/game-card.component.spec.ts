@@ -72,4 +72,35 @@ describe('GameCardComponent', () => {
         const btn2 = fixture.debugElement.nativeElement.getElementsByTagName('button')[1];
         expect(btn2).not.toBeUndefined();
     });
+
+    it('should emit the correct value when btnOneEmitter is called', () => {
+        const expectedValue = component.slide.name;
+        const spy = spyOn(component.notify, 'emit');
+        component.btnOneEmitter();
+        expect(spy).toHaveBeenCalledWith(expectedValue);
+    });
+
+    it('should emit the correct object when btnTwoEmitter is called', () => {
+        const expectedObject = component.slide;
+        const spy = spyOn(component.notify, 'emit');
+        component.btnTwoEmitter();
+        expect(spy).toHaveBeenCalledWith(expectedObject);
+    });
+
+    it('should set the correct properties when the page is Config', () => {
+        component.ngOnInit();
+        expect(component.routeOne).toEqual('/config');
+        expect(component.btnOne).toEqual('DELETE');
+        expect(component.routeTwo).toEqual('/config');
+        expect(component.btnTwo).toEqual('RESTART');
+    });
+
+    it('should set the correct properties when the page is Selection', () => {
+        component.page = PageKeys.Selection;
+        component.ngOnInit();
+        expect(component.routeOne).toEqual('/game');
+        expect(component.btnOne).toEqual('SUBMIT');
+        expect(component.routeTwo).toEqual('/game');
+        expect(component.btnTwo).toEqual('SUBMIT');
+    });
 });

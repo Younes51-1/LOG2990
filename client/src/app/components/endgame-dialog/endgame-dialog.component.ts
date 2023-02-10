@@ -5,8 +5,4 @@ import { Component } from '@angular/core';
     templateUrl: './endgame-dialog.component.html',
     styleUrls: ['./endgame-dialog.component.scss'],
 })
-export class EndgameDialogComponent {
-    onCloseClick() {
-        window.location.href = '/home';
-    }
-}
+export class EndgameDialogComponent {}
