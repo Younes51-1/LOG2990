@@ -1,44 +1,46 @@
-mat-toolbar {
+* {
+    font-family: 'Verdana', sans-serif, monospace;
+    text-align: center;
+}
 
-    position: sticky;
-    top: 0;
-    z-index: 1;
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    background: #fff;
+}
 
-    span {
-        margin: auto;
-        font-size: 50px;
-        color: black;
-        ;
-    }
+header {
+    margin-top: 2.1%;
+    display: grid;
+    justify-items: center;
+    width: 100%;
+}
+
+img {
+    width: 60%;
 }
 
 .config-button {
     border: none;
     background-color: transparent;
-    margin-right: 30px;
-    transition: transform 0.2s ease-in-out;
+    margin-right: auto;
+    margin-left: 5%;
+    transition: transform 0.3s ease-in-out;
+    font-size: 100%;
 }
 
 .config-button:hover {
-    transform: scale(1.2);
+    transform: scale(1.1);
 }
 
-#images-container {
-    margin-top: 20px;
-    margin-left: 10px;
-    margin-bottom: 20px;
-}
-
-.images-zone {
+section {
     display: flex;
-    align-items: center;
+    flex-direction: row;
+    gap: 5%;
     justify-content: center;
-}
-
-#creation-game-buttons-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    margin-bottom: 1%;
 }
 
 canvas {
@@ -58,11 +60,9 @@ canvas {
     text-decoration: none;
     transition: 0.3s ease all;
     z-index: 1;
-    margin-left: 5px;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 1%;
 }
-   
+
 .button:before {
     transition: 0.15s all ease;
     position: absolute;
@@ -75,17 +75,19 @@ canvas {
     background-color: #8200FF;
     z-index: -1;
 }
-   
-.button:hover, btn:focus {
+
+.button:hover,
+btn:focus {
     color: white;
 }
-   
-.button:hover:before, btn:focus:before {
+
+.button:hover:before,
+btn:focus:before {
     left: 0;
     right: 0;
     opacity: 1;
 }
-   
+
 .button:active {
     transform: scale(0.9);
 }

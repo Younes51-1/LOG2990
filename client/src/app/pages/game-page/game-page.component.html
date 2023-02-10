@@ -1,10 +1,10 @@
-<mat-toolbar color="primary">
-    <span>GAME PLAY</span>
-</mat-toolbar>
-<h1>Welcome to {{gameName}} {{player}} !</h1>
 <div class="container">
-    <app-sidebar></app-sidebar>
-    <section class="play-area-container">
+    <header>
+        <img src="../../../assets/jeu.png">
+        <p>Welcome to {{gameName}} {{player}} !</p>
+    </header>
+    <section>
+        <app-sidebar></app-sidebar>
         <app-play-area class="play-area" tabindex="0"></app-play-area>
     </section>
 </div>

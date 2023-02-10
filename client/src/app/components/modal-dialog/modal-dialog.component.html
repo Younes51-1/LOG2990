@@ -1,5 +1,2 @@
-<h1 mat-dialog-title>Here are the differences </h1>
-<div mat-dialog-content>
-    <canvas #canvasDifferences [attr.width]="width" [attr.height]="height"></canvas>
-    <p>There's {{ data.nbDifferences }} differences found</p>
-</div>
+<p>Il y a {{ data.nbDifferences }} différences entre ces images</p>
+<canvas #canvasDifferences [attr.width]="width" [attr.height]="height"></canvas>

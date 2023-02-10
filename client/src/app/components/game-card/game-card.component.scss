@@ -3,29 +3,24 @@
     text-align: center;
 }
 
-.image {
-    height: 400px;
+img {
+    width: 100%;
+    height: 100%;
     border-radius: 5px;
 }
 
-.flip-card {
-    height: 400px;
-    margin-bottom: 30px;
-}
-
-.flip-card-inner {
+.card {
     position: relative;
-    width: 100%;
-    height: 400px;
-    transition: transform 0.8s;
+    height: 350px;
+    transition: transform 1s;
     transform-style: preserve-3d;
 }
-  
-.flip-card:hover .flip-card-inner {
+
+.cards:hover .card {
     transform: rotateY(180deg);
 }
-  
-.flip-card-front, .flip-card-back {
+
+.front-card, .back-card {
     box-shadow: 0 8px 14px 0 rgba(0,0,0,0.2);
     position: absolute;
     display: flex;
@@ -39,7 +34,7 @@
     border-radius: 5px;
 }
 
-.flip-card-back {
+.back-card {
     transform: rotateY(180deg);
 }
 
@@ -85,8 +80,4 @@ button:hover:before, button:focus:before {
    
 button:active {
     transform: scale(0.9);
-}
-
-.player-name {
-    margin-top: 20px;
 }

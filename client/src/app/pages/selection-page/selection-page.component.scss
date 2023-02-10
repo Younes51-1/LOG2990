@@ -1,88 +1,53 @@
-@use 'sass:map';
-@use '@angular/material' as mat;
-
-@mixin theme($theme) {
-    // Get the color config from the theme.
-    $color-config: mat.get-color-config($theme);
-
-    // Get the primary color palette from the color-config.
-    $primary-palette: map.get($color-config, 'primary');
-
-    mat-card-title {
-        // Read the 500 hue from the primary color palette.
-        color: mat.get-color-from-palette($primary-palette, 500);
-    }
-}
-
 * {
-    font-family: 'Verdana ', sans-serif, monospace;
-    font-size: 20px;
+    font-family: 'Verdana', sans-serif, monospace;
+    text-align: center;
 }
 
-#main {
-    height: 100%;
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    background: #fff;
+}
+
+header {
+    margin-top: 2.1%;
+    display: grid;
+    justify-items: center;
     width: 100%;
-    background: #ffffff;
 }
 
-mat-toolbar {
-
-    position: sticky;
-    top: 0;
-    z-index: 1;
-
-    span {
-        margin: auto;
-        font-size: 50px;
-        color: black;
-        ;
-    }
+img {
+    width: 60%;
 }
 
 .home-button {
     border: none;
     background-color: transparent;
-    transition: transform 0.2s ease-in-out;
+    margin-right: auto;
+    margin-left: 5%;
+    transition: transform 0.3s ease-in-out;
+    font-size: 180%;
 }
 
 .home-button:hover {
-    transform: scale(1.2);
-}
-
-.container {
-    padding-right: 15px;
-    padding-left: 15px;
-    margin-right: auto;
-    margin-left: auto;
-    padding-bottom: 20px;
-
-    >* {
-        margin-top: 20px;
-    }
-}
-
-.justified {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
+    transform: scale(1.1);
 }
 
 .slick-slider {
-    min-width: 160vh;
-    width: 1080px;
-    background: #ffffff;
-}
-
-body .slick-prev,
-body .slick-next {
-    width: 25px;
-    height: 25px;
-    background: black !important;
+    margin-top: 5%;
+    width: 90%;
 }
 
 .slide {
-    margin-top: 100px;
-    margin-left: 20px;
-    margin-right: 20px;
+    margin-left: 0.1%;
+    margin-right: 0.1%;
+}
+
+.slick-prev:before, .slick-next:before {
+    width: 25px;
+    height: 25px;
+    background-color: black !important;
+    color: black !important;
 }
