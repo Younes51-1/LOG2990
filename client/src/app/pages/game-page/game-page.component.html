@@ -3,8 +3,8 @@
 </mat-toolbar>
 <h1>Welcome to {{ gameName }} {{ player }} !</h1>
 <div class="container">
-    <app-sidebar [gameName]="gameName" [gameData]="gameData" [timer]="timer"></app-sidebar>
+    <app-sidebar *ngIf="gameData" [gameName]="gameName" [gameData]="gameData" [timer]="timer"></app-sidebar>
     <section class="play-area-container">
-        <app-play-area class="play-area" tabindex="0" [gameName]="gameName" [gameData]="gameData"></app-play-area>
+        <app-play-area *ngIf="gameData" class="play-area" tabindex="0" [gameName]="gameName" [gameData]="gameData"></app-play-area>
     </section>
 </div>

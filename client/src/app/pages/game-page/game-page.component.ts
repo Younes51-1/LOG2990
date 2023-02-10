@@ -29,7 +29,9 @@ export class GamePageComponent implements OnInit, AfterViewInit {
     }
     ngAfterViewInit() {
         // this.classicModeService.initClassicMode(this.gameData, this.player);
-        this.classicModeService.initClassicMode(this.gameData);
-        this.timer = this.classicModeService.userGame.timer;
+        if (this.gameData) {
+            this.classicModeService.initClassicMode(this.gameData);
+            this.timer = this.classicModeService.userGame.timer;
+        }
     }
 }

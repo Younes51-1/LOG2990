@@ -59,6 +59,9 @@ export class PlayAreaComponent implements AfterViewInit {
     }
 
     ngAfterViewInit(): void {
+        if (!this.gameData) {
+            return;
+        }
         this.differenceMatrix = this.gameData.differenceMatrix;
         this.original.src = this.gameData.gameForm.image1url;
         this.modified.src = this.gameData.gameForm.image2url;
