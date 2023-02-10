@@ -3,6 +3,13 @@ import { NgModule } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
+import { Location } from '@angular/common';
+import { GameData } from '@app/interfaces/game-data';
+import { AppRoutingModule } from '@app/modules/app-routing.module';
+
+const differenceMatrix: number[][] = [[]];
+const gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulte: '', soloBestTimes: [], vsBestTimes: [] };
+const gameData: GameData = { gameForm, differenceMatrix };
 
 @NgModule({
     imports: [MatDialogModule, HttpClientModule],
@@ -16,7 +23,7 @@ describe('SidebarComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [SidebarComponent],
-            imports: [DynamicTestModule],
+            imports: [DynamicTestModule, AppRoutingModule],
         }).compileComponents();
     });
 
@@ -24,6 +31,7 @@ describe('SidebarComponent', () => {
         fixture = TestBed.createComponent(SidebarComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
+        component.gameData = gameData;
     });
 
     it('should create', () => {
@@ -71,18 +79,10 @@ describe('SidebarComponent', () => {
         expect(timer.textContent).toEqual('Timer : 10:20');
     });
 
-    // it("should show the player's name", () => {
-    //     const newName = 'Samuel Pierre';
-    //     component.player = newName;
-    //     fixture.detectChanges();
-    //     const name = fixture.debugElement.nativeElement.querySelector('.sidebar-container p:first-child');
-    //     expect(name.textContent).toContain(newName);
-    // });
-
     it('should reset the interface on game start', () => {
         component.minutes = 5;
         component.seconds = 5;
-        component.ngOnInit();
+        component.ngOnChanges();
         fixture.detectChanges();
         expect(component.minutes).toEqual(0);
         expect(component.seconds).toEqual(0);
@@ -90,7 +90,7 @@ describe('SidebarComponent', () => {
 
     it('should spend one second after a second is displayed on the timer', fakeAsync(() => {
         const oneSecond = 1000;
-        component.ngOnInit();
+        component.ngOnChanges();
         tick(oneSecond);
         clearInterval(component.intervalId);
         expect(component.seconds).toEqual(1);
@@ -99,27 +99,20 @@ describe('SidebarComponent', () => {
 
     it('should spend one minute after a minute is displayed on the timer', fakeAsync(() => {
         const oneMinute = 60000;
-        component.ngOnInit();
+        component.ngOnChanges();
         tick(oneMinute);
         clearInterval(component.intervalId);
         expect(component.minutes).toEqual(1);
         expect(component.seconds).toEqual(0);
     }));
 
-    it('should show 61 seconds after 62 seconds passed', fakeAsync(() => {
-        const sixtyTwoSeconds = 62000;
-        component.ngOnInit();
-        tick(sixtyTwoSeconds);
-        expect(component.minutes).toEqual(1);
-        expect(component.seconds).toEqual(1);
-    }));
-
-    it('should call clearInterval after 61 seconds', fakeAsync(() => {
+    it('should call clearInterval at end of game', fakeAsync(() => {
         spyOn(component, 'stopTimer');
-        const sixtyOneSeconds = 61000;
-        component.ngOnInit();
-        tick(sixtyOneSeconds);
+        component.ngOnChanges();
+        component.totalNumber = 5;
+        component.differencesFound = 5;
         component.stopTimer();
         expect(component.stopTimer).toHaveBeenCalled();
+        clearInterval(component.intervalId);
     }));
 });

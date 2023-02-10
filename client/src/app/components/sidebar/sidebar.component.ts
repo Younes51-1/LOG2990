@@ -57,13 +57,13 @@ export class SidebarComponent implements OnChanges, OnDestroy {
     }
     endGame() {
         if (this.differencesFound === this.totalNumber) {
-            clearInterval(this.intervalId);
+            this.stopTimer();
             this.dialog.open(EndgameDialogComponent, { disableClose: true });
         }
     }
     ngOnDestroy() {
         this.differencesFoundService.resetDifferencesFound();
-        clearInterval(this.intervalId);
+        this.stopTimer();
     }
 
     stopTimer() {

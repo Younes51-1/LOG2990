@@ -2,6 +2,11 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
+import { GameData } from '@app/interfaces/game-data';
+
+const differenceMatrix: number[][] = [[]];
+const gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulte: '', soloBestTimes: [], vsBestTimes: [] };
+const gameData: GameData = { gameForm, differenceMatrix };
 
 @NgModule({
     imports: [HttpClientModule],
@@ -22,6 +27,7 @@ describe('PlayAreaComponent', () => {
         fixture = TestBed.createComponent(PlayAreaComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
+        // component.gameData = gameData;
     });
 
     it('should create', () => {
@@ -38,6 +44,7 @@ describe('PlayAreaComponent', () => {
     });
 
     it('should draw ERREUR on canvas1', () => {
+        component.gameData = gameData;
         const textDimensions = { x: 50, y: 30 };
         const spy = spyOn(component.context1, 'fillText');
         component.visualRetroaction(component.canvas1.nativeElement);
