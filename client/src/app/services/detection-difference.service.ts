@@ -196,17 +196,11 @@ export class DetectionDifferenceService {
         }
 
         const surfaceCovered: number = differentPixelCounter / (this.pictureDimensions.height * this.pictureDimensions.width);
-        if (surfaceCovered > surfaceCoveredThreshold) {
-            return 'facile';
-        } else {
-            return 'difficile';
-        }
+        return surfaceCovered > surfaceCoveredThreshold ? 'facile' : 'difficile';
     }
 
     extractDifference(differenceMatrix: number[][], xCoord: number, yCoord: number) {
-        const result = Array(differenceMatrix.length)
-            .fill(0)
-            .map(() => Array(differenceMatrix[0].length).fill(0));
+        const result = this.createEmptyMatrix(differenceMatrix.length, differenceMatrix[0].length, emptyPixelValue);
         const difference = this.findDifference(differenceMatrix, yCoord, xCoord);
         for (const [x, y] of difference) {
             result[x][y] = 1;
@@ -216,9 +210,7 @@ export class DetectionDifferenceService {
 
     findDifference(differenceMatrix: number[][], yCoord: number, xCoord: number) {
         const difference: [number, number][] = [];
-        const visited = Array(differenceMatrix.length)
-            .fill(0)
-            .map(() => Array(differenceMatrix[0].length).fill(0));
+        const visited = this.createEmptyMatrix(differenceMatrix.length, differenceMatrix[0].length, 0);
         const directions = [
             [negativeDifferenceCoord, 0],
             [0, positiveDifferenceCoord],
@@ -238,14 +230,14 @@ export class DetectionDifferenceService {
                     ny >= 0 &&
                     ny < differenceMatrix[0].length &&
                     !visited[nx][ny] &&
-                    differenceMatrix[nx][ny] === 0
+                    differenceMatrix[nx][ny] !== emptyPixelValue
                 ) {
                     dfs(nx, ny);
                 }
             }
         };
 
-        if (differenceMatrix[yCoord][xCoord] === 0) {
+        if (differenceMatrix[yCoord][xCoord] !== emptyPixelValue) {
             dfs(yCoord, xCoord);
         }
 

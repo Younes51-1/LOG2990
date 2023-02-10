@@ -7,7 +7,7 @@ import { ClassicModeService } from '@app/services/classicMode/classic-mode.servi
     styleUrls: ['./game-page.component.scss'],
 })
 export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
-    gameName = 'testset';
+    gameName = 'test7diff';
     player: string = 'player1';
 
     constructor(private classicModeService: ClassicModeService) {}
