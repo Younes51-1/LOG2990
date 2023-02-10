@@ -58,11 +58,11 @@ export class PlayAreaComponent implements AfterViewInit {
         this.buttonPressed = event.key;
     }
 
-    ngAfterViewInit(): void {
-        this.differenceMatrix = this.classicModeService.userGame.gameData.differenceMatrix;
-        this.original.src = this.classicModeService.userGame.gameData.gameForm.image1url;
-        this.modified.src = this.classicModeService.userGame.gameData.gameForm.image2url;
-        const context1 = this.canvas1.nativeElement.getContext('2d');
+    async ngAfterViewInit() {
+        this.differenceMatrix = await this.classicModeService.userGame.gameData.differenceMatrix;
+        this.original.src = await this.classicModeService.userGame.gameData.gameForm.image1url;
+        this.modified.src = await this.classicModeService.userGame.gameData.gameForm.image2url;
+        const context1 = await this.canvas1.nativeElement.getContext('2d');
         if (context1) {
             this.context1 = context1;
             this.context1.font = '30px comic sans ms';

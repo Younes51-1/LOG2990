@@ -1,7 +1,6 @@
 import { AfterViewInit, Component, Input, OnChanges, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
-import { GameData } from '@app/interfaces/game-data';
 import { Timer } from '@app/interfaces/timer';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { DifferencesFoundService } from '@app/services/differencesFound/differences-found.service';
@@ -18,7 +17,6 @@ import { DifferencesFoundService } from '@app/services/differencesFound/differen
 })
 export class SidebarComponent implements OnChanges, OnDestroy, AfterViewInit {
     @Input() gameName: string;
-    @Input() gameData: GameData;
     @Input() timer: Timer;
 
     gameMode = 'Classic mode';
@@ -44,9 +42,8 @@ export class SidebarComponent implements OnChanges, OnDestroy, AfterViewInit {
 
     ngAfterViewInit() {
         // eslint-disable-next-line no-console
-        console.log(this.gameData.gameForm.nbDifference);
         this.totalNumber = this.classicModeService.userGame.gameData.gameForm.nbDifference;
-        this.difficulty = this.gameData.gameForm.difficulte;
+        this.difficulty = this.classicModeService.userGame.gameData.gameForm.difficulte;
     }
     ngOnChanges() {
         // this.minutes = 0;

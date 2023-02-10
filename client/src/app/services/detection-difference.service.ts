@@ -80,10 +80,10 @@ export class DetectionDifferenceService {
         while (queue.length) {
             const curr = queue.shift();
 
-            if (curr === undefined) return;
+            if (!curr) return;
 
-            for (let k = -radius; k <= radius; k++) {
-                for (let l = -radius; l <= radius; l++) {
+            for (let k = -radius - 1; k <= radius + 1; k++) {
+                for (let l = -radius - 1; l <= radius + 1; l++) {
                     const i = curr.i + k;
                     const j = curr.j + l;
                     if (i >= 0 && i < array1.length && j >= 0 && j < array1[0].length && array1[i][j] !== array2[i][j]) {
