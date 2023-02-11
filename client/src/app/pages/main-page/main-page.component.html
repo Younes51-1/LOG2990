@@ -1,20 +1,20 @@
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.1/css/all.css" crossorigin="anonymous" />
 <div class="container">
     <header>
-        <button class="config-button" routerLink={{configLink}}>
+        <button class="config-button" routerLink="{{ configLink }}">
             <i class="fa fa-cog fa-3x" aria-hidden="true"></i>
         </button>
-        <img src="../../../assets/logo.png">
+        <img src="../../../assets/logo.png" />
     </header>
     <span>MODES DE JEU</span>
     <section>
         <div class="modes">
-            <p class="solo-mode"><button class="solo-mode" routerLink={{classiqueLink}}>CLASSIQUE</button></p>
-            <p class="chrono-mode"><button class="chrono-mode" routerLink={{limitedLink}}>TEMPS LIMITÉ</button></p>
+            <p class="solo-mode"><button class="solo-mode" routerLink="{{ classiqueLink }}">CLASSIQUE</button></p>
+            <p class="chrono-mode"><button class="chrono-mode" routerLink="{{ limitedLink }}">TEMPS LIMITÉ</button></p>
         </div>
     </section>
     <footer>
-        <p>Équipe {{teamName}}</p>
-        <span *ngFor="let teamMate of teamMembers; let isLast=last">{{teamMate}}{{isLast ? '' : ', '}}</span>
+        <p>Équipe {{ teamName }}</p>
+        <span *ngFor="let teamMate of teamMembers; let isLast = last">{{ teamMate }}{{ isLast ? '' : ', ' }}</span>
     </footer>
 </div>

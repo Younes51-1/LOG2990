@@ -1,8 +1,8 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { Location } from '@angular/common';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
+import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 
 describe('MainPageComponent', () => {
     let component: MainPageComponent;
@@ -48,33 +48,30 @@ describe('MainPageComponent', () => {
     });
 
     it('should have configuration button', () => {
-        const configSections = fixture.debugElement.nativeElement.getElementsByClassName('header-section')[0];
-        const configBtn = configSections.getElementsByTagName('button')[0];
+        const configBtn = fixture.debugElement.query(By.css('.config-button')).nativeElement;
         expect(configBtn).not.toBeUndefined();
     });
 
     it('should have 2 game mode', () => {
-        const gameModeSections = fixture.debugElement.nativeElement.getElementsByClassName('card')[0];
+        const gameModeSections = fixture.debugElement.nativeElement.getElementsByClassName('modes')[0];
         expect(gameModeSections.childElementCount).toEqual(2);
     });
 
     it('should have classique mode button', () => {
-        const classicSection = fixture.debugElement.nativeElement.getElementsByClassName('solo button')[0];
-        const classiqueBtn = classicSection.getElementsByTagName('button')[0];
-        expect(classiqueBtn).not.toBeUndefined();
-        expect(classiqueBtn.innerHTML).toEqual('CLASSIQUE');
+        const classicBtn = fixture.debugElement.query(By.css('.solo-mode button')).nativeElement;
+        expect(classicBtn).not.toBeUndefined();
+        expect(classicBtn.innerHTML).toEqual('CLASSIQUE');
     });
 
     it('should have limited mode button', () => {
-        const chronoSection = fixture.debugElement.nativeElement.getElementsByClassName('chrono button')[0];
-        const limitedBtn = chronoSection.getElementsByTagName('button')[0];
-        expect(limitedBtn).not.toBeUndefined();
-        expect(limitedBtn.innerHTML).toEqual('TEMPS LIMITÉ');
+        const chronoBtn = fixture.debugElement.query(By.css('.chrono-mode button')).nativeElement;
+        expect(chronoBtn).not.toBeUndefined();
+        expect(chronoBtn.innerHTML).toEqual('TEMPS LIMITÉ');
     });
 
     it('should show the configuration page on click of the configuration button', fakeAsync(() => {
         const location = TestBed.inject(Location);
-        const configBtn = fixture.debugElement.query(By.css('.header-section')).children[0].nativeElement;
+        const configBtn = fixture.debugElement.query(By.css('.config-button')).nativeElement;
         configBtn.click();
         tick();
         expect(location.path()).toEqual('/config');
@@ -82,15 +79,16 @@ describe('MainPageComponent', () => {
 
     it('should show the selection-page on click of the classic mode button', fakeAsync(() => {
         const location = TestBed.inject(Location);
-        const classicBtn = fixture.debugElement.query(By.css('.solo button')).nativeElement;
+        const classicBtn = fixture.debugElement.query(By.css('.solo-mode button')).nativeElement;
         classicBtn.click();
         tick();
         expect(location.path()).toEqual('/selection');
     }));
 
+    // to change in the future
     it('should show the chronoMode-page on click of the chrono mode button', fakeAsync(() => {
         const location = TestBed.inject(Location);
-        const chronoBtn = fixture.debugElement.query(By.css('.chrono button')).nativeElement;
+        const chronoBtn = fixture.debugElement.query(By.css('.chrono-mode button')).nativeElement;
         chronoBtn.click();
         tick();
         expect(location.path()).toEqual('/home');
