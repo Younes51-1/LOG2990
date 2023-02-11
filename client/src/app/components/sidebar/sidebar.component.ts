@@ -20,7 +20,7 @@ export class SidebarComponent implements OnChanges {
     @Output() endGameParent: EventEmitter<unknown> = new EventEmitter();
 
     gameMode = 'Classic mode';
-    difficulty = 'Easy mode';
+    difficulty = '~~~';
     totalNumber: number;
 
     minutes = 0;

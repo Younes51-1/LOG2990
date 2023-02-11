@@ -35,11 +35,13 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.endGame();
+        this.classicModeService.endGame();
     }
 
     endGame() {
-        this.dialog.open(EndgameDialogComponent, { disableClose: true });
+        if (this.differencesFound === this.userGame.gameData.gameForm.nbDifference) {
+            this.dialog.open(EndgameDialogComponent, { disableClose: true });
+        }
         this.classicModeService.endGame();
     }
 }
