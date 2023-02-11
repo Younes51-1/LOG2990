@@ -1,12 +1,15 @@
-<div class="sidebar-container">
-    <div>
-        <p>{{ gameMode }}</p>
-        <p>{{ difficulty }}</p>
-        <p>You have to find a total of {{ totalNumber }} differences</p>
-        <p>You have found {{ differencesFound }} differences</p>
+<div class="container">
+    <div class="countdown">
+        <svg viewBox="-50 -50 100 100">
+            <circle r="45"></circle>
+        </svg>
+        <p class="timer">{{ minutes | number:'2.0-0' }}:{{ seconds | number:'2.0-0' }}</p>
     </div>
-    <div>
-        <p>Timer : {{ minutes | number: '2.0-0' }}:{{ seconds | number: '2.0-0' }}</p>
-    </div>
-    <button routerLink="/selection">QUIT GAME</button>
+    <section>
+        <p>{{gameMode}}</p>
+        <p>{{difficulty}}</p>
+        <p>Vous devez trouver un total de {{totalNumber}} différences</p>
+        <p>Il reste {{totalLeft}} différences à trouver</p>
+    </section>
+    <button routerLink="/selection">Abandonner la partie</button>
 </div>

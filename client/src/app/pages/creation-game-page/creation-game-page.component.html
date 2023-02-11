@@ -1,36 +1,45 @@
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.1/css/all.css" crossorigin="anonymous" />
-<mat-toolbar color="primary">
-    <button class="config-button right-element" routerLink="/config">
-        <i class="fa fa-cog fa-3x" aria-hidden="true"></i>
-    </button>
-    <span>GAME CREATION</span>
-</mat-toolbar>
-<div id="images-container">
-    <p>Download original image : <input #image1 type="file" accept="image/bmp" (change)="verifyImageFormat($event, image1)" /></p>
-    <p>Download modified image : <input #image2 type="file" accept="image/bmp" (change)="verifyImageFormat($event, image2)" /></p>
-    <p>Download same image : <input #images1et2 type="file" accept="image/bmp" (change)="verifyImageFormat($event, images1et2)" /></p>
-    <p>Image must be in a 24-bit bitmap (BPM) format with size 640x480 px</p>
+<div class="container">
+    <header>
+        <button class="config-button" routerLink='/config'>
+            <i class="fa fa-cog fa-3x" aria-hidden="true"></i>
+        </button>
+        <img src="../../../assets/creation.png">
+    </header>
+    <p>* Les images doivent posséder le format 24-bit bitmap (BPM) avec une taille de 640x480 px *</p>
+    <p>Téléverser deux images simultanément : <input #images1et2 type="file" accept="image/bmp"
+            (change)="verifyImageFormat($event, images1et2)" /></p>
+    <section>
+        <div>
+            <p>Téléverser l'image originale : <input #image1 type="file" accept="image/bmp"
+                    (change)="verifyImageFormat($event, image1)" /></p>
+            <canvas #canvas1 [attr.width]="width" [attr.height]="height"></canvas>
+            <p><button class="button" (click)="reset(image1)">Réinitialiser l'image</button></p>
+        </div>
+        <div>
+            <p>Téléverser l'image modifiée : <input #image2 type="file" accept="image/bmp"
+                    (change)="verifyImageFormat($event, image2)" /></p>
+            <canvas #canvas2 [attr.width]="width" [attr.height]="height"></canvas>
+            <p><button class="button" (click)="reset(image2)">Réinitialiser l'image</button></p>
+        </div>
+    </section>
+    <button class="button" (click)="reset(images1et2)">Réinitialiser les deux images simultanément</button>
+    <section>
+        <div *ngIf="3 <= differenceCount && differenceCount <= 9">
+            <label for="nameGame">Entrez le nom du jeu </label>
+            <input #nameGame type="text" />
+            <button class="button" (click)="saveNameGame(nameGame.value)">Créer</button>
+        </div>
+        <fieldset>
+            <legend>Paramètres du rayon d'élargissement</legend>
+            <div *ngFor="let radius of possibleRadius">
+                <input *ngIf="radius !== 3" type="radio" #rayon{{radius}} name="choixRayon" value="{{radius}}"
+                    (click)="updateRadius(radius)" />
+                <input *ngIf="radius === 3" type="radio" #rayon{{radius}} name="choixRayon" value="{{radius}}"
+                    (click)="updateRadius(radius)" checked />
+                <label for="rayon{{ radius }}">{{ radius }} </label>
+            </div>
+        </fieldset>
+        <button class="button" (click)="runDetectionSystem()">Visualiser les différence</button>
+    </section>
 </div>
-<div class="images-zone">
-    <canvas #canvas1 [attr.width]="width" [attr.height]="height"></canvas>
-    <canvas #canvas2 [attr.width]="width" [attr.height]="height"></canvas>
-</div>
-<div id="creation-game-buttons-container">
-    <button class="button" (click)="reset(images1et2)">RESET IMAGES</button>
-    <button class="button" (click)="reset(image1)">RESET IMAGE 1</button>
-    <button class="button" (click)="reset(image2)">RESET IMAGE 2</button>
-    <button class="button" (click)="runDetectionSystem()">DETECT DIFFERENCES</button>
-</div>
-<div *ngIf="3 <= differenceCount && differenceCount <= 9">
-    <label for="nameGame">Enter game name </label>
-    <input #nameGame type="text" />
-    <button class="button" (click)="saveNameGame(nameGame.value)">Create</button>
-</div>
-<fieldset>
-    <legend>Widening radius parameters</legend>
-    <div *ngFor="let radius of possibleRadius">
-        <input *ngIf="radius !== 3" type="radio" #rayon{{radius}} name="choixRayon" value="{{radius}}" (click)="updateRadius(radius)" />
-        <input *ngIf="radius === 3" type="radio" #rayon{{radius}} name="choixRayon" value="{{radius}}" (click)="updateRadius(radius)" checked />
-        <label for="rayon{{ radius }}">{{ radius }} </label>
-    </div>
-</fieldset>
