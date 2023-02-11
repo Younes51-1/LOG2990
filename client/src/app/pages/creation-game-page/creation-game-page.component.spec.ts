@@ -105,7 +105,7 @@ describe('CreationGamePageComponent', () => {
 
     it('updateImageDisplay should update image1 display', () => {
         const spy = spyOn(URL, 'createObjectURL');
-        const image1 = fixture.debugElement.nativeElement.querySelector('div > p > input');
+        const image1 = fixture.debugElement.nativeElement.querySelector('div p:nth-child(1) input');
         const file = new File([''], 'image_empty.bmp', { type: 'image/bmp' });
         const event = { target: { files: [file] } } as unknown as Event;
         component.updateImageDisplay(event, image1);
@@ -115,7 +115,7 @@ describe('CreationGamePageComponent', () => {
 
     it('updateImageDisplay should update image2 display', () => {
         const spy = spyOn(URL, 'createObjectURL');
-        const image2 = fixture.debugElement.nativeElement.querySelector('div p:nth-child(2) input');
+        const image2 = fixture.debugElement.nativeElement.querySelector('div p:nth-child(3) input');
         const file = new File([''], 'image_empty.bmp', { type: 'image/bmp' });
         const event = { target: { files: [file] } } as unknown as Event;
         component.updateImageDisplay(event, image2);
@@ -125,7 +125,7 @@ describe('CreationGamePageComponent', () => {
 
     it('updateImageDisplay should update image1et2 display', () => {
         const spy = spyOn(URL, 'createObjectURL');
-        const image1et2 = fixture.debugElement.nativeElement.querySelector('div p:nth-child(3) input');
+        const image1et2 = fixture.debugElement.nativeElement.querySelector('div > p > input');
         const file = new File([''], 'image_empty.bmp', { type: 'image/bmp' });
         const event = { target: { files: [file] } } as unknown as Event;
         component.updateImageDisplay(event, image1et2);
