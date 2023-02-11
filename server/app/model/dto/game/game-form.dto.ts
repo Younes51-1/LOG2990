@@ -1,4 +1,4 @@
-import { BestTime } from '@app/model/schema/best-time.schema';
+import { BestTime } from '@app/model/schema/best-times.schema';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsString } from 'class-validator';
 

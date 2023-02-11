@@ -21,6 +21,7 @@ import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import { CreationGamePageComponent } from '@app/pages/creation-game-page/creation-game-page.component';
 import { MatDialogModule } from '@angular/material/dialog';
+import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
 
 /**
  * Main module that is used in main.ts.
@@ -40,6 +41,7 @@ import { MatDialogModule } from '@angular/material/dialog';
         ConfigPageComponent,
         CreationGamePageComponent,
         ConfigParamsComponent,
+        EndgameDialogComponent,
     ],
     providers: [],
     bootstrap: [AppComponent],

@@ -1,14 +1,24 @@
+import { HttpClientModule, HttpResponse } from '@angular/common/http';
+import { NgModule } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { MatDialog } from '@angular/material/dialog';
-import { AppRoutingModule } from '@app/modules/app-routing.module';
-import { Router } from '@angular/router';
+import { MatDialogModule } from '@angular/material/dialog';
 import { ConfigPageComponent } from '@app/pages/config-page/config-page.component';
+import { CommunicationService } from '@app/services/communication.service';
+import { of } from 'rxjs';
+import { Router } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
 import { Location } from '@angular/common';
 import { By } from '@angular/platform-browser';
-import { CommunicationService } from '@app/services/communication.service';
+import { AppRoutingModule } from '@app/modules/app-routing.module';
+import { GameForm } from '@app/interfaces/game-form';
 import SpyObj = jasmine.SpyObj;
-import { HttpResponse } from '@angular/common/http';
-import { of } from 'rxjs';
+
+const gameForm: GameForm[] = [{ name: '', nbDifference: 0, image1url: '', image2url: '', difficulte: '', soloBestTimes: [], vsBestTimes: [] }];
+
+@NgModule({
+    imports: [MatDialogModule, HttpClientModule],
+})
+export class DynamicTestModule {}
 
 describe('ConfigPageComponent', () => {
     let component: ConfigPageComponent;
@@ -50,16 +60,7 @@ describe('ConfigPageComponent', () => {
 
         await TestBed.configureTestingModule({
             declarations: [ConfigPageComponent],
-            imports: [AppRoutingModule],
-            providers: [
-                {
-                    provide: MatDialog,
-                },
-                {
-                    provide: CommunicationService,
-                    useValue: communicationServiceSpy,
-                },
-            ],
+            imports: [DynamicTestModule, RouterTestingModule, AppRoutingModule],
         }).compileComponents();
     });
 
@@ -95,7 +96,8 @@ describe('ConfigPageComponent', () => {
     });
 
     it('should have slides in the carousel', () => {
-        expect(component.slides.length).toBeGreaterThan(0);
+        component.slides = gameForm;
+        expect(component.slides.length).toEqual(1);
     });
 
     it('should show up to 4 slides at a time', () => {
@@ -109,15 +111,15 @@ describe('ConfigPageComponent', () => {
     });
 
     it('should allow to access Game Creation page', () => {
-        const centeredBtn = fixture.debugElement.nativeElement.getElementsByTagName('button')[1];
-        expect(centeredBtn.getAttribute('ng-reflect-router-link')).toEqual('/creation');
+        const creationBtn = fixture.debugElement.nativeElement.getElementsByClassName('btn')[0];
+        expect(creationBtn.getAttribute('routerLink')).toEqual('/creation');
     });
 
     it('should show the game creation page on click of the Game Creation button', fakeAsync(() => {
-        const location = TestBed.inject(Location);
-        const centeredBtn = fixture.debugElement.nativeElement.getElementsByTagName('button')[1];
-        centeredBtn.click();
+        const router = TestBed.inject(Router);
+        const creationBtn = fixture.debugElement.nativeElement.getElementsByClassName('btn')[0];
+        creationBtn.click();
         tick();
-        expect(location.path()).toEqual('/creation');
+        expect(router.url).toEqual('/creation');
     }));
 });

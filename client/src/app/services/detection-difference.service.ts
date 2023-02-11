@@ -19,6 +19,8 @@ interface Position {
 }
 const emptyPixelValue = -1;
 const pixelDataSize = 4;
+const negativeDifferenceCoord = -1;
+const positiveDifferenceCoord = 1;
 
 @Injectable({
     providedIn: 'root',
@@ -199,5 +201,54 @@ export class DetectionDifferenceService {
         } else {
             return 'difficile';
         }
+    }
+
+    extractDifference(differenceMatrix: number[][], xCoord: number, yCoord: number) {
+        const result = Array(differenceMatrix.length)
+            .fill(0)
+            .map(() => Array(differenceMatrix[0].length).fill(0));
+        const difference = this.findDifference(differenceMatrix, yCoord, xCoord);
+        for (const [x, y] of difference) {
+            result[x][y] = 1;
+        }
+        return result;
+    }
+
+    findDifference(differenceMatrix: number[][], yCoord: number, xCoord: number) {
+        const difference: [number, number][] = [];
+        const visited = Array(differenceMatrix.length)
+            .fill(0)
+            .map(() => Array(differenceMatrix[0].length).fill(0));
+        const directions = [
+            [negativeDifferenceCoord, 0],
+            [0, positiveDifferenceCoord],
+            [positiveDifferenceCoord, 0],
+            [0, negativeDifferenceCoord],
+        ];
+
+        const dfs = (x: number, y: number) => {
+            visited[x][y] = 1;
+            difference.push([x, y]);
+            for (const [dx, dy] of directions) {
+                const nx = x + dx;
+                const ny = y + dy;
+                if (
+                    nx >= 0 &&
+                    nx < differenceMatrix.length &&
+                    ny >= 0 &&
+                    ny < differenceMatrix[0].length &&
+                    !visited[nx][ny] &&
+                    differenceMatrix[nx][ny] === 0
+                ) {
+                    dfs(nx, ny);
+                }
+            }
+        };
+
+        if (differenceMatrix[yCoord][xCoord] === 0) {
+            dfs(yCoord, xCoord);
+        }
+
+        return difference;
     }
 }

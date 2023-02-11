@@ -17,7 +17,7 @@ const bootstrap = async () => {
     const config = new DocumentBuilder()
         .setTitle('Server - Jeu des différences')
         .setDescription('Serveur du projet 2, équipe 204, pour le cours de LOG2990')
-        .setVersion('0.1.0')
+        .setVersion('0.2.0')
         .build();
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api/docs', app, document);
