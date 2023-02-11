@@ -4,12 +4,14 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { MatDialogModule } from '@angular/material/dialog';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { Location } from '@angular/common';
-import { GameData } from '@app/interfaces/game-data';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
+import { UserGame } from '@app/interfaces/user-game';
+import { GameData } from '@app/interfaces/game-data';
 
 const differenceMatrix: number[][] = [[]];
 const gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulte: '', soloBestTimes: [], vsBestTimes: [] };
 const gameData: GameData = { gameForm, differenceMatrix };
+const userGame: UserGame = { username: '', gameData, nbDifferenceFound: 0, timer: 0 };
 
 @NgModule({
     imports: [MatDialogModule, HttpClientModule],
@@ -30,8 +32,8 @@ describe('SidebarComponent', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(SidebarComponent);
         component = fixture.componentInstance;
+        component.userGame = userGame;
         fixture.detectChanges();
-        component.gameData = gameData;
     });
 
     it('should create', () => {
@@ -92,7 +94,6 @@ describe('SidebarComponent', () => {
         const oneSecond = 1000;
         component.ngOnChanges();
         tick(oneSecond);
-        clearInterval(component.intervalId);
         expect(component.seconds).toEqual(1);
         expect(component.minutes).toEqual(0);
     }));
@@ -101,18 +102,7 @@ describe('SidebarComponent', () => {
         const oneMinute = 60000;
         component.ngOnChanges();
         tick(oneMinute);
-        clearInterval(component.intervalId);
         expect(component.minutes).toEqual(1);
         expect(component.seconds).toEqual(0);
-    }));
-
-    it('should call clearInterval at end of game', fakeAsync(() => {
-        spyOn(component, 'stopTimer');
-        component.ngOnChanges();
-        component.totalNumber = 5;
-        component.differencesFound = 5;
-        component.stopTimer();
-        expect(component.stopTimer).toHaveBeenCalled();
-        clearInterval(component.intervalId);
     }));
 });

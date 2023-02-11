@@ -10,11 +10,12 @@ import { GameData } from '@app/interfaces/game-data';
 import { CommunicationService } from '@app/services/communication.service';
 import SpyObj = jasmine.SpyObj;
 import { of } from 'rxjs';
-import { GameForm } from '@app/interfaces/game-form';
+import { UserGame } from '@app/interfaces/user-game';
 
 const differenceMatrix: number[][] = [[]];
-const gameForm: GameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulte: '', soloBestTimes: [], vsBestTimes: [] };
+const gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulte: '', soloBestTimes: [], vsBestTimes: [] };
 const gameData: GameData = { gameForm, differenceMatrix };
+const userGame: UserGame = { username: '', gameData, nbDifferenceFound: 0, timer: 0 };
 
 @NgModule({
     imports: [MatDialogModule, HttpClientModule],
@@ -39,6 +40,7 @@ describe('GamePageComponent', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(GamePageComponent);
         component = fixture.componentInstance;
+        component.userGame = userGame;
         fixture.detectChanges();
     });
 
@@ -47,7 +49,6 @@ describe('GamePageComponent', () => {
     });
 
     it('should contain a sidebar', () => {
-        component.gameData = gameData;
         fixture.detectChanges();
         const sidebar = fixture.debugElement.nativeElement.querySelector('app-sidebar');
         expect(sidebar).not.toBeNull();
