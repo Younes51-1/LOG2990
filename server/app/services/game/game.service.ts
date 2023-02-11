@@ -14,7 +14,7 @@ export class GameService {
     constructor(@InjectModel(Game.name) public gameModel: Model<GameDocument>) {}
 
     async getAllGames(): Promise<GameForm[]> {
-        const games = await this.gameModel.find({});
+        const games = await this.gameModel.find({}).select('-differenceMatrix');
         if (games === undefined || games === null) {
             return [];
         }
@@ -30,9 +30,6 @@ export class GameService {
     }
 
     async createNewGame(newGame: NewGame): Promise<void> {
-        if (!this.validateNewGame(newGame)) {
-            return Promise.reject('Invalid newGame format');
-        }
         try {
             await this.saveImages(newGame);
             await this.saveMatrix(newGame);
@@ -76,9 +73,7 @@ export class GameService {
         await this.saveImage(bufferObjImage, newGame.name, '2');
     }
 
-    // TODO: uncomment this function to save images & remove the eslint-disable-next-line
-    // eslint-disable-next-line no-unused-vars
-    private async saveImage(bufferObj: Buffer, name: string, index: string): Promise<void> {
+    async saveImage(bufferObj: Buffer, name: string, index: string): Promise<void> {
         const dirName = `./assets/${name}`;
         if (!fs.existsSync(dirName)) fs.mkdirSync(dirName);
         fs.writeFile(`${dirName}/image${index}.bmp`, bufferObj, async (err) => {

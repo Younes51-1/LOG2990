@@ -1,15 +1,14 @@
-.sidebar-container {
-    height: 100%;
-    // min-height: 98vh;
-    padding: 0 5px 0 5px;
-    margin-right: 5px;
-    justify-content: center;
-    text-align: center;
-    margin-top: 200px;
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    height: 95%;
+    background: #fff;
 }
 
 button {
-    font-size: 15px;
+    font-size: 100%;
     display: inline-block;
     text-align: center;
     padding: 0.7em 2em;
@@ -21,8 +20,6 @@ button {
     text-decoration: none;
     transition: 0.3s ease all;
     z-index: 1;
-    margin-left: 5px;
-    margin-top: 20px;
 }
    
 button:before {
@@ -50,4 +47,21 @@ button:hover:before, button:focus:before {
    
 button:active {
     transform: scale(0.9);
+}
+
+.countdown {
+    display: grid;
+    width: 25%;
+    height: 25%;
+}
+
+svg {
+    stroke-width: 5;
+    fill: none;
+    stroke: #8200FF;
+}
+
+.timer {
+    font-size: 100%;
+    margin-top: -62%;
 }

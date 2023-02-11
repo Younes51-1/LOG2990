@@ -1,7 +1,12 @@
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
+import { GameData } from '@app/interfaces/game-data';
+
+const differenceMatrix: number[][] = [[]];
+const gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulte: '', soloBestTimes: [], vsBestTimes: [] };
+const gameData: GameData = { gameForm, differenceMatrix };
 
 @NgModule({
     imports: [HttpClientModule],
@@ -21,6 +26,7 @@ describe('PlayAreaComponent', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(PlayAreaComponent);
         component = fixture.componentInstance;
+        component.gameData = gameData;
         fixture.detectChanges();
     });
 

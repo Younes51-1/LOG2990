@@ -1,27 +1,29 @@
-<div id="grid-container">
-    <div class="flip-card">
-        <div class="flip-card-inner">
-            <div class="flip-card-front">
-                <img class="image" src="{{slide.image1url}}" alt="card" />
+<div id="container">
+    <div class="cards">
+        <div class="card">
+            <div class="front-card">
+                <img src="{{slide.image1url}}" />
             </div>
-            <div class="flip-card-back">
-                <p>Difficulty : {{slide.difficulte}}</p><p></p>
-                <p>Best solo scores<p *ngFor = "let time of slide.soloBestTimes">{{time.name}} : {{time.time}}</p><p></p>
-                <p>Best 1v1 scores<p *ngFor = "let time of slide.vsBestTimes">{{time.name}} : {{time.time}}</p>
+            <div class="back-card">
+                <p>Difficulté : {{slide.difficulte}}</p>
+                <span>Meilleurs scores solo
+                <p *ngFor="let time of slide.soloBestTimes">{{time.name}} : {{time.time}}</p></span>
+                <span>Meilleurs scores 1v1
+                <p *ngFor="let time of slide.vsBestTimes">{{time.name}} : {{time.time}}</p></span>
             </div>
         </div>
     </div>
     <p>{{slide.name}}</p>
-    <button *ngIf = "this.page === 'config'" routerLink="{{ routeOne }}" (click)="btnOneEmitter()">{{ btnOne }}</button>
-    <button *ngIf = "this.page === 'config'" routerLink="{{ routeTwo }}" (click)="btnTwoEmitter()">{{ btnTwo }}</button>
-    <button *ngIf="this.page === 'selection'" (click)="showInput1 = true">PLAY SOLO</button>
-    <button *ngIf="this.page === 'selection'" (click)="showInput2 = true">PLAY 1v1</button>
+    <button *ngIf="this.page === 'config'" routerLink="{{ routeOne }}" (click)="btnOneEmitter()">{{ btnOne }}</button>
+    <button *ngIf="this.page === 'config'" routerLink="{{ routeTwo }}" (click)="btnTwoEmitter()">{{ btnTwo }}</button>
+    <button *ngIf="this.page === 'selection'" (click)="showInput1 = true">Jouer en solo</button>
+    <button *ngIf="this.page === 'selection'" (click)="showInput2 = true">Jouer en 1v1</button>
     <div class="player-name" *ngIf="showInput1">
-        <input type="text" [(ngModel)]="inputValue1" placeholder="Enter your player name">
+        <input type="text" [(ngModel)]="inputValue1" placeholder="Entrez votre nom">
         <button routerLink="{{ routeOne }}" (click)="btnOneEmitter()">{{ btnOne }}</button>
     </div>
-    <div class="player-name" *ngIf="showInput2">
-        <input type="text" [(ngModel)]="inputValue2" placeholder="Enter your player name">
+    <!-- <div class="player-name" *ngIf="showInput2">
+        <input type="text" [(ngModel)]="inputValue2" placeholder="Entrez votre nom">
         <button routerLink="{{ routeTwo }}" (click)="btnTwoEmitter()">{{ btnTwo }}</button>
-    </div>
+    </div> -->
 </div>

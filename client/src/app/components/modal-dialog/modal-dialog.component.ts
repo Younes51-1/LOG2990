@@ -5,11 +5,20 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
     selector: 'app-modal-dialog',
     templateUrl: './modal-dialog.component.html',
     styleUrls: ['./modal-dialog.component.scss'],
+    styles: [
+        `
+            .md-dialog-container {
+                top: -10%;
+            }
+        `,
+    ],
 })
 export class ModalDialogComponent implements AfterViewInit {
     @ViewChild('canvasDifferences') canvasDifferences: ElementRef<HTMLCanvasElement>;
     width: number;
     height: number;
+    context: CanvasRenderingContext2D;
+    scaleNumber: number = 1;
 
     constructor(@Inject(MAT_DIALOG_DATA) public data: { imageUrl: string; nbDifferences: number; flipped: boolean }) {
         this.width = 640;
@@ -19,16 +28,15 @@ export class ModalDialogComponent implements AfterViewInit {
     ngAfterViewInit(): void {
         const scale = { x: 1, y: -1 };
         const canvas = this.canvasDifferences.nativeElement;
-        const context = canvas.getContext('2d');
-        if (!context) return;
+        this.context = canvas.getContext('2d') as CanvasRenderingContext2D;
         const image = new Image();
         image.src = this.data.imageUrl;
         image.onload = () => {
             if (this.data.flipped) {
-                context.translate(0, canvas.height);
-                context.scale(scale.x, scale.y);
+                this.context.translate(0, canvas.height);
+                this.context.scale(scale.x, scale.y);
             }
-            context.drawImage(image, 0, 0, this.width, this.height);
+            this.context.drawImage(image, 0, 0, this.width, this.height);
         };
     }
 }

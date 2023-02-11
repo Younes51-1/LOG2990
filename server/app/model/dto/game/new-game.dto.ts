@@ -2,7 +2,10 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsString } from 'class-validator';
 
 export class NewGame {
-    @ApiProperty()
+    @ApiProperty({
+        minimum: 1,
+        maximum: 30,
+    })
     @IsString()
     name: string;
 
@@ -14,7 +17,10 @@ export class NewGame {
     @IsString()
     image2: string;
 
-    @ApiProperty()
+    @ApiProperty({
+        minimum: 3,
+        maximum: 9,
+    })
     @IsNumber()
     nbDifference: number;
 

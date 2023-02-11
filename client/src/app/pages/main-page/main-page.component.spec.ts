@@ -1,6 +1,8 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
-import { RouterTestingModule } from '@angular/router/testing';
+import { Location } from '@angular/common';
+import { By } from '@angular/platform-browser';
+import { AppRoutingModule } from '@app/modules/app-routing.module';
 
 describe('MainPageComponent', () => {
     let component: MainPageComponent;
@@ -9,7 +11,7 @@ describe('MainPageComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [MainPageComponent],
-            imports: [RouterTestingModule],
+            imports: [AppRoutingModule],
         }).compileComponents();
     });
 
@@ -69,4 +71,28 @@ describe('MainPageComponent', () => {
         expect(limitedBtn).not.toBeUndefined();
         expect(limitedBtn.innerHTML).toEqual('TEMPS LIMITÉ');
     });
+
+    it('should show the configuration page on click of the configuration button', fakeAsync(() => {
+        const location = TestBed.inject(Location);
+        const configBtn = fixture.debugElement.query(By.css('.header-section')).children[0].nativeElement;
+        configBtn.click();
+        tick();
+        expect(location.path()).toEqual('/config');
+    }));
+
+    it('should show the selection-page on click of the classic mode button', fakeAsync(() => {
+        const location = TestBed.inject(Location);
+        const classicBtn = fixture.debugElement.query(By.css('.solo button')).nativeElement;
+        classicBtn.click();
+        tick();
+        expect(location.path()).toEqual('/selection');
+    }));
+
+    it('should show the chronoMode-page on click of the chrono mode button', fakeAsync(() => {
+        const location = TestBed.inject(Location);
+        const chronoBtn = fixture.debugElement.query(By.css('.chrono button')).nativeElement;
+        chronoBtn.click();
+        tick();
+        expect(location.path()).toEqual('/home');
+    }));
 });
