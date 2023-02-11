@@ -5,6 +5,13 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
     selector: 'app-modal-dialog',
     templateUrl: './modal-dialog.component.html',
     styleUrls: ['./modal-dialog.component.scss'],
+    styles: [
+        `
+            .md-dialog-container {
+                top: -10%;
+            }
+        `,
+    ],
 })
 export class ModalDialogComponent implements AfterViewInit {
     @ViewChild('canvasDifferences') canvasDifferences: ElementRef<HTMLCanvasElement>;

@@ -19,6 +19,7 @@ header {
 }
 
 img {
+    margin-top: -2%;
     width: 60%;
 }
 
@@ -48,6 +49,5 @@ img {
 .slick-prev:before, .slick-next:before {
     width: 25px;
     height: 25px;
-    background-color: black !important;
-    color: black !important;
+    color: black;
 }

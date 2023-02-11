@@ -1,15 +1,15 @@
 <div class="config-container">
-    <p><label>Countdown start time (s) : 
+    <p><label>Début du chronomètre (s) : 
         <button (click)="decreaseValue('initialTime')">-</button>
         <input value="{{ initialTime }}"/>
         <button (click)="increaseValue('initialTime')">+</button>
     </label></p>
-    <p><label>Penalty time for using a hint (s) : 
+    <p><label>Pénalité d'utilisation d'indice (s) : 
         <button (click)="decreaseValue('penaltyTime')">-</button>
         <input value="{{ penaltyTime }}"/>
         <button (click)="increaseValue('penaltyTime')">+</button>
     </label></p>
-    <p><label>Bonus time for finding a difference (s) : 
+    <p><label>Temps bonus pour avoir trouvé une différence (s) : 
         <button (click)="decreaseValue('bonusTime')">-</button>
         <input value="{{ bonusTime }}"/>
         <button (click)="increaseValue('bonusTime')">+</button>

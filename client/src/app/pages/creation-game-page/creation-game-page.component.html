@@ -11,13 +11,13 @@
             (change)="verifyImageFormat($event, images1et2)" /></p>
     <section>
         <div>
-            <p>Téléverser une image : <input #image1 type="file" accept="image/bmp"
+            <p>Téléverser l'image originale : <input #image1 type="file" accept="image/bmp"
                     (change)="verifyImageFormat($event, image1)" /></p>
             <canvas #canvas1 [attr.width]="width" [attr.height]="height"></canvas>
             <p><button class="button" (click)="reset(image1)">Réinitialiser l'image</button></p>
         </div>
         <div>
-            <p>Téléverser une image : <input #image2 type="file" accept="image/bmp"
+            <p>Téléverser l'image modifiée : <input #image2 type="file" accept="image/bmp"
                     (change)="verifyImageFormat($event, image2)" /></p>
             <canvas #canvas2 [attr.width]="width" [attr.height]="height"></canvas>
             <p><button class="button" (click)="reset(image2)">Réinitialiser l'image</button></p>

@@ -11,8 +11,8 @@ enum Times {
     styleUrls: ['./sidebar.component.scss'],
 })
 export class SidebarComponent implements OnInit {
-    gameMode = 'Classic mode';
-    difficulty = 'Easy mode';
+    gameMode = 'Mode classique solo';
+    difficulty = 'Niveau facile';
     totalNumber = '10';
     totalLeft = '3'; // CALL SERVICE DIFFERENCESCOUNT
 

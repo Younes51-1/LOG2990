@@ -6,6 +6,6 @@ import { Component } from '@angular/core';
     styleUrls: ['./game-page.component.scss'],
 })
 export class GamePageComponent {
-    gameName = 'title of the game';
-    player: string;
+    gameName = 'nom de jeu';
+    player = 'nom de joueur';
 }
