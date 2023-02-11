@@ -59,9 +59,9 @@ export class PlayAreaComponent implements AfterViewInit {
     }
 
     async ngAfterViewInit() {
-        this.differenceMatrix = await this.classicModeService.userGame.gameData.differenceMatrix.reverse();
-        this.original.src = await this.classicModeService.userGame.gameData.gameForm.image1url;
-        this.modified.src = await this.classicModeService.userGame.gameData.gameForm.image2url;
+        this.differenceMatrix = await this.classicModeService.gameRoom.userGame.gameData.differenceMatrix.reverse();
+        this.original.src = this.classicModeService.gameRoom.userGame.gameData.gameForm.image1url;
+        this.modified.src = this.classicModeService.gameRoom.userGame.gameData.gameForm.image2url;
         const context1 = this.canvas1.nativeElement.getContext('2d');
         if (context1) {
             this.context1 = context1;
@@ -72,7 +72,7 @@ export class PlayAreaComponent implements AfterViewInit {
             this.context2 = context2;
             this.context2.font = '30px comic sans ms';
         }
-        this.original.crossOrigin = 'Anonymous';
+        this.original.crossOrigin = 'Anonymous'; // needed to get access to images of server
         this.modified.crossOrigin = 'Anonymous';
         this.original.onload = () => {
             if (context1 != null) {
@@ -92,6 +92,7 @@ export class PlayAreaComponent implements AfterViewInit {
             this.mousePosition = this.mouseService.mouseClick(event, this.mousePosition);
             // isValidated doit utiliser doit prendre la validation de la tentative du serveur dynamique
             const isValidated = this.differenceMatrix[this.mousePosition.y][this.mousePosition.x] !== -1;
+            this.classicModeService.validateDifference(this.mousePosition, isValidated);
             if (isValidated) {
                 this.playerIsAllowedToClick = false;
                 this.handleDifferenceCount();

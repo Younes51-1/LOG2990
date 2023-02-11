@@ -20,6 +20,6 @@ import { ClassicModeService } from './services/classicMode/classic-mode.service'
         MongooseModule.forFeature([{ name: Game.name, schema: gameSchema }]),
     ],
     controllers: [GameController],
-    providers: [GameService, ClassicModeGateway, ClassicModeService, Logger],
+    providers: [Logger, GameService, ClassicModeService, ClassicModeGateway],
 })
 export class AppModule {}

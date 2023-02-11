@@ -1,9 +1,9 @@
 import { UserGame } from '@app/model/schema/user-game.schema';
-import { Vector2D } from '@app/model/schema/vector2d.schema';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { Injectable, Logger } from '@nestjs/common';
-import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
-import { Socket } from 'socket.io';
+import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
+import { DELAY_BEFORE_EMITTING_TIME } from './classic-mode.gateway.constants';
 import { ClassicModeEvents } from './classic-mode.gateway.events';
 
 enum Times {
@@ -14,49 +14,51 @@ enum Times {
 
 @WebSocketGateway({ cors: true })
 @Injectable()
-export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
+    @WebSocketServer() private server: Server;
+
     constructor(private readonly logger: Logger, private readonly classicModeService: ClassicModeService) {}
 
     @SubscribeMessage(ClassicModeEvents.Start)
     startGame(socket: Socket, userGame: UserGame) {
-        this.classicModeService.initClassicMode(userGame);
-        this.classicModeService.userGame.timer.intervalId = window.setInterval(() => {
-            this.classicModeService.userGame.timer.seconds++;
-            if (this.classicModeService.userGame.timer.seconds === Times.MinInSec) {
-                this.classicModeService.userGame.timer.seconds = 0;
-                this.classicModeService.userGame.timer.minutes++;
-            }
-        }, Times.SecInMil);
-        socket.emit(ClassicModeEvents.Started);
-        this.emitTime(socket);
+        const newRoomId = this.classicModeService.initNewRoom(socket, userGame);
+        this.server.to(socket.id).emit(ClassicModeEvents.Started, newRoomId);
     }
 
     @SubscribeMessage(ClassicModeEvents.ValidateDifference)
-    async validateDifference(socket: Socket, differencePos: Vector2D) {
-        const validated = await this.classicModeService.validateDifference(differencePos);
-        socket.emit(ClassicModeEvents.DifferenceValidated, { validated, differencePos });
-        if (this.classicModeService.isGameFinished()) {
+    async validateDifference(socket: Socket, differencePos) {
+        const validated = await this.classicModeService.validateDifference(socket.id, differencePos);
+        this.server.to(socket.id).emit(ClassicModeEvents.DifferenceValidated, { validated, differencePos });
+        if (this.classicModeService.isGameFinished(socket.id)) {
             this.endGame(socket);
         }
     }
 
     @SubscribeMessage(ClassicModeEvents.EndGame)
     endGame(socket: Socket) {
-        clearInterval(this.classicModeService.userGame.timer.intervalId);
-        socket.emit(ClassicModeEvents.GameFinished, this.classicModeService.userGame.timer);
+        this.server.to(socket.id).emit(ClassicModeEvents.GameFinished, this.classicModeService.gameRooms.get(socket.id).userGame.timer);
+    }
+
+    afterInit() {
+        setInterval(() => {
+            this.emitTime();
+        }, DELAY_BEFORE_EMITTING_TIME);
     }
 
     handleConnection(socket: Socket) {
         this.logger.log(`Connexion par l'utilisateur avec id : ${socket.id}`);
-        socket.emit(ClassicModeEvents.Waiting);
+        this.server.to(socket.id).emit(ClassicModeEvents.Waiting);
     }
 
     handleDisconnect(socket: Socket) {
-        clearInterval(this.classicModeService.userGame.timer.intervalId);
         this.logger.log(`${socket.id}: deconnexion`);
+        this.classicModeService.deleteRoom(socket.id);
     }
 
-    private emitTime(socket: Socket) {
-        socket.emit(ClassicModeEvents.Timer, this.classicModeService.userGame.timer);
+    private emitTime() {
+        for (const gameRoom of this.classicModeService.gameRooms.values()) {
+            this.classicModeService.updateTimer(gameRoom);
+            this.server.to(gameRoom.roomId).emit(ClassicModeEvents.Timer, this.classicModeService.gameRooms.get(gameRoom.roomId).userGame.timer);
+        }
     }
 }

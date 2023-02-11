@@ -14,12 +14,8 @@ export class CommunicationSocketService {
     }
 
     connect() {
-        // eslint-disable-next-line no-console
-        console.log('socket connecting');
-        this.socket = io(environment.serverUrl, { transports: ['websocket'], upgrade: false });
+        this.socket = io(environment.serverBaseUrl, { transports: ['websocket'], upgrade: false });
         this.socket.emit('connection', 'test');
-        // eslint-disable-next-line no-console
-        console.log('socket connected');
     }
 
     disconnect() {

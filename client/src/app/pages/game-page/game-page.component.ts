@@ -1,4 +1,7 @@
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
+import { UserGame } from '@app/interfaces/user-game';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 
 @Component({
@@ -6,21 +9,37 @@ import { ClassicModeService } from '@app/services/classicMode/classic-mode.servi
     templateUrl: './game-page.component.html',
     styleUrls: ['./game-page.component.scss'],
 })
-export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
-    gameName = 'test7diff';
+export class GamePageComponent implements OnInit, OnDestroy {
+    gameName = 'testset';
     player: string = 'player1';
+    timer = 0;
+    differencesFound = 0;
+    userGame: UserGame;
 
-    constructor(private classicModeService: ClassicModeService) {}
+    constructor(private dialog: MatDialog, private classicModeService: ClassicModeService) {}
 
     ngOnInit() {
         this.classicModeService.initClassicMode(this.gameName, this.player);
-    }
-
-    ngAfterViewInit() {
-        this.classicModeService.startGame();
+        this.classicModeService.timer$.subscribe((timer: number) => {
+            this.timer = timer;
+        });
+        this.classicModeService.differencesFound$.subscribe((count) => {
+            this.differencesFound = count;
+        });
+        this.classicModeService.gameFinished$.subscribe(() => {
+            this.endGame();
+        });
+        this.classicModeService.userGame$.subscribe((userGame) => {
+            this.userGame = userGame;
+        });
     }
 
     ngOnDestroy() {
-        this.classicModeService.quitGame();
+        this.endGame();
+    }
+
+    endGame() {
+        this.dialog.open(EndgameDialogComponent, { disableClose: true });
+        this.classicModeService.endGame();
     }
 }
