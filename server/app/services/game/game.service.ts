@@ -26,19 +26,19 @@ export class GameService {
         if (game === undefined || game === null) {
             return new GameData();
         }
-        return this.convertGameToGameData(game);
+        return await this.convertGameToGameData(game);
     }
 
     async createNewGame(newGame: NewGame): Promise<void> {
         try {
             await this.saveImages(newGame);
+            await this.saveMatrix(newGame);
             const gameToSave = await this.convertNewGameToGame(newGame);
             await this.gameModel.create(gameToSave);
         } catch (error) {
             return Promise.reject(`Failed to insert game: ${error}`);
         }
     }
-
     async deleteGame(name: string): Promise<void> {
         try {
             const res = await this.gameModel.deleteOne({
@@ -53,7 +53,20 @@ export class GameService {
         }
     }
 
-    async saveImages(newGame: NewGame): Promise<void> {
+    private validateNewGame(newGame: NewGame): boolean {
+        return newGame.name !== undefined && newGame.nbDifference !== undefined && newGame.differenceMatrix !== undefined;
+    }
+
+    private async convertNewGameToGame(newGame: NewGame): Promise<Game> {
+        const game = new Game();
+        game.name = newGame.name;
+        game.nbDifference = newGame.nbDifference;
+        game.soloBestTimes = this.newBestTimes();
+        game.vsBestTimes = this.newBestTimes();
+        return game;
+    }
+
+    private async saveImages(newGame: NewGame): Promise<void> {
         let bufferObjImage = Buffer.from(newGame.image1, 'base64');
         await this.saveImage(bufferObjImage, newGame.name, '1');
         bufferObjImage = Buffer.from(newGame.image2, 'base64');
@@ -75,14 +88,31 @@ export class GameService {
         fs.rmSync(dirName, { recursive: true, force: true });
     }
 
-    private async convertNewGameToGame(newGame: NewGame): Promise<Game> {
-        const game = new Game();
-        game.name = newGame.name;
-        game.nbDifference = newGame.nbDifference;
-        game.differenceMatrix = newGame.differenceMatrix;
-        game.soloBestTimes = this.newBestTimes();
-        game.vsBestTimes = this.newBestTimes();
-        return game;
+    private async saveMatrix(newGame: NewGame): Promise<void> {
+        const dirName = `./assets/${newGame.name}`;
+        if (!fs.existsSync(dirName)) fs.mkdirSync(dirName);
+        const matrixtoString = newGame.differenceMatrix.map((row) => row.join(',')).join(';');
+        fs.writeFile(`${dirName}/differenceMatrix.txt`, matrixtoString, async (err) => {
+            if (err) {
+                return Promise.reject(`Failed to save differenceMatix: ${err}`);
+            }
+        });
+    }
+
+    private async getMatrix(name: string): Promise<number[][]> {
+        const dirName = `./assets/${name}`;
+        if (!fs.existsSync(dirName)) return Promise.reject('Could not find game');
+        try {
+            const data = fs.readFileSync(`${dirName}/differenceMatrix.txt`, 'utf8');
+            return this.convertMatrixStringToMatrix(data);
+        } catch (err) {
+            return Promise.reject(`Failed to get differenceMatix: ${err}`);
+        }
+    }
+
+    private convertMatrixStringToMatrix(matrixString: string): number[][] {
+        const matrix = matrixString.split(';').map((row) => row.split(','));
+        return matrix.map((row) => row.map((cell) => parseInt(cell, 10)));
     }
 
     private convertGameToGameForm(game: Game): GameForm {
@@ -97,10 +127,10 @@ export class GameService {
         return gameForm;
     }
 
-    private convertGameToGameData(game: Game): GameData {
+    private async convertGameToGameData(game: Game): Promise<GameData> {
         const gameData = new GameData();
         gameData.gameForm = this.convertGameToGameForm(game);
-        gameData.differenceMatrix = game.differenceMatrix;
+        gameData.differenceMatrix = await this.getMatrix(game.name);
         return gameData;
     }
 
@@ -114,9 +144,9 @@ export class GameService {
 
     private calculateDifficulty(nbDifference: number): string {
         if (nbDifference <= DIFFICULTY_THRESHOLD) {
-            return 'facile';
+            return 'Facile';
         } else {
-            return 'difficile';
+            return 'Difficile';
         }
     }
 }
