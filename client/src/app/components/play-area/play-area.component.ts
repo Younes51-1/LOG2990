@@ -1,8 +1,7 @@
 import { AfterViewInit, Component, ElementRef, HostListener, Input, ViewChild } from '@angular/core';
-import { GameData } from '@app/interfaces/game-data';
 import { Vec2 } from '@app/interfaces/vec2';
+import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { DetectionDifferenceService } from '@app/services/detection-difference.service';
-import { DifferencesFoundService } from '@app/services/differencesFound/differences-found.service';
 import { MouseService } from '@app/services/mouse.service';
 
 export const DEFAULT_WIDTH = 640;
@@ -23,26 +22,27 @@ export class PlayAreaComponent implements AfterViewInit {
     @ViewChild('canvas2', { static: false }) canvas2: ElementRef<HTMLCanvasElement>;
 
     @Input() gameName: string;
-    @Input() gameData: GameData;
 
+    canvasClicked: HTMLCanvasElement;
     playerIsAllowedToClick = true;
     context1: CanvasRenderingContext2D;
     context1text: CanvasRenderingContext2D;
     context2: CanvasRenderingContext2D;
     mousePosition: Vec2 = { x: 0, y: 0 };
+    differencesFound = 0;
     buttonPressed = '';
     original = new Image();
     modified = new Image();
-    audioValid = new Audio('https://dl.dropboxusercontent.com/s/dxe6u6194129egw/valid_sound.mp3');
-    audioInvalid = new Audio('https://dl.dropboxusercontent.com/s/8eh3p45prkuvw8b/invalid_sound.mp3');
+    audioValid = new Audio('../assets/valid_sound.mp3');
+    audioInvalid = new Audio('../assets/invalid_sound.mp3');
     differenceMatrix: number[][];
     currentDifferenceMatrix: number[][];
     private canvasSize = { x: DEFAULT_WIDTH, y: DEFAULT_HEIGHT };
 
     constructor(
         private mouseService: MouseService,
-        private differencesFoundService: DifferencesFoundService,
-        private detectionService: DetectionDifferenceService, // private classicModeService: ClassicModeService,
+        private detectionService: DetectionDifferenceService,
+        private classicModeService: ClassicModeService,
     ) {}
 
     get width(): number {
@@ -58,13 +58,10 @@ export class PlayAreaComponent implements AfterViewInit {
         this.buttonPressed = event.key;
     }
 
-    ngAfterViewInit(): void {
-        if (!this.gameData) {
-            return;
-        }
-        this.differenceMatrix = this.gameData.differenceMatrix;
-        this.original.src = this.gameData.gameForm.image1url;
-        this.modified.src = this.gameData.gameForm.image2url;
+    async ngAfterViewInit() {
+        this.differenceMatrix = await this.classicModeService.gameRoom.userGame.gameData.differenceMatrix.reverse();
+        this.original.src = this.classicModeService.gameRoom.userGame.gameData.gameForm.image1url;
+        this.modified.src = this.classicModeService.gameRoom.userGame.gameData.gameForm.image2url;
         const context1 = this.canvas1.nativeElement.getContext('2d');
         if (context1) {
             this.context1 = context1;
@@ -75,41 +72,50 @@ export class PlayAreaComponent implements AfterViewInit {
             this.context2 = context2;
             this.context2.font = '30px comic sans ms';
         }
-        this.original.crossOrigin = 'Anonymous';
+        this.original.crossOrigin = 'Anonymous'; // needed to get access to images of server
         this.modified.crossOrigin = 'Anonymous';
         this.original.onload = () => {
             if (context1 != null) {
                 context1.drawImage(this.original, 0, 0, this.width, this.height);
             }
         };
+
         this.modified.onload = () => {
             if (context2 != null) {
                 context2.drawImage(this.modified, 0, 0, this.width, this.height);
             }
         };
+        this.classicModeService.differencesFound$.subscribe((differencesFound) => {
+            this.differencesFound = differencesFound;
+        });
+        this.classicModeService.serverValidateResponse$.subscribe((response) => {
+            if (response) {
+                this.playerIsAllowedToClick = false;
+                this.correctAnswerVisuals(this.mousePosition.x, this.mousePosition.y);
+                this.audioValid.pause();
+                this.audioValid.currentTime = 0;
+                this.audioValid.play();
+                // appel fonctions Tentative validee
+            } else {
+                this.playerIsAllowedToClick = false;
+                this.audioInvalid.play();
+                this.visualRetroaction(this.canvasClicked);
+            }
+        });
     }
 
-    mouseClickAttempt(event: MouseEvent, canvas: HTMLCanvasElement) {
+    async mouseClickAttempt(event: MouseEvent, canvas: HTMLCanvasElement) {
         if (this.playerIsAllowedToClick) {
             this.mousePosition = this.mouseService.mouseClick(event, this.mousePosition);
             // isValidated doit utiliser doit prendre la validation de la tentative du serveur dynamique
             const isValidated = this.differenceMatrix[this.mousePosition.y][this.mousePosition.x] !== -1;
-            switch (isValidated) {
-                case true: {
-                    this.playerIsAllowedToClick = false;
-                    this.handleDifferenceCount();
-                    this.correctAnswerVisuals(this.mousePosition.y, this.mousePosition.x);
-                    this.audioValid.pause();
-                    this.audioValid.currentTime = 0;
-                    this.audioValid.play();
-                    // appel fonctions Tentative validee
-                    break;
-                }
-                default: {
-                    this.playerIsAllowedToClick = false;
-                    this.audioInvalid.play();
-                    this.visualRetroaction(canvas);
-                }
+            if (isValidated) {
+                this.classicModeService.validateDifference(this.mousePosition);
+                this.canvasClicked = canvas;
+            } else {
+                this.playerIsAllowedToClick = false;
+                this.audioInvalid.play();
+                this.visualRetroaction(canvas);
             }
         }
     }
@@ -130,13 +136,8 @@ export class PlayAreaComponent implements AfterViewInit {
         }
     }
 
-    handleDifferenceCount() {
-        const count = this.differencesFoundService.getDifferencesFound();
-        this.differencesFoundService.updateDifferencesFound(count + 1);
-    }
-
     correctAnswerVisuals(xCoord: number, yCoord: number) {
-        this.currentDifferenceMatrix = this.detectionService.extractDifference(JSON.parse(JSON.stringify(this.differenceMatrix)), yCoord, xCoord);
+        this.currentDifferenceMatrix = this.detectionService.extractDifference(JSON.parse(JSON.stringify(this.differenceMatrix)), xCoord, yCoord);
         this.flashDifference(this.currentDifferenceMatrix);
     }
 
@@ -154,8 +155,8 @@ export class PlayAreaComponent implements AfterViewInit {
             layerContext1.fillStyle = Color.Luigi;
             layerContext2.fillStyle = Color.Luigi;
             for (let i = 0; i < difference.length; i++) {
-                for (let j = 0; j < difference[i].length; j++) {
-                    if (difference[i][j] === 1) {
+                for (let j = 0; j < difference[0].length; j++) {
+                    if (difference[i][j] !== -1) {
                         layerContext1.fillRect(j, i, 1, 1);
                         layerContext2.fillRect(j, i, 1, 1);
                     }
@@ -183,18 +184,17 @@ export class PlayAreaComponent implements AfterViewInit {
 
         for (let i = 0; i < differenceMatrix.length; i++) {
             for (let j = 0; j < differenceMatrix[0].length; j++) {
-                if (differenceMatrix[i][j] === 1) {
-                    differencePositions.push({ x: i, y: j });
+                if (differenceMatrix[i][j] !== -1) {
+                    differencePositions.push({ x: j, y: i });
                     this.differenceMatrix[i][j] = -1;
                 }
             }
         }
 
-        // eslint-disable-next-line guard-for-in
-        for (const i in differencePositions) {
-            const x = differencePositions[i].x;
-            const y = differencePositions[i].y;
-            const index = (x * this.width + y) * 4;
+        for (const i of differencePositions) {
+            const x = i.x;
+            const y = i.y;
+            const index = (y * this.width + x) * 4;
 
             image2.data[index] = image1.data[index];
             image2.data[index + 1] = image1.data[index + 1];

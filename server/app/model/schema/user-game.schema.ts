@@ -1,5 +1,4 @@
 import { GameData } from '@app/model/dto/game/game-data.dto';
-import { Timer } from '@app/model/schema/timer.schema';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UserGame {
@@ -10,8 +9,8 @@ export class UserGame {
     gameData: GameData;
 
     @ApiProperty()
-    nbDifferenceToFind: number;
+    nbDifferenceFound: number;
 
     @ApiProperty()
-    timer: Timer;
+    timer: number;
 }

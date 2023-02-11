@@ -1,31 +1,46 @@
 import { EMPTY_PIXEL_VALUE } from '@app/constants';
+import { GameRoom } from '@app/model/schema/game-room.schema';
 import { UserGame } from '@app/model/schema/user-game.schema';
 import { Vector2D } from '@app/model/schema/vector2d.schema';
-import { Injectable, Scope } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { Socket } from 'socket.io';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class ClassicModeService {
-    userGame: UserGame;
+    gameRooms: Map<string, GameRoom>;
 
     constructor() {
-        this.userGame = new UserGame();
+        this.gameRooms = new Map<string, GameRoom>();
     }
 
-    initClassicMode(userGame: UserGame): void {
-        this.userGame = userGame;
-        this.userGame.nbDifferenceToFind = userGame.gameData.gameForm.nbDifference;
-        this.userGame.timer = { minutes: 0, seconds: 0, intervalId: 0 };
+    initNewRoom(socket: Socket, userGame: UserGame): string {
+        const newRoom = { userGame, roomId: socket.id };
+        this.gameRooms.set(newRoom.roomId, newRoom);
+        socket.join(newRoom.roomId);
+        return newRoom.roomId;
     }
 
-    validateDifference(differencePos: Vector2D): boolean {
-        const validated = this.userGame.gameData.differenceMatrix[differencePos.y][differencePos.x] !== EMPTY_PIXEL_VALUE;
+    validateDifference(gameId: string, differencePos: Vector2D): boolean {
+        const gameRoom = this.gameRooms.get(gameId);
+        const validated = gameRoom.userGame.gameData.differenceMatrix[differencePos.y][differencePos.x] !== EMPTY_PIXEL_VALUE;
         if (validated) {
-            this.userGame.nbDifferenceToFind--;
+            gameRoom.userGame.nbDifferenceFound++;
+            this.gameRooms.set(gameRoom.roomId, gameRoom);
         }
         return validated;
     }
 
-    isGameFinished(): boolean {
-        return this.userGame.nbDifferenceToFind === 0;
+    isGameFinished(gameId: string): boolean {
+        const gameRoom = this.gameRooms.get(gameId);
+        return gameRoom.userGame.nbDifferenceFound === gameRoom.userGame.gameData.gameForm.nbDifference;
+    }
+
+    updateTimer(gameRoom: GameRoom): void {
+        gameRoom.userGame.timer++;
+        this.gameRooms.set(gameRoom.roomId, gameRoom);
+    }
+
+    deleteRoom(roomId: string): void {
+        this.gameRooms.delete(roomId);
     }
 }

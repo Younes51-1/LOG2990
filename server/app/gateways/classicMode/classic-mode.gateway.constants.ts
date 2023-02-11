@@ -1,0 +1,1 @@
+export const DELAY_BEFORE_EMITTING_TIME = 1000;

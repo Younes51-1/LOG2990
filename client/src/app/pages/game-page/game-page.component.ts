@@ -1,37 +1,47 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
-import { GameData } from '@app/interfaces/game-data';
-import { Timer } from '@app/interfaces/timer';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
+import { UserGame } from '@app/interfaces/user-game';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
-import { CommunicationService } from '@app/services/communication.service';
 
 @Component({
     selector: 'app-game-page',
     templateUrl: './game-page.component.html',
     styleUrls: ['./game-page.component.scss'],
 })
-export class GamePageComponent implements OnInit, AfterViewInit {
-    // gameName = 'title of the game';
+export class GamePageComponent implements OnInit, OnDestroy {
     gameName = 'testset';
-    gameData: GameData;
-    timer: Timer;
     player: string = 'player1';
+    timer = 0;
+    differencesFound = 0;
+    userGame: UserGame;
 
-    constructor(private communicationService: CommunicationService, private classicModeService: ClassicModeService) {}
+    constructor(private dialog: MatDialog, private classicModeService: ClassicModeService) {}
 
     ngOnInit() {
-        this.communicationService.getGame(this.gameName).subscribe((res) => {
-            if (Object.keys(res).length !== 0) {
-                this.gameData = res;
-            } else {
-                alert('Jeu introuvable');
-            }
+        this.classicModeService.initClassicMode(this.gameName, this.player);
+        this.classicModeService.timer$.subscribe((timer: number) => {
+            this.timer = timer;
+        });
+        this.classicModeService.differencesFound$.subscribe((count) => {
+            this.differencesFound = count;
+        });
+        this.classicModeService.gameFinished$.subscribe(() => {
+            this.endGame();
+        });
+        this.classicModeService.userGame$.subscribe((userGame) => {
+            this.userGame = userGame;
         });
     }
-    ngAfterViewInit() {
-        // this.classicModeService.initClassicMode(this.gameData, this.player);
-        if (this.gameData) {
-            this.classicModeService.initClassicMode(this.gameData);
-            this.timer = this.classicModeService.userGame.timer;
+
+    ngOnDestroy() {
+        this.classicModeService.endGame();
+    }
+
+    endGame() {
+        if (this.differencesFound === this.userGame.gameData.gameForm.nbDifference) {
+            this.dialog.open(EndgameDialogComponent, { disableClose: true });
         }
+        this.classicModeService.endGame();
     }
 }

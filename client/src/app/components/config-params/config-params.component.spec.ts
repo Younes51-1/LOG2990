@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
-import { ConfigParamsComponent } from './config-params.component';
+import { ConfigParamsComponent, Time } from './config-params.component';
 
 describe('ConfigParamsComponent', () => {
     let component: ConfigParamsComponent;

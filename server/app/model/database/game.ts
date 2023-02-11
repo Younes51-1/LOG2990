@@ -19,10 +19,6 @@ export class Game {
 
     @ApiProperty()
     @Prop({ required: true })
-    differenceMatrix: number[][];
-
-    @ApiProperty()
-    @Prop({ required: true })
     soloBestTimes: BestTime[];
 
     @ApiProperty()

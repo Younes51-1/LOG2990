@@ -1,72 +1,98 @@
 import { Injectable } from '@angular/core';
 import { DifferenceTry } from '@app/interfaces/difference-try';
-import { GameData } from '@app/interfaces/game-data';
-import { Timer } from '@app/interfaces/timer';
+import { GameRoom } from '@app/interfaces/game-room';
 import { UserGame } from '@app/interfaces/user-game';
 import { Vec2 } from '@app/interfaces/vec2';
+import { CommunicationService } from '@app/services/communication.service';
 import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
+import { Subject } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
 })
 export class ClassicModeService {
-    userGame: UserGame;
+    gameRoom: GameRoom;
     canSendValidate = true;
-    differencesFound: Vec2[] = [];
+    differencesFound$ = new Subject<number>();
+    timer$ = new Subject<number>();
+    gameFinished$ = new Subject<boolean>();
+    userGame$ = new Subject<UserGame>();
+    serverValidateResponse$ = new Subject<boolean>();
 
-    constructor(private readonly socket: CommunicationSocketService) {}
+    constructor(private readonly socketService: CommunicationSocketService, private communicationService: CommunicationService) {}
 
-    initClassicMode(gameData: GameData): void {
-        this.userGame.gameData = gameData;
-        this.userGame.nbDifferenceToFind = gameData.gameForm.nbDifference;
-        this.userGame.timer = { minutes: 0, seconds: 0, intervalId: 0 };
+    initClassicMode(gameName: string, username: string): void {
+        this.communicationService.getGame(gameName).subscribe((res) => {
+            if (Object.keys(res).length !== 0) {
+                this.gameRoom = {
+                    userGame: {
+                        gameData: res,
+                        nbDifferenceFound: 0,
+                        timer: 0,
+                        username,
+                    },
+                    roomId: '',
+                };
+                this.userGame$.next(this.gameRoom.userGame);
+                this.connect();
+            } else {
+                alert('Jeu introuvable');
+            }
+        });
     }
 
     connect(): void {
-        this.socket.connect();
+        if (!this.socketService.isSocketAlive()) {
+            this.socketService.connect();
+            this.handleSocket();
+        } else {
+            alert('Un problème est survenu lors de la connexion au serveur');
+        }
     }
 
     handleSocket(): void {
-        this.socket.on('waiting', () => {
+        this.socketService.on('waiting', () => {
             this.startGame();
         });
 
-        this.socket.on('started', () => {
-            // TODO: handle start
+        this.socketService.on('started', (roomId: string) => {
+            this.gameRoom.roomId = roomId;
         });
 
-        this.socket.on('validated', (differenceTry: DifferenceTry) => {
+        this.socketService.on('validated', (differenceTry: DifferenceTry) => {
             if (differenceTry.validated) {
-                this.userGame.nbDifferenceToFind--;
-                this.differencesFound.push(differenceTry.differencePos);
+                this.gameRoom.userGame.nbDifferenceFound++;
+                this.differencesFound$.next(this.gameRoom.userGame.nbDifferenceFound);
             }
-            // TODO: handle validated for differencePos
+            this.serverValidateResponse$.next(differenceTry.validated);
         });
 
-        this.socket.on('GameFinished', (timer: Timer) => {
-            this.userGame.timer = timer;
-            this.socket.disconnect();
+        this.socketService.on('GameFinished', (timer: number) => {
+            this.gameRoom.userGame.timer = timer;
+            this.gameFinished$.next(true);
+            this.socketService.disconnect();
         });
 
-        this.socket.on('timer', (timer: Timer) => {
-            this.userGame.timer = timer;
+        this.socketService.on('timer', (timer: number) => {
+            this.gameRoom.userGame.timer = timer;
+            this.timer$.next(timer);
             this.canSendValidate = true;
         });
     }
 
     startGame(): void {
-        this.socket.send('start', this.userGame);
+        this.socketService.send('start', this.gameRoom.userGame);
     }
 
     validateDifference(differencePos: Vec2) {
         if (!this.canSendValidate) {
             return;
         }
-        this.socket.send('validate', differencePos);
+        this.socketService.send('validate', differencePos);
         this.canSendValidate = false;
     }
 
-    quitGame(): void {
-        this.socket.send('endGame');
+    endGame(): void {
+        this.socketService.send('endGame');
     }
 }
