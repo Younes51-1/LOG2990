@@ -2,7 +2,6 @@ import { AfterViewInit, Component, ElementRef, HostListener, Input, ViewChild } 
 import { Vec2 } from '@app/interfaces/vec2';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { DetectionDifferenceService } from '@app/services/detection-difference.service';
-import { DifferencesFoundService } from '@app/services/differencesFound/differences-found.service';
 import { MouseService } from '@app/services/mouse.service';
 
 export const DEFAULT_WIDTH = 640;
@@ -24,11 +23,13 @@ export class PlayAreaComponent implements AfterViewInit {
 
     @Input() gameName: string;
 
+    canvasClicked: HTMLCanvasElement;
     playerIsAllowedToClick = true;
     context1: CanvasRenderingContext2D;
     context1text: CanvasRenderingContext2D;
     context2: CanvasRenderingContext2D;
     mousePosition: Vec2 = { x: 0, y: 0 };
+    differencesFound = 0;
     buttonPressed = '';
     original = new Image();
     modified = new Image();
@@ -40,7 +41,6 @@ export class PlayAreaComponent implements AfterViewInit {
 
     constructor(
         private mouseService: MouseService,
-        private differencesFoundService: DifferencesFoundService,
         private detectionService: DetectionDifferenceService,
         private classicModeService: ClassicModeService,
     ) {}
@@ -85,22 +85,33 @@ export class PlayAreaComponent implements AfterViewInit {
                 context2.drawImage(this.modified, 0, 0, this.width, this.height);
             }
         };
-    }
-
-    mouseClickAttempt(event: MouseEvent, canvas: HTMLCanvasElement) {
-        if (this.playerIsAllowedToClick) {
-            this.mousePosition = this.mouseService.mouseClick(event, this.mousePosition);
-            // isValidated doit utiliser doit prendre la validation de la tentative du serveur dynamique
-            const isValidated = this.differenceMatrix[this.mousePosition.y][this.mousePosition.x] !== -1;
-            this.classicModeService.validateDifference(this.mousePosition, isValidated);
-            if (isValidated) {
+        this.classicModeService.differencesFound$.subscribe((differencesFound) => {
+            this.differencesFound = differencesFound;
+        });
+        this.classicModeService.serverValidateResponse$.subscribe((response) => {
+            if (response) {
                 this.playerIsAllowedToClick = false;
-                this.handleDifferenceCount();
                 this.correctAnswerVisuals(this.mousePosition.x, this.mousePosition.y);
                 this.audioValid.pause();
                 this.audioValid.currentTime = 0;
                 this.audioValid.play();
                 // appel fonctions Tentative validee
+            } else {
+                this.playerIsAllowedToClick = false;
+                this.audioInvalid.play();
+                this.visualRetroaction(this.canvasClicked);
+            }
+        });
+    }
+
+    async mouseClickAttempt(event: MouseEvent, canvas: HTMLCanvasElement) {
+        if (this.playerIsAllowedToClick) {
+            this.mousePosition = this.mouseService.mouseClick(event, this.mousePosition);
+            // isValidated doit utiliser doit prendre la validation de la tentative du serveur dynamique
+            const isValidated = this.differenceMatrix[this.mousePosition.y][this.mousePosition.x] !== -1;
+            if (isValidated) {
+                this.classicModeService.validateDifference(this.mousePosition);
+                this.canvasClicked = canvas;
             } else {
                 this.playerIsAllowedToClick = false;
                 this.audioInvalid.play();
@@ -123,11 +134,6 @@ export class PlayAreaComponent implements AfterViewInit {
                 this.playerIsAllowedToClick = true;
             }, nMilliseconds);
         }
-    }
-
-    handleDifferenceCount() {
-        const count = this.differencesFoundService.getDifferencesFound();
-        this.differencesFoundService.updateDifferencesFound(count + 1);
     }
 
     correctAnswerVisuals(xCoord: number, yCoord: number) {

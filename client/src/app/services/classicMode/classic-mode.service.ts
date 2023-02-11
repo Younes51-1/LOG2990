@@ -17,6 +17,7 @@ export class ClassicModeService {
     timer$ = new Subject<number>();
     gameFinished$ = new Subject<boolean>();
     userGame$ = new Subject<UserGame>();
+    serverValidateResponse$ = new Subject<boolean>();
 
     constructor(private readonly socketService: CommunicationSocketService, private communicationService: CommunicationService) {}
 
@@ -51,37 +52,28 @@ export class ClassicModeService {
 
     handleSocket(): void {
         this.socketService.on('waiting', () => {
-            // eslint-disable-next-line no-console
-            console.log('waiting');
             this.startGame();
         });
 
         this.socketService.on('started', (roomId: string) => {
             this.gameRoom.roomId = roomId;
-            // eslint-disable-next-line no-console
-            console.log('started');
         });
 
         this.socketService.on('validated', (differenceTry: DifferenceTry) => {
-            // eslint-disable-next-line no-console
-            console.log('validated: ' + differenceTry.validated);
             if (differenceTry.validated) {
                 this.gameRoom.userGame.nbDifferenceFound++;
                 this.differencesFound$.next(this.gameRoom.userGame.nbDifferenceFound);
             }
+            this.serverValidateResponse$.next(differenceTry.validated);
         });
 
         this.socketService.on('GameFinished', (timer: number) => {
-            // eslint-disable-next-line no-console
-            console.log('gameFinished');
             this.gameRoom.userGame.timer = timer;
             this.gameFinished$.next(true);
             this.socketService.disconnect();
         });
 
         this.socketService.on('timer', (timer: number) => {
-            // eslint-disable-next-line no-console
-            console.log('timer: ', timer);
             this.gameRoom.userGame.timer = timer;
             this.timer$.next(timer);
             this.canSendValidate = true;
@@ -92,8 +84,8 @@ export class ClassicModeService {
         this.socketService.send('start', this.gameRoom.userGame);
     }
 
-    validateDifference(differencePos: Vec2, isValidated: boolean) {
-        if (!this.canSendValidate || !isValidated) {
+    validateDifference(differencePos: Vec2) {
+        if (!this.canSendValidate) {
             return;
         }
         this.socketService.send('validate', differencePos);
