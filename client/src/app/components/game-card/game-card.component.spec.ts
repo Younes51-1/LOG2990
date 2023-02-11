@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { GameCardComponent } from './game-card.component';
-import { PageKeys } from './game-card-options';
+import { PageKeys, options } from './game-card-options';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 
 describe('GameCardComponent', () => {
@@ -89,18 +89,18 @@ describe('GameCardComponent', () => {
 
     it('should set the correct properties when the page is Config', () => {
         component.ngOnInit();
-        expect(component.routeOne).toEqual('/config');
-        expect(component.btnOne).toEqual('DELETE');
-        expect(component.routeTwo).toEqual('/config');
-        expect(component.btnTwo).toEqual('RESTART');
+        expect(component.routeOne).toEqual(options.config.routeOne);
+        expect(component.btnOne).toEqual(options.config.btnOne);
+        expect(component.routeTwo).toEqual(options.config.routeTwo);
+        expect(component.btnTwo).toEqual(options.config.btnTwo);
     });
 
     it('should set the correct properties when the page is Selection', () => {
         component.page = PageKeys.Selection;
         component.ngOnInit();
-        expect(component.routeOne).toEqual('/game');
-        expect(component.btnOne).toEqual('SUBMIT');
-        expect(component.routeTwo).toEqual('/game');
-        expect(component.btnTwo).toEqual('SUBMIT');
+        expect(component.routeOne).toEqual(options.selection.routeOne);
+        expect(component.btnOne).toEqual(options.selection.btnOne);
+        expect(component.routeTwo).toEqual(options.selection.routeTwo);
+        expect(component.btnTwo).toEqual(options.selection.btnTwo);
     });
 });
