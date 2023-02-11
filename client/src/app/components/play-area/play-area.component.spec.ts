@@ -26,6 +26,8 @@ describe('PlayAreaComponent', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(PlayAreaComponent);
         component = fixture.componentInstance;
+        component.gameData = gameData;
+        fixture.detectChanges();
     });
 
     it('should create', () => {
@@ -33,8 +35,6 @@ describe('PlayAreaComponent', () => {
     });
 
     it('buttonDetect should modify the buttonPressed variable', () => {
-        component.gameData = gameData;
-        fixture.detectChanges();
         const expectedKey = 'a';
         const buttonEvent = {
             key: expectedKey,
@@ -44,8 +44,6 @@ describe('PlayAreaComponent', () => {
     });
 
     it('should draw ERREUR on canvas1', () => {
-        component.gameData = gameData;
-        fixture.detectChanges();
         const textDimensions = { x: 50, y: 30 };
         const spy = spyOn(component.context1, 'fillText');
         component.visualRetroaction(component.canvas1.nativeElement);
@@ -58,8 +56,6 @@ describe('PlayAreaComponent', () => {
     });
 
     it('should draw ERREUR on canvas2', () => {
-        component.gameData = gameData;
-        fixture.detectChanges();
         const textDimensions = { x: 50, y: 30 };
         const spy = spyOn(component.context2, 'fillText');
         component.visualRetroaction(component.canvas2.nativeElement);
@@ -72,8 +68,6 @@ describe('PlayAreaComponent', () => {
     });
 
     it('should make ERREUR disappear after 1 second on canvas1', fakeAsync(() => {
-        component.gameData = gameData;
-        fixture.detectChanges();
         const spy = spyOn(component.context1, 'drawImage');
         component.visualRetroaction(component.canvas1.nativeElement);
         const ms = 1000;
@@ -83,8 +77,6 @@ describe('PlayAreaComponent', () => {
     }));
 
     it('should make ERREUR disappear after 1 second on canvas2', fakeAsync(() => {
-        component.gameData = gameData;
-        fixture.detectChanges();
         const spy = spyOn(component.context2, 'drawImage');
         component.visualRetroaction(component.canvas2.nativeElement);
         const ms = 1000;
