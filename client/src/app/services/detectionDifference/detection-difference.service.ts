@@ -218,27 +218,30 @@ export class DetectionDifferenceService {
             [0, negativeDifferenceCoord],
         ];
 
-        const dfs = (x: number, y: number) => {
-            visited[x][y] = 1;
-            difference.push([x, y]);
-            for (const [dx, dy] of directions) {
-                const nx = x + dx;
-                const ny = y + dy;
-                if (
-                    nx >= 0 &&
-                    nx < differenceMatrix.length &&
-                    ny >= 0 &&
-                    ny < differenceMatrix[0].length &&
-                    !visited[nx][ny] &&
-                    differenceMatrix[nx][ny] !== emptyPixelValue
-                ) {
-                    dfs(nx, ny);
+        if (differenceMatrix[yCoord][xCoord] !== emptyPixelValue) {
+            const stack = [[yCoord, xCoord]];
+            while (stack.length > 0) {
+                const curr = stack.shift();
+                if (curr === undefined) continue;
+                const [x, y] = curr;
+                if (!visited[x][y]) {
+                    visited[x][y] = 1;
+                    difference.push([x, y]);
+                    for (const [dx, dy] of directions) {
+                        const nx = x + dx;
+                        const ny = y + dy;
+                        if (
+                            nx >= 0 &&
+                            nx < differenceMatrix.length &&
+                            ny >= 0 &&
+                            ny < differenceMatrix[0].length &&
+                            differenceMatrix[nx][ny] !== emptyPixelValue
+                        ) {
+                            stack.push([nx, ny]);
+                        }
+                    }
                 }
             }
-        };
-
-        if (differenceMatrix[yCoord][xCoord] !== emptyPixelValue) {
-            dfs(yCoord, xCoord);
         }
 
         return difference;

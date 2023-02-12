@@ -37,7 +37,6 @@ describe('CreationGamePageComponent', () => {
     });
 
     it('radius must be updated when a radio button is selected', () => {
-        // TODO: remove eslint-disable-next-line
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         const radiuses = [0, 3, 9, 15];
         const spy = spyOn(component, 'updateRadius').and.callThrough();

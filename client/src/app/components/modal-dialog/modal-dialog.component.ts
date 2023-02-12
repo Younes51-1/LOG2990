@@ -1,6 +1,5 @@
 import { AfterViewInit, Component, ElementRef, Inject, ViewChild } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { GameNameCreationService } from '@app/services/gameCreation/game-creation.service';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
     selector: 'app-modal-dialog',
@@ -23,7 +22,7 @@ export class ModalDialogComponent implements AfterViewInit {
     inputValue: string;
 
     constructor(
-        private sendNameGame: GameNameCreationService,
+        public dialogRef: MatDialogRef<ModalDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: { imageUrl: string; nbDifferences: number; flipped: boolean },
     ) {
         this.width = 640;
@@ -46,6 +45,6 @@ export class ModalDialogComponent implements AfterViewInit {
     }
 
     emitNameGame() {
-        this.sendNameGame.sendData(this.inputValue);
+        this.dialogRef.close(this.inputValue);
     }
 }

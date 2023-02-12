@@ -5,7 +5,6 @@ import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.
 import { NewGame } from '@app/interfaces/new-game';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
 import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
-import { GameNameCreationService } from '@app/services/gameCreation/game-creation.service';
 
 enum AsciiLetterValue {
     B = 66,
@@ -55,7 +54,6 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
 
     // eslint-disable-next-line max-params
     constructor(
-        private nameGameService: GameNameCreationService,
         private communicationService: CommunicationService,
         public dialog: MatDialog,
         public detectionService: DetectionDifferenceService,
@@ -63,9 +61,6 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     ) {
         this.width = 640;
         this.height = 480;
-        this.nameGameService.data$.subscribe((data) => {
-            this.saveNameGame(data);
-        });
     }
 
     async openDifferencesDialog() {
@@ -76,6 +71,13 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
                 flipped: this.flipImage,
             },
         });
+        if (this.dialogRef) {
+            this.dialogRef.afterClosed().subscribe((result) => {
+                if (result) {
+                    this.saveNameGame(result);
+                }
+            });
+        }
     }
 
     ngAfterViewInit(): void {

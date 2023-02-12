@@ -73,7 +73,7 @@ export class GameService {
         await this.saveImage(bufferObjImage, newGame.name, '2');
     }
 
-    async saveImage(bufferObj: Buffer, name: string, index: string): Promise<void> {
+    private async saveImage(bufferObj: Buffer, name: string, index: string): Promise<void> {
         const dirName = `./assets/${name}`;
         if (!fs.existsSync(dirName)) fs.mkdirSync(dirName);
         fs.writeFile(`${dirName}/image${index}.bmp`, bufferObj, async (err) => {
