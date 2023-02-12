@@ -82,4 +82,34 @@ describe('DetectionDifferenceService', () => {
         ];
         expect(differenceMatrix).toEqual(matrixRes);
     });
+
+    it('should extract the current difference given a valid matrix and coordinates', () => {
+        const differenceMatrix = [
+            [1, emptyPixelValue, 1],
+            [1, emptyPixelValue, 1],
+            [emptyPixelValue, emptyPixelValue, 1],
+        ];
+        const expectedMatrix = [
+            [1, emptyPixelValue, emptyPixelValue],
+            [1, emptyPixelValue, emptyPixelValue],
+            [emptyPixelValue, emptyPixelValue, emptyPixelValue],
+        ];
+        const result = service.extractDifference(differenceMatrix, 0, 0);
+        expect(result).toEqual(expectedMatrix);
+    });
+
+    it('should return empty matrix from extractDifference given invalid coordinates', () => {
+        const differenceMatrix = [
+            [1, emptyPixelValue, 1],
+            [1, emptyPixelValue, 1],
+            [emptyPixelValue, emptyPixelValue, 1],
+        ];
+        const expectedMatrix = [
+            [emptyPixelValue, emptyPixelValue, emptyPixelValue],
+            [emptyPixelValue, emptyPixelValue, emptyPixelValue],
+            [emptyPixelValue, emptyPixelValue, emptyPixelValue],
+        ];
+        const result = service.extractDifference(differenceMatrix, 1, 0);
+        expect(result).toEqual(expectedMatrix);
+    });
 });
