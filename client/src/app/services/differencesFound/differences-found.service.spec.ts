@@ -21,4 +21,12 @@ describe('GameServiceService', () => {
         expect(spy).toHaveBeenCalledWith(service.getDifferencesFound());
         expect(service.getDifferencesFound()).toEqual(newValue);
     });
+
+    it('should correctly reset the difference count', () => {
+        const newValue = 5;
+        service.updateDifferencesFound(newValue);
+        expect(service.getDifferencesFound()).toEqual(newValue);
+        service.resetDifferencesFound();
+        expect(service.getDifferencesFound()).toEqual(0);
+    });
 });
