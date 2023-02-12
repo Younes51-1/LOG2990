@@ -7,7 +7,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { GameData } from '@app/interfaces/game-data';
-import { CommunicationService } from '@app/services/communication.service';
+import { CommunicationService } from '@app/services/communicationService/communication.service';
 import SpyObj = jasmine.SpyObj;
 import { of } from 'rxjs';
 import { UserGame } from '@app/interfaces/user-game';

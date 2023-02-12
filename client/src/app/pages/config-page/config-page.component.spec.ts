@@ -3,7 +3,7 @@ import { NgModule } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { ConfigPageComponent } from '@app/pages/config-page/config-page.component';
-import { CommunicationService } from '@app/services/communication.service';
+import { CommunicationService } from '@app/services/communicationService/communication.service';
 import { of } from 'rxjs';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';

@@ -6,6 +6,7 @@ import { Component } from '@angular/core';
     styleUrls: ['./main-page.component.scss'],
 })
 export class MainPageComponent {
+    readonly teamName = 'Équipe 204 : NO CONTENT';
     readonly teamMembers: string[] = [
         'Coralie Brodeur',
         ' Imène Clara Ghazi',

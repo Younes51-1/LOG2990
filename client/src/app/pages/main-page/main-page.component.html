@@ -14,7 +14,7 @@
         </div>
     </section>
     <footer>
-        <p>Équipe 204 : NO CONTENT</p>
+        <p>{{ teamName }}</p>
         <span *ngFor="let teamMate of teamMembers; let isLast = last">{{ teamMate }}{{ isLast ? '' : ', ' }}</span>
     </footer>
 </div>

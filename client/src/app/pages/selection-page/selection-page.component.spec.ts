@@ -3,7 +3,7 @@ import { NgModule } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { SelectionPageComponent } from '@app/pages/selection-page/selection-page.component';
-import { CommunicationService } from '@app/services/communication.service';
+import { CommunicationService } from '@app/services/communicationService/communication.service';
 import { of } from 'rxjs';
 import SpyObj = jasmine.SpyObj;
 
