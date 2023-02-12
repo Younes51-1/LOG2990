@@ -37,6 +37,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.classicModeService.endGame();
+        this.dialog.closeAll();
     }
 
     endGame() {
