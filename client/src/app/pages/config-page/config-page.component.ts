@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { PageKeys } from '@app/components/game-card/game-card-options';
 import { GameForm } from '@app/interfaces/game-form';
-import { CommunicationService } from '@app/services/communication.service';
+import { CommunicationService } from '@app/services/communicationService/communication.service';
 
 // TODO : Avoir un fichier séparé pour les constantes!
 export const MATERIAL_PREBUILT_THEMES = [

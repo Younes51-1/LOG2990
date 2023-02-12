@@ -3,8 +3,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.component';
 import { NewGame } from '@app/interfaces/new-game';
-import { CommunicationService } from '@app/services/communication.service';
-import { DetectionDifferenceService } from '@app/services/detection-difference.service';
+import { CommunicationService } from '@app/services/communicationService/communication.service';
+import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
 
 enum AsciiLetterValue {
     B = 66,

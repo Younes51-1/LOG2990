@@ -1,8 +1,8 @@
 import { AfterViewInit, Component, ElementRef, HostListener, Input, ViewChild } from '@angular/core';
 import { Vec2 } from '@app/interfaces/vec2';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
-import { DetectionDifferenceService } from '@app/services/detection-difference.service';
-import { MouseService } from '@app/services/mouse.service';
+import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
+import { MouseService } from '@app/services/mouseService/mouse.service';
 
 export const DEFAULT_WIDTH = 640;
 export const DEFAULT_HEIGHT = 480;
