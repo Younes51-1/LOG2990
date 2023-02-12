@@ -6,7 +6,6 @@ import { Component } from '@angular/core';
     styleUrls: ['./main-page.component.scss'],
 })
 export class MainPageComponent {
-    readonly teamName: string = '204 : NO CONTENT';
     readonly teamMembers: string[] = [
         'Coralie Brodeur',
         ' Imène Clara Ghazi',
@@ -15,9 +14,4 @@ export class MainPageComponent {
         ' Younes Benabbou',
         ' Dumitru Zlotea',
     ];
-
-    readonly configLink = '/config';
-    readonly classiqueLink = '/selection';
-    readonly limitedLink = '/home';
-    readonly cheatModeLink = '/home';
 }

@@ -1,12 +1,11 @@
 <div class="container">
-    <app-sidebar
-        [gameName]="gameName"
-        [timer]="timer"
-        [differencesFound]="differencesFound"
-        [userGame]="userGame"
-        (endGame)="endGame()"
-    ></app-sidebar>
-    <section class="play-area-container">
+    <header>
+        <img src="../../../assets/jeu.png">
+        <p>Bienvenue au jeu : {{gameName}}, {{player}} !</p>
+    </header>
+    <section>
+        <app-sidebar [gameName]="gameName" [timer]="timer" [differencesFound]="differencesFound" [userGame]="userGame"
+            (endGame)="endGame()"></app-sidebar>
         <app-play-area class="play-area" tabindex="0" [gameName]="gameName"></app-play-area>
     </section>
 </div>

@@ -9,6 +9,8 @@ import { CommunicationService } from '@app/services/communication.service';
     styleUrls: ['./selection-page.component.scss'],
 })
 export class SelectionPageComponent {
+    selection = PageKeys.Selection;
+
     slides: GameForm[];
     slideConfig = {
         slidesToShow: 4,
@@ -18,8 +20,6 @@ export class SelectionPageComponent {
         dots: true,
         appendArrows: 'ngx-slick-carousel',
     };
-
-    selection = PageKeys.Selection;
 
     constructor(private readonly communicationService: CommunicationService) {
         this.getSlidesFromServer();
