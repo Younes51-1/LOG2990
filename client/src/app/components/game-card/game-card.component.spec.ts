@@ -2,6 +2,13 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { GameCardComponent } from './game-card.component';
 import { PageKeys, options } from './game-card-options';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
+import { HttpClientModule } from '@angular/common/http';
+import { NgModule } from '@angular/core';
+
+@NgModule({
+    imports: [HttpClientModule],
+})
+export class DynamicTestModule {}
 
 describe('GameCardComponent', () => {
     let component: GameCardComponent;
@@ -10,7 +17,7 @@ describe('GameCardComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [GameCardComponent],
-            imports: [AppRoutingModule],
+            imports: [AppRoutingModule, DynamicTestModule],
         }).compileComponents();
     });
     beforeEach(() => {

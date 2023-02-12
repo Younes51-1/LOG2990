@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { GamePageComponent } from './game-page.component';
 import { MatToolbar } from '@angular/material/toolbar';
@@ -32,7 +31,7 @@ describe('GamePageComponent', () => {
         communicationServiceSpy.getGame.and.returnValue(of(gameData));
 
         await TestBed.configureTestingModule({
-            declarations: [GamePageComponent, SidebarComponent, PlayAreaComponent, MatToolbar],
+            declarations: [GamePageComponent, SidebarComponent, MatToolbar],
             imports: [DynamicTestModule],
         }).compileComponents();
     });
