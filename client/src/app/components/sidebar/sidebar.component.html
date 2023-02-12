@@ -6,10 +6,10 @@
         <p class="timer">{{ minutes | number:'2.0-0' }}:{{ seconds | number:'2.0-0' }}</p>
     </div>
     <section>
-        <p>{{gameMode}}</p>
-        <p>{{difficulty}}</p>
+        <p>Mode {{gameMode}}</p>
+        <p>Niveau {{difficulty}}</p>
         <p>Vous devez trouver un total de {{totalNumber}} différences</p>
-        <p>Il reste {{differencesFound}} différences à trouver</p>
+        <p>Vous avez trouvé {{differencesFound}} différences</p>
     </section>
     <button routerLink="/selection">Abandonner la partie</button>
 </div>
