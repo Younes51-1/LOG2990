@@ -16,11 +16,11 @@
     <p>{{slide.name}}</p>
     <button *ngIf="this.page === 'config'" routerLink="{{ routeOne }}" (click)="btnOneEmitter()">{{ btnOne }}</button>
     <button *ngIf="this.page === 'config'" routerLink="{{ routeTwo }}" (click)="btnTwoEmitter()">{{ btnTwo }}</button>
-    <button *ngIf="this.page === 'selection'" (click)="showInput1 = true">Jouer en solo</button>
-    <button *ngIf="this.page === 'selection'" (click)="showInput2 = true">Option multijoueur</button>
+    <button *ngIf="this.page === 'selection'" (click)="showInput1 = true; showInput2 = false">Jouer en solo</button>
+    <button *ngIf="this.page === 'selection'" (click)="showInput1 = false; showInput2 = true">Option multijoueur</button>
     <div class="player-name" *ngIf="showInput1">
         <input type="text" [(ngModel)]="inputValue1" placeholder="Entrez votre nom" required />
-        <button routerLink="{{ routeOne }}" (click)="btnOneEmitter()">{{ btnOne }}</button>
+        <button [disabled]="!inputValue1" routerLink="{{ routeOne }}" (click)="btnOneEmitter()">{{ btnOne }}</button>
     </div>
     <div class="player-name" *ngIf="showInput2">
         <button>Joindre une partie</button>

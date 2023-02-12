@@ -10,16 +10,15 @@ import { ClassicModeService } from '@app/services/classicMode/classic-mode.servi
     styleUrls: ['./game-page.component.scss'],
 })
 export class GamePageComponent implements OnInit, OnDestroy {
-    gameName = 'testset';
-    player: string = 'player1';
+    gameName: string;
+    player: string;
     timer = 0;
     differencesFound = 0;
     userGame: UserGame;
 
-    constructor(private dialog: MatDialog, private classicModeService: ClassicModeService) {}
+    constructor(public dialog: MatDialog, private classicModeService: ClassicModeService) {}
 
     ngOnInit() {
-        this.classicModeService.initClassicMode(this.gameName, this.player);
         this.classicModeService.timer$.subscribe((timer: number) => {
             this.timer = timer;
         });
@@ -31,6 +30,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
         });
         this.classicModeService.userGame$.subscribe((userGame) => {
             this.userGame = userGame;
+            this.gameName = userGame.gameData.gameForm.name;
+            this.player = userGame.username;
         });
     }
 

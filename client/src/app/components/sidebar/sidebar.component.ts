@@ -19,8 +19,8 @@ export class SidebarComponent implements OnChanges {
     @Input() userGame: UserGame;
     @Output() endGameParent: EventEmitter<unknown> = new EventEmitter();
 
-    gameMode = 'Classic mode';
-    difficulty = '~~~';
+    gameMode: string = 'Classique';
+    difficulty: string;
     totalNumber: number;
 
     minutes = 0;

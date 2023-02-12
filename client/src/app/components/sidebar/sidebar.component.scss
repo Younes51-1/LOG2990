@@ -21,7 +21,7 @@ button {
     transition: 0.3s ease all;
     z-index: 1;
 }
-   
+
 button:before {
     transition: 0.15s all ease;
     position: absolute;
@@ -34,17 +34,17 @@ button:before {
     background-color: #8200FF;
     z-index: -1;
 }
-   
+
 button:hover, button:focus {
     color: white;
 }
-   
+
 button:hover:before, button:focus:before {
     left: 0;
     right: 0;
     opacity: 1;
 }
-   
+
 button:active {
     transform: scale(0.9);
 }
@@ -63,5 +63,5 @@ svg {
 
 .timer {
     font-size: 100%;
-    margin-top: -100%;
+    margin-top: -60%;
 }

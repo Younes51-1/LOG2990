@@ -18,7 +18,9 @@ header {
     justify-items: center;
     width: 100%;
 }
-
+header > p {
+    margin-top: 5%;
+}
 img {
     margin-top: -2%;
     width: 70%;

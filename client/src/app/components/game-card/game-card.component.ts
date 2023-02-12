@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { options, PageKeys } from './game-card-options';
 import { GameForm } from '@app/interfaces/game-form';
+import { Router } from '@angular/router';
+import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 
 @Component({
     selector: 'app-game-card',
@@ -22,7 +24,9 @@ export class GameCardComponent implements OnInit {
     showInput2 = false;
     inputValue1: string;
     inputValue2: string;
+    router: Router;
 
+    constructor(private classicModeService: ClassicModeService) {}
     ngOnInit() {
         const { routeOne, btnOne, routeTwo, btnTwo } = options[this.page] || {};
         this.routeOne = routeOne;
@@ -32,6 +36,9 @@ export class GameCardComponent implements OnInit {
     }
 
     btnOneEmitter() {
+        if (this.page === PageKeys.Selection) {
+            this.classicModeService.initClassicMode(this.slide.name, this.inputValue1);
+        }
         this.notify.emit(this.slide.name);
     }
 
