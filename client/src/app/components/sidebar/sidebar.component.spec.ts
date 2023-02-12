@@ -7,6 +7,7 @@ import { Location } from '@angular/common';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { UserGame } from '@app/interfaces/user-game';
 import { GameData } from '@app/interfaces/game-data';
+import { By } from '@angular/platform-browser';
 
 const differenceMatrix: number[][] = [[]];
 const gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulte: '', soloBestTimes: [], vsBestTimes: [] };
@@ -47,7 +48,7 @@ describe('SidebarComponent', () => {
 
     it('should show the number of differences found', () => {
         const differences = fixture.debugElement.nativeElement.getElementsByClassName('diffFound');
-        expect(differences.length).not.toEqual(1); // TODO: mettre 0 au lieu du 1 quand tu fix le code
+        expect(differences.length).toEqual(0);
     });
 
     it('should show the game difficulty', () => {
@@ -77,13 +78,14 @@ describe('SidebarComponent', () => {
         component.minutes = 10;
         component.seconds = 20;
         fixture.detectChanges();
-        const timer = fixture.debugElement.nativeElement.querySelector('div:nth-of-type(2)').querySelector('p');
-        expect(timer.textContent).toEqual('Timer : 10:20');
+        const timer = fixture.debugElement.query(By.css('.timer')).nativeElement;
+        expect(timer.textContent).toEqual('10:20');
     });
 
     it('should reset the interface on game start', () => {
         component.minutes = 5;
         component.seconds = 5;
+        component.timer = 0;
         component.ngOnChanges();
         fixture.detectChanges();
         expect(component.minutes).toEqual(0);
@@ -91,17 +93,15 @@ describe('SidebarComponent', () => {
     });
 
     it('should spend one second after a second is displayed on the timer', fakeAsync(() => {
-        const oneSecond = 1000;
+        component.timer = 1;
         component.ngOnChanges();
-        tick(oneSecond);
         expect(component.seconds).toEqual(1);
         expect(component.minutes).toEqual(0);
     }));
 
     it('should spend one minute after a minute is displayed on the timer', fakeAsync(() => {
-        const oneMinute = 60000;
+        component.timer = 60;
         component.ngOnChanges();
-        tick(oneMinute);
         expect(component.minutes).toEqual(1);
         expect(component.seconds).toEqual(0);
     }));

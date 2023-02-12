@@ -42,7 +42,7 @@ export class PlayAreaComponent implements AfterViewInit {
     constructor(
         private mouseService: MouseService,
         private detectionService: DetectionDifferenceService,
-        private classicModeService: ClassicModeService,
+        public classicModeService: ClassicModeService,
     ) {}
 
     get width(): number {
@@ -59,9 +59,11 @@ export class PlayAreaComponent implements AfterViewInit {
     }
 
     async ngAfterViewInit() {
-        this.differenceMatrix = await this.classicModeService.gameRoom.userGame.gameData.differenceMatrix.reverse();
-        this.original.src = this.classicModeService.gameRoom.userGame.gameData.gameForm.image1url;
-        this.modified.src = this.classicModeService.gameRoom.userGame.gameData.gameForm.image2url;
+        if (this.classicModeService.gameRoom) {
+            this.differenceMatrix = await this.classicModeService.gameRoom.userGame.gameData.differenceMatrix.reverse();
+            this.original.src = this.classicModeService.gameRoom.userGame.gameData.gameForm.image1url;
+            this.modified.src = this.classicModeService.gameRoom.userGame.gameData.gameForm.image2url;
+        }
         const context1 = this.canvas1.nativeElement.getContext('2d');
         if (context1) {
             this.context1 = context1;

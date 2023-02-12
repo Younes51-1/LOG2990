@@ -53,7 +53,6 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     difficulty: string;
     dialogRef: MatDialogRef<ModalDialogComponent>;
 
-    // TODO: Refactor this function
     // eslint-disable-next-line max-params
     constructor(
         private nameGameService: GameNameCreationService,
@@ -230,6 +229,8 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        this.dialogRef.close();
+        if (this.dialogRef) {
+            this.dialogRef.close();
+        }
     }
 }

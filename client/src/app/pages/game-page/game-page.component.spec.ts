@@ -7,9 +7,10 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { GameData } from '@app/interfaces/game-data';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
-import SpyObj = jasmine.SpyObj;
 import { of } from 'rxjs';
 import { UserGame } from '@app/interfaces/user-game';
+import SpyObj = jasmine.SpyObj;
+import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
 
 const differenceMatrix: number[][] = [[]];
 const gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulte: '', soloBestTimes: [], vsBestTimes: [] };
@@ -31,7 +32,7 @@ describe('GamePageComponent', () => {
         communicationServiceSpy.getGame.and.returnValue(of(gameData));
 
         await TestBed.configureTestingModule({
-            declarations: [GamePageComponent, SidebarComponent, MatToolbar],
+            declarations: [GamePageComponent, SidebarComponent, MatToolbar, EndgameDialogComponent],
             imports: [DynamicTestModule],
         }).compileComponents();
     });

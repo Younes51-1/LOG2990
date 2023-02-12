@@ -93,6 +93,8 @@ export class ClassicModeService {
     }
 
     endGame(): void {
-        this.socketService.send('endGame');
+        if (this.socketService.isSocketAlive()) {
+            this.socketService.send('endGame');
+        }
     }
 }

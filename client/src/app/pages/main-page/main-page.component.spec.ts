@@ -64,7 +64,7 @@ describe('MainPageComponent', () => {
     });
 
     it('should have limited mode button', () => {
-        const chronoBtn = fixture.debugElement.query(By.css('.chrono-mode button')).nativeElement;
+        const chronoBtn = fixture.debugElement.query(By.css('.chrono-mode')).nativeElement;
         expect(chronoBtn).not.toBeUndefined();
         expect(chronoBtn.innerHTML).toEqual('TEMPS LIMITÉ');
     });
@@ -85,10 +85,10 @@ describe('MainPageComponent', () => {
         expect(location.path()).toEqual('/selection');
     }));
 
-    // to change in the future
+    // TODO: to change in the future
     it('should show the chronoMode-page on click of the chrono mode button', fakeAsync(() => {
         const location = TestBed.inject(Location);
-        const chronoBtn = fixture.debugElement.query(By.css('.chrono-mode button')).nativeElement;
+        const chronoBtn = fixture.debugElement.query(By.css('.chrono-mode')).nativeElement;
         chronoBtn.click();
         tick();
         expect(location.path()).toEqual('/home');

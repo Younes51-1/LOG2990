@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
 import { UserGame } from '@app/interfaces/user-game';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
@@ -15,6 +15,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     timer = 0;
     differencesFound = 0;
     userGame: UserGame;
+    dialogRef: MatDialogRef<EndgameDialogComponent>;
 
     constructor(public dialog: MatDialog, private classicModeService: ClassicModeService) {}
 
@@ -36,13 +37,13 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.classicModeService.endGame();
         this.dialog.closeAll();
+        this.classicModeService.endGame();
     }
 
     endGame() {
         if (this.differencesFound === this.userGame.gameData.gameForm.nbDifference) {
-            this.dialog.open(EndgameDialogComponent, { disableClose: true });
+            this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true });
         }
         this.classicModeService.endGame();
     }
