@@ -25,11 +25,6 @@
     </section>
     <button class="button" (click)="reset(images1et2)">Réinitialiser les deux images simultanément</button>
     <section>
-        <div *ngIf="3 <= differenceCount && differenceCount <= 9">
-            <label for="nameGame">Entrez le nom du jeu </label>
-            <input #nameGame type="text" />
-            <button class="button" (click)="saveNameGame(nameGame.value)">Créer</button>
-        </div>
         <fieldset>
             <legend>Paramètres du rayon d'élargissement</legend>
             <div *ngFor="let radius of possibleRadius">

@@ -1,2 +1,7 @@
 <p>Il y a {{ data.nbDifferences }} différences entre ces images</p>
 <canvas #canvasDifferences [attr.width]="width" [attr.height]="height"></canvas>
+<div *ngIf="3 <= data.nbDifferences && data.nbDifferences <= 9">
+    <label for="nameGame">Entrez le nom du jeu </label>
+    <input type="text" [(ngModel)]="inputValue" required/>
+    <button class="button" (click)="emitNameGame()">Créer le jeu</button>
+</div>

@@ -22,6 +22,7 @@ import { CommonModule } from '@angular/common';
 import { CreationGamePageComponent } from '@app/pages/creation-game-page/creation-game-page.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
+import { ModalDialogComponent } from './components/modal-dialog/modal-dialog.component';
 
 /**
  * Main module that is used in main.ts.
@@ -42,6 +43,7 @@ import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-d
         CreationGamePageComponent,
         ConfigParamsComponent,
         EndgameDialogComponent,
+        ModalDialogComponent,
     ],
     providers: [],
     bootstrap: [AppComponent],

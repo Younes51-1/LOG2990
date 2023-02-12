@@ -1,10 +1,11 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { AfterViewInit, Component, ElementRef, ViewChild, OnDestroy } from '@angular/core';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.component';
 import { NewGame } from '@app/interfaces/new-game';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
 import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
+import { GameNameCreationService } from '@app/services/gameCreation/game-creation.service';
 
 enum AsciiLetterValue {
     B = 66,
@@ -30,7 +31,7 @@ enum PossibleRadius {
     templateUrl: './creation-game-page.component.html',
     styleUrls: ['./creation-game-page.component.scss'],
 })
-export class CreationGamePageComponent implements AfterViewInit {
+export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     @ViewChild('image1', { static: false }) inputImage1: ElementRef;
     @ViewChild('image2', { static: false }) inputImage2: ElementRef;
     @ViewChild('images1et2', { static: false }) inputImages1et2: ElementRef;
@@ -50,10 +51,12 @@ export class CreationGamePageComponent implements AfterViewInit {
     nameGame: string;
     flipImage: boolean = false;
     difficulty: string;
+    dialogRef: MatDialogRef<ModalDialogComponent>;
 
     // TODO: Refactor this function
     // eslint-disable-next-line max-params
     constructor(
+        private nameGameService: GameNameCreationService,
         private communicationService: CommunicationService,
         public dialog: MatDialog,
         public detectionService: DetectionDifferenceService,
@@ -61,10 +64,13 @@ export class CreationGamePageComponent implements AfterViewInit {
     ) {
         this.width = 640;
         this.height = 480;
+        this.nameGameService.data$.subscribe((data) => {
+            this.saveNameGame(data);
+        });
     }
 
     async openDifferencesDialog() {
-        this.dialog.open(ModalDialogComponent, {
+        this.dialogRef = this.dialog.open(ModalDialogComponent, {
             data: {
                 imageUrl: this.imageDifferencesUrl,
                 nbDifferences: this.differenceCount,
@@ -221,5 +227,9 @@ export class CreationGamePageComponent implements AfterViewInit {
 
     convertImageToB64Url(canvas: HTMLCanvasElement): string {
         return canvas.toDataURL().split(',')[1];
+    }
+
+    ngOnDestroy(): void {
+        this.dialogRef.close();
     }
 }
