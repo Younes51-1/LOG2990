@@ -12,3 +12,13 @@ body {
     margin: 0;
     font-family: 'Verdana', sans-serif, monospace;
 }
+
+.slick-wrapper{
+    width: 1000px;
+    margin: 20px auto;
+}
+
+button.slick-prev.slick-arrow:before, button.slick-next.slick-arrow:before {
+    color: #000000;
+    opacity: 1;
+}

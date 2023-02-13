@@ -184,7 +184,7 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
             image2: this.convertImageToB64Url(this.canvas2.nativeElement),
             nbDifference: this.differenceCount,
             difficulty: this.difficulty,
-            differenceMatrix: this.differenceMatrix,
+            differenceMatrix: this.flipImage ? this.differenceMatrix.reverse() : this.differenceMatrix,
         };
         this.communicationService.getGame(newGame.name).subscribe((res) => {
             if (!res.gameForm) {

@@ -60,9 +60,9 @@ export class PlayAreaComponent implements AfterViewInit {
 
     async ngAfterViewInit() {
         if (this.classicModeService.gameRoom) {
-            this.differenceMatrix = await this.classicModeService.gameRoom.userGame.gameData.differenceMatrix.reverse();
-            this.original.src = this.classicModeService.gameRoom.userGame.gameData.gameForm.image1url;
-            this.modified.src = this.classicModeService.gameRoom.userGame.gameData.gameForm.image2url;
+            this.differenceMatrix = await this.classicModeService.gameRoom.userGame.gameData.differenceMatrix;
+            this.original.src = await this.classicModeService.gameRoom.userGame.gameData.gameForm.image1url;
+            this.modified.src = await this.classicModeService.gameRoom.userGame.gameData.gameForm.image2url;
         }
         const context1 = this.canvas1.nativeElement.getContext('2d');
         if (context1) {
@@ -139,8 +139,10 @@ export class PlayAreaComponent implements AfterViewInit {
     }
 
     correctAnswerVisuals(xCoord: number, yCoord: number) {
-        this.currentDifferenceMatrix = this.detectionService.extractDifference(JSON.parse(JSON.stringify(this.differenceMatrix)), xCoord, yCoord);
-        this.flashDifference(this.currentDifferenceMatrix);
+        if (this.differenceMatrix) {
+            this.currentDifferenceMatrix = this.detectionService.extractDifference(JSON.parse(JSON.stringify(this.differenceMatrix)), xCoord, yCoord);
+            this.flashDifference(this.currentDifferenceMatrix);
+        }
     }
 
     flashDifference(difference: number[][]) {

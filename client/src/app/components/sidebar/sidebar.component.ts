@@ -27,10 +27,12 @@ export class SidebarComponent implements OnChanges {
     seconds = 0;
 
     ngOnChanges() {
-        this.totalNumber = this.userGame.gameData.gameForm.nbDifference;
-        this.difficulty = this.userGame.gameData.gameForm.difficulte;
-        this.minutes = Math.floor(this.timer / Times.MinInSec);
-        this.seconds = this.timer % Times.MinInSec;
+        if (this.userGame) {
+            this.totalNumber = this.userGame.gameData.gameForm.nbDifference;
+            this.difficulty = this.userGame.gameData.gameForm.difficulte;
+            this.minutes = Math.floor(this.timer / Times.MinInSec);
+            this.seconds = this.timer % Times.MinInSec;
+        }
     }
 
     endGame() {
