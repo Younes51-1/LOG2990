@@ -1,4 +1,5 @@
-import { AfterViewInit, Component, ElementRef, HostListener, Input, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges, ViewChild } from '@angular/core';
+import { UserGame } from '@app/interfaces/user-game';
 import { Vec2 } from '@app/interfaces/vec2';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
@@ -17,11 +18,11 @@ enum Color {
     templateUrl: './play-area.component.html',
     styleUrls: ['./play-area.component.scss'],
 })
-export class PlayAreaComponent implements AfterViewInit {
+export class PlayAreaComponent implements AfterViewInit, OnChanges {
     @ViewChild('canvas1', { static: false }) canvas1: ElementRef<HTMLCanvasElement>;
     @ViewChild('canvas2', { static: false }) canvas2: ElementRef<HTMLCanvasElement>;
 
-    @Input() gameName: string;
+    @Input() userGame: UserGame;
 
     canvasClicked: HTMLCanvasElement;
     playerIsAllowedToClick = true;
@@ -57,12 +58,31 @@ export class PlayAreaComponent implements AfterViewInit {
     buttonDetect(event: KeyboardEvent) {
         this.buttonPressed = event.key;
     }
+    ngAfterViewInit() {
+        this.classicModeService.differencesFound$.subscribe((differencesFound) => {
+            this.differencesFound = differencesFound;
+        });
+        this.classicModeService.serverValidateResponse$.subscribe((response) => {
+            if (response) {
+                this.playerIsAllowedToClick = false;
+                this.correctAnswerVisuals(this.mousePosition.x, this.mousePosition.y);
+                this.audioValid.pause();
+                this.audioValid.currentTime = 0;
+                this.audioValid.play();
+                // appel fonctions Tentative validee
+            } else {
+                this.playerIsAllowedToClick = false;
+                this.audioInvalid.play();
+                this.visualRetroaction(this.canvasClicked);
+            }
+        });
+    }
 
-    async ngAfterViewInit() {
+    async ngOnChanges() {
         if (this.classicModeService.gameRoom) {
-            this.differenceMatrix = await this.classicModeService.gameRoom.userGame.gameData.differenceMatrix;
-            this.original.src = await this.classicModeService.gameRoom.userGame.gameData.gameForm.image1url;
-            this.modified.src = await this.classicModeService.gameRoom.userGame.gameData.gameForm.image2url;
+            this.differenceMatrix = this.userGame.gameData.differenceMatrix;
+            this.original.src = this.userGame.gameData.gameForm.image1url;
+            this.modified.src = this.userGame.gameData.gameForm.image2url;
         }
         const context1 = this.canvas1.nativeElement.getContext('2d');
         if (context1) {
@@ -87,23 +107,6 @@ export class PlayAreaComponent implements AfterViewInit {
                 context2.drawImage(this.modified, 0, 0, this.width, this.height);
             }
         };
-        this.classicModeService.differencesFound$.subscribe((differencesFound) => {
-            this.differencesFound = differencesFound;
-        });
-        this.classicModeService.serverValidateResponse$.subscribe((response) => {
-            if (response) {
-                this.playerIsAllowedToClick = false;
-                this.correctAnswerVisuals(this.mousePosition.x, this.mousePosition.y);
-                this.audioValid.pause();
-                this.audioValid.currentTime = 0;
-                this.audioValid.play();
-                // appel fonctions Tentative validee
-            } else {
-                this.playerIsAllowedToClick = false;
-                this.audioInvalid.play();
-                this.visualRetroaction(this.canvasClicked);
-            }
-        });
     }
 
     async mouseClickAttempt(event: MouseEvent, canvas: HTMLCanvasElement) {

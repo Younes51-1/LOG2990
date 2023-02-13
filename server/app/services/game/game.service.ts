@@ -1,4 +1,4 @@
-import { DIFFICULTY_THRESHOLD, SERVER_URL_PROD } from '@app/constants';
+import { DIFFICULTY_THRESHOLD } from '@app/constants';
 import { Game, GameDocument } from '@app/model/database/game';
 import { GameData } from '@app/model/dto/game/game-data.dto';
 import { GameForm } from '@app/model/dto/game/game-form.dto';
@@ -6,6 +6,7 @@ import { NewGame } from '@app/model/dto/game/new-game.dto';
 import { BestTime } from '@app/model/schema/best-times.schema';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { environment } from 'environments/environment.prod';
 import * as fs from 'fs';
 import { Model } from 'mongoose';
 
@@ -119,8 +120,8 @@ export class GameService {
         const gameForm = new GameForm();
         gameForm.name = game.name;
         gameForm.nbDifference = game.nbDifference;
-        gameForm.image1url = `${SERVER_URL_PROD}/${game.name}/image1.bmp`;
-        gameForm.image2url = `${SERVER_URL_PROD}/${game.name}/image2.bmp`;
+        gameForm.image1url = `${environment.serverUrl}/${game.name}/image1.bmp`;
+        gameForm.image2url = `${environment.serverUrl}/${game.name}/image2.bmp`;
         gameForm.difficulte = this.calculateDifficulty(game.nbDifference);
         gameForm.soloBestTimes = game.soloBestTimes;
         gameForm.vsBestTimes = game.vsBestTimes;
