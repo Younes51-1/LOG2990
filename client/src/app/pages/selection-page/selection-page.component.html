@@ -6,7 +6,7 @@
         </button>
         <img src="../../../assets/selection.png">
     </header>
-    <ngx-slick-carousel class="carousel" #slickModal="slick-carousel" [config]="slideConfig">
+    <ngx-slick-carousel class="carousel" [config]="slideConfig">
         <div ngxSlickItem *ngFor="let slide of slides" class="slide">
             <app-game-card [slide]="slide" [page]="selection"></app-game-card>
         </div>

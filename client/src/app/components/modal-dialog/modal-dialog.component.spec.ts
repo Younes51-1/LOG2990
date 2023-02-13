@@ -43,4 +43,13 @@ describe('ModalDialogComponent', () => {
         const differences = fixture.nativeElement.querySelector('p');
         expect(differences.textContent).toContain('5');
     });
+
+    it('should emit the name of the game', () => {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        component.dialogRef = { close: () => {} } as MatDialogRef<ModalDialogComponent>;
+        const emitNameGameSpy = spyOn(component.dialogRef, 'close').and.callThrough();
+        component.inputValue = 'test';
+        component.emitNameGame();
+        expect(emitNameGameSpy).toHaveBeenCalledWith('test');
+    });
 });

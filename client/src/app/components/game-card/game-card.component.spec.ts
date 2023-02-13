@@ -23,7 +23,6 @@ describe('GameCardComponent', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(GameCardComponent);
         component = fixture.componentInstance;
-        // TODO: change tests to test both pages (Selection and Config).
         component.page = PageKeys.Config;
         component.slide = {
             name: 'Find the Differences 1',
@@ -81,17 +80,15 @@ describe('GameCardComponent', () => {
     });
 
     it('should emit the correct value when btnOneEmitter is called', () => {
-        const expectedValue = component.slide.name;
         const spy = spyOn(component.notify, 'emit');
         component.btnOneEmitter();
-        expect(spy).toHaveBeenCalledWith(expectedValue);
+        expect(spy).toHaveBeenCalledWith(component.slide.name);
     });
 
     it('should emit the correct object when btnTwoEmitter is called', () => {
-        const expectedObject = component.slide;
         const spy = spyOn(component.notify, 'emit');
         component.btnTwoEmitter();
-        expect(spy).toHaveBeenCalledWith(expectedObject);
+        expect(spy).toHaveBeenCalledWith(component.slide);
     });
 
     it('should set the correct properties when the page is Config', () => {
@@ -109,5 +106,19 @@ describe('GameCardComponent', () => {
         expect(component.btnOne).toEqual(options.selection.btnOne);
         expect(component.routeTwo).toEqual(options.selection.routeTwo);
         expect(component.btnTwo).toEqual(options.selection.btnTwo);
+    });
+
+    it("should call 'initClassicMode' by btnOneEmitter if page is Selection", () => {
+        const spy = spyOn(component.classicModeService, 'initClassicMode');
+        component.page = PageKeys.Selection;
+        component.ngOnInit();
+        component.btnOneEmitter();
+        expect(spy).toHaveBeenCalled();
+    });
+
+    it("shouldn't call 'initClassicMode' by btnOneEmitter if page isn't Selection", () => {
+        const spy = spyOn(component.classicModeService, 'initClassicMode');
+        component.btnOneEmitter();
+        expect(spy).not.toHaveBeenCalled();
     });
 });

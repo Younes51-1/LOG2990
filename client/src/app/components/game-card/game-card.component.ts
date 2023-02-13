@@ -26,9 +26,9 @@ export class GameCardComponent implements OnInit {
     inputValue2: string;
     router: Router;
 
-    constructor(private classicModeService: ClassicModeService) {}
+    constructor(public classicModeService: ClassicModeService) {}
     ngOnInit() {
-        const { routeOne, btnOne, routeTwo, btnTwo } = options[this.page] || {};
+        const { routeOne, btnOne, routeTwo, btnTwo } = options[this.page];
         this.routeOne = routeOne;
         this.btnOne = btnOne;
         this.routeTwo = routeTwo;
