@@ -1,6 +1,5 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { CanvasTestHelper } from '@app/classes/canvas-test-helper';
 import { ModalDialogComponent } from './modal-dialog.component';
 
 describe('ModalDialogComponent', () => {
@@ -25,17 +24,17 @@ describe('ModalDialogComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should draw canvas', () => {
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        const context = CanvasTestHelper.createCanvas(640, 480).getContext('2d') as CanvasRenderingContext2D;
-        component.context = context;
-        const drawImageSpy = spyOn(component.context, 'drawImage').and.stub();
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        context.clearRect(0, 0, 640, 480);
-        component.data.imageUrl = context.canvas.toDataURL();
+    it('should draw canvas', fakeAsync(() => {
+        component.data.imageUrl = 'https://i.imgur.com/9Z0QZ9A.png';
+        component.data.flipped = true;
         component.ngAfterViewInit();
-        expect(drawImageSpy).not.toHaveBeenCalled();
-    });
+        tick();
+        expect(component.context).toBeTruthy();
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        expect(component.canvasDifferences.nativeElement.getBoundingClientRect().width).toEqual(640);
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        expect(component.canvasDifferences.nativeElement.getBoundingClientRect().height).toEqual(480);
+    }));
 
     it('should show the right amount of differences', () => {
         component.data.nbDifferences = 5;

@@ -34,8 +34,4 @@ export class SidebarComponent implements OnChanges {
             this.seconds = this.timer % Times.MinInSec;
         }
     }
-
-    endGame() {
-        this.endGameParent.emit();
-    }
 }

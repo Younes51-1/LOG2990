@@ -8,7 +8,7 @@
     </header>
     <ngx-slick-carousel class="carousel" [config]="slideConfig">
         <div ngxSlickItem *ngFor="let slide of slides" class="slide">
-            <app-game-card [slide]="slide" [page]="config" (notify)="deleteNotify($event)"></app-game-card>
+            <app-game-card [slide]="slide" [page]="config"></app-game-card>
         </div>
     </ngx-slick-carousel>
     <button class="btn" routerLink="/creation">Créer un jeu</button>

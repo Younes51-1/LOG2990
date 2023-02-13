@@ -1,4 +1,4 @@
-import { HttpClientModule, HttpResponse } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -18,9 +18,7 @@ describe('SelectionPageComponent', () => {
     let communicationServiceSpy: SpyObj<CommunicationService>;
 
     beforeEach(async () => {
-        communicationServiceSpy = jasmine.createSpyObj('ExampleService', ['basicGet', 'basicPost', 'getAllGames']);
-        communicationServiceSpy.basicGet.and.returnValue(of({ title: '', body: '' }));
-        communicationServiceSpy.basicPost.and.returnValue(of(new HttpResponse<string>({ status: 201, statusText: 'Created' })));
+        communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getAllGames']);
         communicationServiceSpy.getAllGames.and.returnValue(
             of([
                 {
@@ -53,6 +51,7 @@ describe('SelectionPageComponent', () => {
         await TestBed.configureTestingModule({
             declarations: [SelectionPageComponent],
             imports: [DynamicTestModule],
+            providers: [{ provide: CommunicationService, useValue: communicationServiceSpy }],
         }).compileComponents();
     });
 

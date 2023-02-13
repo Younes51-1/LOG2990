@@ -1,4 +1,4 @@
-import { HttpClientModule, HttpResponse } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -10,10 +10,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { Location } from '@angular/common';
 import { By } from '@angular/platform-browser';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
-import { GameForm } from '@app/interfaces/game-form';
 import SpyObj = jasmine.SpyObj;
-
-const gameForm: GameForm[] = [{ name: '', nbDifference: 0, image1url: '', image2url: '', difficulte: '', soloBestTimes: [], vsBestTimes: [] }];
 
 @NgModule({
     imports: [MatDialogModule, HttpClientModule],
@@ -26,9 +23,7 @@ describe('ConfigPageComponent', () => {
     let communicationServiceSpy: SpyObj<CommunicationService>;
 
     beforeEach(async () => {
-        communicationServiceSpy = jasmine.createSpyObj('ExampleService', ['basicGet', 'basicPost', 'getAllGames']);
-        communicationServiceSpy.basicGet.and.returnValue(of({ title: '', body: '' }));
-        communicationServiceSpy.basicPost.and.returnValue(of(new HttpResponse<string>({ status: 201, statusText: 'Created' })));
+        communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getAllGames']);
         communicationServiceSpy.getAllGames.and.returnValue(
             of([
                 {
@@ -61,6 +56,7 @@ describe('ConfigPageComponent', () => {
         await TestBed.configureTestingModule({
             declarations: [ConfigPageComponent],
             imports: [DynamicTestModule, RouterTestingModule, AppRoutingModule],
+            providers: [{ provide: CommunicationService, useValue: communicationServiceSpy }],
         }).compileComponents();
     });
 
@@ -96,8 +92,7 @@ describe('ConfigPageComponent', () => {
     });
 
     it('should have slides in the carousel', () => {
-        component.slides = gameForm;
-        expect(component.slides.length).toEqual(1);
+        expect(component.slides.length).toEqual(2);
     });
 
     it('should show up to 4 slides at a time', () => {
