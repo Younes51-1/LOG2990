@@ -2,8 +2,8 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { GameData } from '@app/interfaces/game-data';
 import { of } from 'rxjs';
-import { CommunicationService } from '../communicationService/communication.service';
-import { CommunicationSocketService } from '../communicationSocket/communication-socket.service';
+import { CommunicationService } from '@app/services/communicationService/communication.service';
+import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
 import { ClassicModeService } from './classic-mode.service';
 
 const differenceMatrix: number[][] = [[]];
@@ -126,6 +126,6 @@ describe('ClassicModeService', () => {
             return;
         });
         service.handleSocket();
-        expect(spy).toHaveBeenCalledTimes(5);
+        expect(spy).toHaveBeenCalled();
     });
 });

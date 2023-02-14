@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { DetectionDifferenceService } from './detection-difference.service';
 
 describe('DetectionDifferenceService', () => {
@@ -181,4 +181,65 @@ describe('DetectionDifferenceService', () => {
         service.populateNeighborhood([matrix, differentmatrix], position, 3);
         expect(differentmatrix).toEqual(matrix);
     });
+
+    /* eslint-disable @typescript-eslint/no-magic-numbers */
+    it('should convert an image to a matrix', fakeAsync(() => {
+        const inputElement = document.createElement('input');
+        inputElement.type = 'file';
+        const arrayBuffer = new ArrayBuffer(54);
+        const dv = new DataView(arrayBuffer);
+        dv.setInt16(0, 19778, true);
+        dv.setUint32(2, 54, true);
+        dv.setUint32(10, 54 - 14, true);
+        dv.setUint32(14, 40, true);
+        dv.setInt32(18, 2, true);
+        dv.setInt32(22, 2, true);
+        dv.setInt16(26, 1, true);
+        dv.setInt16(28, 24, true);
+        dv.setUint32(34, 16, true);
+        dv.setUint8(54 - 16, 0);
+        dv.setUint8(54 - 15, 0);
+        dv.setUint8(54 - 14, 0);
+        dv.setUint8(54 - 13, 0);
+        dv.setUint8(54 - 12, 0);
+        dv.setUint8(54 - 11, 0);
+        dv.setUint8(54 - 10, 0);
+        dv.setUint8(54 - 9, 0);
+        dv.setUint8(54 - 8, 0);
+        dv.setUint8(54 - 7, 0);
+        dv.setUint8(54 - 6, 0);
+        dv.setUint8(54 - 5, 0);
+        const bmpFile = new File([arrayBuffer], 'test.bmp', { type: 'image/bmp' });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const fileList = {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            0: bmpFile,
+            length: 1,
+            // eslint-disable-next-line no-unused-vars
+            item: (index: number) => bmpFile,
+        };
+        Object.defineProperty(inputElement, 'files', {
+            value: fileList,
+        });
+        let result: number[][];
+        service.readThenConvertImage(inputElement).then((data) => {
+            result = data;
+            expect(result).toBeDefined();
+        });
+        tick();
+    }));
+
+    it('should return null if the image is a null', fakeAsync(() => {
+        const inputElement = document.createElement('input');
+        inputElement.type = 'file';
+        Object.defineProperty(inputElement, 'files', {
+            value: null,
+        });
+        let result: number[][] | null;
+        service.readThenConvertImage(inputElement).then((data) => {
+            result = data;
+            expect(result).toBeUndefined();
+        });
+        tick();
+    }));
 });
