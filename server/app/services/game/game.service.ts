@@ -137,10 +137,6 @@ export class GameService {
     }
 
     private calculateDifficulty(nbDifference: number): string {
-        if (nbDifference <= DIFFICULTY_THRESHOLD) {
-            return 'Facile';
-        } else {
-            return 'Difficile';
-        }
+        return nbDifference <= DIFFICULTY_THRESHOLD ? 'Facile' : 'Difficile';
     }
 }
