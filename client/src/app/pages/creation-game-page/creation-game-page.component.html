@@ -35,6 +35,7 @@
                 <label for="rayon{{ radius }}">{{ radius }} </label>
             </div>
         </fieldset>
-        <button class="button" (click)="runDetectionSystem()">Visualiser les différence</button>
+        <button *ngIf="image1?.value !== '' && image2?.value !== ''" class="button"
+            (click)="runDetectionSystem()">Visualiser les différence</button>
     </section>
 </div>
