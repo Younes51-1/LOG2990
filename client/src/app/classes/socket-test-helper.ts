@@ -7,7 +7,11 @@
 // Author: Nikolay Radoev
 
 type CallbackSignature = (params: any) => {};
+import { Injectable } from '@angular/core';
 
+@Injectable({
+    providedIn: 'root',
+})
 export class SocketTestHelper {
     on(event: string, callback: CallbackSignature): void {
         if (!this.callbacks.has(event)) {
