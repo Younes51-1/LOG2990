@@ -153,8 +153,8 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     }
 
     async runDetectionSystem() {
-        const img1HasContent: boolean = this.image1.value !== '';
-        const img2HasContent: boolean = this.image2.value !== '';
+        const img1HasContent: boolean = this.image1?.value !== undefined;
+        const img2HasContent: boolean = this.image2?.value !== undefined;
 
         if (img1HasContent && img2HasContent) {
             const image1matrix: number[][] = await this.detectionService.readThenConvertImage(this.image1);
