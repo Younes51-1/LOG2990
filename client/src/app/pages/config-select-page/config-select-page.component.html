@@ -4,15 +4,17 @@
         <button class="home-button" routerLink="/home">
             <i class="fa fa-home fa-2x" aria-hidden="true"></i>
         </button>
-        <img src="../../../assets/config.png">
+        <img src={{imgSource}}>
     </header>
     <ngx-slick-carousel class="carousel" [config]="slideConfig">
         <div ngxSlickItem *ngFor="let slide of slides" class="slide">
-            <app-game-card [slide]="slide" [page]="config"></app-game-card>
+            <app-game-card [slide]="slide" [page]="pageType"></app-game-card>
         </div>
     </ngx-slick-carousel>
-    <button class="btn" routerLink="/creation">Créer un jeu</button>
-    <div class="centered-text">
-        <app-config-params></app-config-params>
+    <div *ngIf="this.pageType === 'config'">
+        <button class="btn" routerLink="/creation">Créer un jeu</button>
+        <div class="centered-text">
+            <app-config-params></app-config-params>
+        </div>
     </div>
 </div>

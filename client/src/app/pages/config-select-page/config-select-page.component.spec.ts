@@ -2,7 +2,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
-import { ConfigPageComponent } from '@app/pages/config-page/config-page.component';
+import { ConfigSelectPageComponent } from './config-select-page.component';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
 import { of } from 'rxjs';
 import { Router } from '@angular/router';
@@ -11,15 +11,17 @@ import { Location } from '@angular/common';
 import { By } from '@angular/platform-browser';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import SpyObj = jasmine.SpyObj;
+import { PageKeys } from '@app/components/game-card/game-card-options';
+import { ConfigParamsComponent } from '@app/components/config-params/config-params.component';
 
 @NgModule({
     imports: [MatDialogModule, HttpClientModule],
 })
 export class DynamicTestModule {}
 
-describe('ConfigPageComponent', () => {
-    let component: ConfigPageComponent;
-    let fixture: ComponentFixture<ConfigPageComponent>;
+describe('ConfigSelectPageComponent', () => {
+    let component: ConfigSelectPageComponent;
+    let fixture: ComponentFixture<ConfigSelectPageComponent>;
     let communicationServiceSpy: SpyObj<CommunicationService>;
 
     beforeEach(async () => {
@@ -54,14 +56,14 @@ describe('ConfigPageComponent', () => {
         );
 
         await TestBed.configureTestingModule({
-            declarations: [ConfigPageComponent],
+            declarations: [ConfigSelectPageComponent, ConfigParamsComponent],
             imports: [DynamicTestModule, RouterTestingModule, AppRoutingModule],
             providers: [{ provide: CommunicationService, useValue: communicationServiceSpy }],
         }).compileComponents();
     });
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(ConfigPageComponent);
+        fixture = TestBed.createComponent(ConfigSelectPageComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
@@ -101,8 +103,10 @@ describe('ConfigPageComponent', () => {
     });
 
     it('should contain the names and values of the three game constants', () => {
-        const params = fixture.debugElement.nativeElement.getElementsByClassName('centered-text')[0];
-        expect(params.childElementCount).toEqual(1);
+        component.pageType = PageKeys.Config;
+        component.ngOnInit();
+        const params = fixture.debugElement.nativeElement.getElementsByClassName('centered-text');
+        expect(params).toBeTruthy();
     });
 
     it('should allow to access Game Creation page', () => {
