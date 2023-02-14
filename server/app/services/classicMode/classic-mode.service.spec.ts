@@ -4,6 +4,8 @@ import { GameRoom } from '@app/model/schema/game-room.schema';
 import { UserGame } from '@app/model/schema/user-game.schema';
 import { Vector2D } from '@app/model/schema/vector2d.schema';
 import { Test, TestingModule } from '@nestjs/testing';
+import { createStubInstance, SinonStubbedInstance } from 'sinon';
+import { Socket } from 'socket.io';
 import { ClassicModeService } from './classic-mode.service';
 
 class TestClassicModeService extends ClassicModeService {
@@ -15,8 +17,11 @@ class TestClassicModeService extends ClassicModeService {
 describe('ClassicModeService', () => {
     let service: ClassicModeService;
     let testClassicModeService: TestClassicModeService;
+    let socket: SinonStubbedInstance<Socket>;
 
     beforeEach(async () => {
+        socket = createStubInstance<Socket>(Socket);
+        Object.defineProperty(socket, 'id', { value: getFakeGameRoom().roomId, writable: true });
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 {
@@ -35,15 +40,12 @@ describe('ClassicModeService', () => {
         expect(service).toBeDefined();
     });
 
-    // it('initRoom should create a new room with the given id', () => {
-    //     const socketId = 'my-custom-id';
-    //     const namespace = server.sockets;
-    //     const socket = namespace.connected[socketId] || namespace.connect(null, { query: { id: socketId } });
-
-    //     const roomId = 'FakeRoomId';
-    //     service.initNewRoom({ socket, id } as Socket, getFakeUserGame());
-    //     expect(service.gameRooms[roomId]).toBeDefined();
-    // });
+    it('initRoom should create a new room with the given id', () => {
+        const roomId = 'socketid';
+        socket.join.returns();
+        service.initNewRoom(socket, getFakeUserGame());
+        expect(service.gameRooms.get(roomId)).toBeDefined();
+    });
 
     it('isGameFinished should return true if all differences have been found', () => {
         const newRoom = getFakeGameRoom();
@@ -74,6 +76,10 @@ describe('ClassicModeService', () => {
         expect(testClassicModeService.validateDifference(newRoom.roomId, { x: 0, y: 0 })).toBeFalsy();
     });
 
+    it('validateDifference should return false if gameRoom is undefined', () => {
+        expect(testClassicModeService.validateDifference(getFakeGameRoom().roomId, { x: 0, y: 0 })).toBeFalsy();
+    });
+
     it('updateTimer should increment timer', () => {
         const newRoom = getFakeGameRoom();
         testClassicModeService.addElementToMap(newRoom.roomId, newRoom);
@@ -87,6 +93,11 @@ describe('ClassicModeService', () => {
         testClassicModeService.addElementToMap(newRoom.roomId, newRoom);
         testClassicModeService.deleteRoom(newRoom.roomId);
         expect(testClassicModeService.gameRooms.get(newRoom.roomId)).toBeUndefined();
+    });
+
+    it('GameRoom should have be of type GameRoom', () => {
+        const newRoom = new GameRoom();
+        expect(newRoom).toBeInstanceOf(GameRoom);
     });
 });
 

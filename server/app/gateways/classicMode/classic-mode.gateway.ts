@@ -49,7 +49,7 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
         this.classicModeService.deleteRoom(socket.id);
     }
 
-    private emitTime() {
+    emitTime() {
         for (const gameRoom of this.classicModeService.gameRooms.values()) {
             this.classicModeService.updateTimer(gameRoom);
             this.server.to(gameRoom.roomId).emit(ClassicModeEvents.Timer, this.classicModeService.gameRooms.get(gameRoom.roomId).userGame.timer);
