@@ -4,20 +4,37 @@ import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testin
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
 import { GameData } from '@app/interfaces/game-data';
 import { UserGame } from '@app/interfaces/user-game';
+import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
+import { GameRoom } from '@app/interfaces/game-room';
 
 const differenceMatrix: number[][] = [[]];
-const gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulte: '', soloBestTimes: [], vsBestTimes: [] };
+const gameForm = { name: '', nbDifference: 0, image1url: 'original', image2url: 'modified', difficulte: '', soloBestTimes: [], vsBestTimes: [] };
 const gameData: GameData = { gameForm, differenceMatrix };
 const userGame: UserGame = { username: '', gameData, nbDifferenceFound: 0, timer: 0 };
+const gameRoom: GameRoom = { userGame, roomId: 'testRoom' };
 
 @NgModule({
     imports: [HttpClientModule],
 })
 export class DynamicTestModule {}
 
+const createAndPopulateMatrix = (value: number): number[][] => {
+    const matrix: number[][] = [];
+    for (let i = 0; i < 3; i++) {
+        matrix[i] = [];
+        for (let j = 0; j < 3; j++) {
+            matrix[i][j] = value;
+        }
+    }
+    return matrix;
+};
+
+const invalidPixelValue = -1;
+
 describe('PlayAreaComponent', () => {
     let component: PlayAreaComponent;
+    let classicModeService: ClassicModeService;
     let fixture: ComponentFixture<PlayAreaComponent>;
     let detectionDifferenceService: DetectionDifferenceService;
 
@@ -32,6 +49,7 @@ describe('PlayAreaComponent', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(PlayAreaComponent);
         component = fixture.componentInstance;
+        classicModeService = TestBed.inject(ClassicModeService);
         fixture.detectChanges();
     });
 
@@ -99,13 +117,7 @@ describe('PlayAreaComponent', () => {
     }));
 
     it('correctAnswerVisuals should call flashDifference', () => {
-        component.differenceMatrix = [[]];
-        for (let i = 0; i < 3; i++) {
-            component.differenceMatrix[i] = [];
-            for (let j = 0; j < 3; j++) {
-                component.differenceMatrix[i][j] = 1;
-            }
-        }
+        component.differenceMatrix = createAndPopulateMatrix(1);
         const spyFlashDifferent = spyOn(component, 'flashDifference').and.callFake(() => {
             return;
         });
@@ -120,13 +132,7 @@ describe('PlayAreaComponent', () => {
 
     it('mouseClickAttempt should validate the attempt with the server', fakeAsync(async () => {
         component.playerIsAllowedToClick = true;
-        component.differenceMatrix = [[]];
-        for (let i = 0; i < 3; i++) {
-            component.differenceMatrix[i] = [];
-            for (let j = 0; j < 3; j++) {
-                component.differenceMatrix[i][j] = 1;
-            }
-        }
+        component.differenceMatrix = createAndPopulateMatrix(1);
         const mockClick = new MouseEvent('mousedown');
         const spy = spyOn(component.classicModeService, 'validateDifference').and.callFake(() => {
             return;
@@ -137,13 +143,7 @@ describe('PlayAreaComponent', () => {
 
     it('mouseClickAttempt should call the visual retroaction for a mistake', fakeAsync(async () => {
         component.playerIsAllowedToClick = true;
-        component.differenceMatrix = [[]];
-        for (let i = 0; i < 3; i++) {
-            component.differenceMatrix[i] = [];
-            for (let j = 0; j < 3; j++) {
-                component.differenceMatrix[i][j] = -1;
-            }
-        }
+        component.differenceMatrix = createAndPopulateMatrix(invalidPixelValue);
         const mockClick = new MouseEvent('mousedown');
         const spyVisualRetroaction = spyOn(component, 'visualRetroaction').and.callFake(() => {
             return;
@@ -159,13 +159,7 @@ describe('PlayAreaComponent', () => {
         component.canvas2.nativeElement = document.createElement('canvas');
         component.context1 = component.canvas1.nativeElement.getContext('2d') as CanvasRenderingContext2D;
         component.context2 = component.canvas2.nativeElement.getContext('2d') as CanvasRenderingContext2D;
-        component.differenceMatrix = [[]];
-        for (let i = 0; i < 3; i++) {
-            component.differenceMatrix[i] = [];
-            for (let j = 0; j < 3; j++) {
-                component.differenceMatrix[i][j] = 1;
-            }
-        }
+        component.differenceMatrix = createAndPopulateMatrix(1);
         component.playerIsAllowedToClick = false;
         const spy = spyOn(component, 'removeDifference').and.callFake(() => {
             return;
@@ -178,16 +172,68 @@ describe('PlayAreaComponent', () => {
     }));
 
     it('removeDifference should update the differenceMatrix', () => {
-        const newDifferenceMatrix: number[][] = [[]];
-        for (let i = 0; i < 3; i++) {
-            newDifferenceMatrix[i] = [];
-            for (let j = 0; j < 3; j++) {
-                newDifferenceMatrix[i][j] = -1;
-            }
-        }
+        component.canvas1.nativeElement = document.createElement('canvas');
+        component.canvas2.nativeElement = document.createElement('canvas');
+        component.context1 = component.canvas1.nativeElement.getContext('2d') as CanvasRenderingContext2D;
+        component.context2 = component.canvas2.nativeElement.getContext('2d') as CanvasRenderingContext2D;
+        const newDifferenceMatrix = createAndPopulateMatrix(invalidPixelValue);
         component.differenceMatrix = newDifferenceMatrix;
         component.differenceMatrix[0][2] = 1;
         component.removeDifference(component.differenceMatrix);
         expect(component.differenceMatrix).toEqual(newDifferenceMatrix);
+    });
+
+    it('should correctly set the differenceFound variable', () => {
+        const testingValue = 5;
+        const differenceFoundSpy = spyOn(component.classicModeService.differencesFound$, 'subscribe').and.callThrough();
+        component.ngAfterViewInit();
+        classicModeService.differencesFound$.next(testingValue);
+        expect(differenceFoundSpy).toHaveBeenCalled();
+        expect(component.differencesFound).toEqual(testingValue);
+    });
+
+    it('should react accordingly on validated response from the server', () => {
+        const serverValidateResponseSpy = spyOn(component.classicModeService.serverValidateResponse$, 'subscribe').and.callThrough();
+        const correctAnswerVisualsSpy = spyOn(component, 'correctAnswerVisuals').and.callFake(() => {
+            return;
+        });
+        const pauseSpy = spyOn(component.audioValid, 'pause').and.callFake(() => {
+            return;
+        });
+        const playSpy = spyOn(component.audioValid, 'play').and.callFake(async () => {
+            return;
+        });
+        classicModeService.serverValidateResponse$.next(true);
+        component.ngAfterViewInit();
+        expect(serverValidateResponseSpy).toHaveBeenCalled();
+        expect(component.playerIsAllowedToClick).toBeFalse();
+        expect(correctAnswerVisualsSpy).toHaveBeenCalledOnceWith(component.mousePosition.x, component.mousePosition.y);
+        expect(pauseSpy).toHaveBeenCalled();
+        expect(playSpy).toHaveBeenCalled();
+    });
+
+    it('should react accordingly on invalid response from server', () => {
+        const serverValidateResponseSpy = spyOn(component.classicModeService.serverValidateResponse$, 'subscribe').and.callThrough();
+        const playSpy = spyOn(component.audioInvalid, 'play').and.callFake(async () => {
+            return;
+        });
+        const visualRetroactionSpy = spyOn(component, 'visualRetroaction').and.callFake(() => {
+            return;
+        });
+        classicModeService.serverValidateResponse$.next(false);
+        component.ngAfterViewInit();
+        expect(component.playerIsAllowedToClick).toBeFalse();
+        expect(serverValidateResponseSpy).toHaveBeenCalled();
+        expect(playSpy).toHaveBeenCalled();
+        expect(visualRetroactionSpy).toHaveBeenCalledOnceWith(component.canvasClicked);
+    });
+
+    it('should correctly set the variables if the desired gameRoom exists', () => {
+        component.classicModeService.gameRoom = gameRoom;
+        component.userGame = userGame;
+        component.ngOnChanges();
+        expect(component.differenceMatrix).toEqual(differenceMatrix);
+        expect(component.original.src).not.toEqual('');
+        expect(component.modified.src).not.toEqual('');
     });
 });
