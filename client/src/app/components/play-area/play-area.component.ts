@@ -97,16 +97,18 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         this.original.crossOrigin = 'Anonymous'; // needed to get access to images of server
         this.modified.crossOrigin = 'Anonymous';
         this.original.onload = () => {
-            if (this.context1 != null) {
-                this.context1.drawImage(this.original, 0, 0, this.width, this.height);
-            }
+            this.handleImageLoad(this.context1, this.original);
         };
 
         this.modified.onload = () => {
-            if (this.context2 != null) {
-                this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
-            }
+            this.handleImageLoad(this.context2, this.modified);
         };
+    }
+
+    handleImageLoad(context: CanvasRenderingContext2D, image: HTMLImageElement) {
+        if (context != null) {
+            context.drawImage(image, 0, 0, this.width, this.height);
+        }
     }
 
     async mouseClickAttempt(event: MouseEvent, canvas: HTMLCanvasElement) {

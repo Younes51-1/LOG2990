@@ -236,4 +236,18 @@ describe('PlayAreaComponent', () => {
         expect(component.original.src).not.toEqual('');
         expect(component.modified.src).not.toEqual('');
     });
+
+    it('should redraw the original image on changes', () => {
+        component.ngOnChanges();
+        spyOn(component.context1, 'drawImage');
+        component.handleImageLoad(component.context1, component.original);
+        expect(component.context1.drawImage).toHaveBeenCalled();
+    });
+
+    it('should redraw the modified image on changes', () => {
+        component.ngOnChanges();
+        spyOn(component.context2, 'drawImage');
+        component.handleImageLoad(component.context2, component.modified);
+        expect(component.context2.drawImage).toHaveBeenCalled();
+    });
 });
