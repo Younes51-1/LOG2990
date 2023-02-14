@@ -83,3 +83,7 @@ button:hover:before, button:focus:before {
 button:active {
     transform: scale(0.9);
 }
+
+.error-border {
+    border: 3px solid red;
+}

@@ -20,13 +20,13 @@ export class GameCardComponent implements OnInit {
     routeTwo: string;
     btnTwo: string;
 
+    applyBorder = false;
     showInput1 = false;
     showInput2 = false;
     inputValue1: string;
     inputValue2: string;
-    router: Router;
 
-    constructor(public classicModeService: ClassicModeService) {}
+    constructor(public classicModeService: ClassicModeService, private router: Router) {}
     ngOnInit() {
         const { routeOne, btnOne, routeTwo, btnTwo } = options[this.page];
         this.routeOne = routeOne;
@@ -44,5 +44,14 @@ export class GameCardComponent implements OnInit {
 
     btnTwoEmitter() {
         this.notify.emit(this.slide);
+    }
+
+    toggleBorder() {
+        if (!this.inputValue1) {
+            this.applyBorder = !this.applyBorder;
+        } else {
+            this.btnOneEmitter();
+            this.router.navigate([this.routeOne]);
+        }
     }
 }

@@ -12,6 +12,7 @@
     transition: 0.3s ease all;
     z-index: 1;
     margin-bottom: 1%;
+    margin-left: 5%;
 }
 
 .button:before {
@@ -41,4 +42,8 @@ btn:focus:before {
 
 .button:active {
     transform: scale(0.9);
+}
+
+.error-border {
+    border: 3px solid red;
 }

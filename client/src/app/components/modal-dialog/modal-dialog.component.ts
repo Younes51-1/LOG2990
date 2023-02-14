@@ -20,6 +20,7 @@ export class ModalDialogComponent implements AfterViewInit {
     context: CanvasRenderingContext2D;
     scaleNumber: number = 1;
     inputValue: string;
+    applyBorder = false;
 
     constructor(
         public dialogRef: MatDialogRef<ModalDialogComponent>,
@@ -49,5 +50,13 @@ export class ModalDialogComponent implements AfterViewInit {
 
     emitNameGame() {
         this.dialogRef.close(this.inputValue);
+    }
+
+    toggleBorder() {
+        if (!this.inputValue) {
+            this.applyBorder = !this.applyBorder;
+        } else {
+            this.emitNameGame();
+        }
     }
 }

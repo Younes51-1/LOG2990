@@ -7,9 +7,11 @@
             <div class="back-card">
                 <p>Difficulté : {{slide.difficulte}}</p>
                 <span>Meilleurs scores solo
-                <p *ngFor="let time of slide.soloBestTimes">{{time.name}} : {{time.time}}</p></span>
+                    <p *ngFor="let time of slide.soloBestTimes">{{time.name}} : {{time.time}}</p>
+                </span>
                 <span>Meilleurs scores 1v1
-                <p *ngFor="let time of slide.vsBestTimes">{{time.name}} : {{time.time}}</p></span>
+                    <p *ngFor="let time of slide.vsBestTimes">{{time.name}} : {{time.time}}</p>
+                </span>
             </div>
         </div>
     </div>
@@ -17,10 +19,12 @@
     <button *ngIf="this.page === 'config'" routerLink="{{ routeOne }}" (click)="btnOneEmitter()">{{ btnOne }}</button>
     <button *ngIf="this.page === 'config'" routerLink="{{ routeTwo }}" (click)="btnTwoEmitter()">{{ btnTwo }}</button>
     <button *ngIf="this.page === 'selection'" (click)="showInput1 = true; showInput2 = false">Jouer en solo</button>
-    <button *ngIf="this.page === 'selection'" (click)="showInput1 = false; showInput2 = true">Option multijoueur</button>
+    <button *ngIf="this.page === 'selection'" (click)="showInput1 = false; showInput2 = true">Option
+        multijoueur</button>
     <div class="player-name" *ngIf="showInput1">
-        <input type="text" [(ngModel)]="inputValue1" placeholder="Entrez votre nom" required />
-        <button [disabled]="!inputValue1" routerLink="{{ routeOne }}" (click)="btnOneEmitter()">{{ btnOne }}</button>
+        <input type="text" [(ngModel)]="inputValue1" placeholder="Entrez votre nom" (keydown.space)="$event.preventDefault()"
+            [ngClass]="{'error-border': applyBorder}">
+        <button (click)="toggleBorder()">{{ btnOne }}</button>
     </div>
     <div class="player-name" *ngIf="showInput2">
         <button>Joindre une partie</button>
