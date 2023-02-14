@@ -11,7 +11,7 @@
             <app-game-card [slide]="slide" [page]="pageType"></app-game-card>
         </div>
     </ngx-slick-carousel>
-    <div *ngIf="this.pageType === 'config'">
+    <div *ngIf="this.pageType === 'config'" class="configElement">
         <button class="btn" routerLink="/creation">Créer un jeu</button>
         <div class="centered-text">
             <app-config-params></app-config-params>

@@ -104,21 +104,46 @@ describe('ConfigSelectPageComponent', () => {
 
     it('should contain the names and values of the three game constants', () => {
         component.pageType = PageKeys.Config;
-        component.ngOnInit();
-        const params = fixture.debugElement.nativeElement.getElementsByClassName('centered-text');
-        expect(params).toBeTruthy();
+        fixture.detectChanges();
+        const params = fixture.debugElement.queryAll((el) => el.name === 'app-config-params');
+        expect(params.length).toEqual(1);
     });
 
     it('should allow to access Game Creation page', () => {
+        component.pageType = PageKeys.Config;
+        fixture.detectChanges();
         const creationBtn = fixture.debugElement.nativeElement.getElementsByClassName('btn')[0];
         expect(creationBtn.getAttribute('routerLink')).toEqual('/creation');
     });
 
     it('should show the game creation page on click of the Game Creation button', fakeAsync(() => {
+        component.pageType = PageKeys.Config;
+        fixture.detectChanges();
         const router = TestBed.inject(Router);
         const creationBtn = fixture.debugElement.nativeElement.getElementsByClassName('btn')[0];
         creationBtn.click();
         tick();
         expect(router.url).toEqual('/creation');
     }));
+
+    it('should not contain config elements if pageType is selection', () => {
+        component.pageType = PageKeys.Selection;
+        fixture.detectChanges();
+        const configElement = fixture.debugElement.nativeElement.getElementsByClassName('configElement');
+        expect(configElement.length).toEqual(0);
+    });
+
+    it('should correctly initialize image if pageType is config', () => {
+        component.pageType = PageKeys.Config;
+        fixture.detectChanges();
+        component.initializeImgSource();
+        expect(component.imgSource).toEqual('../../../assets/config.png');
+    });
+
+    it('should correctly initialize image if pageType is selection', () => {
+        component.pageType = PageKeys.Selection;
+        fixture.detectChanges();
+        component.initializeImgSource();
+        expect(component.imgSource).toEqual('../../../assets/selection.png');
+    });
 });
