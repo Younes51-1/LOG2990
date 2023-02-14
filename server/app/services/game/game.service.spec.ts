@@ -1,4 +1,5 @@
 import { DELAY_BEFORE_CLOSING_CONNECTION } from '@app/constants';
+import { environment } from '@app/environments/environment.prod';
 import { Game, GameDocument, gameSchema } from '@app/model/database/game';
 import { GameData } from '@app/model/dto/game/game-data.dto';
 import { BestTime } from '@app/model/schema/best-time.schema';
@@ -58,16 +59,6 @@ describe('GameService', () => {
         expect((await service.getAllGames()).length).toEqual(1);
     });
 
-    it('getGame() return game with the specified name', async () => {
-        const game = getFakeGame();
-        await gameModel.create(game);
-        expect(await service.getGame(game.name)).toEqual(expect.objectContaining(getFakeGameData()));
-    });
-
-    it('getGame() return undefined if game with the specified subject code does not exist', async () => {
-        expect(await service.getGame('FakeGame')).toEqual({});
-    });
-
     it('addGame() should add the game to the DB', async () => {
         await gameModel.deleteMany({});
         const game = getFakeGameData();
@@ -81,7 +72,7 @@ describe('GameService', () => {
         expect(await gameModel.countDocuments()).toEqual(1);
     });
 
-    it('addGame() should add the game to the DB', async () => {
+    it('addGame() shouldnt add game if database throw error', async () => {
         jest.spyOn(gameModel, 'create').mockImplementation(async () => Promise.reject(''));
         await gameModel.deleteMany({});
         const game = getFakeGameData();
@@ -109,6 +100,24 @@ describe('GameService', () => {
                 differenceMatrix: game.differenceMatrix,
             }),
         ).rejects.toBeTruthy();
+    });
+
+    it('getGame() return game with the specified name', async () => {
+        const game = getFakeGame();
+        await gameModel.create(game);
+        expect(await service.getGame(game.name)).toEqual(expect.objectContaining(getFakeGameData()));
+    });
+
+    it('getGame() return undefined if game with the specified subject code does not exist', async () => {
+        expect(await service.getGame('FakeGame')).toEqual({});
+    });
+
+    it('calculateDifficulty should return the correct difficulty', async () => {
+        await gameModel.deleteMany({});
+        const game = getFakeGame2();
+        await gameModel.create(game);
+        const getGame = await service.getGame(game.name);
+        expect(getGame.gameForm.difficulte).toEqual('Difficile');
     });
 
     it('deleteGame() should delete the game', async () => {
@@ -141,11 +150,13 @@ describe('GameService', () => {
 const getFakeGame = (): Game => ({
     name: 'FakeGame',
     nbDifference: 5,
-    differenceMatrix: [
-        [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0],
-    ],
+    soloBestTimes: [new BestTime(), new BestTime(), new BestTime()],
+    vsBestTimes: [new BestTime(), new BestTime(), new BestTime()],
+});
+
+const getFakeGame2 = (): Game => ({
+    name: 'FakeGame',
+    nbDifference: 8,
     soloBestTimes: [new BestTime(), new BestTime(), new BestTime()],
     vsBestTimes: [new BestTime(), new BestTime(), new BestTime()],
 });
@@ -159,6 +170,9 @@ const getFakeGameData = (): GameData => ({
     gameForm: {
         name: 'FakeGame',
         nbDifference: 5,
+        image1url: `${environment.serverUrl}/FakeGame/image1.bmp`,
+        image2url: `${environment.serverUrl}/FakeGame/image2.bmp`,
+        difficulte: 'Facile',
         soloBestTimes: [new BestTime(), new BestTime(), new BestTime()],
         vsBestTimes: [new BestTime(), new BestTime(), new BestTime()],
     },

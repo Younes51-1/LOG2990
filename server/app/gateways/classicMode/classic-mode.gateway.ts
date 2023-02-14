@@ -6,12 +6,6 @@ import { Server, Socket } from 'socket.io';
 import { DELAY_BEFORE_EMITTING_TIME } from './classic-mode.gateway.constants';
 import { ClassicModeEvents } from './classic-mode.gateway.events';
 
-enum Times {
-    MinInSec = 60,
-    SecInMil = 1000,
-    TenSec = 10,
-}
-
 @WebSocketGateway({ cors: true })
 @Injectable()
 export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {

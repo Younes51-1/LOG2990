@@ -1,4 +1,5 @@
 import { DIFFICULTY_THRESHOLD } from '@app/constants';
+import { environment } from '@app/environments/environment.prod';
 import { Game, GameDocument } from '@app/model/database/game';
 import { GameData } from '@app/model/dto/game/game-data.dto';
 import { GameForm } from '@app/model/dto/game/game-form.dto';
@@ -6,7 +7,6 @@ import { NewGame } from '@app/model/dto/game/new-game.dto';
 import { BestTime } from '@app/model/schema/best-times.schema';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { environment } from 'environments/environment.prod';
 import * as fs from 'fs';
 import { Model } from 'mongoose';
 
@@ -15,10 +15,7 @@ export class GameService {
     constructor(@InjectModel(Game.name) public gameModel: Model<GameDocument>) {}
 
     async getAllGames(): Promise<GameForm[]> {
-        const games = await this.gameModel.find({}).select('-differenceMatrix');
-        if (games === undefined || games === null) {
-            return [];
-        }
+        const games = await this.gameModel.find({});
         return games.map((game) => this.convertGameToGameForm(game));
     }
 
@@ -54,8 +51,14 @@ export class GameService {
         }
     }
 
-    private validateNewGame(newGame: NewGame): boolean {
-        return newGame.name !== undefined && newGame.nbDifference !== undefined && newGame.differenceMatrix !== undefined;
+    async saveImage(bufferObj: Buffer, name: string, index: string): Promise<void> {
+        const dirName = `./assets/${name}`;
+        if (!fs.existsSync(dirName)) fs.mkdirSync(dirName);
+        fs.writeFile(`${dirName}/image${index}.bmp`, bufferObj, async (err) => {
+            if (err) {
+                return Promise.reject(`Failed to save image: ${err}`);
+            }
+        });
     }
 
     private async convertNewGameToGame(newGame: NewGame): Promise<Game> {
@@ -72,16 +75,6 @@ export class GameService {
         await this.saveImage(bufferObjImage, newGame.name, '1');
         bufferObjImage = Buffer.from(newGame.image2, 'base64');
         await this.saveImage(bufferObjImage, newGame.name, '2');
-    }
-
-    private async saveImage(bufferObj: Buffer, name: string, index: string): Promise<void> {
-        const dirName = `./assets/${name}`;
-        if (!fs.existsSync(dirName)) fs.mkdirSync(dirName);
-        fs.writeFile(`${dirName}/image${index}.bmp`, bufferObj, async (err) => {
-            if (err) {
-                return Promise.reject(`Failed to save image: ${err}`);
-            }
-        });
     }
 
     private deleteImages(name: string): void {
