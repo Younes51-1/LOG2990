@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges, ViewChild } from '@angular/core';
 import { UserGame } from '@app/interfaces/user-game';
 import { Vec2 } from '@app/interfaces/vec2';
@@ -76,14 +77,6 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
                 this.visualRetroaction(this.canvasClicked);
             }
         });
-    }
-
-    async ngOnChanges() {
-        if (this.classicModeService.gameRoom) {
-            this.differenceMatrix = this.userGame.gameData.differenceMatrix;
-            this.original.src = this.userGame.gameData.gameForm.image1url;
-            this.modified.src = this.userGame.gameData.gameForm.image2url;
-        }
         const context1 = this.canvas1.nativeElement.getContext('2d');
         if (context1) {
             this.context1 = context1;
@@ -93,6 +86,14 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         if (context2) {
             this.context2 = context2;
             this.context2.font = '30px comic sans ms';
+        }
+    }
+
+    async ngOnChanges() {
+        if (this.classicModeService.gameRoom && this.userGame?.gameData) {
+            this.differenceMatrix = this.userGame.gameData.differenceMatrix;
+            this.original.src = this.userGame.gameData.gameForm.image1url;
+            this.modified.src = this.userGame.gameData.gameForm.image2url;
         }
         this.original.crossOrigin = 'Anonymous'; // needed to get access to images of server
         this.modified.crossOrigin = 'Anonymous';
@@ -165,6 +166,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
             layerContext2.fillStyle = Color.Luigi;
             for (let i = 0; i < difference.length; i++) {
                 for (let j = 0; j < difference[0].length; j++) {
+                    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
                     if (difference[i][j] !== -1) {
                         layerContext1.fillRect(j, i, 1, 1);
                         layerContext2.fillRect(j, i, 1, 1);
@@ -193,6 +195,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
 
         for (let i = 0; i < differenceMatrix.length; i++) {
             for (let j = 0; j < differenceMatrix[0].length; j++) {
+                // eslint-disable-next-line @typescript-eslint/no-magic-numbers
                 if (differenceMatrix[i][j] !== -1) {
                     differencePositions.push({ x: j, y: i });
                     this.differenceMatrix[i][j] = -1;
