@@ -5,6 +5,8 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.component';
 import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
 import { CreationGamePageComponent } from './creation-game-page.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { of } from 'rxjs';
 
 describe('CreationGamePageComponent', () => {
     let component: CreationGamePageComponent;
@@ -13,7 +15,7 @@ describe('CreationGamePageComponent', () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [MatDialogModule, RouterTestingModule, HttpClientModule],
+            imports: [MatDialogModule, RouterTestingModule, HttpClientModule, BrowserAnimationsModule],
             declarations: [CreationGamePageComponent],
             providers: [
                 { provide: MatDialog },
@@ -200,4 +202,27 @@ describe('CreationGamePageComponent', () => {
         component.ngOnDestroy();
         expect(mock.close).toHaveBeenCalled();
     });
+
+    it("shouldn't call saveNameGame after closing Matdialog if result is undefined", () => {
+        const saveNameGameSpy = spyOn(component, 'saveNameGame');
+        const dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
+        component.openDifferencesDialog();
+        const dialogRefSpy = spyOn(component.dialogRef, 'afterClosed').and.callThrough();
+        dialogRefSpy.and.returnValue(of(undefined));
+        dialogSpy.open.and.returnValue(dialogRefSpy);
+        component.dialogRef.close();
+        expect(component.dialogRef).toBeDefined();
+        expect(saveNameGameSpy).not.toHaveBeenCalled();
+    });
+
+    it('should reset input value if file format is invalid', fakeAsync(() => {
+        const readerAsArrayBufferSpy = spyOn(FileReader.prototype, 'readAsArrayBuffer');
+        detectionDifferenceService = TestBed.inject(DetectionDifferenceService);
+        component.image2 = { value: 'image_empty.bmp' } as HTMLInputElement;
+        const file = new File(['image_empty.bmp'], 'image_empty.bmp', { type: 'image/bmp' });
+        const event = { target: { files: [file] } } as unknown as Event;
+        component.verifyImageFormat(event, component.image2);
+        tick();
+        expect(readerAsArrayBufferSpy).toHaveBeenCalled();
+    }));
 });
