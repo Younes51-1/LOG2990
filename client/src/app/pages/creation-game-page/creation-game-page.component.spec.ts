@@ -1,5 +1,5 @@
 import { HttpClientModule } from '@angular/common/http';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialog, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.component';
@@ -53,18 +53,27 @@ describe('CreationGamePageComponent', () => {
         expect(inputRayon3.checked).toBeTruthy();
     });
 
-    it('reset should leave the canvas blank', () => {
-        const image = new Image();
-        image.src = 'image_2_diff.bmp';
-        image.onload = () => {
-            component.context1.drawImage(image, 0, 0, component.width, component.height);
-        };
-        const spyReset = spyOn(component, 'reset').and.callThrough();
+    it('should reset image 1', () => {
         const spyClearRect = spyOn(component.context1, 'clearRect').and.callThrough();
         component.inputImage1.nativeElement = document.createElement('input');
         component.reset(component.inputImage1.nativeElement);
-        expect(spyReset).toHaveBeenCalled();
         expect(spyClearRect).toHaveBeenCalled();
+    });
+
+    it('should reset image 2', () => {
+        const spyClearRect = spyOn(component.context2, 'clearRect').and.callThrough();
+        component.inputImage2.nativeElement = document.createElement('input');
+        component.reset(component.inputImage2.nativeElement);
+        expect(spyClearRect).toHaveBeenCalled();
+    });
+
+    it('should reset image 1 and 2', () => {
+        const spyClearRect = spyOn(component.context1, 'clearRect').and.callThrough();
+        const spyClearRect2 = spyOn(component.context2, 'clearRect').and.callThrough();
+        component.inputImage2.nativeElement = document.createElement('input');
+        component.reset(component.inputImages1et2.nativeElement);
+        expect(spyClearRect).toHaveBeenCalled();
+        expect(spyClearRect2).toHaveBeenCalled();
     });
 
     it('changing image should call verifyImageFormat', () => {
@@ -75,22 +84,7 @@ describe('CreationGamePageComponent', () => {
         expect(spy).toHaveBeenCalled();
     });
 
-    // TODO: fix this test
-    // it('verifyImageFormat should call updateDisplayDiffButton and execute the load Event', () => {
-    //     const spy1 = spyOn(component, 'updateImageDisplay');
-    //     const spy2 = spyOn(window, 'FileReader');
-    //     const image = fixture.debugElement.nativeElement.querySelector('div > p > input');
-    //     const dataTransfer = new DataTransfer();
-    //     const file = new File([''], 'image_wrong_bit_depth.bmp');
-    //     dataTransfer.items.add(file);
-    //     image.files = dataTransfer.files;
-
-    //     image.dispatchEvent(new InputEvent('change'));
-    //     expect(spy1).toHaveBeenCalled();
-    //     expect(spy2).toHaveBeenCalled();
-    // });
-
-    it('openDifferencesDialog should call runDetectionSystem and dialog.open', async () => {
+    it('openDifferencesDialog should open dialog', async () => {
         const spy = spyOn(component.dialog, 'open');
         await component.openDifferencesDialog();
         expect(spy).toHaveBeenCalledOnceWith(ModalDialogComponent, {
@@ -104,7 +98,7 @@ describe('CreationGamePageComponent', () => {
 
     it('updateImageDisplay should update image1 display', () => {
         const spy = spyOn(URL, 'createObjectURL');
-        const image1 = fixture.debugElement.nativeElement.querySelector('div p:nth-child(1) input');
+        const image1 = component.inputImage1.nativeElement;
         const file = new File([''], 'image_empty.bmp', { type: 'image/bmp' });
         const event = { target: { files: [file] } } as unknown as Event;
         component.updateImageDisplay(event, image1);
@@ -114,22 +108,90 @@ describe('CreationGamePageComponent', () => {
 
     it('updateImageDisplay should update image2 display', () => {
         const spy = spyOn(URL, 'createObjectURL');
-        const image2 = fixture.debugElement.nativeElement.querySelector('div p:nth-child(3) input');
+        const updateContextSpy = spyOn(component, 'updateContext');
+        const image2 = component.inputImage2.nativeElement;
         const file = new File([''], 'image_empty.bmp', { type: 'image/bmp' });
         const event = { target: { files: [file] } } as unknown as Event;
         component.updateImageDisplay(event, image2);
         expect(component.image2).toEqual(image2);
         expect(spy).toHaveBeenCalled();
+        expect(updateContextSpy).toHaveBeenCalled();
     });
 
     it('updateImageDisplay should update image1et2 display', () => {
         const spy = spyOn(URL, 'createObjectURL');
-        const image1et2 = fixture.debugElement.nativeElement.querySelector('div > p > input');
+        const image1et2 = component.inputImages1et2.nativeElement;
         const file = new File([''], 'image_empty.bmp', { type: 'image/bmp' });
         const event = { target: { files: [file] } } as unknown as Event;
         component.updateImageDisplay(event, image1et2);
         expect(component.image1).toEqual(image1et2);
         expect(component.image2).toEqual(image1et2);
         expect(spy).toHaveBeenCalled();
+    });
+
+    it('should open Differences Dialog when image 1 and 2 has content', fakeAsync(() => {
+        const spy = spyOn(component, 'openDifferencesDialog');
+        spyOn(component.detectionService, 'readThenConvertImage').and.returnValue(
+            Promise.resolve([
+                [0, 0],
+                [0, 0],
+            ]),
+        );
+        component.image1 = { value: 'image_2_diff.bmp' } as HTMLInputElement;
+        component.image2 = { value: 'image_2_diff.bmp' } as HTMLInputElement;
+        component.runDetectionSystem();
+        tick();
+        expect(spy).toHaveBeenCalled();
+    }));
+
+    it('should not open Differences Dialog if image2 has no content', fakeAsync(() => {
+        const spy = spyOn(component, 'openDifferencesDialog');
+        spyOn(component.detectionService, 'readThenConvertImage').and.returnValue(
+            Promise.resolve([
+                [0, 0],
+                [0, 0],
+            ]),
+        );
+        component.image1 = { value: 'image_2_diff.bmp' } as HTMLInputElement;
+        component.image2 = { value: '' } as HTMLInputElement;
+        component.runDetectionSystem();
+        tick();
+        expect(spy).not.toHaveBeenCalled();
+    }));
+
+    it('should not open Differences Dialog if image1 has no content', fakeAsync(() => {
+        const spy = spyOn(component, 'openDifferencesDialog');
+        spyOn(component.detectionService, 'readThenConvertImage').and.returnValue(
+            Promise.resolve([
+                [0, 0],
+                [0, 0],
+            ]),
+        );
+        component.image2 = { value: 'image_2_diff.bmp' } as HTMLInputElement;
+        component.image1 = { value: '' } as HTMLInputElement;
+        component.runDetectionSystem();
+        tick();
+        expect(spy).not.toHaveBeenCalled();
+    }));
+
+    it('save name game should set nameGame', () => {
+        const newGameName = 'newGameName';
+        component.saveNameGame(newGameName);
+        expect(component.nameGame).toEqual(newGameName);
+    });
+
+    it('should call convert image to data url', () => {
+        const canvas = document.createElement('canvas');
+        const spy = spyOn(canvas, 'toDataURL').and.returnValue('fake,value');
+        const res = component.convertImageToB64Url(canvas);
+        expect(spy).toHaveBeenCalled();
+        expect(res).toEqual('value');
+    });
+
+    it('should close dialogRef', () => {
+        const mock = jasmine.createSpyObj('dialogRef', ['close']);
+        component.dialogRef = mock;
+        component.ngOnDestroy();
+        expect(mock.close).toHaveBeenCalled();
     });
 });
