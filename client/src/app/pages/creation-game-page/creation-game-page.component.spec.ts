@@ -158,7 +158,7 @@ describe('CreationGamePageComponent', () => {
             ]),
         );
         component.image1 = { value: 'image_2_diff.bmp' } as HTMLInputElement;
-        component.image2 = { value: '' } as HTMLInputElement;
+        component.image2 = { value: undefined } as unknown as HTMLInputElement;
         component.runDetectionSystem();
         tick();
         expect(spy).not.toHaveBeenCalled();
@@ -174,7 +174,7 @@ describe('CreationGamePageComponent', () => {
             ]),
         );
         component.image2 = { value: 'image_2_diff.bmp' } as HTMLInputElement;
-        component.image1 = { value: '' } as HTMLInputElement;
+        component.image1 = { value: undefined } as unknown as HTMLInputElement;
         component.runDetectionSystem();
         tick();
         expect(spy).not.toHaveBeenCalled();
