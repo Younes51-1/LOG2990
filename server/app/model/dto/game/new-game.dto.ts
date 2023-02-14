@@ -4,7 +4,7 @@ import { IsNumber, IsString } from 'class-validator';
 export class NewGame {
     @ApiProperty({
         minimum: 1,
-        maximum: 30,
+        maximum: 200,
     })
     @IsString()
     name: string;
