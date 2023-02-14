@@ -45,6 +45,7 @@ describe('CommunicationSocketService', () => {
 
     it('should call socket.on with an event', () => {
         const event = 'helloWorld';
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         const action = () => {};
         const spy = spyOn(service.socket, 'on');
         service.on(event, action);
@@ -68,5 +69,12 @@ describe('CommunicationSocketService', () => {
         service.send(event, data);
         expect(spy).toHaveBeenCalled();
         expect(spy).toHaveBeenCalledWith(event);
+    });
+
+    it('should define socket when calling connect', () => {
+        service.socket = undefined as unknown as Socket;
+        service.connect();
+        expect(service.socket).toBeTruthy();
+        expect(typeof service.socket).toBe('object');
     });
 });

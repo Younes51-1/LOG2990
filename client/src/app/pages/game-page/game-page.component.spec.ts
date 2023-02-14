@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatToolbar } from '@angular/material/toolbar';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
@@ -58,14 +58,6 @@ describe('GamePageComponent', () => {
         expect(sidebar).not.toBeNull();
     });
 
-    it('endGame should call dialog.open', async () => {
-        const spy = spyOn(component.dialog, 'open');
-        await component.endGame();
-        expect(spy).toHaveBeenCalledOnceWith(EndgameDialogComponent, {
-            disableClose: true,
-        });
-    });
-
     it('should subscribe to timer$ observable', () => {
         const testingValue = 5;
         classicModeServiceSpy = TestBed.inject(ClassicModeService);
@@ -86,6 +78,18 @@ describe('GamePageComponent', () => {
         expect(component.differencesFound).toEqual(testingValue);
     });
 
+    it('should subscribe to gameFinished$ observable', fakeAsync(() => {
+        classicModeServiceSpy = TestBed.inject(ClassicModeService);
+        const spyGameFinished = spyOn(classicModeServiceSpy.gameFinished$, 'subscribe').and.callThrough();
+        const endGameSpy = spyOn(component, 'endGame');
+        component.ngOnInit();
+        classicModeServiceSpy.gameFinished$.next(true);
+        expect(spyGameFinished).toHaveBeenCalled();
+        tick();
+        fixture.detectChanges();
+        expect(endGameSpy).toHaveBeenCalled();
+    }));
+
     it('should subscribe to userGame$ observable', () => {
         classicModeServiceSpy = TestBed.inject(ClassicModeService);
         const spyUserGame = spyOn(classicModeServiceSpy.userGame$, 'subscribe').and.callThrough();
@@ -95,5 +99,13 @@ describe('GamePageComponent', () => {
         expect(component.userGame).toEqual(userGame);
         expect(component.gameName).toEqual(userGame.gameData.gameForm.name);
         expect(component.player).toEqual(userGame.username);
+    });
+
+    it('endGame should call dialog.open', async () => {
+        const spy = spyOn(component.dialog, 'open');
+        await component.endGame();
+        expect(spy).toHaveBeenCalledOnceWith(EndgameDialogComponent, {
+            disableClose: true,
+        });
     });
 });

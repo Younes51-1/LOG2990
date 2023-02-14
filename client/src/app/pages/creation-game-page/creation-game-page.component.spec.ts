@@ -3,11 +3,13 @@ import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testin
 import { MatDialog, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.component';
+import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
 import { CreationGamePageComponent } from './creation-game-page.component';
 
 describe('CreationGamePageComponent', () => {
     let component: CreationGamePageComponent;
     let fixture: ComponentFixture<CreationGamePageComponent>;
+    let detectionDifferenceService: DetectionDifferenceService;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
@@ -22,6 +24,7 @@ describe('CreationGamePageComponent', () => {
                         nbDifferences: 5,
                     },
                 },
+                DetectionDifferenceService,
             ],
         }).compileComponents();
     });
@@ -131,7 +134,8 @@ describe('CreationGamePageComponent', () => {
 
     it('should open Differences Dialog when image 1 and 2 has content', fakeAsync(() => {
         const spy = spyOn(component, 'openDifferencesDialog');
-        spyOn(component.detectionService, 'readThenConvertImage').and.returnValue(
+        detectionDifferenceService = TestBed.inject(DetectionDifferenceService);
+        spyOn(detectionDifferenceService, 'readThenConvertImage').and.returnValue(
             Promise.resolve([
                 [0, 0],
                 [0, 0],
@@ -146,14 +150,15 @@ describe('CreationGamePageComponent', () => {
 
     it('should not open Differences Dialog if image2 has no content', fakeAsync(() => {
         const spy = spyOn(component, 'openDifferencesDialog');
-        spyOn(component.detectionService, 'readThenConvertImage').and.returnValue(
+        detectionDifferenceService = TestBed.inject(DetectionDifferenceService);
+        spyOn(detectionDifferenceService, 'readThenConvertImage').and.returnValue(
             Promise.resolve([
                 [0, 0],
                 [0, 0],
             ]),
         );
         component.image1 = { value: 'image_2_diff.bmp' } as HTMLInputElement;
-        component.image2 = { value: '' } as HTMLInputElement;
+        component.image2 = { value: undefined } as unknown as HTMLInputElement;
         component.runDetectionSystem();
         tick();
         expect(spy).not.toHaveBeenCalled();
@@ -161,14 +166,15 @@ describe('CreationGamePageComponent', () => {
 
     it('should not open Differences Dialog if image1 has no content', fakeAsync(() => {
         const spy = spyOn(component, 'openDifferencesDialog');
-        spyOn(component.detectionService, 'readThenConvertImage').and.returnValue(
+        detectionDifferenceService = TestBed.inject(DetectionDifferenceService);
+        spyOn(detectionDifferenceService, 'readThenConvertImage').and.returnValue(
             Promise.resolve([
                 [0, 0],
                 [0, 0],
             ]),
         );
         component.image2 = { value: 'image_2_diff.bmp' } as HTMLInputElement;
-        component.image1 = { value: '' } as HTMLInputElement;
+        component.image1 = { value: undefined } as unknown as HTMLInputElement;
         component.runDetectionSystem();
         tick();
         expect(spy).not.toHaveBeenCalled();

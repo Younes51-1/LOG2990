@@ -1,25 +1,28 @@
 import { environment } from '@app/environments/environment';
 import { BestTime } from '@app/model/schema/best-times.schema';
 import { UserGame } from '@app/model/schema/user-game.schema';
+import { Vector2D } from '@app/model/schema/vector2d.schema';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { createStubInstance, match, SinonStubbedInstance } from 'sinon';
-import { Server } from 'socket.io';
-import { Socket } from 'socket.io-client';
+import { createStubInstance, SinonStubbedInstance } from 'sinon';
+import { BroadcastOperator, Server, Socket } from 'socket.io';
 import { ClassicModeGateway } from './classic-mode.gateway';
 import { ClassicModeEvents } from './classic-mode.gateway.events';
 
 describe('ClassicModeGateway', () => {
     let gateway: ClassicModeGateway;
     let logger: SinonStubbedInstance<Logger>;
-    let socket: Socket;
+    let socket: SinonStubbedInstance<Socket>;
     let server: SinonStubbedInstance<Server>;
     let classicModeService: SinonStubbedInstance<ClassicModeService>;
 
     beforeEach(async () => {
         logger = createStubInstance(Logger);
         classicModeService = createStubInstance(ClassicModeService);
+        socket = createStubInstance<Socket>(Socket);
+        server = createStubInstance<Server>(Server);
+
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 ClassicModeGateway,
@@ -45,35 +48,86 @@ describe('ClassicModeGateway', () => {
     });
 
     it('startGame should connect socket to new room and emit the room id with code started', () => {
+        const initNewRoomSpy = jest.spyOn(classicModeService, 'initNewRoom').mockImplementation(() => {
+            return 'socketId';
+        });
+        server.to.returns({
+            emit: (event: string) => {
+                expect(event).toEqual(ClassicModeEvents.Started);
+            },
+        } as BroadcastOperator<unknown, unknown>);
         gateway.startGame(socket, getFakeUserGame());
-        expect(socket.emit.calledWith(ClassicModeEvents.Started, match.any)).toBeTruthy();
+        expect(initNewRoomSpy).toHaveBeenCalled();
     });
 
-    // it('validateDifference should emit difference validated with true if difference is valid', async () => {
-    //     const differencePos = new Vector2D();
-    //     differencePos.x = 1;
-    //     differencePos.y = 1;
-    //     await gateway.validateDifference(socket, differencePos);
-    //     expect(socket.emit.calledWith(ClassicModeEvents.DifferenceValidated, { validated: true, differencePos })).toBeTruthy();
-    // });
+    it('validateDifference should emit difference validated with true if difference is valid', async () => {
+        const differencePos = new Vector2D();
+        differencePos.x = 1;
+        differencePos.y = 1;
+        const validateDifferenceSpy = jest.spyOn(classicModeService, 'validateDifference').mockImplementation(() => {
+            return true;
+        });
+        server.to.returns({
+            // eslint-disable-next-line no-unused-vars
+            emit: (event: string, { validated, _ }) => {
+                expect(event).toEqual(ClassicModeEvents.DifferenceValidated);
+                expect(validated).toEqual(true);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        await gateway.validateDifference(socket, differencePos);
+        expect(validateDifferenceSpy).toHaveBeenCalled();
+    });
 
-    // it('validateDifference should emit difference validated with false if difference is not valid', async () => {
-    //     const differencePos = new Vector2D();
-    //     differencePos.x = 0;
-    //     differencePos.y = 0;
-    //     await gateway.validateDifference(socket, differencePos);
-    //     expect(socket.emit.calledWith(ClassicModeEvents.DifferenceValidated, { validated: false, differencePos })).toBeTruthy();
-    // });
+    it('validateDifference should emit difference validated with false if difference is not valid', async () => {
+        const differencePos = new Vector2D();
+        differencePos.x = 0;
+        differencePos.y = 0;
+        const validateDifferenceSpy = jest.spyOn(classicModeService, 'validateDifference').mockImplementation(() => {
+            return false;
+        });
+        server.to.returns({
+            // eslint-disable-next-line no-unused-vars
+            emit: (event: string, { validated, _ }) => {
+                expect(event).toEqual(ClassicModeEvents.DifferenceValidated);
+                expect(validated).toEqual(false);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        await gateway.validateDifference(socket, differencePos);
+        expect(validateDifferenceSpy).toHaveBeenCalled();
+    });
 
-    // it('validateDifference should emit difference validated and end the game if no more differences', async () => {
-    //     const differencePos = new Vector2D();
-    //     differencePos.x = 1;
-    //     differencePos.y = 1;
-    //     await gateway.validateDifference(socket, differencePos);
-    //     await gateway.validateDifference(socket, differencePos);
-    //     expect(socket.emit.calledWith(ClassicModeEvents.DifferenceValidated, { validated: true, differencePos })).toBeTruthy();
-    //     expect(socket.emit.calledWith(ClassicModeEvents.EndGame, match.any)).toBeTruthy();
-    // });
+    it('validateDifference should emit difference validated and end the game if no more differences', async () => {
+        const differencePos = new Vector2D();
+        differencePos.x = 1;
+        differencePos.y = 1;
+        const validateDifferenceSpy = jest.spyOn(classicModeService, 'validateDifference').mockImplementation(() => {
+            return true;
+        });
+        await gateway.validateDifference(socket, differencePos);
+        server.to.returns({
+            // eslint-disable-next-line no-unused-vars
+            emit: (event: string, { validated, _ }) => {
+                expect(event).toEqual(ClassicModeEvents.DifferenceValidated);
+                expect(validated).toEqual(true);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        await gateway.validateDifference(socket, differencePos);
+        server.to.returns({
+            // eslint-disable-next-line no-unused-vars
+            emit: (event: string, { validated, _ }) => {
+                expect(event).toEqual(ClassicModeEvents.DifferenceValidated);
+                expect(validated).toEqual(true);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        server.to.returns({
+            // eslint-disable-next-line no-unused-vars
+            emit: (event: string, timer: number) => {
+                expect(event).toEqual(ClassicModeEvents.GameFinished);
+                expect(timer).toMatchObject(Number);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        expect(validateDifferenceSpy).toHaveBeenCalled();
+    });
 
     // it('endGame should emit endGame event with the timer', () => {
     //     gateway.endGame(socket);
@@ -100,9 +154,31 @@ describe('ClassicModeGateway', () => {
     // });
 });
 
-const getFakeUserGame = (): UserGame => ({
+const getFakeUserGame1 = (): UserGame => ({
     username: 'FakeUser',
     nbDifferenceFound: 0,
+    timer: 0,
+    gameData: {
+        differenceMatrix: [
+            [-1, -1, -1],
+            [-1, 1, -1],
+            [-1, -1, -1],
+        ],
+        gameForm: {
+            name: 'FakeGame',
+            nbDifference: 2,
+            image1url: `${environment.serverUrl}/FakeGame/image1.bmp`,
+            image2url: `${environment.serverUrl}/FakeGame/image2.bmp`,
+            difficulte: 'Facile',
+            soloBestTimes: [new BestTime(), new BestTime(), new BestTime()],
+            vsBestTimes: [new BestTime(), new BestTime(), new BestTime()],
+        },
+    },
+});
+
+const getFakeUserGame2 = (): UserGame => ({
+    username: 'FakeUser',
+    nbDifferenceFound: 1,
     timer: 0,
     gameData: {
         differenceMatrix: [
