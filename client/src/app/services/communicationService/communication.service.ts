@@ -6,7 +6,7 @@ import { NewGame } from '@app/interfaces/new-game';
 import { Message } from '@common/message';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
     providedIn: 'root',

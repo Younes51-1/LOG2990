@@ -3,6 +3,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
 import { UserGame } from '@app/interfaces/user-game';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-game-page',
@@ -17,28 +18,28 @@ export class GamePageComponent implements OnInit, OnDestroy {
     userGame: UserGame;
     dialogRef: MatDialogRef<EndgameDialogComponent>;
 
+    private timerSubscription: Subscription;
+    private differencesFoundSubscription: Subscription;
+    private gameFinishedSubscription: Subscription;
+    private userGameSubscription: Subscription;
+
     constructor(public dialog: MatDialog, private classicModeService: ClassicModeService) {}
 
     ngOnInit() {
-        this.classicModeService.timer$.subscribe((timer: number) => {
+        this.timerSubscription = this.classicModeService.timer$.subscribe((timer: number) => {
             this.timer = timer;
         });
-        this.classicModeService.differencesFound$.subscribe((count) => {
+        this.differencesFoundSubscription = this.classicModeService.differencesFound$.subscribe((count) => {
             this.differencesFound = count;
         });
-        this.classicModeService.gameFinished$.subscribe(() => {
+        this.gameFinishedSubscription = this.classicModeService.gameFinished$.subscribe(() => {
             this.endGame();
         });
-        this.classicModeService.userGame$.subscribe((userGame) => {
+        this.userGameSubscription = this.classicModeService.userGame$.subscribe((userGame) => {
             this.userGame = userGame;
             this.gameName = userGame.gameData.gameForm.name;
             this.player = userGame.username;
         });
-    }
-
-    ngOnDestroy() {
-        this.dialog.closeAll();
-        this.classicModeService.endGame();
     }
 
     endGame() {
@@ -46,5 +47,14 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true });
         }
         this.classicModeService.endGame();
+    }
+
+    ngOnDestroy() {
+        this.classicModeService.endGame();
+        this.dialog.closeAll();
+        this.timerSubscription.unsubscribe();
+        this.differencesFoundSubscription.unsubscribe();
+        this.gameFinishedSubscription.unsubscribe();
+        this.userGameSubscription.unsubscribe();
     }
 }

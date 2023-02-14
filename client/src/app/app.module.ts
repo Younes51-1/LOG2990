@@ -10,11 +10,9 @@ import { AppMaterialModule } from '@app/modules/material.module';
 import { AppComponent } from '@app/pages/app/app.component';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
-import { SelectionPageComponent } from '@app/pages/selection-page/selection-page.component';
 import { SlickCarouselModule } from 'ngx-slick-carousel';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { GameCardComponent } from '@app/components/game-card/game-card.component';
-import { ConfigPageComponent } from '@app/pages/config-page/config-page.component';
 import { ConfigParamsComponent } from '@app/components/config-params/config-params.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -23,6 +21,7 @@ import { CreationGamePageComponent } from '@app/pages/creation-game-page/creatio
 import { MatDialogModule } from '@angular/material/dialog';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
 import { ModalDialogComponent } from './components/modal-dialog/modal-dialog.component';
+import { ConfigSelectPageComponent } from './pages/config-select-page/config-select-page.component';
 
 /**
  * Main module that is used in main.ts.
@@ -35,15 +34,14 @@ import { ModalDialogComponent } from './components/modal-dialog/modal-dialog.com
         AppComponent,
         GamePageComponent,
         MainPageComponent,
-        SelectionPageComponent,
         PlayAreaComponent,
         SidebarComponent,
         GameCardComponent,
-        ConfigPageComponent,
         CreationGamePageComponent,
         ConfigParamsComponent,
         EndgameDialogComponent,
         ModalDialogComponent,
+        ConfigSelectPageComponent,
     ],
     providers: [],
     bootstrap: [AppComponent],

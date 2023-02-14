@@ -2,16 +2,15 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { CreationGamePageComponent } from '@app/pages/creation-game-page/creation-game-page.component';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
-import { ConfigPageComponent } from '@app/pages/config-page/config-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
-import { SelectionPageComponent } from '@app/pages/selection-page/selection-page.component';
+import { ConfigSelectPageComponent } from '@app/pages/config-select-page/config-select-page.component';
 
 const routes: Routes = [
     { path: '', redirectTo: '/home', pathMatch: 'full' },
     { path: 'home', component: MainPageComponent },
-    { path: 'config', component: ConfigPageComponent },
+    { path: 'config', component: ConfigSelectPageComponent, data: { page: 'config' } },
+    { path: 'selection', component: ConfigSelectPageComponent, data: { page: 'selection' } },
     { path: 'game', component: GamePageComponent },
-    { path: 'selection', component: SelectionPageComponent },
     { path: 'creation', component: CreationGamePageComponent },
     { path: '**', redirectTo: '/home' },
 ];
