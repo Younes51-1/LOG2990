@@ -112,4 +112,73 @@ describe('DetectionDifferenceService', () => {
         const result = service.extractDifference(differenceMatrix, 1, 0);
         expect(result).toEqual(expectedMatrix);
     });
+
+    /* eslint-disable @typescript-eslint/no-magic-numbers */
+    it('should convert ArrayBuffer to Matrix', () => {
+        const arrayBuffer = new ArrayBuffer(54);
+        const dv = new DataView(arrayBuffer);
+        dv.setInt16(0, 19778, true);
+        dv.setUint32(2, 54, true);
+        dv.setUint32(10, 54 - 14, true);
+        dv.setUint32(14, 40, true);
+        dv.setInt32(18, 2, true);
+        dv.setInt32(22, 2, true);
+        dv.setInt16(26, 1, true);
+        dv.setInt16(28, 24, true);
+        dv.setUint32(34, 16, true);
+        dv.setUint8(54 - 16, 0);
+        dv.setUint8(54 - 15, 0);
+        dv.setUint8(54 - 14, 0);
+        dv.setUint8(54 - 13, 0);
+        dv.setUint8(54 - 12, 0);
+        dv.setUint8(54 - 11, 0);
+        dv.setUint8(54 - 10, 0);
+        dv.setUint8(54 - 9, 0);
+        dv.setUint8(54 - 8, 0);
+        dv.setUint8(54 - 7, 0);
+        dv.setUint8(54 - 6, 0);
+        dv.setUint8(54 - 5, 0);
+
+        const expectedMatrix = [
+            [0, 0],
+            [0, 0],
+        ];
+        const resultMatrix = service.convertImageToMatrix(arrayBuffer);
+        expect(resultMatrix.length).toBe(2);
+        expect(resultMatrix).toEqual(expectedMatrix);
+    });
+    /* eslint-enable @typescript-eslint/no-magic-numbers */
+
+    it('should return easy if differences number lower than 7', () => {
+        const diffuculte = service.computeLevelDifficulty(1, matrix);
+        expect(diffuculte).toEqual('facile');
+    });
+
+    it('should return hard if criteria are met', () => {
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        const diffMatrix = service.createEmptyMatrix(480, 640, emptyPixelValue);
+        diffMatrix[0][0] = 1;
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        const diffuculte = service.computeLevelDifficulty(7, diffMatrix);
+        expect(diffuculte).toEqual('difficile');
+    });
+
+    /* eslint-disable @typescript-eslint/no-magic-numbers */
+    it('should create an image of differences', () => {
+        const diffMatrix = [
+            [0, 1, -1],
+            [0, 0, 0],
+            [-1, -1, -1],
+        ];
+        const canvasUrl = service.createDifferencesImage(diffMatrix);
+        expect(canvasUrl).toBeDefined();
+        expect(canvasUrl).toContain('data:image/png;base64');
+    });
+    /* eslint-enable @typescript-eslint/no-magic-numbers */
+
+    it('should populate neighborhood', () => {
+        const position = { i: 0, j: 0 };
+        service.populateNeighborhood([matrix, differentmatrix], position, 3);
+        expect(differentmatrix).toEqual(matrix);
+    });
 });

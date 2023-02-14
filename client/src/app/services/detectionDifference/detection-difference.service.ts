@@ -56,7 +56,7 @@ export class DetectionDifferenceService {
 
     async readThenConvertImage(input: HTMLInputElement): Promise<number[][]> {
         return new Promise((resolve) => {
-            const file: File | null = input !== null && input.files !== null ? input.files[0] : null;
+            const file: File | null = input.files?.item(0) ?? null;
             const reader: FileReader = new FileReader();
 
             reader.addEventListener(
