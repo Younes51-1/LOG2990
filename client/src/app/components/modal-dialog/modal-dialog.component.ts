@@ -30,17 +30,21 @@ export class ModalDialogComponent implements AfterViewInit {
     }
 
     ngAfterViewInit(): void {
-        const scale = { x: 1, y: -1 };
         this.context = this.canvasDifferences.nativeElement.getContext('2d') as CanvasRenderingContext2D;
         const image = new Image();
         image.src = this.data.imageUrl;
         image.onload = () => {
-            if (this.data.flipped) {
-                this.context.translate(0, this.canvasDifferences.nativeElement.height);
-                this.context.scale(scale.x, scale.y);
-            }
-            this.context.drawImage(image, 0, 0, this.width, this.height);
+            this.drawImage(image);
         };
+    }
+
+    drawImage(image: HTMLImageElement) {
+        const scale = { x: 1, y: -1 };
+        if (this.data.flipped) {
+            this.context.translate(0, this.canvasDifferences.nativeElement.height);
+            this.context.scale(scale.x, scale.y);
+        }
+        this.context.drawImage(image, 0, 0, this.width, this.height);
     }
 
     emitNameGame() {

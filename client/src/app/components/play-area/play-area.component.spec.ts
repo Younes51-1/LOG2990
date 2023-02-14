@@ -1,3 +1,4 @@
+// eslint-disable-next-line max-classes-per-file
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
@@ -37,6 +38,8 @@ describe('PlayAreaComponent', () => {
     let classicModeService: ClassicModeService;
     let fixture: ComponentFixture<PlayAreaComponent>;
     let detectionDifferenceService: DetectionDifferenceService;
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    let imageOnload: Function | null = null;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
@@ -249,5 +252,30 @@ describe('PlayAreaComponent', () => {
         spyOn(component.context2, 'drawImage');
         component.handleImageLoad(component.context2, component.modified);
         expect(component.context2.drawImage).toHaveBeenCalled();
+    });
+
+    it('should call handleImageLoad on changes', () => {
+        const spy = spyOn(component, 'handleImageLoad').and.callFake(() => {
+            return;
+        });
+
+        Object.defineProperty(Image.prototype, 'onload', {
+            get() {
+                // eslint-disable-next-line no-underscore-dangle
+                return this._onload;
+            },
+            // eslint-disable-next-line @typescript-eslint/ban-types
+            set(onload: Function) {
+                imageOnload = onload;
+                // eslint-disable-next-line no-underscore-dangle
+                this._onload = onload;
+            },
+        });
+
+        component.ngOnChanges();
+        if (imageOnload !== null) {
+            imageOnload();
+        }
+        expect(spy).toHaveBeenCalled();
     });
 });

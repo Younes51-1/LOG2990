@@ -22,8 +22,8 @@ export class ClassicModeService {
 
     validateDifference(gameId: string, differencePos: Vector2D): boolean {
         const gameRoom = this.gameRooms.get(gameId);
-        const validated = gameRoom.userGame.gameData.differenceMatrix[differencePos.y][differencePos.x] !== EMPTY_PIXEL_VALUE;
         if (gameRoom === undefined) return false;
+        const validated = gameRoom.userGame.gameData.differenceMatrix[differencePos.y][differencePos.x] !== EMPTY_PIXEL_VALUE;
         if (validated) {
             gameRoom.userGame.nbDifferenceFound++;
             this.gameRooms.set(gameRoom.roomId, gameRoom);
