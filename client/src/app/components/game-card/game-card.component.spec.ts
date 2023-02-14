@@ -4,6 +4,8 @@ import { PageKeys, options } from './game-card-options';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
+import { RouterTestingModule } from '@angular/router/testing';
+import { Router } from '@angular/router';
 
 @NgModule({
     imports: [HttpClientModule],
@@ -17,7 +19,7 @@ describe('GameCardComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [GameCardComponent],
-            imports: [AppRoutingModule, DynamicTestModule],
+            imports: [AppRoutingModule, DynamicTestModule, RouterTestingModule],
         }).compileComponents();
     });
     beforeEach(() => {
@@ -120,5 +122,25 @@ describe('GameCardComponent', () => {
         const spy = spyOn(component.classicModeService, 'initClassicMode');
         component.btnOneEmitter();
         expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('should toggle the border if inputValue1 is incorrect', () => {
+        component.inputValue1 = '';
+        component.applyBorder = false;
+        component.toggleBorder();
+        expect(component.applyBorder).toBe(true);
+    });
+
+    it('should call btnOneEmitter and navigate to routeOne if inputValue1 is correct', () => {
+        const router = TestBed.inject(Router);
+
+        spyOn(component, 'btnOneEmitter');
+        spyOn(router, 'navigate');
+
+        component.inputValue1 = 'test';
+        component.toggleBorder();
+
+        expect(component.btnOneEmitter).toHaveBeenCalled();
+        expect(router.navigate).toHaveBeenCalledWith([component.routeOne]);
     });
 });

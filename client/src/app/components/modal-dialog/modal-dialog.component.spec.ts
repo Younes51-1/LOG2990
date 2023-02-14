@@ -79,4 +79,18 @@ describe('ModalDialogComponent', () => {
         component.emitNameGame();
         expect(emitNameGameSpy).toHaveBeenCalledWith('test');
     });
+
+    it('should toggle the border if inputValue is incorrect', () => {
+        component.inputValue = '';
+        component.applyBorder = false;
+        component.toggleBorder();
+        expect(component.applyBorder).toBe(true);
+    });
+
+    it('should call emitNameGame if inputValue is correct', () => {
+        spyOn(component, 'emitNameGame');
+        component.inputValue = 'test';
+        component.toggleBorder();
+        expect(component.emitNameGame).toHaveBeenCalled();
+    });
 });
