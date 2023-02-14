@@ -1,4 +1,12 @@
-type CallbackSignature = (params: any) => {}
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/ban-types */
+/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+
+// code imported from https://gitlab.com/nikolayradoev/socket-io-exemple
+// Author: Nikolay Radoev
+
+type CallbackSignature = (params: any) => {};
 
 export class SocketTestHelper {
     on(event: string, callback: CallbackSignature): void {
@@ -13,7 +21,9 @@ export class SocketTestHelper {
         return;
     }
 
-    disconnect(): void { return; }
+    disconnect(): void {
+        return;
+    }
 
     peerSideEmit(event: string, params?: any) {
         if (!this.callbacks.has(event)) {
@@ -25,5 +35,6 @@ export class SocketTestHelper {
         }
     }
 
+    // eslint-disable-next-line @typescript-eslint/member-ordering
     private callbacks = new Map<string, CallbackSignature[]>();
 }

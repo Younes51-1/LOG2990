@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
+import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
-import { SocketTestHelper } from '@app/services/communicationSocket/socket-test-helper';
 import { Socket } from 'socket.io-client';
 
 // code imported from https://gitlab.com/nikolayradoev/socket-io-exemple
