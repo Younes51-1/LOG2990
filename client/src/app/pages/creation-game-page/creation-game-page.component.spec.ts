@@ -200,4 +200,33 @@ describe('CreationGamePageComponent', () => {
         component.ngOnDestroy();
         expect(mock.close).toHaveBeenCalled();
     });
+
+    it('handleReaderOnload should call updateImageDisplay for valid image', () => {
+        const windowSpy = spyOn(window, 'alert');
+        const updateImageDisplaySpy = spyOn(component, 'updateImageDisplay').and.callFake(() => {
+            return;
+        });
+        const bmpHeaderSize = 54;
+        const bmpWidthSizeOffset = 18;
+        const bmpHeightSizeOffset = 22;
+        const bmpBitsPerPixelOffset = 28;
+        const nbBits = 24;
+        const buffer = new ArrayBuffer(bmpHeaderSize);
+        const view = new DataView(buffer);
+        view.setUint8(0, 0x42);
+        view.setUint8(1, 0x4D);
+        view.setInt32(bmpWidthSizeOffset, component.width, true);
+        view.setInt32(bmpHeightSizeOffset, component.height, true);
+        view.setUint8(bmpBitsPerPixelOffset, nbBits);
+        const reader = new FileReader();
+        const e = new Event('load');
+        const img = document.createElement('input');
+        img.type = 'file';
+        reader.onload = () => {
+            component.handleReaderOnload(reader, e, img);
+            expect(windowSpy).not.toHaveBeenCalled();
+            expect(updateImageDisplaySpy).toHaveBeenCalled();
+        };
+        reader.readAsArrayBuffer(new Blob([buffer], { type: 'image/bmp' }));
+    });
 });

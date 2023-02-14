@@ -129,26 +129,30 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
             const reader = new FileReader();
             reader.readAsArrayBuffer(file[0]);
             reader.onload = () => {
-                const width = Math.abs(new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.WIDTH, true));
-                const height = Math.abs(new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.HEIGHT, true));
-                const hasCorrectDimensions = width === this.width && height === this.height;
-                const data = new Uint8Array(reader.result as ArrayBuffer);
-                const isBmp = data[0] === AsciiLetterValue.B && data[1] === AsciiLetterValue.M;
-                const is24BitPerPixel = data[OffsetValues.DHP] === BIT_PER_PIXEL;
-                this.flipImage = new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.HEIGHT, true) < 0;
-                if (!(isBmp && is24BitPerPixel) || !hasCorrectDimensions) {
-                    img.value = '';
-                }
-                if (!hasCorrectDimensions && !(isBmp && is24BitPerPixel)) {
-                    alert('Image refusée: elle ne respecte pas le format BMP-24 bit de taille 640x480');
-                } else if (!hasCorrectDimensions) {
-                    alert("Image refusée: elle n'est pas de taille 640x480");
-                } else if (!(isBmp && is24BitPerPixel)) {
-                    alert('Image refusée: elle ne respecte pas le format BMP-24 bit');
-                } else {
-                    this.updateImageDisplay(e, img);
-                }
+                this.handleReaderOnload(reader, e, img);
             };
+        }
+    }
+
+    handleReaderOnload(reader: FileReader, e: Event, img: HTMLInputElement): void {
+        const width = Math.abs(new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.WIDTH, true));
+        const height = Math.abs(new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.HEIGHT, true));
+        const hasCorrectDimensions = width === this.width && height === this.height;
+        const data = new Uint8Array(reader.result as ArrayBuffer);
+        const isBmp = data[0] === AsciiLetterValue.B && data[1] === AsciiLetterValue.M;
+        const is24BitPerPixel = data[OffsetValues.DHP] === BIT_PER_PIXEL;
+        this.flipImage = new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.HEIGHT, true) < 0;
+        if (!(isBmp && is24BitPerPixel) || !hasCorrectDimensions) {
+            img.value = '';
+        }
+        if (!hasCorrectDimensions && !(isBmp && is24BitPerPixel)) {
+            alert('Image refusée: elle ne respecte pas le format BMP-24 bit de taille 640x480');
+        } else if (!hasCorrectDimensions) {
+            alert("Image refusée: elle n'est pas de taille 640x480");
+        } else if (!(isBmp && is24BitPerPixel)) {
+            alert('Image refusée: elle ne respecte pas le format BMP-24 bit');
+        } else {
+            this.updateImageDisplay(e, img);
         }
     }
 
