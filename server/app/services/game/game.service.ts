@@ -137,9 +137,9 @@ export class GameService {
 
     private newBestTimes(): BestTime[] {
         return [
-            { name: 'Easy', time: '3:00' },
-            { name: 'Medium', time: '2:00' },
-            { name: 'Hard', time: '1:00' },
+            { name: 'Player 1', time: '1:00' },
+            { name: 'Player 2', time: '2:00' },
+            { name: 'Player 3', time: '3:00' },
         ];
     }
 

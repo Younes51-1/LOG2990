@@ -38,37 +38,37 @@ describe('ConfigParamsComponent', () => {
     it('should increment initialTime by 5 seconds', () => {
         const answer = 35;
         component.increaseValue('initialTime');
-        expect(component.initialTime).toEqual(answer);
+        expect(component.initialTime.valueOf()).toEqual(answer);
     });
 
     it('should increment penaltyTime by 1 seconds', () => {
         const answer = 6;
         component.increaseValue('penaltyTime');
-        expect(component.penaltyTime).toEqual(answer);
+        expect(component.penaltyTime.valueOf()).toEqual(answer);
     });
 
     it('should increment bonusTime by 1 seconds', () => {
         const answer = 6;
         component.increaseValue('bonusTime');
-        expect(component.bonusTime).toEqual(answer);
+        expect(component.bonusTime.valueOf()).toEqual(answer);
     });
 
     it('should decrement initialTime by 5 seconds', () => {
         const answer = 25;
         component.decreaseValue('initialTime');
-        expect(component.initialTime).toEqual(answer);
+        expect(component.initialTime.valueOf()).toEqual(answer);
     });
 
     it('should decrement penaltyTime by 1 seconds', () => {
         const answer = 4;
         component.decreaseValue('penaltyTime');
-        expect(component.penaltyTime).toEqual(answer);
+        expect(component.penaltyTime.valueOf()).toEqual(answer);
     });
 
     it('should decrement initialTime by 1 seconds', () => {
         const answer = 4;
         component.decreaseValue('bonusTime');
-        expect(component.bonusTime).toEqual(answer);
+        expect(component.bonusTime.valueOf()).toEqual(answer);
     });
 
     it('should not change the variables when an unknown time is passed to increaseValue', () => {
