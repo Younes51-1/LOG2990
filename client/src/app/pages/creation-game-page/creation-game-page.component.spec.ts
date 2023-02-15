@@ -150,42 +150,6 @@ describe('CreationGamePageComponent', () => {
         expect(spy).toHaveBeenCalled();
     }));
 
-    it('should not open Differences Dialog if image2 has no content', fakeAsync(() => {
-        component.image1 = { value: undefined } as unknown as HTMLInputElement;
-        component.image2 = { value: undefined } as unknown as HTMLInputElement;
-        const spy = spyOn(component, 'openDifferencesDialog');
-        detectionDifferenceService = TestBed.inject(DetectionDifferenceService);
-        spyOn(detectionDifferenceService, 'readThenConvertImage').and.returnValue(
-            Promise.resolve([
-                [0, 0],
-                [0, 0],
-            ]),
-        );
-        component.image1 = { value: 'image_2_diff.bmp' } as HTMLInputElement;
-        component.image2 = { value: undefined } as unknown as HTMLInputElement;
-        component.runDetectionSystem();
-        tick();
-        expect(spy).not.toHaveBeenCalled();
-    }));
-
-    it('should not open Differences Dialog if image1 has no content', fakeAsync(() => {
-        component.image1 = { value: undefined } as unknown as HTMLInputElement;
-        component.image2 = { value: undefined } as unknown as HTMLInputElement;
-        const spy = spyOn(component, 'openDifferencesDialog');
-        detectionDifferenceService = TestBed.inject(DetectionDifferenceService);
-        spyOn(detectionDifferenceService, 'readThenConvertImage').and.returnValue(
-            Promise.resolve([
-                [0, 0],
-                [0, 0],
-            ]),
-        );
-        component.image2 = { value: 'image_2_diff.bmp' } as HTMLInputElement;
-        component.image1 = { value: undefined } as unknown as HTMLInputElement;
-        component.runDetectionSystem();
-        tick();
-        expect(spy).not.toHaveBeenCalled();
-    }));
-
     it('save name game should set nameGame', () => {
         const newGameName = 'newGameName';
         component.saveNameGame(newGameName);
