@@ -204,33 +204,94 @@ describe('CreationGamePageComponent', () => {
     });
 
     it('handleReaderOnload should call updateImageDisplay for valid image', () => {
-        const windowSpy = spyOn(window, 'alert');
-        const updateImageDisplaySpy = spyOn(component, 'updateImageDisplay').and.callFake(() => {
-            return;
-        });
-        const bmpHeaderSize = 54;
-        const bmpWidthSizeOffset = 18;
-        const bmpHeightSizeOffset = 22;
-        const bmpBitsPerPixelOffset = 28;
-        const nbBits = 24;
-        const buffer = new ArrayBuffer(bmpHeaderSize);
-        const view = new DataView(buffer);
-        view.setUint8(0, 0x42);
-        view.setUint8(1, 0x4D);
-        view.setInt32(bmpWidthSizeOffset, component.width, true);
-        view.setInt32(bmpHeightSizeOffset, component.height, true);
-        view.setUint8(bmpBitsPerPixelOffset, nbBits);
-        const reader = new FileReader();
-        const e = new Event('load');
-        const img = document.createElement('input');
-        img.type = 'file';
-        reader.onload = () => {
-            component.handleReaderOnload(reader, e, img);
-            expect(windowSpy).not.toHaveBeenCalled();
-            expect(updateImageDisplaySpy).toHaveBeenCalled();
-        };
-        reader.readAsArrayBuffer(new Blob([buffer], { type: 'image/bmp' }));
+        const mockFileReader = new FileReader();
+        const mockEvent = new Event('test');
+        const mockImageElement = {
+            value: '',
+        } as HTMLInputElement;
+        spyOn(component, 'getImageData').and.returnValue({ hasCorrectDimensions: true, isBmp: true, is24BitPerPixel: true });
+        spyOn(component, 'updateImageDisplay');
+
+        component.handleReaderOnload(mockFileReader, mockEvent, mockImageElement);
+
+        expect(component.updateImageDisplay).toHaveBeenCalledWith(mockEvent, mockImageElement);
     });
+
+    it("handleReaderOnload should alert if image doesn't have correct dimmensions", () => {
+        const mockFileReader = new FileReader();
+        const mockEvent = new Event('test');
+        const mockImageElement = {
+            value: '',
+        } as HTMLInputElement;
+        spyOn(component, 'getImageData').and.returnValue({ hasCorrectDimensions: false, isBmp: true, is24BitPerPixel: true });
+        spyOn(component, 'updateImageDisplay');
+        spyOn(window, 'alert');
+
+        component.handleReaderOnload(mockFileReader, mockEvent, mockImageElement);
+
+        expect(window.alert).toHaveBeenCalledWith("Image refusée: elle n'est pas de taille 640x480");
+    });
+
+    it("handleReaderOnload should alert if image isn't a 24 bmp image", () => {
+        const mockFileReader = new FileReader();
+        const mockEvent = new Event('test');
+        const mockImageElement = {
+            value: '',
+        } as HTMLInputElement;
+        spyOn(component, 'getImageData').and.returnValue({ hasCorrectDimensions: true, isBmp: false, is24BitPerPixel: false });
+        spyOn(component, 'updateImageDisplay');
+        spyOn(window, 'alert');
+
+        component.handleReaderOnload(mockFileReader, mockEvent, mockImageElement);
+
+        expect(window.alert).toHaveBeenCalledWith('Image refusée: elle ne respecte pas le format BMP-24 bit');
+    });
+
+    it("handleReaderOnload should alert if image doesn't have correct dimmensions and isn't 24 bits bmp image", () => {
+        const mockFileReader = new FileReader();
+        const mockEvent = new Event('test');
+        const mockImageElement = {
+            value: '',
+        } as HTMLInputElement;
+        spyOn(component, 'getImageData').and.returnValue({ hasCorrectDimensions: false, isBmp: false, is24BitPerPixel: false });
+        spyOn(component, 'updateImageDisplay');
+        spyOn(window, 'alert');
+
+        component.handleReaderOnload(mockFileReader, mockEvent, mockImageElement);
+
+        expect(window.alert).toHaveBeenCalledWith('Image refusée: elle ne respecte pas le format BMP-24 bit de taille 640x480');
+    });
+
+    it('handleReaderOnload should call getImageData', () => {
+        const mockFileReader = new FileReader();
+        const mockEvent = new Event('test');
+        const mockImageElement = {
+            value: '',
+        } as HTMLInputElement;
+        spyOn(component, 'getImageData').and.returnValue({ hasCorrectDimensions: false, isBmp: false, is24BitPerPixel: false });
+        spyOn(component, 'updateImageDisplay');
+        spyOn(window, 'alert');
+
+        component.handleReaderOnload(mockFileReader, mockEvent, mockImageElement);
+
+        expect(component.getImageData).toHaveBeenCalledWith(mockFileReader);
+    });
+
+    /* eslint-disable @typescript-eslint/no-magic-numbers */
+    it('getImageData should return bool after being called', fakeAsync(() => {
+        const mockArrayBuffer = new ArrayBuffer(32);
+        const dataView = new DataView(mockArrayBuffer);
+        dataView.setInt32(18, 640, true);
+        dataView.setInt32(22, -480, true);
+        dataView.setUint8(0, 66);
+        dataView.setUint8(1, 77);
+        dataView.setUint8(28, 24);
+        const mockReader = {
+            result: mockArrayBuffer,
+        } as unknown as FileReader;
+        const res = component.getImageData(mockReader);
+        expect(res).toEqual({ hasCorrectDimensions: true, isBmp: true, is24BitPerPixel: true });
+    }));
 
     it("shouldn't call saveNameGame after closing Matdialog if result is undefined", () => {
         const saveNameGameSpy = spyOn(component, 'saveNameGame');

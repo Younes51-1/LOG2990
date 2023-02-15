@@ -134,14 +134,21 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         }
     }
 
-    handleReaderOnload(reader: FileReader, e: Event, img: HTMLInputElement): void {
+    getImageData(reader: FileReader) {
         const width = Math.abs(new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.WIDTH, true));
         const height = Math.abs(new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.HEIGHT, true));
-        const hasCorrectDimensions = width === this.width && height === this.height;
         const data = new Uint8Array(reader.result as ArrayBuffer);
+
+        const hasCorrectDimensions = width === this.width && height === this.height;
         const isBmp = data[0] === AsciiLetterValue.B && data[1] === AsciiLetterValue.M;
         const is24BitPerPixel = data[OffsetValues.DHP] === BIT_PER_PIXEL;
         this.flipImage = new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.HEIGHT, true) < 0;
+
+        return { hasCorrectDimensions, isBmp, is24BitPerPixel };
+    }
+
+    handleReaderOnload(reader: FileReader, e: Event, img: HTMLInputElement): void {
+        const { hasCorrectDimensions, isBmp, is24BitPerPixel } = this.getImageData(reader);
         if (!(isBmp && is24BitPerPixel) || !hasCorrectDimensions) {
             img.value = '';
         }
