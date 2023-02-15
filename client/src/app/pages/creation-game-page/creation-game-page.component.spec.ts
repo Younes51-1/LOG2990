@@ -10,6 +10,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
 import { of } from 'rxjs';
 import SpyObj = jasmine.SpyObj;
+import { GameData } from '@app/interfaces/game';
 
 describe('CreationGamePageComponent', () => {
     let component: CreationGamePageComponent;
@@ -17,8 +18,23 @@ describe('CreationGamePageComponent', () => {
     let detectionDifferenceService: DetectionDifferenceService;
     let communicationServiceSpy: SpyObj<CommunicationService>;
 
+    const differenceMatrix: number[][] = [[]];
+    const gameForm = {
+        name: 'Find the Differences 1',
+        nbDifference: 10,
+        image1url: 'https://example.com/image1.jpg',
+        image2url: 'https://example.com/image2.jpg',
+        difficulte: 'easy',
+        soloBestTimes: [
+            { name: 'player1', time: 200 },
+            { name: 'player2', time: 150 },
+        ],
+        vsBestTimes: [{ name: 'player1', time: 200 }],
+    };
+    const gameData: GameData = { gameForm, differenceMatrix };
+
     beforeEach(async () => {
-        communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getAllGames']);
+        communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getAllGames', 'getGame']);
         communicationServiceSpy.getAllGames.and.returnValue(
             of([
                 {
@@ -47,6 +63,7 @@ describe('CreationGamePageComponent', () => {
                 },
             ]),
         );
+        communicationServiceSpy.getGame.and.returnValue(of(gameData));
         await TestBed.configureTestingModule({
             imports: [MatDialogModule, RouterTestingModule, HttpClientModule, BrowserAnimationsModule],
             declarations: [CreationGamePageComponent],
