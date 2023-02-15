@@ -10,6 +10,7 @@ export enum OffsetValues {
     WIDTH = 18,
     HEIGHT = 22,
     DHP = 28,
+    OFFSET = 10,
 }
 
 export enum BIT_PER_PIXEL {
