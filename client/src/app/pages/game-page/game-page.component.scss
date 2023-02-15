@@ -1,15 +1,33 @@
+* {
+    font-family: 'Verdana', sans-serif, monospace;
+    text-align: center;
+    font-size: 110%;
+}
+
 .container {
-    height: 100%;
     display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    height: 95%;
+    background: #fff;
 }
 
-.play-area-container {
-    overflow: auto;
-    flex: 1 1 auto;
-}
-
-.play-area {
+header {
     display: grid;
-    width: min-content;
-    outline: none;
+    justify-items: center;
+    width: 100%;
+}
+
+header > p {
+    margin-top: 5%;
+}
+
+img {
+    margin-top: -2%;
+    width: 70%;
+}
+
+section {
+    display: flex;
 }
