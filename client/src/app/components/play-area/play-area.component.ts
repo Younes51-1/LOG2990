@@ -28,8 +28,8 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     buttonPressed = '';
     original = new Image();
     modified = new Image();
-    audioValid = new Audio('src/assets/sounds/valid_sound.mp3');
-    audioInvalid = new Audio('src/assets/sounds/invalid_sound.mp3');
+    audioValid = new Audio('../assets/sounds/valid_sound.mp3');
+    audioInvalid = new Audio('../assets/sounds/invalid_sound.mp3');
     differenceMatrix: number[][];
     currentDifferenceMatrix: number[][];
     emptypixel: number;
