@@ -151,6 +151,8 @@ describe('CreationGamePageComponent', () => {
     }));
 
     it('should not open Differences Dialog if image2 has no content', fakeAsync(() => {
+        component.image1 = { value: undefined } as unknown as HTMLInputElement;
+        component.image2 = { value: undefined } as unknown as HTMLInputElement;
         const spy = spyOn(component, 'openDifferencesDialog');
         detectionDifferenceService = TestBed.inject(DetectionDifferenceService);
         spyOn(detectionDifferenceService, 'readThenConvertImage').and.returnValue(
@@ -167,6 +169,8 @@ describe('CreationGamePageComponent', () => {
     }));
 
     it('should not open Differences Dialog if image1 has no content', fakeAsync(() => {
+        component.image1 = { value: undefined } as unknown as HTMLInputElement;
+        component.image2 = { value: undefined } as unknown as HTMLInputElement;
         const spy = spyOn(component, 'openDifferencesDialog');
         detectionDifferenceService = TestBed.inject(DetectionDifferenceService);
         spyOn(detectionDifferenceService, 'readThenConvertImage').and.returnValue(
