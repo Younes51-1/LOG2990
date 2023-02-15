@@ -7,7 +7,7 @@ import { getConnectionToken, getModelToken, MongooseModule } from '@nestjs/mongo
 import { Test } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Model } from 'mongoose';
-import { GameService } from './game.service';
+import { GameService } from '@app/services/game/game.service';
 
 describe('GameService', () => {
     let service: GameService;

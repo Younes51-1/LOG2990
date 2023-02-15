@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { UserGame } from './user-game.schema';
+import { UserGame } from '@app/model/schema/user-game.schema';
 
 export class GameRoom {
     @ApiProperty()

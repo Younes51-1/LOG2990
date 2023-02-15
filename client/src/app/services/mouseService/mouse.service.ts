@@ -1,13 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Vec2 } from '@app/interfaces/vec2';
-
-enum MouseButton {
-    Left = 0,
-    Middle = 1,
-    Right = 2,
-    Back = 3,
-    Forward = 4,
-}
+import { MouseButton } from 'src/assets/variables/mouse-button';
 
 @Injectable({
     providedIn: 'root',

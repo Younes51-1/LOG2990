@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { options, PageKeys } from './game-card-options';
-import { GameForm } from '@app/interfaces/game-form';
+import { options, PageKeys } from 'src/assets/variables/game-card-options';
+import { GameForm } from '@app/interfaces/game';
 import { Router } from '@angular/router';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 

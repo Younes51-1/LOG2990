@@ -2,18 +2,12 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { DifferenceTry } from '@app/interfaces/difference-try';
-import { GameData } from '@app/interfaces/game-data';
+import { GameData } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
 import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
 import { of } from 'rxjs';
 import { Socket } from 'socket.io-client';
-import { ClassicModeService } from './classic-mode.service';
-
-const differenceMatrix: number[][] = [[]];
-const gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulte: '', soloBestTimes: [], vsBestTimes: [] };
-const gameData: GameData = { gameForm, differenceMatrix };
-const gameRoom = { userGame: { gameData, nbDifferenceFound: 0, timer: 0, username: 'Test' }, roomId: 'fakeId' };
-const differenceTry: DifferenceTry = { validated: true, differencePos: { x: 0, y: 0 } };
+import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 
 class SocketClientServiceMock extends CommunicationSocketService {
     override connect() {
@@ -22,6 +16,12 @@ class SocketClientServiceMock extends CommunicationSocketService {
 }
 
 describe('ClassicModeService', () => {
+    const differenceMatrix: number[][] = [[]];
+    const gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulte: '', soloBestTimes: [], vsBestTimes: [] };
+    const gameData: GameData = { gameForm, differenceMatrix };
+    const gameRoom = { userGame: { gameData, nbDifferenceFound: 0, timer: 0, username: 'Test' }, roomId: 'fakeId' };
+    const differenceTry: DifferenceTry = { validated: true, differencePos: { x: 0, y: 0 } };
+
     let service: ClassicModeService;
     let communicationSocketService: CommunicationSocketService;
     let communicationService: CommunicationService;

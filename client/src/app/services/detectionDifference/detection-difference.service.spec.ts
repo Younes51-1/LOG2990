@@ -1,5 +1,5 @@
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { DetectionDifferenceService } from './detection-difference.service';
+import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
 
 describe('DetectionDifferenceService', () => {
     let service: DetectionDifferenceService;
@@ -49,7 +49,7 @@ describe('DetectionDifferenceService', () => {
     });
 
     it('Difference Matrix should return an empty matrix when given identical matrix', () => {
-        const differenceMatrix = service.diffrencesMatrix(matrix, matrix, 0);
+        const differenceMatrix = service.differencesMatrix(matrix, matrix, 0);
         expect(differenceMatrix).toEqual(service.createEmptyMatrix(matrix.length, matrix[0].length, emptyPixelValue));
     });
 
@@ -59,7 +59,7 @@ describe('DetectionDifferenceService', () => {
     });
 
     it('Difference Matrix should return a correct matrix when given differents matrix and 0 in a radius', () => {
-        const differenceMatrix = service.diffrencesMatrix(matrix, differentmatrix, 0);
+        const differenceMatrix = service.differencesMatrix(matrix, differentmatrix, 0);
         const matrixRes = [
             [emptyPixelValue, 0, emptyPixelValue],
             [emptyPixelValue, emptyPixelValue, emptyPixelValue],
@@ -74,7 +74,7 @@ describe('DetectionDifferenceService', () => {
     });
 
     it('Difference Matrix should return a correct matrix when given differents matrix and 3 in a radius', () => {
-        const differenceMatrix = service.diffrencesMatrix(matrix, differentmatrix, 3);
+        const differenceMatrix = service.differencesMatrix(matrix, differentmatrix, 3);
         const matrixRes = [
             [1, 0, 1],
             [1, 1, 1],
@@ -177,7 +177,7 @@ describe('DetectionDifferenceService', () => {
     /* eslint-enable @typescript-eslint/no-magic-numbers */
 
     it('should populate neighborhood', () => {
-        const position = { i: 0, j: 0 };
+        const position = { x: 0, y: 0 };
         service.populateNeighborhood([matrix, differentmatrix], position, 3);
         expect(differentmatrix).toEqual(matrix);
     });

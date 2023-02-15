@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { DifferenceTry } from '@app/interfaces/difference-try';
-import { GameRoom } from '@app/interfaces/game-room';
-import { UserGame } from '@app/interfaces/user-game';
+import { GameRoom, UserGame } from '@app/interfaces/game';
 import { Vec2 } from '@app/interfaces/vec2';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
 import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';

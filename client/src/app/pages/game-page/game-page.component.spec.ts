@@ -6,12 +6,11 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatToolbar } from '@angular/material/toolbar';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
-import { GameData } from '@app/interfaces/game-data';
-import { UserGame } from '@app/interfaces/user-game';
+import { GameData, UserGame } from '@app/interfaces/game';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
 import { of } from 'rxjs';
-import { GamePageComponent } from './game-page.component';
+import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import SpyObj = jasmine.SpyObj;
 
 const differenceMatrix: number[][] = [[]];

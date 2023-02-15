@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { PageKeys } from '@app/components/game-card/game-card-options';
-import { GameForm } from '@app/interfaces/game-form';
+import { PageKeys } from 'src/assets/variables/game-card-options';
+import { GameForm } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
 
 @Component({
@@ -41,9 +41,9 @@ export class ConfigSelectPageComponent implements OnInit {
 
     initializeImgSource(): void {
         if (this.pageType === PageKeys.Config) {
-            this.imgSource = '../../../assets/config.png';
+            this.imgSource = '../../../assets/pictures/config.png';
         } else if (this.pageType === PageKeys.Selection) {
-            this.imgSource = '../../../assets/selection.png';
+            this.imgSource = '../../../assets/pictures/selection.png';
         }
     }
 }

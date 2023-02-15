@@ -1,9 +1,6 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { GameData } from '@app/interfaces/game-data';
-import { GameForm } from '@app/interfaces/game-form';
-import { NewGame } from '@app/interfaces/new-game';
-import { Message } from '@common/message';
+import { GameData, GameForm, NewGame } from '@app/interfaces/game';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
@@ -15,14 +12,6 @@ export class CommunicationService {
     private readonly baseUrl: string = environment.serverUrl;
 
     constructor(private readonly http: HttpClient) {}
-
-    basicGet(): Observable<Message> {
-        return this.http.get<Message>(`${this.baseUrl}/example`).pipe(catchError(this.handleError<Message>('basicGet')));
-    }
-
-    basicPost(message: Message): Observable<HttpResponse<string>> {
-        return this.http.post(`${this.baseUrl}/example/send`, message, { observe: 'response', responseType: 'text' });
-    }
 
     getAllGames(): Observable<GameForm[]> {
         return this.http.get<GameForm[]>(`${this.baseUrl}/game`).pipe(catchError(this.handleError<GameForm[]>('getGames')));

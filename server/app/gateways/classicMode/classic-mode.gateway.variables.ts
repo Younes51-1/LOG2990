@@ -8,3 +8,8 @@ export enum ClassicModeEvents {
     EndGame = 'endGame',
     Timer = 'timer',
 }
+
+export enum DelayBeforeEmmitingTime {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    DELAY_BEFORE_EMITTING_TIME = 1000,
+}

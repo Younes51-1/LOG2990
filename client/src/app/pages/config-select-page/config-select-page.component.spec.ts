@@ -10,9 +10,9 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { Location } from '@angular/common';
 import { By } from '@angular/platform-browser';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
-import SpyObj = jasmine.SpyObj;
-import { PageKeys } from '@app/components/game-card/game-card-options';
+import { PageKeys } from 'src/assets/variables/game-card-options';
 import { ConfigParamsComponent } from '@app/components/config-params/config-params.component';
+import SpyObj = jasmine.SpyObj;
 
 @NgModule({
     imports: [MatDialogModule, HttpClientModule],
@@ -137,13 +137,13 @@ describe('ConfigSelectPageComponent', () => {
         component.pageType = PageKeys.Config;
         fixture.detectChanges();
         component.initializeImgSource();
-        expect(component.imgSource).toEqual('../../../assets/config.png');
+        expect(component.imgSource).toEqual('../../../assets/pictures/config.png');
     });
 
     it('should correctly initialize image if pageType is selection', () => {
         component.pageType = PageKeys.Selection;
         fixture.detectChanges();
         component.initializeImgSource();
-        expect(component.imgSource).toEqual('../../../assets/selection.png');
+        expect(component.imgSource).toEqual('../../../assets/pictures/selection.png');
     });
 });

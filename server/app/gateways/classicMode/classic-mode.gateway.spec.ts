@@ -9,8 +9,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { createStubInstance, SinonStubbedInstance } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
 import { ClassicModeGateway } from './classic-mode.gateway';
-import { DELAY_BEFORE_EMITTING_TIME } from './classic-mode.gateway.constants';
-import { ClassicModeEvents } from './classic-mode.gateway.events';
+import { ClassicModeEvents, DelayBeforeEmmitingTime } from './classic-mode.gateway.variables';
 
 describe('ClassicModeGateway', () => {
     let gateway: ClassicModeGateway;
@@ -147,7 +146,7 @@ describe('ClassicModeGateway', () => {
             },
         } as BroadcastOperator<unknown, unknown>);
         gateway.afterInit();
-        jest.advanceTimersByTime(DELAY_BEFORE_EMITTING_TIME);
+        jest.advanceTimersByTime(DelayBeforeEmmitingTime.DELAY_BEFORE_EMITTING_TIME);
         expect(emitTimeSpy).toHaveBeenCalled();
     });
 
@@ -169,6 +168,7 @@ describe('ClassicModeGateway', () => {
     });
 });
 
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 const getFakeUserGame1 = (): UserGame => ({
     username: 'FakeUser',
     nbDifferenceFound: 0,
@@ -190,6 +190,7 @@ const getFakeUserGame1 = (): UserGame => ({
         },
     },
 });
+/* eslint-enable @typescript-eslint/no-magic-numbers */
 
 const getFakeGameRoom = (): GameRoom => ({
     userGame: getFakeUserGame1(),

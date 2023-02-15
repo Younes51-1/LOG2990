@@ -6,7 +6,7 @@ import { Vector2D } from '@app/model/schema/vector2d.schema';
 import { Test, TestingModule } from '@nestjs/testing';
 import { createStubInstance, SinonStubbedInstance } from 'sinon';
 import { Socket } from 'socket.io';
-import { ClassicModeService } from './classic-mode.service';
+import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 
 class TestClassicModeService extends ClassicModeService {
     addElementToMap(key: string, value: GameRoom) {
@@ -101,6 +101,7 @@ describe('ClassicModeService', () => {
     });
 });
 
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 const getFakeUserGame = (): UserGame => ({
     username: 'FakeUser',
     nbDifferenceFound: 0,
@@ -122,6 +123,7 @@ const getFakeUserGame = (): UserGame => ({
         },
     },
 });
+/* eslint-enable @typescript-eslint/no-magic-numbers */
 
 const getFakeGameRoom = (): GameRoom => ({
     userGame: getFakeUserGame(),

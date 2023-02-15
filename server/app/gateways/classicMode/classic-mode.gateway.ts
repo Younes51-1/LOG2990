@@ -3,8 +3,7 @@ import { ClassicModeService } from '@app/services/classicMode/classic-mode.servi
 import { Injectable, Logger } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { DELAY_BEFORE_EMITTING_TIME } from './classic-mode.gateway.constants';
-import { ClassicModeEvents } from './classic-mode.gateway.events';
+import { ClassicModeEvents, DelayBeforeEmmitingTime } from '@app/gateways/classicMode/classic-mode.gateway.variables';
 
 @WebSocketGateway({ cors: true })
 @Injectable()
@@ -36,7 +35,7 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
     afterInit() {
         setInterval(() => {
             this.emitTime();
-        }, DELAY_BEFORE_EMITTING_TIME);
+        }, DelayBeforeEmmitingTime.DELAY_BEFORE_EMITTING_TIME);
     }
 
     handleConnection(socket: Socket) {

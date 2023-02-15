@@ -2,28 +2,10 @@ import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@ang
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.component';
-import { NewGame } from '@app/interfaces/new-game';
+import { NewGame } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
 import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
-
-enum AsciiLetterValue {
-    B = 66,
-    M = 77,
-}
-
-enum OffsetValues {
-    WIDTH = 18,
-    HEIGHT = 22,
-    DHP = 28,
-}
-const BIT_PER_PIXEL = 24;
-
-enum PossibleRadius {
-    ZERO = 0,
-    THREE = 3,
-    NINE = 9,
-    FIFTEEN = 15,
-}
+import { OffsetValues, AsciiLetterValue, BIT_PER_PIXEL, PossibleRadius } from 'src/assets/variables/images-values';
 
 @Component({
     selector: 'app-creation-game-page',
@@ -36,23 +18,30 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     @ViewChild('images1et2', { static: false }) inputImages1et2: ElementRef;
     @ViewChild('canvas1', { static: false }) canvas1: ElementRef<HTMLCanvasElement>;
     @ViewChild('canvas2', { static: false }) canvas2: ElementRef<HTMLCanvasElement>;
+
     context1: CanvasRenderingContext2D;
     context2: CanvasRenderingContext2D;
+
     image1: HTMLInputElement;
     image2: HTMLInputElement;
+
     imageDifferencesUrl: string;
     width: number;
     height: number;
+
     radius: number = 3;
-    differenceCount: number;
-    differenceMatrix: number[][];
     possibleRadius: number[] = [PossibleRadius.ZERO, PossibleRadius.THREE, PossibleRadius.NINE, PossibleRadius.FIFTEEN];
+
+    differenceCount: number;
+
+    differenceMatrix: number[][];
     nameGame: string;
-    flipImage: boolean = false;
     difficulty: string;
+    flipImage: boolean = false;
+
     dialogRef: MatDialogRef<ModalDialogComponent>;
 
-    // eslint-disable-next-line max-params
+    // eslint-disable-next-line max-params -- needed for constructor
     constructor(
         private communicationService: CommunicationService,
         public dialog: MatDialog,
@@ -141,7 +130,7 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
 
         const hasCorrectDimensions = width === this.width && height === this.height;
         const isBmp = data[0] === AsciiLetterValue.B && data[1] === AsciiLetterValue.M;
-        const is24BitPerPixel = data[OffsetValues.DHP] === BIT_PER_PIXEL;
+        const is24BitPerPixel = data[OffsetValues.DHP] === BIT_PER_PIXEL.BIT_PER_PIXEL;
         this.flipImage = new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.HEIGHT, true) < 0;
 
         return { hasCorrectDimensions, isBmp, is24BitPerPixel };
@@ -176,7 +165,7 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
                 JSON.parse(JSON.stringify(image2matrix)),
                 this.radius,
             );
-            this.differenceMatrix = this.detectionService.diffrencesMatrix(image1matrix, image2matrix, this.radius);
+            this.differenceMatrix = this.detectionService.differencesMatrix(image1matrix, image2matrix, this.radius);
             this.imageDifferencesUrl = this.detectionService.createDifferencesImage(this.differenceMatrix);
             this.difficulty = this.detectionService.computeLevelDifficulty(this.differenceCount, JSON.parse(JSON.stringify(this.differenceMatrix)));
             this.openDifferencesDialog();

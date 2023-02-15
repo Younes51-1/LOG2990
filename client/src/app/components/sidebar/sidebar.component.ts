@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
-import { UserGame } from '@app/interfaces/user-game';
+import { UserGame } from '@app/interfaces/game';
 
 enum Times {
     MinInSec = 60,

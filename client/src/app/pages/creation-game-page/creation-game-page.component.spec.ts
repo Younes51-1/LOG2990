@@ -4,7 +4,7 @@ import { MatDialog, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/d
 import { RouterTestingModule } from '@angular/router/testing';
 import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.component';
 import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
-import { CreationGamePageComponent } from './creation-game-page.component';
+import { CreationGamePageComponent } from '@app/pages/creation-game-page/creation-game-page.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 
@@ -292,6 +292,7 @@ describe('CreationGamePageComponent', () => {
         const res = component.getImageData(mockReader);
         expect(res).toEqual({ hasCorrectDimensions: true, isBmp: true, is24BitPerPixel: true });
     }));
+    /* eslint-enable @typescript-eslint/no-magic-numbers */
 
     it("shouldn't call saveNameGame after closing Matdialog if result is undefined", () => {
         const saveNameGameSpy = spyOn(component, 'saveNameGame');

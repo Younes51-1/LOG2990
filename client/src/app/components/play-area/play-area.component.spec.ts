@@ -1,19 +1,10 @@
-// eslint-disable-next-line max-classes-per-file
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
-import { GameData } from '@app/interfaces/game-data';
-import { UserGame } from '@app/interfaces/user-game';
+import { GameData, UserGame, GameRoom } from '@app/interfaces/game';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
-import { GameRoom } from '@app/interfaces/game-room';
-
-const differenceMatrix: number[][] = [[]];
-const gameForm = { name: '', nbDifference: 0, image1url: 'original', image2url: 'modified', difficulte: '', soloBestTimes: [], vsBestTimes: [] };
-const gameData: GameData = { gameForm, differenceMatrix };
-const userGame: UserGame = { username: '', gameData, nbDifferenceFound: 0, timer: 0 };
-const gameRoom: GameRoom = { userGame, roomId: 'testRoom' };
 
 @NgModule({
     imports: [HttpClientModule],
@@ -34,6 +25,20 @@ const createAndPopulateMatrix = (value: number): number[][] => {
 const invalidPixelValue = -1;
 
 describe('PlayAreaComponent', () => {
+    const differenceMatrix: number[][] = [[]];
+    const gameForm = {
+        name: '',
+        nbDifference: 0,
+        image1url: 'original',
+        image2url: 'modified',
+        difficulte: '',
+        soloBestTimes: [],
+        vsBestTimes: [],
+    };
+    const gameData: GameData = { gameForm, differenceMatrix };
+    const userGame: UserGame = { username: '', gameData, nbDifferenceFound: 0, timer: 0 };
+    const gameRoom: GameRoom = { userGame, roomId: 'testRoom' };
+
     let component: PlayAreaComponent;
     let classicModeService: ClassicModeService;
     let fixture: ComponentFixture<PlayAreaComponent>;

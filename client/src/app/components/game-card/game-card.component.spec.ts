@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { GameCardComponent } from './game-card.component';
-import { PageKeys, options } from './game-card-options';
+import { GameCardComponent } from '@app/components/game-card/game-card.component';
+import { PageKeys, options } from 'src/assets/variables/game-card-options';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';

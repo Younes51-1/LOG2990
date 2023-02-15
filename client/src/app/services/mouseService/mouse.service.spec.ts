@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Vec2 } from '@app/interfaces/vec2';
 
-import { MouseService } from './mouse.service';
+import { MouseService } from '@app/services/mouseService/mouse.service';
 
 describe('MouseService', () => {
     let service: MouseService;

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, tick, fakeAsync } from '@angular/core/testing';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { EndgameDialogComponent } from './endgame-dialog.component';
+import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { Location } from '@angular/common';
 

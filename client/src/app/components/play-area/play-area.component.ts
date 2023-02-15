@@ -1,18 +1,11 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges, ViewChild } from '@angular/core';
-import { UserGame } from '@app/interfaces/user-game';
+import { UserGame } from '@app/interfaces/game';
 import { Vec2 } from '@app/interfaces/vec2';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
 import { MouseService } from '@app/services/mouseService/mouse.service';
-
-export const DEFAULT_WIDTH = 640;
-export const DEFAULT_HEIGHT = 480;
-
-enum Color {
-    Luigi = '#08A936',
-    Mario = '#E0120F',
-}
+import { Color } from 'src/assets/variables/color';
+import { Dimensions } from 'src/assets/variables/picture-dimension';
 
 @Component({
     selector: 'app-play-area',
@@ -35,17 +28,22 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     buttonPressed = '';
     original = new Image();
     modified = new Image();
-    audioValid = new Audio('../assets/valid_sound.mp3');
-    audioInvalid = new Audio('../assets/invalid_sound.mp3');
+    audioValid = new Audio('src/assets/sounds/valid_sound.mp3');
+    audioInvalid = new Audio('src/assets/sounds/invalid_sound.mp3');
     differenceMatrix: number[][];
     currentDifferenceMatrix: number[][];
-    private canvasSize = { x: DEFAULT_WIDTH, y: DEFAULT_HEIGHT };
+    emptypixel: number;
+    timesFlashDifferences: number;
+    private canvasSize = { x: Dimensions.DEFAULT_WIDTH, y: Dimensions.DEFAULT_HEIGHT };
 
     constructor(
         private mouseService: MouseService,
         private detectionService: DetectionDifferenceService,
         public classicModeService: ClassicModeService,
-    ) {}
+    ) {
+        this.emptypixel = -1;
+        this.timesFlashDifferences = 5;
+    }
 
     get width(): number {
         return this.canvasSize.x;
@@ -70,7 +68,6 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
                 this.audioValid.pause();
                 this.audioValid.currentTime = 0;
                 this.audioValid.play();
-                // appel fonctions Tentative validee
             } else {
                 this.playerIsAllowedToClick = false;
                 this.audioInvalid.play();
@@ -115,8 +112,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     async mouseClickAttempt(event: MouseEvent, canvas: HTMLCanvasElement) {
         if (this.playerIsAllowedToClick) {
             this.mousePosition = this.mouseService.mouseClick(event, this.mousePosition);
-            // isValidated doit utiliser doit prendre la validation de la tentative du serveur dynamique
-            const isValidated = this.differenceMatrix[this.mousePosition.y][this.mousePosition.x] !== -1;
+            const isValidated = this.differenceMatrix[this.mousePosition.y][this.mousePosition.x] !== this.emptypixel;
             if (isValidated) {
                 this.classicModeService.validateDifference(this.mousePosition);
                 this.canvasClicked = canvas;
@@ -166,14 +162,13 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
             layerContext2.fillStyle = Color.Luigi;
             for (let i = 0; i < difference.length; i++) {
                 for (let j = 0; j < difference[0].length; j++) {
-                    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-                    if (difference[i][j] !== -1) {
+                    if (difference[i][j] !== this.emptypixel) {
                         layerContext1.fillRect(j, i, 1, 1);
                         layerContext2.fillRect(j, i, 1, 1);
                     }
                 }
             }
-            for (let i = 1; i <= 5; i++) {
+            for (let i = 1; i <= this.timesFlashDifferences; i++) {
                 setTimeout(() => {
                     this.context1.drawImage(layer1, 0, 0, this.width, this.height);
                     this.context2.drawImage(layer2, 0, 0, this.width, this.height);
@@ -181,7 +176,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
                         this.context1.drawImage(this.original, 0, 0, this.width, this.height);
                         this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
                         if (i === 1) this.removeDifference(this.currentDifferenceMatrix);
-                        if (i === 5) this.playerIsAllowedToClick = true;
+                        if (i === this.timesFlashDifferences) this.playerIsAllowedToClick = true;
                     }, timeOut);
                 }, 2 * i * timeOut);
             }
@@ -195,18 +190,17 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
 
         for (let i = 0; i < differenceMatrix.length; i++) {
             for (let j = 0; j < differenceMatrix[0].length; j++) {
-                // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-                if (differenceMatrix[i][j] !== -1) {
+                if (differenceMatrix[i][j] !== this.emptypixel) {
                     differencePositions.push({ x: j, y: i });
-                    this.differenceMatrix[i][j] = -1;
+                    this.differenceMatrix[i][j] = this.emptypixel;
                 }
             }
         }
-
+        const pixelDataSize = 4;
         for (const i of differencePositions) {
             const x = i.x;
             const y = i.y;
-            const index = (y * this.width + x) * 4;
+            const index = (y * this.width + x) * pixelDataSize;
 
             image2.data[index] = image1.data[index];
             image2.data[index + 1] = image1.data[index + 1];

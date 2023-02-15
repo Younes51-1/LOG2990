@@ -68,7 +68,7 @@ img {
     z-index: 1;
     margin-left: 5px;
 }
-   
+
 .btn:before {
     transition: 0.15s all ease;
     position: absolute;
@@ -81,17 +81,17 @@ img {
     background-color: #8200FF;
     z-index: -1;
 }
-   
+
 .btn:hover, btn:focus {
     color: white;
 }
-   
+
 .btn:hover:before, btn:focus:before {
     left: 0;
     right: 0;
     opacity: 1;
 }
-   
+
 .btn:active {
     transform: scale(0.9);
 }

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { ModalDialogComponent } from './modal-dialog.component';
+import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.component';
 
 describe('ModalDialogComponent', () => {
     let component: ModalDialogComponent;

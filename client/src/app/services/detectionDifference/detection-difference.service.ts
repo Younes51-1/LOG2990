@@ -1,26 +1,6 @@
 import { Injectable } from '@angular/core';
-
-export enum RadiusSize {
-    None = 0,
-    Default = 3,
-    Medium = 9,
-    Large = 15,
-}
-
-export enum OffsetValues {
-    OFFSET = 10,
-    WIDTH = 18,
-    HEIGHT = 22,
-}
-
-interface Position {
-    i: number;
-    j: number;
-}
-const emptyPixelValue = -1;
-const pixelDataSize = 4;
-const negativeDifferenceCoord = -1;
-const positiveDifferenceCoord = 1;
+import { OffsetValues } from 'src/assets/variables/images-values';
+import { Vec2 } from '@app/interfaces/vec2';
 
 @Injectable({
     providedIn: 'root',
@@ -28,7 +8,17 @@ const positiveDifferenceCoord = 1;
 export class DetectionDifferenceService {
     pictureDimensions = { width: 640, height: 480 };
     differencesImage: HTMLImageElement;
+    emptyPixelValue: number;
+    pixelDataSize: number;
+    negativeDifferenceCoord: number;
+    positiveDifferenceCoord: number;
 
+    constructor() {
+        this.emptyPixelValue = -1;
+        this.negativeDifferenceCoord = -1;
+        this.positiveDifferenceCoord = 1;
+        this.pixelDataSize = 4;
+    }
     createEmptyMatrix(height: number, width: number, filler: number | boolean) {
         const matrix = [];
         for (let i = 0; i < height; i++) {
@@ -38,11 +28,11 @@ export class DetectionDifferenceService {
     }
 
     convertImageToMatrix(buffer: ArrayBuffer): number[][] {
-        const offset = new DataView(buffer).getInt32(OffsetValues.OFFSET, true);
+        const offset = new DataView(buffer).getInt32(OffsetValues.DHP, true);
         const width = Math.abs(new DataView(buffer).getInt32(OffsetValues.WIDTH, true));
         const height = Math.abs(new DataView(buffer).getInt32(OffsetValues.HEIGHT, true));
 
-        const matrix = this.createEmptyMatrix(height, width, emptyPixelValue);
+        const matrix = this.createEmptyMatrix(height, width, this.emptyPixelValue);
 
         for (let i = 0; i < height; i++) {
             for (let j = 0; j < width; j++) {
@@ -73,10 +63,10 @@ export class DetectionDifferenceService {
         });
     }
 
-    populateNeighborhood(matrix: [array1: number[][], array2: number[][]], positions: Position, radius: number) {
+    populateNeighborhood(matrix: [array1: number[][], array2: number[][]], positions: Vec2, radius: number) {
         const [array1, array2] = matrix;
 
-        const queue: Position[] = [{ i: positions.i, j: positions.j }];
+        const queue: Vec2[] = [{ x: positions.x, y: positions.y }];
         while (queue.length) {
             const curr = queue.shift();
 
@@ -84,11 +74,11 @@ export class DetectionDifferenceService {
 
             for (let k = -radius - 1; k <= radius + 1; k++) {
                 for (let l = -radius - 1; l <= radius + 1; l++) {
-                    const i = curr.i + k;
-                    const j = curr.j + l;
-                    if (i >= 0 && i < array1.length && j >= 0 && j < array1[0].length && array1[i][j] !== array2[i][j]) {
-                        array1[i][j] = array2[i][j];
-                        queue.push({ i, j });
+                    const x = curr.x + k;
+                    const y = curr.y + l;
+                    if (x >= 0 && x < array1.length && y >= 0 && y < array1[0].length && array1[x][y] !== array2[x][y]) {
+                        array1[x][y] = array2[x][y];
+                        queue.push({ x, y });
                     }
                 }
             }
@@ -101,7 +91,7 @@ export class DetectionDifferenceService {
             for (let j = 0; j < array1[i].length; j++) {
                 if (array1[i][j] !== array2[i][j]) {
                     differenceCount++;
-                    this.populateNeighborhood([array1, array2], { i, j }, radius);
+                    this.populateNeighborhood([array1, array2], { x: i, y: j }, radius);
                 }
             }
         }
@@ -109,11 +99,11 @@ export class DetectionDifferenceService {
         return differenceCount;
     }
 
-    diffrencesMatrix(array1: number[][], array2: number[][], radius: number): number[][] {
+    differencesMatrix(array1: number[][], array2: number[][], radius: number): number[][] {
         const height = array1.length;
         const width = array1[0].length;
 
-        const differenceMatrix = this.createEmptyMatrix(height, width, emptyPixelValue);
+        const differenceMatrix = this.createEmptyMatrix(height, width, this.emptyPixelValue);
         const differencesCoordinatesArray = [];
         let differencesCoordinatesArraySize = 0;
         for (let i = 0; i < height; i++) {
@@ -141,7 +131,7 @@ export class DetectionDifferenceService {
                 const coordX = differencesCoordinatesArray[i] + radiusCoordinatesArray[k];
                 const coordY = differencesCoordinatesArray[i + 1] + radiusCoordinatesArray[k + 1];
                 if (coordX >= 0 && coordY >= 0 && coordX < height && coordY < width) {
-                    if (differenceMatrix[coordX][coordY] === emptyPixelValue) {
+                    if (differenceMatrix[coordX][coordY] === this.emptyPixelValue) {
                         differenceMatrix[coordX][coordY] = array2[coordX][coordY];
                     }
                 }
@@ -160,8 +150,8 @@ export class DetectionDifferenceService {
         const data = imageData.data;
         for (let i = 0; i < differenceMatrix.length; i++) {
             for (let j = 0; j < differenceMatrix[0].length; j++) {
-                const index = (i * differenceMatrix[0].length + j) * pixelDataSize;
-                if (differenceMatrix[i][j] !== emptyPixelValue) {
+                const index = (i * differenceMatrix[0].length + j) * this.pixelDataSize;
+                if (differenceMatrix[i][j] !== this.emptyPixelValue) {
                     data[index] = 0;
                     data[index + 1] = 0;
                     data[index + 2] = 0;
@@ -189,7 +179,7 @@ export class DetectionDifferenceService {
         let differentPixelCounter = 0;
         for (let i = 0; i < this.pictureDimensions.height; i++) {
             for (let j = 0; j < this.pictureDimensions.width; j++) {
-                if (differenceMatrix[i][j] !== emptyPixelValue) {
+                if (differenceMatrix[i][j] !== this.emptyPixelValue) {
                     differentPixelCounter++;
                 }
             }
@@ -200,7 +190,7 @@ export class DetectionDifferenceService {
     }
 
     extractDifference(differenceMatrix: number[][], xCoord: number, yCoord: number) {
-        const result = this.createEmptyMatrix(differenceMatrix.length, differenceMatrix[0].length, emptyPixelValue);
+        const result = this.createEmptyMatrix(differenceMatrix.length, differenceMatrix[0].length, this.emptyPixelValue);
         const difference = this.findDifference(differenceMatrix, yCoord, xCoord);
         for (const [x, y] of difference) {
             result[x][y] = 1;
@@ -212,13 +202,13 @@ export class DetectionDifferenceService {
         const difference: [number, number][] = [];
         const visited = this.createEmptyMatrix(differenceMatrix.length, differenceMatrix[0].length, 0);
         const directions = [
-            [negativeDifferenceCoord, 0],
-            [0, positiveDifferenceCoord],
-            [positiveDifferenceCoord, 0],
-            [0, negativeDifferenceCoord],
+            [this.negativeDifferenceCoord, 0],
+            [0, this.positiveDifferenceCoord],
+            [this.positiveDifferenceCoord, 0],
+            [0, this.negativeDifferenceCoord],
         ];
 
-        if (differenceMatrix[yCoord][xCoord] !== emptyPixelValue) {
+        if (differenceMatrix[yCoord][xCoord] !== this.emptyPixelValue) {
             const stack = [[yCoord, xCoord]];
             while (stack.length > 0) {
                 const curr = stack.shift();
@@ -235,7 +225,7 @@ export class DetectionDifferenceService {
                             nx < differenceMatrix.length &&
                             ny >= 0 &&
                             ny < differenceMatrix[0].length &&
-                            differenceMatrix[nx][ny] !== emptyPixelValue
+                            differenceMatrix[nx][ny] !== this.emptyPixelValue
                         ) {
                             stack.push([nx, ny]);
                         }

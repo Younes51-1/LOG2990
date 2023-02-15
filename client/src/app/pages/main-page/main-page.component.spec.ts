@@ -44,7 +44,7 @@ describe('MainPageComponent', () => {
 
     it('should have game logo', () => {
         const image = fixture.debugElement.nativeElement.querySelector('img');
-        expect(image.src).toContain('/assets/logo.png');
+        expect(image.src).toContain('/assets/pictures/logo.png');
     });
 
     it('should have configuration button', () => {

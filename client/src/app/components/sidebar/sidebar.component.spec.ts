@@ -5,14 +5,8 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { Location } from '@angular/common';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
-import { UserGame } from '@app/interfaces/user-game';
-import { GameData } from '@app/interfaces/game-data';
+import { GameData, UserGame } from '@app/interfaces/game';
 import { By } from '@angular/platform-browser';
-
-const differenceMatrix: number[][] = [[]];
-const gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulte: '', soloBestTimes: [], vsBestTimes: [] };
-const gameData: GameData = { gameForm, differenceMatrix };
-const userGame: UserGame = { username: '', gameData, nbDifferenceFound: 0, timer: 0 };
 
 @NgModule({
     imports: [MatDialogModule, HttpClientModule],
@@ -31,6 +25,11 @@ describe('SidebarComponent', () => {
     });
 
     beforeEach(() => {
+        const differenceMatrix: number[][] = [[]];
+        const gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulte: '', soloBestTimes: [], vsBestTimes: [] };
+        const gameData: GameData = { gameForm, differenceMatrix };
+        const userGame: UserGame = { username: '', gameData, nbDifferenceFound: 0, timer: 0 };
+
         fixture = TestBed.createComponent(SidebarComponent);
         component = fixture.componentInstance;
         component.userGame = userGame;
