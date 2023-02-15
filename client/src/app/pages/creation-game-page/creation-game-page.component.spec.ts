@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialog, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -6,14 +7,46 @@ import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.
 import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
 import { CreationGamePageComponent } from '@app/pages/creation-game-page/creation-game-page.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { CommunicationService } from '@app/services/communicationService/communication.service';
 import { of } from 'rxjs';
+import SpyObj = jasmine.SpyObj;
 
 describe('CreationGamePageComponent', () => {
     let component: CreationGamePageComponent;
     let fixture: ComponentFixture<CreationGamePageComponent>;
     let detectionDifferenceService: DetectionDifferenceService;
+    let communicationServiceSpy: SpyObj<CommunicationService>;
 
     beforeEach(async () => {
+        communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getAllGames']);
+        communicationServiceSpy.getAllGames.and.returnValue(
+            of([
+                {
+                    name: 'Find the Differences 1',
+                    nbDifference: 10,
+                    image1url: 'https://example.com/image1.jpg',
+                    image2url: 'https://example.com/image2.jpg',
+                    difficulte: 'easy',
+                    soloBestTimes: [
+                        { name: 'player1', time: 200 },
+                        { name: 'player2', time: 150 },
+                    ],
+                    vsBestTimes: [{ name: 'player1', time: 200 }],
+                },
+                {
+                    name: 'Find the Differences 2',
+                    nbDifference: 15,
+                    image1url: 'https://example.com/image3.jpg',
+                    image2url: 'https://example.com/image4.jpg',
+                    difficulte: 'medium',
+                    soloBestTimes: [
+                        { name: 'player3', time: 300 },
+                        { name: 'player4', time: 250 },
+                    ],
+                    vsBestTimes: [{ name: 'player3', time: 200 }],
+                },
+            ]),
+        );
         await TestBed.configureTestingModule({
             imports: [MatDialogModule, RouterTestingModule, HttpClientModule, BrowserAnimationsModule],
             declarations: [CreationGamePageComponent],
@@ -27,6 +60,10 @@ describe('CreationGamePageComponent', () => {
                     },
                 },
                 DetectionDifferenceService,
+                {
+                    provide: CommunicationService,
+                    useValue: communicationServiceSpy,
+                },
             ],
         }).compileComponents();
     });
@@ -148,6 +185,38 @@ describe('CreationGamePageComponent', () => {
         component.runDetectionSystem();
         tick();
         expect(spy).toHaveBeenCalled();
+    }));
+
+    it('should not open Differences Dialog if image2 has no content', fakeAsync(() => {
+        const spy = spyOn(component, 'openDifferencesDialog');
+        detectionDifferenceService = TestBed.inject(DetectionDifferenceService);
+        spyOn(detectionDifferenceService, 'readThenConvertImage').and.returnValue(
+            Promise.resolve([
+                [0, 0],
+                [0, 0],
+            ]),
+        );
+        component.image1 = { value: 'image_2_diff.bmp' } as HTMLInputElement;
+        component.image2 = { value: undefined } as unknown as HTMLInputElement;
+        component.runDetectionSystem();
+        tick();
+        expect(spy).not.toHaveBeenCalled();
+    }));
+
+    it('should not open Differences Dialog if image1 has no content', fakeAsync(() => {
+        const spy = spyOn(component, 'openDifferencesDialog');
+        detectionDifferenceService = TestBed.inject(DetectionDifferenceService);
+        spyOn(detectionDifferenceService, 'readThenConvertImage').and.returnValue(
+            Promise.resolve([
+                [0, 0],
+                [0, 0],
+            ]),
+        );
+        component.image2 = { value: 'image_2_diff.bmp' } as HTMLInputElement;
+        component.image1 = { value: undefined } as unknown as HTMLInputElement;
+        component.runDetectionSystem();
+        tick();
+        expect(spy).not.toHaveBeenCalled();
     }));
 
     it('save name game should set nameGame', () => {
