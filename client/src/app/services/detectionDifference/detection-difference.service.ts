@@ -28,7 +28,7 @@ export class DetectionDifferenceService {
     }
 
     convertImageToMatrix(buffer: ArrayBuffer): number[][] {
-        const offset = new DataView(buffer).getInt32(OffsetValues.DHP, true);
+        const offset = new DataView(buffer).getInt32(OffsetValues.OFFSET, true);
         const width = Math.abs(new DataView(buffer).getInt32(OffsetValues.WIDTH, true));
         const height = Math.abs(new DataView(buffer).getInt32(OffsetValues.HEIGHT, true));
 

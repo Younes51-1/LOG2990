@@ -13,17 +13,17 @@ import { of } from 'rxjs';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import SpyObj = jasmine.SpyObj;
 
-const differenceMatrix: number[][] = [[]];
-const gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulte: '', soloBestTimes: [], vsBestTimes: [] };
-const gameData: GameData = { gameForm, differenceMatrix };
-const userGame: UserGame = { username: '', gameData, nbDifferenceFound: 0, timer: 0 };
-
 @NgModule({
     imports: [MatDialogModule, HttpClientModule],
 })
 export class DynamicTestModule {}
 
 describe('GamePageComponent', () => {
+    const differenceMatrix: number[][] = [[]];
+    const gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulte: '', soloBestTimes: [], vsBestTimes: [] };
+    const gameData: GameData = { gameForm, differenceMatrix };
+    const userGame: UserGame = { username: '', gameData, nbDifferenceFound: 0, timer: 0 };
+
     let component: GamePageComponent;
     let fixture: ComponentFixture<GamePageComponent>;
     let communicationServiceSpy: SpyObj<CommunicationService>;
