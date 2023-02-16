@@ -21,6 +21,7 @@ export class ConfigSelectPageComponent implements OnInit {
         cssEase: 'linear',
         dots: true,
         appendArrows: 'ngx-slick-carousel',
+        infinite: false,
     };
 
     constructor(private readonly communicationService: CommunicationService, private route: ActivatedRoute) {
