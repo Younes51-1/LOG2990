@@ -31,3 +31,7 @@ img {
 section {
     display: flex;
 }
+
+* {
+    user-select: none;
+}
