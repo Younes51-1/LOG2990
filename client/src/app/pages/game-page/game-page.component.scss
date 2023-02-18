@@ -2,6 +2,7 @@
     font-family: 'Verdana', sans-serif, monospace;
     text-align: center;
     font-size: 110%;
+    user-select: none;
 }
 
 .container {
@@ -30,8 +31,4 @@ img {
 
 section {
     display: flex;
-}
-
-* {
-    user-select: none;
 }
