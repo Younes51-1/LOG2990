@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { PageKeys } from 'src/assets/variables/game-card-options';
 import { GameForm } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
+import { PageKeys } from 'src/assets/variables/game-card-options';
 
 @Component({
     selector: 'app-config-select-page',
@@ -31,6 +31,17 @@ export class ConfigSelectPageComponent implements OnInit {
     ngOnInit() {
         this.pageType = this.route.snapshot.data.page;
         this.initializeImgSource();
+    }
+
+    removeSlide(name: string) {
+        this.communicationService.deleteGame(name).subscribe();
+        this.slides = this.slides.filter((slide) => slide.name !== name);
+    }
+
+    deleteNotify(name: string): void {
+        if (this.pageType === PageKeys.Config) {
+            this.removeSlide(name);
+        }
     }
 
     getSlidesFromServer(): void {
