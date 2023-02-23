@@ -5,7 +5,9 @@ import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.
 import { NewGame } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
 import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
-import { OffsetValues, AsciiLetterValue, BIT_PER_PIXEL, PossibleRadius } from 'src/assets/variables/images-values';
+import { AsciiLetterValue, BIT_PER_PIXEL, OffsetValues, PossibleRadius } from 'src/assets/variables/images-values';
+import { MouseButton } from 'src/assets/variables/mouse-button';
+import { Rectangle } from 'src/assets/variables/shapes';
 
 @Component({
     selector: 'app-creation-game-page',
@@ -18,9 +20,13 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     @ViewChild('images1et2', { static: false }) inputImages1et2: ElementRef;
     @ViewChild('canvas1', { static: false }) canvas1: ElementRef<HTMLCanvasElement>;
     @ViewChild('canvas2', { static: false }) canvas2: ElementRef<HTMLCanvasElement>;
+    @ViewChild('canvasForeground1', { static: false }) canvasForeground1: ElementRef<HTMLCanvasElement>;
+    @ViewChild('canvasForeground2', { static: false }) canvasForeground2: ElementRef<HTMLCanvasElement>;
 
     context1: CanvasRenderingContext2D;
     context2: CanvasRenderingContext2D;
+    contextForeground1: CanvasRenderingContext2D;
+    contextForeground2: CanvasRenderingContext2D;
 
     image1: HTMLInputElement;
     image2: HTMLInputElement;
@@ -74,6 +80,10 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         if (context1Init) this.context1 = context1Init;
         const context2Init = this.canvas2.nativeElement.getContext('2d');
         if (context2Init) this.context2 = context2Init;
+        const contextForeground1Init = this.canvasForeground1.nativeElement.getContext('2d');
+        if (contextForeground1Init) this.contextForeground1 = contextForeground1Init;
+        const contextForeground2Init = this.canvasForeground2.nativeElement.getContext('2d');
+        if (contextForeground2Init) this.contextForeground2 = contextForeground2Init;
     }
 
     updateImageDisplay(event: Event, input: HTMLInputElement): void {
@@ -202,27 +212,67 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         });
     }
 
-    reset(input: HTMLInputElement): void {
+    reset(input: HTMLElement): void {
         switch (input) {
             case this.inputImage1.nativeElement: {
                 this.inputImage1.nativeElement.value = null;
-                this.context1.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas1.nativeElement.height);
+                this.context1.clearRect(0, 0, this.width, this.height);
                 break;
             }
             case this.inputImage2.nativeElement: {
                 this.inputImage2.nativeElement.value = null;
-                this.context2.clearRect(0, 0, this.canvas2.nativeElement.width, this.canvas2.nativeElement.height);
+                this.context2.clearRect(0, 0, this.width, this.height);
                 break;
             }
             case this.inputImages1et2.nativeElement: {
                 this.inputImage1.nativeElement.value = null;
                 this.inputImage2.nativeElement.value = null;
                 this.inputImages1et2.nativeElement.value = null;
-                this.context1.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas1.nativeElement.height);
-                this.context2.clearRect(0, 0, this.canvas2.nativeElement.width, this.canvas2.nativeElement.height);
+                this.context1.clearRect(0, 0, this.width, this.height);
+                this.context2.clearRect(0, 0, this.width, this.height);
+                break;
+            }
+            case this.canvas1.nativeElement: {
+                this.contextForeground1.clearRect(0, 0, this.width, this.height);
+                break;
+            }
+            case this.canvas2.nativeElement: {
+                this.contextForeground2.clearRect(0, 0, this.width, this.height);
                 break;
             }
             // No default
+        }
+    }
+
+    duplicateForeground(input: HTMLElement) {
+        switch (input) {
+            case this.canvas1.nativeElement: {
+                this.contextForeground2.drawImage(this.canvasForeground1.nativeElement, this.width, this.height);
+                break;
+            }
+            case this.canvas2.nativeElement: {
+                this.contextForeground1.drawImage(this.canvasForeground2.nativeElement, this.width, this.height);
+                break;
+            }
+            // No default
+        }
+    }
+
+    swapForegrounds() {
+        const canvasTemp = this.canvasForeground1.nativeElement;
+        this.contextForeground1.drawImage(this.canvasForeground2.nativeElement, this.width, this.height);
+        this.contextForeground2.drawImage(canvasTemp, this.width, this.height);
+    }
+
+    drawRectangle(event: MouseEvent) {
+        // selon la position du click choisir sur quel avant-plan on travaille
+        const rectangle: Rectangle = { location: { x: 0, y: 0 }, size: { width: this.width, height: this.height }, lineWidth: 2, color: 'maroon' };
+        if (event.button === MouseButton.Left) {
+            rectangle.location = { x: event.offsetX, y: event.offsetY };
+            this.contextForeground1.fillStyle = 'white';
+            this.contextForeground1.lineWidth = rectangle.lineWidth;
+            this.contextForeground1.strokeStyle = 'black';
+            this.contextForeground1.strokeRect(rectangle.location.x, rectangle.location.y, rectangle.size.width, rectangle.size.height);
         }
     }
 

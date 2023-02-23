@@ -1,41 +1,57 @@
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.1/css/all.css" crossorigin="anonymous" />
 <div class="container">
     <header>
-        <button class="config-button" routerLink='/config'>
+        <button class="config-button" routerLink="/config">
             <i class="fa fa-cog fa-3x" aria-hidden="true"></i>
         </button>
-        <img src="../../../assets/pictures/creation.png">
+        <img src="../../../assets/pictures/creation.png" />
     </header>
+    <p><button class="button" (click)="drawRectangle($event)">Rectangle</button></p>
     <p>* Les images doivent posséder le format 24-bit bitmap (BPM) avec une taille de 640x480 px *</p>
-    <p>Téléverser deux images simultanément : <input #images1et2 type="file" accept="image/bmp"
-            (change)="verifyImageFormat($event, images1et2)" /></p>
+    <p>
+        Téléverser deux images simultanément : <input #images1et2 type="file" accept="image/bmp" (change)="verifyImageFormat($event, images1et2)" />
+    </p>
     <section>
         <div>
-            <p>Téléverser l'image originale : <input #image1 type="file" accept="image/bmp"
-                    (change)="verifyImageFormat($event, image1)" /></p>
+            <p>Téléverser l'image originale : <input #image1 type="file" accept="image/bmp" (change)="verifyImageFormat($event, image1)" /></p>
             <canvas #canvas1 [attr.width]="width" [attr.height]="height"></canvas>
             <p><button class="button" (click)="reset(image1)">Réinitialiser l'image</button></p>
+            <p>
+                <button class="button" (click)="reset(canvas1)">Réinitialiser l'avant-plan</button>
+                <button class="button" (click)="duplicateForeground(canvas1)">Dupliquer l'avant-plan</button>
+            </p>
         </div>
         <div>
-            <p>Téléverser l'image modifiée : <input #image2 type="file" accept="image/bmp"
-                    (change)="verifyImageFormat($event, image2)" /></p>
+            <p>Téléverser l'image modifiée : <input #image2 type="file" accept="image/bmp" (change)="verifyImageFormat($event, image2)" /></p>
             <canvas #canvas2 [attr.width]="width" [attr.height]="height"></canvas>
             <p><button class="button" (click)="reset(image2)">Réinitialiser l'image</button></p>
+            <p>
+                <button class="button" (click)="reset(canvas2)">Réinitialiser l'avant-plan</button>
+                <button class="button" (click)="duplicateForeground(canvas2)">Dupliquer l'avant-plan</button>
+            </p>
         </div>
     </section>
     <button class="button" (click)="reset(images1et2)">Réinitialiser les deux images simultanément</button>
+    <button class="button" (click)="swapForegrounds()">Intervertir les deux avant-plans</button>
     <section>
         <fieldset>
             <legend>Paramètres du rayon d'élargissement</legend>
             <div *ngFor="let radius of possibleRadius">
-                <input *ngIf="radius !== 3" type="radio" #rayon{{radius}} name="choixRayon" value="{{radius}}"
-                    (click)="updateRadius(radius)" />
-                <input *ngIf="radius === 3" type="radio" #rayon{{radius}} name="choixRayon" value="{{radius}}"
-                    (click)="updateRadius(radius)" checked />
+                <input *ngIf="radius !== 3" type="radio" #rayon{{radius}} name="choixRayon" value="{{ radius }}" (click)="updateRadius(radius)" />
+                <input
+                    *ngIf="radius === 3"
+                    type="radio"
+                    #rayon{{radius}}
+                    name="choixRayon"
+                    value="{{ radius }}"
+                    (click)="updateRadius(radius)"
+                    checked
+                />
                 <label for="rayon{{ radius }}">{{ radius }} </label>
             </div>
         </fieldset>
-        <button *ngIf="image1?.value !== '' && image2?.value !== '' || images1et2?.value !== ''" class="button"
-            (click)="runDetectionSystem()">Visualiser les différence</button>
+        <button *ngIf="(image1?.value !== '' && image2?.value !== '') || images1et2?.value !== ''" class="button" (click)="runDetectionSystem()">
+            Visualiser les différence
+        </button>
     </section>
 </div>
