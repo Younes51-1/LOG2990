@@ -7,6 +7,7 @@
         </button>
         <img src="../../../assets/pictures/creation.png" />
     </header>
+    Updated upstream
     <div class="tools">
         <button class="button" (click)="enableMode('pencil')">Crayon</button>
         <button class="button" (click)="enableMode('rectangle')">Rectangle</button>
@@ -19,17 +20,19 @@
     <section>
         <div>
             <p>Téléverser l'image originale : <input #image1 type="file" accept="image/bmp" (change)="verifyImageFormat($event, image1)" /></p>
-            <canvas
-                #canvas1
-                (mousedown)="handleMouseDown($event)"
-                (mousemove)="handleMouseMove($event)"
-                (mouseup)="handleMouseUp()"
-                (mouseleave)="handleMouseLeave($event)"
-                (mouseenter)="handleMouseEnter($event)"
-                [attr.width]="width"
-                [attr.height]="height"
-            >
-            </canvas>
+            <div>
+                <canvas #canvasForeground1 [attr.width]="width" [attr.height]="height" style="display: none"></canvas>
+                <canvas
+                    #canvas1
+                    (mousedown)="handleMouseDown($event, canvas1)"
+                    (mousemove)="handleMouseMove($event)"
+                    (mouseup)="handleMouseUp()"
+                    (mouseleave)="handleMouseLeave($event)"
+                    (mouseenter)="handleMouseEnter($event)"
+                    [attr.width]="width"
+                    [attr.height]="height"
+                ></canvas>
+            </div>
             <p><button class="button" (click)="reset(image1)">Réinitialiser l'image</button></p>
             <p>
                 <button class="button" (click)="reset(canvas1)">Réinitialiser l'avant-plan</button>
@@ -38,16 +41,19 @@
         </div>
         <div>
             <p>Téléverser l'image modifiée : <input #image2 type="file" accept="image/bmp" (change)="verifyImageFormat($event, image2)" /></p>
-            <canvas
-                #canvas2
-                (mousedown)="handleMouseDown($event)"
-                (mousemove)="handleMouseMove($event)"
-                (mouseup)="handleMouseUp()"
-                (mouseleave)="handleMouseLeave($event)"
-                (mouseenter)="handleMouseEnter($event)"
-                [attr.width]="width"
-                [attr.height]="height"
-            ></canvas>
+            <div>
+                <canvas #canvasForeground2 [attr.width]="width" [attr.height]="height" style="display: none"></canvas>
+                <canvas
+                    #canvas2
+                    (mousedown)="handleMouseDown($event, canvas2)"
+                    (mousemove)="handleMouseMove($event)"
+                    (mouseup)="handleMouseUp()"
+                    (mouseleave)="handleMouseLeave($event)"
+                    (mouseenter)="handleMouseEnter($event)"
+                    [attr.width]="width"
+                    [attr.height]="height"
+                ></canvas>
+            </div>
             <p><button class="button" (click)="reset(image2)">Réinitialiser l'image</button></p>
             <p>
                 <button class="button" (click)="reset(canvas2)">Réinitialiser l'avant-plan</button>

@@ -60,6 +60,8 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     flipImage: boolean = false;
 
     dialogRef: MatDialogRef<ModalDialogComponent>;
+    urlPath1: string;
+    urlPath2: string;
 
     // eslint-disable-next-line max-params -- needed for constructor
     constructor(
@@ -105,18 +107,21 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
                 const urlPath = URL.createObjectURL(file[0]);
                 switch (input) {
                     case this.inputImage1.nativeElement: {
-                        this.updateContext(this.context1, urlPath);
+                        this.urlPath1 = urlPath;
+                        this.updateContext(this.context1, this.canvasForeground1.nativeElement, this.urlPath1);
                         this.image1 = this.inputImage1.nativeElement;
                         break;
                     }
                     case this.inputImage2.nativeElement: {
-                        this.updateContext(this.context2, urlPath);
+                        this.urlPath2 = urlPath;
+                        this.updateContext(this.context2, this.canvasForeground2.nativeElement, this.urlPath2);
                         this.image2 = this.inputImage2.nativeElement;
                         break;
                     }
                     case this.inputImages1et2.nativeElement: {
-                        this.updateContext(this.context1, urlPath);
-                        this.updateContext(this.context2, urlPath);
+                        this.urlPath1 = this.urlPath2 = urlPath;
+                        this.updateContext(this.context1, this.canvasForeground1.nativeElement, this.urlPath1);
+                        this.updateContext(this.context2, this.canvasForeground2.nativeElement, this.urlPath2);
                         this.image1 = this.image2 = this.inputImages1et2.nativeElement;
                         break;
                     }
@@ -126,11 +131,12 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         }
     }
 
-    updateContext(context: CanvasRenderingContext2D, background: string): void {
+    updateContext(context: CanvasRenderingContext2D, canvasForeground: HTMLCanvasElement, background: string): void {
         const image = new Image();
         image.src = background;
         image.onload = () => {
             context.drawImage(image, 0, 0, this.width, this.height);
+            context.drawImage(canvasForeground, 0, 0, this.width, this.height);
         };
     }
 
@@ -228,28 +234,39 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         switch (input) {
             case this.inputImage1.nativeElement: {
                 this.inputImage1.nativeElement.value = null;
+                this.urlPath1 = '';
                 this.context1.clearRect(0, 0, this.width, this.height);
+                this.context1.drawImage(this.canvasForeground1.nativeElement, 0, 0, this.width, this.height);
                 break;
             }
             case this.inputImage2.nativeElement: {
                 this.inputImage2.nativeElement.value = null;
+                this.urlPath2 = '';
                 this.context2.clearRect(0, 0, this.width, this.height);
+                this.context2.drawImage(this.canvasForeground2.nativeElement, 0, 0, this.width, this.height);
                 break;
             }
             case this.inputImages1et2.nativeElement: {
                 this.inputImage1.nativeElement.value = null;
                 this.inputImage2.nativeElement.value = null;
                 this.inputImages1et2.nativeElement.value = null;
+                this.urlPath1 = this.urlPath2 = '';
                 this.context1.clearRect(0, 0, this.width, this.height);
                 this.context2.clearRect(0, 0, this.width, this.height);
+                this.context1.drawImage(this.canvasForeground1.nativeElement, 0, 0, this.width, this.height);
+                this.context2.drawImage(this.canvasForeground2.nativeElement, 0, 0, this.width, this.height);
                 break;
             }
             case this.canvas1.nativeElement: {
                 this.contextForeground1.clearRect(0, 0, this.width, this.height);
+                this.context1.clearRect(0, 0, this.width, this.height);
+                this.updateContext(this.context1, this.canvasForeground1.nativeElement, this.urlPath1);
                 break;
             }
             case this.canvas2.nativeElement: {
                 this.contextForeground2.clearRect(0, 0, this.width, this.height);
+                this.context2.clearRect(0, 0, this.width, this.height);
+                this.updateContext(this.context2, this.canvasForeground2.nativeElement, this.urlPath2);
                 break;
             }
             // No default
@@ -259,11 +276,19 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     duplicateForeground(input: HTMLElement) {
         switch (input) {
             case this.canvas1.nativeElement: {
-                this.contextForeground2.drawImage(this.canvasForeground1.nativeElement, this.width, this.height);
+                this.contextForeground2.clearRect(0, 0, this.width, this.height);
+                this.context2.clearRect(0, 0, this.width, this.height);
+                this.updateContext(this.context2, this.canvasForeground2.nativeElement, this.urlPath2);
+                this.contextForeground2.drawImage(this.canvasForeground1.nativeElement, 0, 0, this.width, this.height);
+                this.context2.drawImage(this.canvasForeground1.nativeElement, 0, 0, this.width, this.height);
                 break;
             }
             case this.canvas2.nativeElement: {
-                this.contextForeground1.drawImage(this.canvasForeground2.nativeElement, this.width, this.height);
+                this.contextForeground1.clearRect(0, 0, this.width, this.height);
+                this.context1.clearRect(0, 0, this.width, this.height);
+                this.updateContext(this.context1, this.canvasForeground1.nativeElement, this.urlPath1);
+                this.contextForeground1.drawImage(this.canvasForeground2.nativeElement, 0, 0, this.width, this.height);
+                this.context1.drawImage(this.canvasForeground2.nativeElement, 0, 0, this.width, this.height);
                 break;
             }
             // No default
@@ -271,20 +296,47 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     }
 
     swapForegrounds() {
-        const canvasTemp = this.canvasForeground1.nativeElement;
-        this.contextForeground1.drawImage(this.canvasForeground2.nativeElement, this.width, this.height);
-        this.contextForeground2.drawImage(canvasTemp, this.width, this.height);
+        const canvasTemp = document.createElement('canvas');
+        canvasTemp.width = this.width;
+        canvasTemp.height = this.height;
+        const contextTemp = canvasTemp.getContext('2d');
+        contextTemp?.drawImage(this.canvasForeground1.nativeElement, 0, 0);
+
+        this.contextForeground1.clearRect(0, 0, this.width, this.height);
+        this.context1.clearRect(0, 0, this.width, this.height);
+        this.updateContext(this.context1, this.canvasForeground1.nativeElement, this.urlPath1);
+        this.contextForeground1.drawImage(this.canvasForeground2.nativeElement, 0, 0, this.width, this.height);
+        this.context1.drawImage(this.canvasForeground2.nativeElement, 0, 0, this.width, this.height);
+
+        this.contextForeground2.clearRect(0, 0, this.width, this.height);
+        this.context2.clearRect(0, 0, this.width, this.height);
+        this.updateContext(this.context2, this.canvasForeground2.nativeElement, this.urlPath2);
+        this.contextForeground2.drawImage(canvasTemp, 0, 0, this.width, this.height);
+        this.context2.drawImage(canvasTemp, 0, 0, this.width, this.height);
     }
 
-    drawRectangle(event: MouseEvent) {
-        // selon la position du click choisir sur quel avant-plan on travaille
-        const rectangle: Rectangle = { location: { x: 0, y: 0 }, size: { width: this.width, height: this.height }, lineWidth: 2, color: 'maroon' };
-        if (event.button === MouseButton.Left) {
-            rectangle.location = { x: event.offsetX, y: event.offsetY };
-            this.contextForeground1.fillStyle = 'white';
-            this.contextForeground1.lineWidth = rectangle.lineWidth;
-            this.contextForeground1.strokeStyle = 'black';
-            this.contextForeground1.strokeRect(rectangle.location.x, rectangle.location.y, rectangle.size.width, rectangle.size.height);
+    drawRectangle(mousePos: Vec2, input: HTMLCanvasElement) {
+        const rectangle: Rectangle = {
+            location: { x: mousePos.x, y: mousePos.y },
+            size: { width: 20, height: 40 },
+            lineWidth: 2,
+            color: 'maroon',
+        };
+        switch (input) {
+            case this.canvas1.nativeElement: {
+                this.contextForeground1.lineWidth = rectangle.lineWidth;
+                this.contextForeground1.strokeStyle = rectangle.color;
+                this.contextForeground1.strokeRect(rectangle.location.x, rectangle.location.y, rectangle.size.width, rectangle.size.height);
+                this.context1.drawImage(this.canvasForeground1.nativeElement, 0, 0, this.width, this.height);
+                break;
+            }
+            case this.canvas2.nativeElement: {
+                this.contextForeground2.lineWidth = rectangle.lineWidth;
+                this.contextForeground2.strokeStyle = 'green';
+                this.contextForeground2.strokeRect(rectangle.location.x, rectangle.location.y, rectangle.size.width, rectangle.size.height);
+                this.context2.drawImage(this.canvasForeground2.nativeElement, 0, 0, this.width, this.height);
+                break;
+            }
         }
     }
 
@@ -312,13 +364,15 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         context.stroke();
     }
 
-    handleMouseDown(event: MouseEvent) {
+    handleMouseDown(event: MouseEvent, canvas: HTMLCanvasElement) {
         if (event.button === MouseButton.Left) {
             if (this.drawMode === DrawModes.PENCIL) {
                 const context = this.context1; // remplacer par le contexte approprie
                 this.mousePosition = { x: event.offsetX, y: event.offsetY };
                 this.mousePressed = true;
                 this.drawWithPencil(context, this.mousePosition, this.mousePosition);
+            } else if (this.drawMode === DrawModes.RECTANGLE) {
+                this.drawRectangle(this.mousePosition, canvas);
             }
         }
     }
