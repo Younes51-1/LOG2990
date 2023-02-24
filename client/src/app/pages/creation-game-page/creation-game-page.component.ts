@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
@@ -5,9 +6,16 @@ import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.
 import { NewGame } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
 import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
+import { Vec2 } from 'src/app/interfaces/vec2';
 import { AsciiLetterValue, BIT_PER_PIXEL, OffsetValues, PossibleRadius } from 'src/assets/variables/images-values';
 import { MouseButton } from 'src/assets/variables/mouse-button';
 import { Rectangle } from 'src/assets/variables/shapes';
+
+enum DrawModes {
+    PENCIL = 'pencil',
+    RECTANGLE = 'rectangle',
+    ERASER = 'eraser',
+}
 
 @Component({
     selector: 'app-creation-game-page',
@@ -27,6 +35,12 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     context2: CanvasRenderingContext2D;
     contextForeground1: CanvasRenderingContext2D;
     contextForeground2: CanvasRenderingContext2D;
+    mousePosition: Vec2;
+    pencilRadius: number;
+
+    drawMode: string = DrawModes.ERASER;
+    mousePressed: boolean = false;
+    mouseInCanvas: boolean = true;
 
     image1: HTMLInputElement;
     image2: HTMLInputElement;
@@ -80,10 +94,8 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         if (context1Init) this.context1 = context1Init;
         const context2Init = this.canvas2.nativeElement.getContext('2d');
         if (context2Init) this.context2 = context2Init;
-        const contextForeground1Init = this.canvasForeground1.nativeElement.getContext('2d');
-        if (contextForeground1Init) this.contextForeground1 = contextForeground1Init;
-        const contextForeground2Init = this.canvasForeground2.nativeElement.getContext('2d');
-        if (contextForeground2Init) this.contextForeground2 = contextForeground2Init;
+
+        this.mousePosition = { x: 0, y: 0 };
     }
 
     updateImageDisplay(event: Event, input: HTMLInputElement): void {
@@ -278,6 +290,83 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
 
     convertImageToB64Url(canvas: HTMLCanvasElement): string {
         return canvas.toDataURL().split(',')[1];
+    }
+
+    enableMode(mode: string) {
+        this.drawMode = mode;
+        this.mousePressed = false;
+    }
+
+    drawWithPencil(context: CanvasRenderingContext2D, start: Vec2, finish: Vec2) {
+        context.lineWidth = this.pencilRadius * 2;
+        context.lineJoin = 'round';
+        context.beginPath();
+        context.arc(start.x, start.y, this.pencilRadius, 0, 2 * Math.PI, true);
+        const oldCoords: Vec2 = { x: this.mousePosition.x, y: this.mousePosition.y };
+        this.mousePosition = { x: finish.x, y: finish.y };
+        context.arc(this.mousePosition.x, this.mousePosition.y, this.pencilRadius, 0, 2 * Math.PI, true);
+        context.fill();
+        context.beginPath();
+        context.moveTo(oldCoords.x, oldCoords.y);
+        context.lineTo(this.mousePosition.x, this.mousePosition.y);
+        context.stroke();
+    }
+
+    handleMouseDown(event: MouseEvent) {
+        if (event.button === MouseButton.Left) {
+            if (this.drawMode === DrawModes.PENCIL) {
+                const context = this.context1; // remplacer par le contexte approprie
+                this.mousePosition = { x: event.offsetX, y: event.offsetY };
+                this.mousePressed = true;
+                this.drawWithPencil(context, this.mousePosition, this.mousePosition);
+            }
+        }
+    }
+
+    handleMouseMove(event: MouseEvent) {
+        if (event.button === MouseButton.Left) {
+            if (this.drawMode === DrawModes.PENCIL) {
+                const context = this.context1; // remplacer par le contexte approprie
+                this.pencilRadius = 4; // a configurer ailleurs
+                context.fillStyle = 'black';
+
+                if (this.mousePressed && this.mouseInCanvas) {
+                    const finish: Vec2 = { x: event.offsetX, y: event.offsetY };
+                    this.drawWithPencil(context, this.mousePosition, finish);
+                }
+            }
+        }
+    }
+
+    handleMouseLeave(event: MouseEvent) {
+        if (this.drawMode === DrawModes.PENCIL) {
+            if (this.mousePressed) {
+                const context = this.context1; // remplacer par le contexte approprie
+                const finish: Vec2 = { x: event.offsetX, y: event.offsetY };
+                this.drawWithPencil(context, this.mousePosition, finish);
+            }
+            this.mouseInCanvas = false;
+            this.mousePosition = { x: event.offsetX, y: event.offsetY };
+        }
+    }
+
+    handleMouseEnter(event: MouseEvent) {
+        if (this.drawMode === DrawModes.PENCIL) {
+            this.mousePosition = { x: event.offsetX, y: event.offsetY };
+            this.mouseInCanvas = true;
+            const leftClickPressed = 1;
+            if (event.buttons !== leftClickPressed) {
+                this.mousePressed = false;
+                // fin de l'action pour annuler-refaire
+                // attention au ctrl+Z si l'utilisateur lache la souris en dehors du canvas et ne re-entre pas
+                // (marquer la fin du dessin avant de ctrl+Z)
+            }
+        }
+    }
+
+    handleMouseUp() {
+        this.mousePressed = false;
+        // fin de l'action pour annuler-refaire
     }
 
     ngOnDestroy(): void {

@@ -1,12 +1,17 @@
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.1/css/all.css" crossorigin="anonymous" />
 <div class="container">
+    (mouseup)="handleMouseUp()"
     <header>
         <button class="config-button" routerLink="/config">
             <i class="fa fa-cog fa-3x" aria-hidden="true"></i>
         </button>
         <img src="../../../assets/pictures/creation.png" />
     </header>
-    <p><button class="button" (click)="drawRectangle($event)">Rectangle</button></p>
+    <div class="tools">
+        <button class="button" (click)="enableMode('pencil')">Crayon</button>
+        <button class="button" (click)="enableMode('rectangle')">Rectangle</button>
+        <button class="button" (click)="enableMode('eraser')">Efface</button>
+    </div>
     <p>* Les images doivent posséder le format 24-bit bitmap (BPM) avec une taille de 640x480 px *</p>
     <p>
         Téléverser deux images simultanément : <input #images1et2 type="file" accept="image/bmp" (change)="verifyImageFormat($event, images1et2)" />
@@ -14,7 +19,17 @@
     <section>
         <div>
             <p>Téléverser l'image originale : <input #image1 type="file" accept="image/bmp" (change)="verifyImageFormat($event, image1)" /></p>
-            <canvas #canvas1 [attr.width]="width" [attr.height]="height"></canvas>
+            <canvas
+                #canvas1
+                (mousedown)="handleMouseDown($event)"
+                (mousemove)="handleMouseMove($event)"
+                (mouseup)="handleMouseUp()"
+                (mouseleave)="handleMouseLeave($event)"
+                (mouseenter)="handleMouseEnter($event)"
+                [attr.width]="width"
+                [attr.height]="height"
+            >
+            </canvas>
             <p><button class="button" (click)="reset(image1)">Réinitialiser l'image</button></p>
             <p>
                 <button class="button" (click)="reset(canvas1)">Réinitialiser l'avant-plan</button>
@@ -23,7 +38,16 @@
         </div>
         <div>
             <p>Téléverser l'image modifiée : <input #image2 type="file" accept="image/bmp" (change)="verifyImageFormat($event, image2)" /></p>
-            <canvas #canvas2 [attr.width]="width" [attr.height]="height"></canvas>
+            <canvas
+                #canvas2
+                (mousedown)="handleMouseDown($event)"
+                (mousemove)="handleMouseMove($event)"
+                (mouseup)="handleMouseUp()"
+                (mouseleave)="handleMouseLeave($event)"
+                (mouseenter)="handleMouseEnter($event)"
+                [attr.width]="width"
+                [attr.height]="height"
+            ></canvas>
             <p><button class="button" (click)="reset(image2)">Réinitialiser l'image</button></p>
             <p>
                 <button class="button" (click)="reset(canvas2)">Réinitialiser l'avant-plan</button>
