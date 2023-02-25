@@ -1,13 +1,11 @@
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.1/css/all.css" crossorigin="anonymous" />
-<div class="container">
-    (mouseup)="handleMouseUp()"
+<div class="container" (mouseup)="handleMouseUp()">
     <header>
         <button class="config-button" routerLink="/config">
             <i class="fa fa-cog fa-3x" aria-hidden="true"></i>
         </button>
         <img src="../../../assets/pictures/creation.png" />
     </header>
-    Updated upstream
     <div class="tools">
         <button class="button" (click)="enableMode('pencil')">Crayon</button>
         <button class="button" (click)="enableMode('rectangle')">Rectangle</button>
@@ -21,14 +19,13 @@
         <div>
             <p>Téléverser l'image originale : <input #image1 type="file" accept="image/bmp" (change)="verifyImageFormat($event, image1)" /></p>
             <div>
-                <canvas #canvasForeground1 [attr.width]="width" [attr.height]="height" style="display: none"></canvas>
                 <canvas
                     #canvas1
-                    (mousedown)="handleMouseDown($event, canvas1)"
-                    (mousemove)="handleMouseMove($event)"
-                    (mouseup)="handleMouseUp()"
-                    (mouseleave)="handleMouseLeave($event)"
-                    (mouseenter)="handleMouseEnter($event)"
+                    (mousedown)="handleCanvasEvent('mousedown', $event, canvas1)"
+                    (mousemove)="handleCanvasEvent('mousemove', $event, canvas1)"
+                    (mouseup)="handleCanvasEvent('mouseup', $event, canvas1)"
+                    (mouseleave)="handleCanvasEvent('mouseleave', $event, canvas1)"
+                    (mouseenter)="handleCanvasEvent('mouseenter', $event, canvas1)"
                     [attr.width]="width"
                     [attr.height]="height"
                 ></canvas>
@@ -42,14 +39,13 @@
         <div>
             <p>Téléverser l'image modifiée : <input #image2 type="file" accept="image/bmp" (change)="verifyImageFormat($event, image2)" /></p>
             <div>
-                <canvas #canvasForeground2 [attr.width]="width" [attr.height]="height" style="display: none"></canvas>
                 <canvas
                     #canvas2
-                    (mousedown)="handleMouseDown($event, canvas2)"
-                    (mousemove)="handleMouseMove($event)"
-                    (mouseup)="handleMouseUp()"
-                    (mouseleave)="handleMouseLeave($event)"
-                    (mouseenter)="handleMouseEnter($event)"
+                    (mousedown)="handleCanvasEvent('mousedown', $event, canvas2)"
+                    (mousemove)="handleCanvasEvent('mousemove', $event, canvas2)"
+                    (mouseup)="handleCanvasEvent('mouseup', $event, canvas2)"
+                    (mouseleave)="handleCanvasEvent('mouseleave', $event, canvas2)"
+                    (mouseenter)="handleCanvasEvent('mouseenter', $event, canvas2)"
                     [attr.width]="width"
                     [attr.height]="height"
                 ></canvas>

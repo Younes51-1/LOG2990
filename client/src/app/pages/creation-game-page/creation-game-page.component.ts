@@ -28,8 +28,9 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     @ViewChild('images1et2', { static: false }) inputImages1et2: ElementRef;
     @ViewChild('canvas1', { static: false }) canvas1: ElementRef<HTMLCanvasElement>;
     @ViewChild('canvas2', { static: false }) canvas2: ElementRef<HTMLCanvasElement>;
-    @ViewChild('canvasForeground1', { static: false }) canvasForeground1: ElementRef<HTMLCanvasElement>;
-    @ViewChild('canvasForeground2', { static: false }) canvasForeground2: ElementRef<HTMLCanvasElement>;
+
+    canvasForeground1: HTMLCanvasElement;
+    canvasForeground2: HTMLCanvasElement;
 
     context1: CanvasRenderingContext2D;
     context2: CanvasRenderingContext2D;
@@ -41,6 +42,7 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     drawMode: string = DrawModes.ERASER;
     mousePressed: boolean = false;
     mouseInCanvas: boolean = true;
+    currentCanvas: HTMLCanvasElement;
 
     image1: HTMLInputElement;
     image2: HTMLInputElement;
@@ -96,7 +98,16 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         if (context1Init) this.context1 = context1Init;
         const context2Init = this.canvas2.nativeElement.getContext('2d');
         if (context2Init) this.context2 = context2Init;
-
+        this.canvasForeground1 = document.createElement('canvas');
+        this.canvasForeground2 = document.createElement('canvas');
+        this.canvasForeground1.width = this.width;
+        this.canvasForeground1.height = this.height;
+        this.canvasForeground2.width = this.width;
+        this.canvasForeground2.height = this.height;
+        const contextForeground1 = this.canvasForeground1.getContext('2d');
+        if (contextForeground1) this.contextForeground1 = contextForeground1;
+        const contextForeground2 = this.canvasForeground2.getContext('2d');
+        if (contextForeground2) this.contextForeground2 = contextForeground2;
         this.mousePosition = { x: 0, y: 0 };
     }
 
@@ -108,20 +119,20 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
                 switch (input) {
                     case this.inputImage1.nativeElement: {
                         this.urlPath1 = urlPath;
-                        this.updateContext(this.context1, this.canvasForeground1.nativeElement, this.urlPath1);
+                        this.updateContext(this.context1, this.canvasForeground1, this.urlPath1);
                         this.image1 = this.inputImage1.nativeElement;
                         break;
                     }
                     case this.inputImage2.nativeElement: {
                         this.urlPath2 = urlPath;
-                        this.updateContext(this.context2, this.canvasForeground2.nativeElement, this.urlPath2);
+                        this.updateContext(this.context2, this.canvasForeground2, this.urlPath2);
                         this.image2 = this.inputImage2.nativeElement;
                         break;
                     }
                     case this.inputImages1et2.nativeElement: {
                         this.urlPath1 = this.urlPath2 = urlPath;
-                        this.updateContext(this.context1, this.canvasForeground1.nativeElement, this.urlPath1);
-                        this.updateContext(this.context2, this.canvasForeground2.nativeElement, this.urlPath2);
+                        this.updateContext(this.context1, this.canvasForeground1, this.urlPath1);
+                        this.updateContext(this.context2, this.canvasForeground2, this.urlPath2);
                         this.image1 = this.image2 = this.inputImages1et2.nativeElement;
                         break;
                     }
@@ -236,14 +247,14 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
                 this.inputImage1.nativeElement.value = null;
                 this.urlPath1 = '';
                 this.context1.clearRect(0, 0, this.width, this.height);
-                this.context1.drawImage(this.canvasForeground1.nativeElement, 0, 0, this.width, this.height);
+                this.context1.drawImage(this.canvasForeground1, 0, 0, this.width, this.height);
                 break;
             }
             case this.inputImage2.nativeElement: {
                 this.inputImage2.nativeElement.value = null;
                 this.urlPath2 = '';
                 this.context2.clearRect(0, 0, this.width, this.height);
-                this.context2.drawImage(this.canvasForeground2.nativeElement, 0, 0, this.width, this.height);
+                this.context2.drawImage(this.canvasForeground2, 0, 0, this.width, this.height);
                 break;
             }
             case this.inputImages1et2.nativeElement: {
@@ -253,24 +264,33 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
                 this.urlPath1 = this.urlPath2 = '';
                 this.context1.clearRect(0, 0, this.width, this.height);
                 this.context2.clearRect(0, 0, this.width, this.height);
-                this.context1.drawImage(this.canvasForeground1.nativeElement, 0, 0, this.width, this.height);
-                this.context2.drawImage(this.canvasForeground2.nativeElement, 0, 0, this.width, this.height);
+                this.context1.drawImage(this.canvasForeground1, 0, 0, this.width, this.height);
+                this.context2.drawImage(this.canvasForeground2, 0, 0, this.width, this.height);
                 break;
             }
             case this.canvas1.nativeElement: {
                 this.contextForeground1.clearRect(0, 0, this.width, this.height);
                 this.context1.clearRect(0, 0, this.width, this.height);
-                this.updateContext(this.context1, this.canvasForeground1.nativeElement, this.urlPath1);
+                this.updateContext(this.context1, this.canvasForeground1, this.urlPath1);
                 break;
             }
             case this.canvas2.nativeElement: {
                 this.contextForeground2.clearRect(0, 0, this.width, this.height);
                 this.context2.clearRect(0, 0, this.width, this.height);
-                this.updateContext(this.context2, this.canvasForeground2.nativeElement, this.urlPath2);
+                this.updateContext(this.context2, this.canvasForeground2, this.urlPath2);
                 break;
             }
             // No default
         }
+    }
+
+    convertImageToB64Url(canvas: HTMLCanvasElement): string {
+        return canvas.toDataURL().split(',')[1];
+    }
+
+    enableMode(mode: string) {
+        this.drawMode = mode;
+        this.mousePressed = false;
     }
 
     duplicateForeground(input: HTMLElement) {
@@ -278,17 +298,17 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
             case this.canvas1.nativeElement: {
                 this.contextForeground2.clearRect(0, 0, this.width, this.height);
                 this.context2.clearRect(0, 0, this.width, this.height);
-                this.updateContext(this.context2, this.canvasForeground2.nativeElement, this.urlPath2);
-                this.contextForeground2.drawImage(this.canvasForeground1.nativeElement, 0, 0, this.width, this.height);
-                this.context2.drawImage(this.canvasForeground1.nativeElement, 0, 0, this.width, this.height);
+                this.updateContext(this.context2, this.canvasForeground2, this.urlPath2);
+                this.contextForeground2.drawImage(this.canvasForeground1, 0, 0, this.width, this.height);
+                this.context2.drawImage(this.canvasForeground1, 0, 0, this.width, this.height);
                 break;
             }
             case this.canvas2.nativeElement: {
                 this.contextForeground1.clearRect(0, 0, this.width, this.height);
                 this.context1.clearRect(0, 0, this.width, this.height);
-                this.updateContext(this.context1, this.canvasForeground1.nativeElement, this.urlPath1);
-                this.contextForeground1.drawImage(this.canvasForeground2.nativeElement, 0, 0, this.width, this.height);
-                this.context1.drawImage(this.canvasForeground2.nativeElement, 0, 0, this.width, this.height);
+                this.updateContext(this.context1, this.canvasForeground1, this.urlPath1);
+                this.contextForeground1.drawImage(this.canvasForeground2, 0, 0, this.width, this.height);
+                this.context1.drawImage(this.canvasForeground2, 0, 0, this.width, this.height);
                 break;
             }
             // No default
@@ -300,53 +320,107 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         canvasTemp.width = this.width;
         canvasTemp.height = this.height;
         const contextTemp = canvasTemp.getContext('2d');
-        contextTemp?.drawImage(this.canvasForeground1.nativeElement, 0, 0);
+        contextTemp?.drawImage(this.canvasForeground1, 0, 0);
 
         this.contextForeground1.clearRect(0, 0, this.width, this.height);
         this.context1.clearRect(0, 0, this.width, this.height);
-        this.updateContext(this.context1, this.canvasForeground1.nativeElement, this.urlPath1);
-        this.contextForeground1.drawImage(this.canvasForeground2.nativeElement, 0, 0, this.width, this.height);
-        this.context1.drawImage(this.canvasForeground2.nativeElement, 0, 0, this.width, this.height);
+        this.updateContext(this.context1, this.canvasForeground1, this.urlPath1);
+        this.contextForeground1.drawImage(this.canvasForeground2, 0, 0, this.width, this.height);
+        this.context1.drawImage(this.canvasForeground2, 0, 0, this.width, this.height);
 
         this.contextForeground2.clearRect(0, 0, this.width, this.height);
         this.context2.clearRect(0, 0, this.width, this.height);
-        this.updateContext(this.context2, this.canvasForeground2.nativeElement, this.urlPath2);
+        this.updateContext(this.context2, this.canvasForeground2, this.urlPath2);
         this.contextForeground2.drawImage(canvasTemp, 0, 0, this.width, this.height);
         this.context2.drawImage(canvasTemp, 0, 0, this.width, this.height);
     }
 
-    drawRectangle(mousePos: Vec2, input: HTMLCanvasElement) {
-        const rectangle: Rectangle = {
-            location: { x: mousePos.x, y: mousePos.y },
-            size: { width: 20, height: 40 },
-            lineWidth: 2,
-            color: 'maroon',
-        };
-        switch (input) {
-            case this.canvas1.nativeElement: {
-                this.contextForeground1.lineWidth = rectangle.lineWidth;
-                this.contextForeground1.strokeStyle = rectangle.color;
-                this.contextForeground1.strokeRect(rectangle.location.x, rectangle.location.y, rectangle.size.width, rectangle.size.height);
-                this.context1.drawImage(this.canvasForeground1.nativeElement, 0, 0, this.width, this.height);
-                break;
+    handleCanvasEvent(eventType: string, event: MouseEvent, canvas: HTMLCanvasElement) {
+        if (eventType === 'mousedown') {
+            this.currentCanvas = canvas;
+        }
+
+        if (this.currentCanvas === canvas) {
+            let context = this.contextForeground1;
+            if (canvas === this.canvas2.nativeElement) {
+                context = this.contextForeground2;
             }
-            case this.canvas2.nativeElement: {
-                this.contextForeground2.lineWidth = rectangle.lineWidth;
-                this.contextForeground2.strokeStyle = 'green';
-                this.contextForeground2.strokeRect(rectangle.location.x, rectangle.location.y, rectangle.size.width, rectangle.size.height);
-                this.context2.drawImage(this.canvasForeground2.nativeElement, 0, 0, this.width, this.height);
-                break;
+
+            switch (eventType) {
+                case 'mousedown':
+                    this.handleMouseDown(event, context);
+                    break;
+                case 'mousemove':
+                    this.handleMouseMove(event, context);
+                    break;
+                case 'mouseup':
+                    this.handleMouseUp();
+                    break;
+                case 'mouseleave':
+                    this.handleMouseLeave(event, context);
+                    break;
+                case 'mouseenter':
+                    this.handleMouseEnter(event, context);
+                    break;
+            }
+        }
+        this.context1.drawImage(this.canvasForeground1, 0, 0, this.width, this.height);
+        this.context2.drawImage(this.canvasForeground2, 0, 0, this.width, this.height);
+    }
+
+    handleMouseDown(event: MouseEvent, context: CanvasRenderingContext2D) {
+        if (event.button === MouseButton.Left) {
+            if (this.drawMode === DrawModes.PENCIL) {
+                this.mousePosition = { x: event.offsetX, y: event.offsetY };
+                this.mousePressed = true;
+                this.mouseInCanvas = true;
+                this.drawWithPencil(context, this.mousePosition, this.mousePosition);
+            } else if (this.drawMode === DrawModes.RECTANGLE) {
+                // this.drawRectangle(this.mousePosition, canvas);
             }
         }
     }
 
-    convertImageToB64Url(canvas: HTMLCanvasElement): string {
-        return canvas.toDataURL().split(',')[1];
+    handleMouseMove(event: MouseEvent, context: CanvasRenderingContext2D) {
+        if (event.button === MouseButton.Left) {
+            if (this.drawMode === DrawModes.PENCIL) {
+                this.pencilRadius = 4; // a configurer ailleurs
+                context.fillStyle = 'black';
+
+                if (this.mousePressed && this.mouseInCanvas) {
+                    const finish: Vec2 = { x: event.offsetX, y: event.offsetY };
+                    this.drawWithPencil(context, this.mousePosition, finish);
+                }
+            }
+        }
     }
 
-    enableMode(mode: string) {
-        this.drawMode = mode;
+    handleMouseUp() {
         this.mousePressed = false;
+        // fin de l'action pour annuler-refaire
+    }
+
+    handleMouseLeave(event: MouseEvent, context: CanvasRenderingContext2D) {
+        if (this.drawMode === DrawModes.PENCIL) {
+            if (this.mousePressed) {
+                const finish: Vec2 = { x: event.offsetX, y: event.offsetY };
+                this.drawWithPencil(context, this.mousePosition, finish);
+            }
+            this.mouseInCanvas = false;
+            this.mousePosition = { x: event.offsetX, y: event.offsetY };
+        }
+    }
+
+    handleMouseEnter(event: MouseEvent, context: CanvasRenderingContext2D) {
+        if (this.drawMode === DrawModes.PENCIL) {
+            this.mousePosition = { x: event.offsetX, y: event.offsetY };
+            this.mouseInCanvas = true;
+            const leftClickPressed = 1;
+            if (event.buttons !== leftClickPressed) {
+                this.mousePressed = false;
+                // fin de l'action pour annuler-refaire
+            }
+        }
     }
 
     drawWithPencil(context: CanvasRenderingContext2D, start: Vec2, finish: Vec2) {
@@ -364,63 +438,29 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         context.stroke();
     }
 
-    handleMouseDown(event: MouseEvent, canvas: HTMLCanvasElement) {
-        if (event.button === MouseButton.Left) {
-            if (this.drawMode === DrawModes.PENCIL) {
-                const context = this.context1; // remplacer par le contexte approprie
-                this.mousePosition = { x: event.offsetX, y: event.offsetY };
-                this.mousePressed = true;
-                this.drawWithPencil(context, this.mousePosition, this.mousePosition);
-            } else if (this.drawMode === DrawModes.RECTANGLE) {
-                this.drawRectangle(this.mousePosition, canvas);
+    drawRectangle(mousePos: Vec2, input: HTMLCanvasElement) {
+        const rectangle: Rectangle = {
+            location: { x: mousePos.x, y: mousePos.y },
+            size: { width: 20, height: 40 },
+            lineWidth: 2,
+            color: 'maroon',
+        };
+        switch (input) {
+            case this.canvas1.nativeElement: {
+                this.contextForeground1.lineWidth = rectangle.lineWidth;
+                this.contextForeground1.strokeStyle = rectangle.color;
+                this.contextForeground1.strokeRect(rectangle.location.x, rectangle.location.y, rectangle.size.width, rectangle.size.height);
+                this.context1.drawImage(this.canvasForeground1, 0, 0, this.width, this.height);
+                break;
+            }
+            case this.canvas2.nativeElement: {
+                this.contextForeground2.lineWidth = rectangle.lineWidth;
+                this.contextForeground2.strokeStyle = 'green';
+                this.contextForeground2.strokeRect(rectangle.location.x, rectangle.location.y, rectangle.size.width, rectangle.size.height);
+                this.context2.drawImage(this.canvasForeground2, 0, 0, this.width, this.height);
+                break;
             }
         }
-    }
-
-    handleMouseMove(event: MouseEvent) {
-        if (event.button === MouseButton.Left) {
-            if (this.drawMode === DrawModes.PENCIL) {
-                const context = this.context1; // remplacer par le contexte approprie
-                this.pencilRadius = 4; // a configurer ailleurs
-                context.fillStyle = 'black';
-
-                if (this.mousePressed && this.mouseInCanvas) {
-                    const finish: Vec2 = { x: event.offsetX, y: event.offsetY };
-                    this.drawWithPencil(context, this.mousePosition, finish);
-                }
-            }
-        }
-    }
-
-    handleMouseLeave(event: MouseEvent) {
-        if (this.drawMode === DrawModes.PENCIL) {
-            if (this.mousePressed) {
-                const context = this.context1; // remplacer par le contexte approprie
-                const finish: Vec2 = { x: event.offsetX, y: event.offsetY };
-                this.drawWithPencil(context, this.mousePosition, finish);
-            }
-            this.mouseInCanvas = false;
-            this.mousePosition = { x: event.offsetX, y: event.offsetY };
-        }
-    }
-
-    handleMouseEnter(event: MouseEvent) {
-        if (this.drawMode === DrawModes.PENCIL) {
-            this.mousePosition = { x: event.offsetX, y: event.offsetY };
-            this.mouseInCanvas = true;
-            const leftClickPressed = 1;
-            if (event.buttons !== leftClickPressed) {
-                this.mousePressed = false;
-                // fin de l'action pour annuler-refaire
-                // attention au ctrl+Z si l'utilisateur lache la souris en dehors du canvas et ne re-entre pas
-                // (marquer la fin du dessin avant de ctrl+Z)
-            }
-        }
-    }
-
-    handleMouseUp() {
-        this.mousePressed = false;
-        // fin de l'action pour annuler-refaire
     }
 
     ngOnDestroy(): void {
