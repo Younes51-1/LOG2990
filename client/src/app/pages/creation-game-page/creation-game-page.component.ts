@@ -502,6 +502,57 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         return canvas;
     }
 
+    ctrlZ() {
+        if (this.undo.length > 0) {
+            const state = this.undo.pop();
+            if (state?.swap) {
+                this.swapForegrounds();
+                this.redo.push({ layer: document.createElement('canvas'), belonging: true, swap: true });
+            } else {
+                const canvas = this.getCanvasAndUpdate(state);
+                this.redo.push({ layer: canvas, belonging: this.belongsToCanvas1, swap: false });
+            }
+        }
+    }
+
+    ctrlShiftZ() {
+        if (this.redo.length > 0) {
+            const state = this.redo.pop();
+            if (state?.swap) {
+                this.swapForegrounds();
+            } else {
+                const canvas = this.getCanvasAndUpdate(state);
+                this.undo.push({ layer: canvas, belonging: this.belongsToCanvas1, swap: false });
+            }
+        }
+    }
+
+    getCanvasAndUpdate(state: ForegroundState | undefined): HTMLCanvasElement {
+        const layer = state?.layer;
+        const canvas = this.createNewCanvas();
+        const ctx = canvas.getContext('2d');
+        if (layer) {
+            if (state.belonging) {
+                ctx?.drawImage(this.canvasForeground1, 0, 0, this.width, this.height);
+                this.belongsToCanvas1 = true;
+                this.contextForeground1.clearRect(0, 0, this.width, this.height);
+                this.context1.clearRect(0, 0, this.width, this.height);
+                this.contextForeground1.drawImage(layer, 0, 0, this.width, this.height);
+                this.context1.drawImage(this.canvasForeground1, 0, 0, this.width, this.height);
+                // TODO: redraw actual image
+            } else {
+                ctx?.drawImage(this.canvasForeground2, 0, 0, this.width, this.height);
+                this.belongsToCanvas1 = false;
+                this.contextForeground2.clearRect(0, 0, this.width, this.height);
+                this.context2.clearRect(0, 0, this.width, this.height);
+                this.contextForeground2.drawImage(layer, 0, 0, this.width, this.height);
+                this.context2.drawImage(this.canvasForeground2, 0, 0, this.width, this.height);
+                // TODO:redraw actual image
+            }
+        }
+        return canvas;
+    }
+
     pushToUndoStack() {
         const canvas = this.createNewCanvas();
         const ctx = canvas.getContext('2d');
@@ -514,83 +565,6 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
             this.belongsToCanvas1 = false;
         }
         this.undo.push({ layer: canvas, belonging: this.belongsToCanvas1, swap: false });
-    }
-
-    ctrlZ() {
-        if (this.undo.length > 0) {
-            const canvas = this.createNewCanvas();
-            const ctx = canvas.getContext('2d');
-
-            const state = this.undo.pop();
-            if (state?.swap) {
-                this.swapForegrounds();
-                this.redo.push({ layer: document.createElement('canvas'), belonging: true, swap: true });
-            } else {
-                const layer = state?.layer;
-                if (layer) {
-                    if (state.belonging) {
-                        //
-                        ctx?.drawImage(this.canvasForeground1, 0, 0, this.width, this.height);
-                        this.belongsToCanvas1 = true;
-                        //
-                        this.contextForeground1.clearRect(0, 0, this.width, this.height);
-                        this.context1.clearRect(0, 0, this.width, this.height);
-                        this.contextForeground1.drawImage(layer, 0, 0, this.width, this.height);
-                        this.context1.drawImage(this.canvasForeground1, 0, 0, this.width, this.height);
-                        // TODO: redraw actual image
-                    } else {
-                        //
-                        ctx?.drawImage(this.canvasForeground2, 0, 0, this.width, this.height);
-                        this.belongsToCanvas1 = false;
-                        //
-                        this.contextForeground2.clearRect(0, 0, this.width, this.height);
-                        this.context2.clearRect(0, 0, this.width, this.height);
-                        this.contextForeground2.drawImage(layer, 0, 0, this.width, this.height);
-                        this.context2.drawImage(this.canvasForeground2, 0, 0, this.width, this.height);
-                        // TODO:redraw actual image
-                    }
-                }
-                this.redo.push({ layer: canvas, belonging: this.belongsToCanvas1, swap: false });
-            }
-        }
-    }
-
-    ctrlShiftZ() {
-        if (this.redo.length > 0) {
-            const canvas = this.createNewCanvas();
-            const ctx = canvas.getContext('2d');
-            //
-            const state = this.redo.pop();
-            if (state?.swap) {
-                this.swapForegrounds();
-            } else {
-                const layer = state?.layer;
-                if (layer) {
-                    if (state.belonging) {
-                        //
-                        ctx?.drawImage(this.canvasForeground1, 0, 0, this.width, this.height);
-                        this.belongsToCanvas1 = true;
-                        //
-                        this.contextForeground1.clearRect(0, 0, this.width, this.height);
-                        this.context1.clearRect(0, 0, this.width, this.height);
-                        this.contextForeground1.drawImage(layer, 0, 0, this.width, this.height);
-                        this.context1.drawImage(this.canvasForeground1, 0, 0, this.width, this.height);
-                        // TODO: redraw actual image
-                    } else {
-                        //
-                        ctx?.drawImage(this.canvasForeground2, 0, 0, this.width, this.height);
-                        this.belongsToCanvas1 = false;
-                        //
-                        this.contextForeground2.clearRect(0, 0, this.width, this.height);
-                        this.context2.clearRect(0, 0, this.width, this.height);
-                        this.contextForeground2.drawImage(layer, 0, 0, this.width, this.height);
-                        this.context2.drawImage(this.canvasForeground2, 0, 0, this.width, this.height);
-                        // TODO:redraw actual image
-                    }
-                }
-                this.undo.push({ layer: canvas, belonging: this.belongsToCanvas1, swap: false });
-            }
-        }
     }
 
     emptyRedoStack() {
