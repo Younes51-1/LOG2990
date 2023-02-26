@@ -290,6 +290,7 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
             case this.canvas1.nativeElement: {
                 this.currentCanvas = this.canvas1.nativeElement;
                 this.pushToUndoStack();
+                this.emptyRedoStack();
                 this.contextForeground1.clearRect(0, 0, this.width, this.height);
                 this.context1.clearRect(0, 0, this.width, this.height);
                 this.updateContext(this.context1, this.canvasForeground1, this.urlPath1);
@@ -298,6 +299,7 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
             case this.canvas2.nativeElement: {
                 this.currentCanvas = this.canvas2.nativeElement;
                 this.pushToUndoStack();
+                this.emptyRedoStack();
                 this.contextForeground2.clearRect(0, 0, this.width, this.height);
                 this.context2.clearRect(0, 0, this.width, this.height);
                 this.updateContext(this.context2, this.canvasForeground2, this.urlPath2);
@@ -317,6 +319,7 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     }
 
     duplicateForeground(input: HTMLCanvasElement) {
+        this.emptyRedoStack();
         switch (input) {
             case this.canvas1.nativeElement: {
                 this.currentCanvas = this.canvas2.nativeElement;
@@ -344,6 +347,7 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
 
     pushAndSwapForegrounds() {
         this.undo.push({ layer: document.createElement('canvas'), belonging: true, swap: true });
+        this.emptyRedoStack();
         this.swapForegrounds();
     }
 
@@ -369,7 +373,9 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
 
     handleCanvasEvent(eventType: string, event: MouseEvent, canvas: HTMLCanvasElement) {
         if (eventType === 'mousedown') {
+            this.emptyRedoStack();
             this.currentCanvas = canvas;
+            this.pushToUndoStack();
         }
 
         if (this.currentCanvas === canvas) {
@@ -377,7 +383,6 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
             if (canvas === this.canvas2.nativeElement) {
                 context = this.contextForeground2;
             }
-
             switch (eventType) {
                 case 'mousedown':
                     this.handleMouseDown(event, context);
@@ -401,8 +406,6 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     }
 
     handleMouseDown(event: MouseEvent, context: CanvasRenderingContext2D) {
-        this.pushToUndoStack();
-
         if (event.button === MouseButton.Left) {
             if (this.drawMode === DrawModes.PENCIL) {
                 this.mousePosition = { x: event.offsetX, y: event.offsetY };
@@ -492,10 +495,15 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         }
     }
 
-    pushToUndoStack() {
+    createNewCanvas(): HTMLCanvasElement {
         const canvas = document.createElement('canvas');
         canvas.width = this.width;
         canvas.height = this.height;
+        return canvas;
+    }
+
+    pushToUndoStack() {
+        const canvas = this.createNewCanvas();
         const ctx = canvas.getContext('2d');
 
         if (this.currentCanvas === this.canvas1.nativeElement) {
@@ -510,19 +518,31 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
 
     ctrlZ() {
         if (this.undo.length > 0) {
+            const canvas = this.createNewCanvas();
+            const ctx = canvas.getContext('2d');
+
             const state = this.undo.pop();
             if (state?.swap) {
                 this.swapForegrounds();
+                this.redo.push({ layer: document.createElement('canvas'), belonging: true, swap: true });
             } else {
                 const layer = state?.layer;
                 if (layer) {
                     if (state.belonging) {
+                        //
+                        ctx?.drawImage(this.canvasForeground1, 0, 0, this.width, this.height);
+                        this.belongsToCanvas1 = true;
+                        //
                         this.contextForeground1.clearRect(0, 0, this.width, this.height);
                         this.context1.clearRect(0, 0, this.width, this.height);
                         this.contextForeground1.drawImage(layer, 0, 0, this.width, this.height);
                         this.context1.drawImage(this.canvasForeground1, 0, 0, this.width, this.height);
                         // TODO: redraw actual image
                     } else {
+                        //
+                        ctx?.drawImage(this.canvasForeground2, 0, 0, this.width, this.height);
+                        this.belongsToCanvas1 = false;
+                        //
                         this.contextForeground2.clearRect(0, 0, this.width, this.height);
                         this.context2.clearRect(0, 0, this.width, this.height);
                         this.contextForeground2.drawImage(layer, 0, 0, this.width, this.height);
@@ -530,12 +550,54 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
                         // TODO:redraw actual image
                     }
                 }
+                this.redo.push({ layer: canvas, belonging: this.belongsToCanvas1, swap: false });
             }
         }
     }
 
-    // TODO
-    ctrlShiftZ() {}
+    ctrlShiftZ() {
+        if (this.redo.length > 0) {
+            const canvas = this.createNewCanvas();
+            const ctx = canvas.getContext('2d');
+            //
+            const state = this.redo.pop();
+            if (state?.swap) {
+                this.swapForegrounds();
+            } else {
+                const layer = state?.layer;
+                if (layer) {
+                    if (state.belonging) {
+                        //
+                        ctx?.drawImage(this.canvasForeground1, 0, 0, this.width, this.height);
+                        this.belongsToCanvas1 = true;
+                        //
+                        this.contextForeground1.clearRect(0, 0, this.width, this.height);
+                        this.context1.clearRect(0, 0, this.width, this.height);
+                        this.contextForeground1.drawImage(layer, 0, 0, this.width, this.height);
+                        this.context1.drawImage(this.canvasForeground1, 0, 0, this.width, this.height);
+                        // TODO: redraw actual image
+                    } else {
+                        //
+                        ctx?.drawImage(this.canvasForeground2, 0, 0, this.width, this.height);
+                        this.belongsToCanvas1 = false;
+                        //
+                        this.contextForeground2.clearRect(0, 0, this.width, this.height);
+                        this.context2.clearRect(0, 0, this.width, this.height);
+                        this.contextForeground2.drawImage(layer, 0, 0, this.width, this.height);
+                        this.context2.drawImage(this.canvasForeground2, 0, 0, this.width, this.height);
+                        // TODO:redraw actual image
+                    }
+                }
+                this.undo.push({ layer: canvas, belonging: this.belongsToCanvas1, swap: false });
+            }
+        }
+    }
+
+    emptyRedoStack() {
+        while (this.redo.length > 0) {
+            this.redo.pop();
+        }
+    }
 
     ngOnDestroy(): void {
         if (this.dialogRef) {
