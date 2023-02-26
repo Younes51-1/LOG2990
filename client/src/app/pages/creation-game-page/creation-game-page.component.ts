@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.component';
@@ -15,6 +15,12 @@ enum DrawModes {
     PENCIL = 'pencil',
     RECTANGLE = 'rectangle',
     ERASER = 'eraser',
+}
+
+interface ForegroundState {
+    layer: HTMLCanvasElement;
+    belonging: boolean;
+    swap: boolean;
 }
 
 @Component({
@@ -42,7 +48,11 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     drawMode: string = DrawModes.ERASER;
     mousePressed: boolean = false;
     mouseInCanvas: boolean = true;
+    belongsToCanvas1: boolean = true;
     currentCanvas: HTMLCanvasElement;
+
+    undo: ForegroundState[] = [];
+    redo: ForegroundState[] = [];
 
     image1: HTMLInputElement;
     image2: HTMLInputElement;
@@ -74,6 +84,15 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     ) {
         this.width = 640;
         this.height = 480;
+    }
+
+    @HostListener('document:keydown', ['$event'])
+    handleKeyboardEvent(event: KeyboardEvent) {
+        if (event.key === 'z' && event.ctrlKey) {
+            this.ctrlZ();
+        } else if (event.key === 'Z' && event.ctrlKey && event.shiftKey) {
+            this.ctrlShiftZ();
+        }
     }
 
     async openDifferencesDialog() {
@@ -269,12 +288,16 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
                 break;
             }
             case this.canvas1.nativeElement: {
+                this.currentCanvas = this.canvas1.nativeElement;
+                this.pushToUndoStack();
                 this.contextForeground1.clearRect(0, 0, this.width, this.height);
                 this.context1.clearRect(0, 0, this.width, this.height);
                 this.updateContext(this.context1, this.canvasForeground1, this.urlPath1);
                 break;
             }
             case this.canvas2.nativeElement: {
+                this.currentCanvas = this.canvas2.nativeElement;
+                this.pushToUndoStack();
                 this.contextForeground2.clearRect(0, 0, this.width, this.height);
                 this.context2.clearRect(0, 0, this.width, this.height);
                 this.updateContext(this.context2, this.canvasForeground2, this.urlPath2);
@@ -293,9 +316,11 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         this.mousePressed = false;
     }
 
-    duplicateForeground(input: HTMLElement) {
+    duplicateForeground(input: HTMLCanvasElement) {
         switch (input) {
             case this.canvas1.nativeElement: {
+                this.currentCanvas = this.canvas2.nativeElement;
+                this.pushToUndoStack();
                 this.contextForeground2.clearRect(0, 0, this.width, this.height);
                 this.context2.clearRect(0, 0, this.width, this.height);
                 this.updateContext(this.context2, this.canvasForeground2, this.urlPath2);
@@ -304,6 +329,8 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
                 break;
             }
             case this.canvas2.nativeElement: {
+                this.currentCanvas = this.canvas1.nativeElement;
+                this.pushToUndoStack();
                 this.contextForeground1.clearRect(0, 0, this.width, this.height);
                 this.context1.clearRect(0, 0, this.width, this.height);
                 this.updateContext(this.context1, this.canvasForeground1, this.urlPath1);
@@ -313,6 +340,11 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
             }
             // No default
         }
+    }
+
+    pushAndSwapForegrounds() {
+        this.undo.push({ layer: document.createElement('canvas'), belonging: true, swap: true });
+        this.swapForegrounds();
     }
 
     swapForegrounds() {
@@ -369,6 +401,8 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     }
 
     handleMouseDown(event: MouseEvent, context: CanvasRenderingContext2D) {
+        this.pushToUndoStack();
+
         if (event.button === MouseButton.Left) {
             if (this.drawMode === DrawModes.PENCIL) {
                 this.mousePosition = { x: event.offsetX, y: event.offsetY };
@@ -395,9 +429,9 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         }
     }
 
+    // fin de l'action pour annuler-refaire
     handleMouseUp() {
         this.mousePressed = false;
-        // fin de l'action pour annuler-refaire
     }
 
     handleMouseLeave(event: MouseEvent, context: CanvasRenderingContext2D) {
@@ -415,11 +449,6 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         if (this.drawMode === DrawModes.PENCIL) {
             this.mousePosition = { x: event.offsetX, y: event.offsetY };
             this.mouseInCanvas = true;
-            const leftClickPressed = 1;
-            if (event.buttons !== leftClickPressed) {
-                this.mousePressed = false;
-                // fin de l'action pour annuler-refaire
-            }
         }
     }
 
@@ -462,6 +491,51 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
             }
         }
     }
+
+    pushToUndoStack() {
+        const canvas = document.createElement('canvas');
+        canvas.width = this.width;
+        canvas.height = this.height;
+        const ctx = canvas.getContext('2d');
+
+        if (this.currentCanvas === this.canvas1.nativeElement) {
+            ctx?.drawImage(this.canvasForeground1, 0, 0, this.width, this.height);
+            this.belongsToCanvas1 = true;
+        } else {
+            ctx?.drawImage(this.canvasForeground2, 0, 0, this.width, this.height);
+            this.belongsToCanvas1 = false;
+        }
+        this.undo.push({ layer: canvas, belonging: this.belongsToCanvas1, swap: false });
+    }
+
+    ctrlZ() {
+        if (this.undo.length > 0) {
+            const state = this.undo.pop();
+            if (state?.swap) {
+                this.swapForegrounds();
+            } else {
+                const layer = state?.layer;
+                if (layer) {
+                    if (state.belonging) {
+                        this.contextForeground1.clearRect(0, 0, this.width, this.height);
+                        this.context1.clearRect(0, 0, this.width, this.height);
+                        this.contextForeground1.drawImage(layer, 0, 0, this.width, this.height);
+                        this.context1.drawImage(this.canvasForeground1, 0, 0, this.width, this.height);
+                        // TODO: redraw actual image
+                    } else {
+                        this.contextForeground2.clearRect(0, 0, this.width, this.height);
+                        this.context2.clearRect(0, 0, this.width, this.height);
+                        this.contextForeground2.drawImage(layer, 0, 0, this.width, this.height);
+                        this.context2.drawImage(this.canvasForeground2, 0, 0, this.width, this.height);
+                        // TODO:redraw actual image
+                    }
+                }
+            }
+        }
+    }
+
+    // TODO
+    ctrlShiftZ() {}
 
     ngOnDestroy(): void {
         if (this.dialogRef) {
