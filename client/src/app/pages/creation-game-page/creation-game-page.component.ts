@@ -443,7 +443,7 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
                     break;
                 }
                 case DrawModes.ERASER: {
-                    this.eraserWidth = 10;
+                    this.eraserWidth = 10; // a configurer ailleurs
                     this.mousePosition = { x: event.offsetX, y: event.offsetY };
                     this.mousePressed = true;
                     this.mouseInCanvas = true;
@@ -623,7 +623,6 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
                 this.belongsToCanvas1 = false;
                 this.contextForeground2.clearRect(0, 0, this.width, this.height);
                 this.contextForeground2.drawImage(layer, 0, 0, this.width, this.height);
-                this.updateContext(this.context2, this.canvasForeground2, this.urlPath2);
                 this.updateCanvas2Display();
             }
         }
