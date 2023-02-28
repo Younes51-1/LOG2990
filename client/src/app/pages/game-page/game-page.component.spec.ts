@@ -12,6 +12,7 @@ import { CommunicationService } from '@app/services/communicationService/communi
 import { of } from 'rxjs';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import SpyObj = jasmine.SpyObj;
+import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
 
 @NgModule({
     imports: [MatDialogModule, HttpClientModule],
@@ -34,7 +35,7 @@ describe('GamePageComponent', () => {
         communicationServiceSpy.getGame.and.returnValue(of(gameData));
         classicModeServiceSpy = jasmine.createSpyObj('ClassicModeService', ['timer$', 'differencesFound$', 'gameFinished$', 'userGame$']);
         await TestBed.configureTestingModule({
-            declarations: [GamePageComponent, SidebarComponent, MatToolbar, EndgameDialogComponent],
+            declarations: [GamePageComponent, SidebarComponent, MatToolbar, EndgameDialogComponent, PlayAreaComponent],
             imports: [DynamicTestModule],
             providers: [ClassicModeService],
         }).compileComponents();
