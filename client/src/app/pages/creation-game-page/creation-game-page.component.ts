@@ -45,19 +45,19 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     @ViewChild('canvas1', { static: false }) canvas1: ElementRef<HTMLCanvasElement>;
     @ViewChild('canvas2', { static: false }) canvas2: ElementRef<HTMLCanvasElement>;
 
-    canvasForeground1: HTMLCanvasElement;
-    canvasForeground2: HTMLCanvasElement;
-
     context1: CanvasRenderingContext2D;
     context2: CanvasRenderingContext2D;
+
+    canvasForeground1: HTMLCanvasElement;
+    canvasForeground2: HTMLCanvasElement;
     contextForeground1: CanvasRenderingContext2D;
     contextForeground2: CanvasRenderingContext2D;
+
     mousePosition: Vec2;
     pencilRadius: number;
     eraserWidth: number;
     rectangleState: Rectangle;
     canvasTemp: Canvas;
-
     drawMode: string = DrawModes.ERASER;
     mousePressed: boolean = false;
     mouseInCanvas: boolean = true;
@@ -140,12 +140,8 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         if (context1Init) this.context1 = context1Init;
         const context2Init = this.canvas2.nativeElement.getContext('2d');
         if (context2Init) this.context2 = context2Init;
-        this.canvasForeground1 = document.createElement('canvas');
-        this.canvasForeground2 = document.createElement('canvas');
-        this.canvasForeground1.width = this.width;
-        this.canvasForeground1.height = this.height;
-        this.canvasForeground2.width = this.width;
-        this.canvasForeground2.height = this.height;
+        this.canvasForeground1 = this.createNewCanvas();
+        this.canvasForeground2 = this.createNewCanvas();
         const contextForeground1 = this.canvasForeground1.getContext('2d');
         if (contextForeground1) this.contextForeground1 = contextForeground1;
         const contextForeground2 = this.canvasForeground2.getContext('2d');
@@ -153,14 +149,10 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         this.mousePosition = { x: 0, y: 0 };
         const canvasRectangle = this.createNewCanvas();
         const contextRectangle = canvasRectangle.getContext('2d');
-        if (contextRectangle) {
-            this.rectangleState = { canvas: canvasRectangle, context: contextRectangle, startPos: this.mousePosition };
-        }
+        if (contextRectangle) this.rectangleState = { canvas: canvasRectangle, context: contextRectangle, startPos: this.mousePosition };
         const canvasTmp = this.createNewCanvas();
         const canvasTmpCtx = canvasTmp.getContext('2d');
-        if (canvasTmpCtx) {
-            this.canvasTemp = { canvas: canvasTmp, context: canvasTmpCtx };
-        }
+        if (canvasTmpCtx) this.canvasTemp = { canvas: canvasTmp, context: canvasTmpCtx };
     }
 
     updateImageDisplay(event: Event, input: HTMLInputElement): void {
