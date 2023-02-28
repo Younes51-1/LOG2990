@@ -7,6 +7,7 @@ import { NewGame } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
 import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
 import { Vec2 } from 'src/app/interfaces/vec2';
+import { Color } from 'src/assets/variables/color';
 import { AsciiLetterValue, BIT_PER_PIXEL, OffsetValues, PossibleRadius } from 'src/assets/variables/images-values';
 import { MouseButton } from 'src/assets/variables/mouse-button';
 
@@ -14,6 +15,7 @@ enum DrawModes {
     PENCIL = 'pencil',
     RECTANGLE = 'rectangle',
     ERASER = 'eraser',
+    NOTHING = '',
 }
 
 interface ForegroundState {
@@ -58,7 +60,7 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     eraserWidth: number;
     rectangleState: Rectangle;
     canvasTemp: Canvas;
-    drawMode: string = DrawModes.ERASER;
+    drawMode: string = DrawModes.NOTHING;
     mousePressed: boolean = false;
     mouseInCanvas: boolean = true;
     shiftPressed: boolean = false;
@@ -88,6 +90,10 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     dialogRef: MatDialogRef<ModalDialogComponent>;
     urlPath1: string;
     urlPath2: string;
+
+    color: string = Color.Luigi;
+    pencilSize: number;
+    eraserSize: number;
 
     // eslint-disable-next-line max-params -- needed for constructor
     constructor(
@@ -456,13 +462,12 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
             this.mouseInCanvas = true;
             switch (this.drawMode) {
                 case DrawModes.PENCIL: {
-                    this.pencilRadius = 50; // a configurer ailleurs
-                    context.fillStyle = 'black';
+                    context.fillStyle = this.color;
                     this.drawWithPencil(context, this.mousePosition, this.mousePosition);
                     break;
                 }
                 case DrawModes.RECTANGLE: {
-                    this.rectangleState.context.fillStyle = 'blue'; // a configurer ailleurs
+                    this.rectangleState.context.fillStyle = this.color; // a configurer ailleurs
                     this.rectangleState.startPos = this.mousePosition;
                     this.canvasTemp.context.clearRect(0, 0, this.width, this.height);
                     if (context === this.contextForeground1) {
@@ -473,7 +478,7 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
                     break;
                 }
                 case DrawModes.ERASER: {
-                    this.eraserWidth = 10; // a configurer ailleurs
+                    this.eraserWidth = this.eraserSize; // a configurer ailleurs
                     this.eraseSquare(context, this.mousePosition);
                     break;
                 }
@@ -561,13 +566,13 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     }
 
     drawWithPencil(context: CanvasRenderingContext2D, start: Vec2, finish: Vec2) {
-        context.lineWidth = this.pencilRadius * 2;
+        context.lineWidth = this.pencilSize * 2;
         context.lineJoin = 'round';
         context.beginPath();
-        context.arc(start.x, start.y, this.pencilRadius, 0, 2 * Math.PI, true);
+        context.arc(start.x, start.y, this.pencilSize, 0, 2 * Math.PI, true);
         const oldCoords: Vec2 = { x: this.mousePosition.x, y: this.mousePosition.y };
         this.mousePosition = { x: finish.x, y: finish.y };
-        context.arc(this.mousePosition.x, this.mousePosition.y, this.pencilRadius, 0, 2 * Math.PI, true);
+        context.arc(this.mousePosition.x, this.mousePosition.y, this.pencilSize, 0, 2 * Math.PI, true);
         context.fill();
         context.beginPath();
         context.moveTo(oldCoords.x, oldCoords.y);

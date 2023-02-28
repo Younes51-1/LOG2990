@@ -1,4 +1,5 @@
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.1/css/all.css" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
 <div class="container" (mouseup)="handleMouseUp()">
     <header>
         <button class="config-button" routerLink="/config">
@@ -7,9 +8,15 @@
         <img src="../../../assets/pictures/creation.png" />
     </header>
     <div class="tools">
-        <button class="button" (click)="enableMode('pencil')">Crayon</button>
-        <button class="button" (click)="enableMode('rectangle')">Rectangle</button>
-        <button class="button" (click)="enableMode('eraser')">Efface</button>
+        <button class="button" (click)="enableMode('pencil')"><i class="fa fa-pencil"></i></button>
+        <button class="button" (click)="enableMode('rectangle')"><i class="fa fa-square-o"></i></button>
+        <button class="button" (click)="enableMode('eraser')"><i class="fa fa-eraser"></i></button>
+        <label *ngIf="drawMode === 'pencil' || drawMode === 'rectangle'" for="colorpicker"> Couleur </label>
+        <input *ngIf="drawMode === 'pencil' || drawMode === 'rectangle'" id="colorpicker" [(colorPicker)]="color" [style.background]="color" />
+        <label *ngIf="drawMode === 'pencil'" for="pencilSize"> Épaisseur du trait (px) </label>
+        <input *ngIf="drawMode === 'pencil'" type="text" id="pencilSize" [(ngModel)]="pencilSize" />
+        <label *ngIf="drawMode === 'eraser'" for="eraserSize"> Taille de l'efface (px) </label>
+        <input *ngIf="drawMode === 'eraser'" type="text" id="eraserSize" [(ngModel)]="eraserSize" />
     </div>
     <p>* Les images doivent posséder le format 24-bit bitmap (BPM) avec une taille de 640x480 px *</p>
     <p>
@@ -77,7 +84,7 @@
             </div>
         </fieldset>
         <button *ngIf="(image1?.value !== '' && image2?.value !== '') || images1et2?.value !== ''" class="button" (click)="runDetectionSystem()">
-            Visualiser les différence
+            Visualiser les différences
         </button>
     </section>
 </div>
