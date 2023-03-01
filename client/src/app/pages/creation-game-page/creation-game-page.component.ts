@@ -56,7 +56,6 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     contextForeground2: CanvasRenderingContext2D;
 
     mousePosition: Vec2;
-    pencilRadius: number;
     eraserWidth: number;
     rectangleState: Rectangle;
     canvasTemp: Canvas;
@@ -463,11 +462,11 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
             switch (this.drawMode) {
                 case DrawModes.PENCIL: {
                     context.fillStyle = this.color;
-                    this.drawWithPencil(context, this.mousePosition, this.mousePosition);
+                    this.drawCircle(context, this.mousePosition);
                     break;
                 }
                 case DrawModes.RECTANGLE: {
-                    this.rectangleState.context.fillStyle = this.color; // a configurer ailleurs
+                    this.rectangleState.context.fillStyle = this.color;
                     this.rectangleState.startPos = this.mousePosition;
                     this.canvasTemp.context.clearRect(0, 0, this.width, this.height);
                     if (context === this.contextForeground1) {
@@ -478,7 +477,7 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
                     break;
                 }
                 case DrawModes.ERASER: {
-                    this.eraserWidth = this.eraserSize; // a configurer ailleurs
+                    this.eraserWidth = this.eraserSize;
                     this.eraseSquare(context, this.mousePosition);
                     break;
                 }
@@ -494,7 +493,7 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
             if (this.mousePressed && this.mouseInCanvas) {
                 switch (this.drawMode) {
                     case DrawModes.PENCIL: {
-                        this.drawWithPencil(context, this.mousePosition, finish);
+                        this.traceShape(context, this.mousePosition, finish);
                         break;
                     }
                     case DrawModes.RECTANGLE: {
@@ -502,7 +501,7 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
                         break;
                     }
                     case DrawModes.ERASER: {
-                        this.erase(context, this.mousePosition, finish);
+                        this.traceShape(context, this.mousePosition, finish);
                         break;
                     }
                     // No default
@@ -520,64 +519,20 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         this.mousePosition = { x: event.offsetX, y: event.offsetY };
 
         if (this.mousePressed) {
-            switch (this.drawMode) {
-                case DrawModes.PENCIL: {
-                    const finish: Vec2 = { x: event.offsetX, y: event.offsetY };
-                    this.drawWithPencil(context, this.mousePosition, finish);
-                    break;
-                }
-                case DrawModes.RECTANGLE: {
-                    const finish: Vec2 = { x: event.offsetX, y: event.offsetY };
-                    this.drawRectangle(context, finish);
-                    break;
-                }
-                case DrawModes.ERASER: {
-                    const finish: Vec2 = { x: event.offsetX, y: event.offsetY };
-                    this.erase(context, this.mousePosition, finish);
-                    break;
-                }
-                // No default
+            const finish: Vec2 = { x: event.offsetX, y: event.offsetY };
+            if (this.drawMode === DrawModes.PENCIL || this.drawMode === DrawModes.ERASER) {
+                this.traceShape(context, this.mousePosition, finish);
+            } else if (this.drawMode === DrawModes.RECTANGLE) {
+                this.drawRectangle(context, finish);
             }
         }
     }
 
     handleMouseEnter(event: MouseEvent) {
-        switch (this.drawMode) {
-            case DrawModes.PENCIL: {
-                this.mousePosition = { x: event.offsetX, y: event.offsetY };
-                this.mouseInCanvas = true;
-
-                break;
-            }
-            case DrawModes.RECTANGLE: {
-                this.mousePosition = { x: event.offsetX, y: event.offsetY };
-                this.mouseInCanvas = true;
-
-                break;
-            }
-            case DrawModes.ERASER: {
-                this.mousePosition = { x: event.offsetX, y: event.offsetY };
-                this.mouseInCanvas = true;
-
-                break;
-            }
-            // No default
+        if (this.drawMode !== DrawModes.NOTHING) {
+            this.mousePosition = { x: event.offsetX, y: event.offsetY };
+            this.mouseInCanvas = true;
         }
-    }
-
-    drawWithPencil(context: CanvasRenderingContext2D, start: Vec2, finish: Vec2) {
-        context.lineWidth = this.pencilSize * 2;
-        context.lineJoin = 'round';
-        context.beginPath();
-        context.arc(start.x, start.y, this.pencilSize, 0, 2 * Math.PI, true);
-        const oldCoords: Vec2 = { x: this.mousePosition.x, y: this.mousePosition.y };
-        this.mousePosition = { x: finish.x, y: finish.y };
-        context.arc(this.mousePosition.x, this.mousePosition.y, this.pencilSize, 0, 2 * Math.PI, true);
-        context.fill();
-        context.beginPath();
-        context.moveTo(oldCoords.x, oldCoords.y);
-        context.lineTo(this.mousePosition.x, this.mousePosition.y);
-        context.stroke();
     }
 
     drawRectangle(context: CanvasRenderingContext2D, pos: Vec2) {
@@ -598,36 +553,50 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         context.drawImage(this.rectangleState.canvas, 0, 0, this.width, this.height);
     }
 
-    erase(context: CanvasRenderingContext2D, start: Vec2, finish: Vec2) {
+    drawCircle(context: CanvasRenderingContext2D, position: Vec2) {
+        context.beginPath();
+        context.arc(position.x, position.y, this.pencilSize, 0, 2 * Math.PI);
+        context.fill();
+    }
+
+    eraseSquare(context: CanvasRenderingContext2D, position: Vec2) {
+        context.clearRect(position.x - this.eraserWidth, position.y - this.eraserWidth, 2 * this.eraserWidth, 2 * this.eraserWidth);
+    }
+
+    traceShape(context: CanvasRenderingContext2D, start: Vec2, finish: Vec2) {
         context.lineWidth = this.eraserWidth * 2;
         let slopeY = (finish.y - start.y) / (finish.x - start.x);
         if (start.x < finish.x) {
             for (let i = start.x; i <= finish.x; i++) {
-                this.eraseSquare(context, { x: i, y: start.y + slopeY * (i - start.x) });
+                this.drawShape(context, { x: i, y: start.y + slopeY * (i - start.x) });
             }
         } else {
             slopeY = -slopeY;
             for (let i = start.x; i >= finish.x; i--) {
-                this.eraseSquare(context, { x: i, y: start.y + slopeY * (start.x - i) });
+                this.drawShape(context, { x: i, y: start.y + slopeY * (start.x - i) });
             }
         }
 
         let slopeX = (finish.x - start.x) / (finish.y - start.y);
         if (start.y < finish.y) {
             for (let i = start.y; i <= finish.y; i++) {
-                this.eraseSquare(context, { x: start.x + slopeX * (i - start.y), y: i });
+                this.drawShape(context, { x: start.x + slopeX * (i - start.y), y: i });
             }
         } else {
             slopeX = -slopeX;
             for (let i = start.y; i >= finish.y; i--) {
-                this.eraseSquare(context, { x: start.x + slopeX * (start.y - i), y: i });
+                this.drawShape(context, { x: start.x + slopeX * (start.y - i), y: i });
             }
         }
         this.mousePosition = { x: finish.x, y: finish.y };
     }
 
-    eraseSquare(context: CanvasRenderingContext2D, position: Vec2) {
-        context.clearRect(position.x - this.eraserWidth, position.y - this.eraserWidth, 2 * this.eraserWidth, 2 * this.eraserWidth);
+    drawShape(context: CanvasRenderingContext2D, position: Vec2) {
+        if (this.drawMode === DrawModes.PENCIL) {
+            this.drawCircle(context, position);
+        } else if (this.drawMode === DrawModes.ERASER) {
+            this.eraseSquare(context, position);
+        }
     }
 
     createNewCanvas(): HTMLCanvasElement {
