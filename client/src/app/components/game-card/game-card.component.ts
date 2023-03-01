@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, OnDestroy } from '@angular/core';
 import { options, PageKeys } from 'src/assets/variables/game-card-options';
 import { GameForm } from '@app/interfaces/game';
 import { Router } from '@angular/router';
@@ -10,7 +10,7 @@ import { CommunicationSocketService } from '@app/services/communicationSocket/co
     templateUrl: './game-card.component.html',
     styleUrls: ['./game-card.component.scss'],
 })
-export class GameCardComponent implements OnInit {
+export class GameCardComponent implements OnInit, OnDestroy {
     @Input() page: PageKeys;
     @Input() slide: GameForm;
 
@@ -63,9 +63,12 @@ export class GameCardComponent implements OnInit {
     }
 
     btnTwoEmitter() {
-        if (this.page === PageKeys.Selection) {
+        if (this.page === PageKeys.Selection && !this.gameExists) {
             this.socketService.disconnect();
             this.classicModeService.createClassicModeMulti(this.slide.name, this.inputValue2);
+        } else if (this.page === PageKeys.Selection && this.gameExists) {
+            this.socketService.disconnect();
+            this.classicModeService.joinClassicModeMulti(this.slide.name, this.inputValue2);
         }
         this.notify.emit(this.slide);
     }
@@ -108,5 +111,9 @@ export class GameCardComponent implements OnInit {
             }
         }
         return true;
+    }
+
+    ngOnDestroy() {
+        this.socketService.disconnect();
     }
 }

@@ -36,7 +36,7 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
     @SubscribeMessage(ClassicModeEvents.CheckGame)
     checkGame(socket: Socket, gameName: string) {
         this.logger.log(`Check game: ${gameName}`);
-        if (this.getGameRooms(gameName)) {
+        if (this.classicModeService.getGameRooms(gameName)) {
             this.logger.log('Game found');
             this.server.to(socket.id).emit(ClassicModeEvents.GameFound, gameName);
         }
@@ -49,11 +49,59 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
         this.server.emit(ClassicModeEvents.GameFound, userGame.gameData.gameForm.name);
     }
 
+    @SubscribeMessage(ClassicModeEvents.JoinGame)
+    joinGame(socket: Socket, userGame: [gameName: string, username: string]) {
+        this.logger.log(`Join game: ${userGame[0]}`);
+        if (this.classicModeService.joinGame(socket, userGame[0], userGame[1])) {
+            this.logger.log(`${userGame[1]} joined game: ${userGame[0]}`);
+            this.server.emit(ClassicModeEvents.GameInfo, this.classicModeService.getGameRooms(userGame[0]));
+        } else {
+            this.logger.log(`Game not found: ${userGame[0]}`);
+            this.server.emit(ClassicModeEvents.GameInfo, undefined);
+        }
+    }
+
     @SubscribeMessage(ClassicModeEvents.AbortGameCreation)
     abortGameCreation(socket: Socket, gameName: string) {
         this.logger.log(`Abort game creation: ${gameName}`);
         this.classicModeService.deleteRoom(socket.id);
         this.server.emit(ClassicModeEvents.GameDeleted, gameName);
+    }
+
+    @SubscribeMessage(ClassicModeEvents.LeaveGame)
+    leaveGame(socket: Socket, playerInfo: [gameName: string, userName: string]) {
+        this.logger.log(`${playerInfo[1]} leaving game: ${playerInfo[0]}`);
+        const gameRoom = this.classicModeService.getGameRooms(playerInfo[0]);
+        if (gameRoom) {
+            gameRoom.userGame.potentielPlayers = gameRoom.userGame.potentielPlayers.filter((player) => player !== playerInfo[1]);
+            this.classicModeService.gameRooms.set(gameRoom.roomId, gameRoom);
+            this.server.emit(ClassicModeEvents.GameInfo, gameRoom);
+        }
+    }
+
+    @SubscribeMessage(ClassicModeEvents.PlayerRejected)
+    playerRejected(socket: Socket, playerInfo: [gameName: string, userName: string]) {
+        const gameRoom = this.classicModeService.getGameRooms(playerInfo[0]);
+        if (gameRoom) {
+            this.logger.log(`${playerInfo[1]} rejected from game: ${playerInfo[0]}`);
+            gameRoom.userGame.potentielPlayers = gameRoom.userGame.potentielPlayers.filter((player) => player !== playerInfo[1]);
+            this.classicModeService.gameRooms.set(gameRoom.roomId, gameRoom);
+            this.server.emit(ClassicModeEvents.PlayerRejected, gameRoom);
+        }
+    }
+
+    @SubscribeMessage(ClassicModeEvents.PlayerAccepted)
+    playerAccepted(socket: Socket, playerInfo: [gameName: string, userName: string]) {
+        const gameRoom = this.classicModeService.getGameRooms(playerInfo[0]);
+        if (gameRoom) {
+            this.logger.log(`${playerInfo[1]} accepted from game: ${playerInfo[0]}`);
+            gameRoom.userGame.potentielPlayers = [];
+            gameRoom.userGame.username2 = playerInfo[1];
+            gameRoom.started = true;
+            this.classicModeService.gameRooms.set(gameRoom.roomId, gameRoom);
+            this.server.emit(ClassicModeEvents.PlayerAccepted, gameRoom);
+            this.server.emit(ClassicModeEvents.PlayerRejected, gameRoom);
+        }
     }
 
     afterInit() {
@@ -81,14 +129,5 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
             this.classicModeService.updateTimer(gameRoom);
             this.server.to(gameRoom.roomId).emit(ClassicModeEvents.Timer, this.classicModeService.gameRooms.get(gameRoom.roomId).userGame.timer);
         }
-    }
-
-    getGameRooms(gameName: string): boolean {
-        for (const gameRoom of this.classicModeService.gameRooms.values()) {
-            if (!gameRoom.started && gameRoom.userGame.gameData.gameForm.name === gameName) {
-                return true;
-            }
-        }
-        return false;
     }
 }

@@ -5,9 +5,11 @@ export interface GameData {
 
 export interface UserGame {
     username: string;
+    username2?: string;
     gameData: GameData;
     nbDifferenceFound: number;
     timer: number;
+    potentielPlayers?: string[];
 }
 
 export interface GameForm {

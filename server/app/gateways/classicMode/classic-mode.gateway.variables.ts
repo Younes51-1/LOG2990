@@ -13,6 +13,10 @@ export enum ClassicModeEvents {
     CreateGame = 'createGame',
     JoinGame = 'joinGame',
     AbortGameCreation = 'abortGameCreation',
+    GameInfo = 'gameInfo',
+    LeaveGame = 'leaveGame',
+    PlayerRejected = 'playerRejected',
+    PlayerAccepted = 'playerAccepted',
 }
 
 export enum DelayBeforeEmmitingTime {

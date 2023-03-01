@@ -20,6 +20,20 @@ export class ClassicModeService {
         return newRoom.roomId;
     }
 
+    joinGame(socket: Socket, gameName: string, userName: string): boolean {
+        const gameRoom = this.getGameRooms(gameName);
+        if (!gameRoom) return false;
+        if (!gameRoom.userGame.potentielPlayers) {
+            gameRoom.userGame.potentielPlayers = [];
+        }
+        if (gameRoom.userGame.potentielPlayers.includes(userName)) return false;
+        gameRoom.userGame.potentielPlayers.push(userName);
+        this.gameRooms.delete(gameRoom.roomId);
+        this.gameRooms.set(gameRoom.roomId, gameRoom);
+        socket.join(gameRoom.roomId);
+        return true;
+    }
+
     validateDifference(gameId: string, differencePos: Vector2D): boolean {
         const gameRoom = this.gameRooms.get(gameId);
         if (gameRoom === undefined) return false;
@@ -43,5 +57,14 @@ export class ClassicModeService {
 
     deleteRoom(roomId: string): void {
         this.gameRooms.delete(roomId);
+    }
+
+    getGameRooms(gameName: string): GameRoom {
+        for (const gameRoom of this.gameRooms.values()) {
+            if (!gameRoom.started && gameRoom.userGame.gameData.gameForm.name === gameName) {
+                return gameRoom;
+            }
+        }
+        return undefined;
     }
 }

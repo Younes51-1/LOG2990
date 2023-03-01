@@ -1,1 +1,19 @@
 <p>waiting-page works!</p>
+<p *ngIf="classicModeService.gameRoom?.userGame?.username === classicModeService?.userName">Creator</p>
+<p *ngIf="classicModeService.gameRoom?.userGame?.username !== classicModeService?.userName">Join</p>
+<div *ngIf="classicModeService.gameRoom?.userGame?.username === classicModeService?.userName">
+    <p *ngIf="classicModeService.gameRoom?.userGame?.potentielPlayers;">Players in the room:</p>
+    <p *ngFor="let player of classicModeService.gameRoom?.userGame?.potentielPlayers">
+        {{player}}<button (click)="playerAccepted(player)">accept</button><button (click)="playerRejected(player)">reject</button></p>
+    <p *ngIf="!classicModeService.gameRoom?.userGame?.potentielPlayers;">No one</p>
+</div>
+
+<div *ngIf="this.rejected">
+    <p>Player rejected</p>
+    <button routerLink="/selection">Back to selection</button>
+</div>
+
+<div *ngIf="this.accepted">
+    <p>Player accepted</p>
+    <button routerLink="/game">Back to selection</button>
+</div>
