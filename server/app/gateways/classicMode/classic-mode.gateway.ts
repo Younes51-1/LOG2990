@@ -14,7 +14,7 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
 
     @SubscribeMessage(ClassicModeEvents.Start)
     startGame(socket: Socket, userGame: UserGame) {
-        const newRoomId = this.classicModeService.initNewRoom(socket, userGame);
+        const newRoomId = this.classicModeService.initNewRoom(socket, userGame, true);
         this.server.to(socket.id).emit(ClassicModeEvents.Started, newRoomId);
     }
 
@@ -30,6 +30,30 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
     @SubscribeMessage(ClassicModeEvents.EndGame)
     endGame(socket: Socket) {
         this.server.to(socket.id).emit(ClassicModeEvents.GameFinished, this.classicModeService.gameRooms.get(socket.id).userGame.timer);
+        this.server.emit(ClassicModeEvents.GameDeleted, this.classicModeService.gameRooms.get(socket.id).userGame.gameData.gameForm.name);
+    }
+
+    @SubscribeMessage(ClassicModeEvents.CheckGame)
+    checkGame(socket: Socket, gameName: string) {
+        this.logger.log(`Check game: ${gameName}`);
+        if (this.getGameRooms(gameName)) {
+            this.logger.log('Game found');
+            this.server.to(socket.id).emit(ClassicModeEvents.GameFound, gameName);
+        }
+    }
+
+    @SubscribeMessage(ClassicModeEvents.CreateGame)
+    createGame(socket: Socket, userGame: UserGame) {
+        this.classicModeService.initNewRoom(socket, userGame, false);
+        this.logger.log(`Create game: ${userGame.gameData.gameForm.name}`);
+        this.server.emit(ClassicModeEvents.GameFound, userGame.gameData.gameForm.name);
+    }
+
+    @SubscribeMessage(ClassicModeEvents.AbortGameCreation)
+    abortGameCreation(socket: Socket, gameName: string) {
+        this.logger.log(`Abort game creation: ${gameName}`);
+        this.classicModeService.deleteRoom(socket.id);
+        this.server.emit(ClassicModeEvents.GameDeleted, gameName);
     }
 
     afterInit() {
@@ -46,6 +70,10 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
     handleDisconnect(socket: Socket) {
         this.logger.log(`${socket.id}: deconnexion`);
         this.classicModeService.deleteRoom(socket.id);
+        if (this.classicModeService.gameRooms.get(socket.id)) {
+            this.logger.log(`Game deleted: ${this.classicModeService.gameRooms.get(socket.id).userGame.gameData.gameForm.name}`);
+            this.server.emit(ClassicModeEvents.GameDeleted, this.classicModeService.gameRooms.get(socket.id).userGame.gameData.gameForm.name);
+        }
     }
 
     emitTime() {
@@ -53,5 +81,14 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
             this.classicModeService.updateTimer(gameRoom);
             this.server.to(gameRoom.roomId).emit(ClassicModeEvents.Timer, this.classicModeService.gameRooms.get(gameRoom.roomId).userGame.timer);
         }
+    }
+
+    getGameRooms(gameName: string): boolean {
+        for (const gameRoom of this.classicModeService.gameRooms.values()) {
+            if (!gameRoom.started && gameRoom.userGame.gameData.gameForm.name === gameName) {
+                return true;
+            }
+        }
+        return false;
     }
 }

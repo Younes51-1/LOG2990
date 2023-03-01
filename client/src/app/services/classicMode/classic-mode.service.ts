@@ -20,7 +20,7 @@ export class ClassicModeService {
 
     constructor(private readonly socketService: CommunicationSocketService, private communicationService: CommunicationService) {}
 
-    initClassicMode(gameName: string, username: string): void {
+    initClassicModeSolo(gameName: string, username: string): void {
         this.communicationService.getGame(gameName).subscribe((res) => {
             if (Object.keys(res).length !== 0) {
                 this.gameRoom = {
@@ -31,6 +31,28 @@ export class ClassicModeService {
                         username,
                     },
                     roomId: '',
+                    started: true,
+                };
+                this.userGame$.next(this.gameRoom.userGame);
+                this.connect();
+            } else {
+                alert('Jeu introuvable');
+            }
+        });
+    }
+
+    createClassicModeMulti(gameName: string, username: string): void {
+        this.communicationService.getGame(gameName).subscribe((res) => {
+            if (Object.keys(res).length !== 0) {
+                this.gameRoom = {
+                    userGame: {
+                        gameData: res,
+                        nbDifferenceFound: 0,
+                        timer: 0,
+                        username,
+                    },
+                    roomId: '',
+                    started: false,
                 };
                 this.userGame$.next(this.gameRoom.userGame);
                 this.connect();
@@ -45,13 +67,17 @@ export class ClassicModeService {
             this.socketService.connect();
             this.handleSocket();
         } else {
-            alert('Un problème est survenu lors de la connexion au serveur');
+            alert('Problème de connexion');
         }
     }
 
     handleSocket(): void {
         this.socketService.on('waiting', () => {
-            this.startGame();
+            if (this.gameRoom.started) {
+                this.startGame();
+            } else {
+                this.socketService.send('createGame', this.gameRoom.userGame);
+            }
         });
 
         this.socketService.on('started', (roomId: string) => {
@@ -94,6 +120,12 @@ export class ClassicModeService {
     endGame(): void {
         if (this.socketService.isSocketAlive()) {
             this.socketService.send('endGame');
+        }
+    }
+
+    abortGame(): void {
+        if (this.socketService.isSocketAlive()) {
+            this.socketService.send('abortGameCreation', this.gameRoom.userGame.gameData.gameForm.name);
         }
     }
 }

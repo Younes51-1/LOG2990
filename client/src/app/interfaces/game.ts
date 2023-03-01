@@ -28,6 +28,7 @@ export interface BestTime {
 export interface GameRoom {
     userGame: UserGame;
     roomId: string;
+    started: boolean;
 }
 
 export interface NewGame {

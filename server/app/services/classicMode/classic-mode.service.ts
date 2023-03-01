@@ -13,8 +13,8 @@ export class ClassicModeService {
         this.gameRooms = new Map<string, GameRoom>();
     }
 
-    initNewRoom(socket: Socket, userGame: UserGame): string {
-        const newRoom = { userGame, roomId: socket.id };
+    initNewRoom(socket: Socket, userGame: UserGame, started: boolean): string {
+        const newRoom = { userGame, roomId: socket.id, started };
         this.gameRooms.set(newRoom.roomId, newRoom);
         socket.join(newRoom.roomId);
         return newRoom.roomId;

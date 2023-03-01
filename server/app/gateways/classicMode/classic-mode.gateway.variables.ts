@@ -7,6 +7,12 @@ export enum ClassicModeEvents {
     GameFinished = 'GameFinished',
     EndGame = 'endGame',
     Timer = 'timer',
+    CheckGame = 'checkGame',
+    GameFound = 'gameFound',
+    GameDeleted = 'gameDeleted',
+    CreateGame = 'createGame',
+    JoinGame = 'joinGame',
+    AbortGameCreation = 'abortGameCreation',
 }
 
 export enum DelayBeforeEmmitingTime {
