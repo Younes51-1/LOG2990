@@ -154,25 +154,9 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
 
     flashDifference(difference: number[][]) {
         const timeOut = 100;
-        const layer1 = document.createElement('canvas');
-        const layer2 = document.createElement('canvas');
-        layer1.width = this.width;
-        layer1.height = this.height;
-        layer2.width = this.width;
-        layer2.height = this.height;
-        const layerContext1 = layer1.getContext('2d');
-        const layerContext2 = layer2.getContext('2d');
-        if (this.context1 && layerContext1 && this.context2 && layerContext2) {
-            layerContext1.fillStyle = Color.Luigi;
-            layerContext2.fillStyle = Color.Luigi;
-            for (let i = 0; i < difference.length; i++) {
-                for (let j = 0; j < difference[0].length; j++) {
-                    if (difference[i][j] !== this.emptypixel) {
-                        layerContext1.fillRect(j, i, 1, 1);
-                        layerContext2.fillRect(j, i, 1, 1);
-                    }
-                }
-            }
+        const layer1 = this.createAndFillNewLayer(Color.Luigi, false, difference);
+        const layer2 = this.createAndFillNewLayer(Color.Luigi, false, difference);
+        if (this.context1 && this.context2) {
             for (let i = 1; i <= this.timesFlashDifferences; i++) {
                 setTimeout(() => {
                     this.context1.drawImage(layer1, 0, 0, this.width, this.height);
@@ -218,38 +202,51 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     }
 
     cheatMode() {
-        const timeOut = 100;
-        const layer1 = document.createElement('canvas');
-        const layer2 = document.createElement('canvas');
-        layer1.width = this.width;
-        layer1.height = this.height;
-        layer2.width = this.width;
-        layer2.height = this.height;
-        const layerContext1 = layer1.getContext('2d');
-        const layerContext2 = layer2.getContext('2d');
-        if (this.context1 && layerContext1 && this.context2 && layerContext2) {
-            layerContext1.fillStyle = Color.Blue;
-            layerContext2.fillStyle = Color.Blue;
-            for (let i = 0; i < this.differenceMatrix.length; i++) {
-                for (let j = 0; j < this.differenceMatrix[0].length; j++) {
-                    if (this.differenceMatrix[i][j] !== this.emptypixel) {
-                        layerContext1.fillRect(j, i, 1, 1);
-                        layerContext2.fillRect(j, i, 1, 1);
+        const cycleDuration = 250;
+        const flashDuration = 125;
+        const notFlashDuration = cycleDuration - flashDuration;
+        let layer1 = this.createAndFillNewLayer(Color.Cheat, true, this.differenceMatrix);
+        let layer2 = this.createAndFillNewLayer(Color.Cheat, true, this.differenceMatrix);
+        const originalDifferenceMatrix = this.currentDifferenceMatrix;
+        if (this.context1 && this.context2) {
+            const flashDifferences = () => {
+                if (originalDifferenceMatrix !== this.currentDifferenceMatrix) {
+                    layer1 = this.createAndFillNewLayer(Color.Cheat, true, this.differenceMatrix);
+                    layer2 = this.createAndFillNewLayer(Color.Cheat, true, this.differenceMatrix);
+                }
+                setTimeout(() => {
+                    if (this.isCheatModeOn) {
+                        this.context1.drawImage(layer1, 0, 0, this.width, this.height);
+                        this.context2.drawImage(layer2, 0, 0, this.width, this.height);
+                        setTimeout(() => {
+                            this.context1.drawImage(this.original, 0, 0, this.width, this.height);
+                            this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
+                            flashDifferences();
+                        }, notFlashDuration);
+                    }
+                }, flashDuration);
+            };
+            flashDifferences();
+        }
+    }
+
+    createAndFillNewLayer(color: Color, isCheat: boolean, matrix: number[][]): HTMLCanvasElement {
+        const cheatAlphaValue = 0.7;
+        const layer = document.createElement('canvas');
+        layer.width = this.width;
+        layer.height = this.height;
+        const context = layer.getContext('2d');
+        if (context) {
+            context.globalAlpha = isCheat ? cheatAlphaValue : 1;
+            context.fillStyle = color;
+            for (let i = 0; i < matrix.length; i++) {
+                for (let j = 0; j < matrix[0].length; j++) {
+                    if (matrix[i][j] !== this.emptypixel) {
+                        context.fillRect(j, i, 1, 1);
                     }
                 }
             }
-            for (let i = 1; i <= this.timesFlashDifferences; i++) {
-                setTimeout(() => {
-                    this.context1.drawImage(layer1, 0, 0, this.width, this.height);
-                    this.context2.drawImage(layer2, 0, 0, this.width, this.height);
-                    setTimeout(() => {
-                        this.context1.drawImage(this.original, 0, 0, this.width, this.height);
-                        this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
-                        if (i === 1) this.removeDifference(this.currentDifferenceMatrix);
-                        if (i === this.timesFlashDifferences) this.playerIsAllowedToClick = true;
-                    }, timeOut);
-                }, 2 * i * timeOut);
-            }
         }
+        return layer;
     }
 }

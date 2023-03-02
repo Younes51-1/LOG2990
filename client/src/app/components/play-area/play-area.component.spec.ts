@@ -283,4 +283,15 @@ describe('PlayAreaComponent', () => {
         }
         expect(spy).toHaveBeenCalled();
     });
+
+    it('should set variables and call cheatMode on press of T', () => {
+        const cheatModeSpy = spyOn(component, 'cheatMode');
+        const cheatModeKey = 't';
+        const buttonEvent = {
+            key: cheatModeKey,
+        } as KeyboardEvent;
+        component.buttonDetect(buttonEvent);
+        expect(component.isCheatModeOn).toBeTrue();
+        expect(cheatModeSpy).toHaveBeenCalled();
+    });
 });
