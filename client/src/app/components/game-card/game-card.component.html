@@ -26,10 +26,6 @@
         <button (click)="toggleBorder()">{{ btnOne }}</button>
     </div>
     <div class="player-name" *ngIf="showInput2">
-        <button *ngIf="this.gameExists" (click)="createJoin = true; showInput2 = false;">Joindre une partie</button>
-        <button *ngIf="!this.gameExists" (click)="createJoin = true; showInput2 = false;">Créer une partie</button>
-    </div>
-    <div class="player-name" *ngIf="createJoin">
         <input type="text" [(ngModel)]="inputValue2" placeholder="Entrez votre nom" [ngClass]="{'error-border': applyBorder}">
         <button (click)="toggleBorder2()">{{ this.gameExists ? "Joindre" : "Créer" }}</button>
     </div>

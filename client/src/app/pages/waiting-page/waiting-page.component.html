@@ -1,7 +1,7 @@
 <p>waiting-page works!</p>
-<p *ngIf="classicModeService.gameRoom?.userGame?.username === classicModeService?.userName">Creator</p>
-<p *ngIf="classicModeService.gameRoom?.userGame?.username !== classicModeService?.userName">Join</p>
-<div *ngIf="classicModeService.gameRoom?.userGame?.username === classicModeService?.userName">
+<p *ngIf="classicModeService.gameRoom?.userGame?.username1 === classicModeService?.userName">Creator</p>
+<p *ngIf="classicModeService.gameRoom?.userGame?.username1 !== classicModeService?.userName">Join</p>
+<div *ngIf="classicModeService.gameRoom?.userGame?.username1 === classicModeService?.userName">
     <p *ngIf="classicModeService.gameRoom?.userGame?.potentielPlayers;">Players in the room:</p>
     <p *ngFor="let player of classicModeService.gameRoom?.userGame?.potentielPlayers">
         {{player}}<button (click)="playerAccepted(player)">accept</button><button (click)="playerRejected(player)">reject</button></p>

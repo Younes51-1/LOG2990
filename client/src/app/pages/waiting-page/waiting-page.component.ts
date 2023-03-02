@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 
 @Component({
@@ -9,7 +10,8 @@ import { ClassicModeService } from '@app/services/classicMode/classic-mode.servi
 export class WaitingPageComponent implements OnInit, OnDestroy {
     rejected = false;
     accepted = false;
-    constructor(public classicModeService: ClassicModeService) {}
+    gameCanceled = false;
+    constructor(public classicModeService: ClassicModeService, private readonly router: Router) {}
 
     ngOnInit() {
         this.classicModeService.rejected$.subscribe((rejected) => {
@@ -17,6 +19,14 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
         });
         this.classicModeService.accepted$.subscribe((accepted) => {
             this.accepted = accepted;
+        });
+        this.classicModeService.gameCanceled$.subscribe((finished) => {
+            if (!this.gameCanceled && finished) {
+                this.gameCanceled = true;
+                alert('Game canceled');
+                this.classicModeService.abortGame();
+                this.router.navigate(['/selection']);
+            }
         });
     }
 

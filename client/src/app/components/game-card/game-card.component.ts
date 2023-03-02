@@ -42,12 +42,16 @@ export class GameCardComponent implements OnInit, OnDestroy {
         if (!this.socketService.isSocketAlive()) {
             this.socketService.connect();
         }
-        this.socketService.send('checkGame', this.slide.name);
+        if (!this.gameExists) {
+            this.socketService.send('checkGame', this.slide.name);
+        }
+
         this.socketService.on('gameFound', (gameName: string) => {
             if (gameName === this.slide.name) {
                 this.gameExists = true;
             }
         });
+
         this.socketService.on('gameDeleted', (gameName: string) => {
             if (gameName === this.slide.name) {
                 this.gameExists = false;
@@ -66,11 +70,28 @@ export class GameCardComponent implements OnInit, OnDestroy {
         if (this.page === PageKeys.Selection && !this.gameExists) {
             this.socketService.disconnect();
             this.classicModeService.createClassicModeMulti(this.slide.name, this.inputValue2);
+            this.notify.emit(this.slide);
+            this.router.navigate([this.routeTwo]);
         } else if (this.page === PageKeys.Selection && this.gameExists) {
-            this.socketService.disconnect();
-            this.classicModeService.joinClassicModeMulti(this.slide.name, this.inputValue2);
+            if (!this.socketService.isSocketAlive()) {
+                this.socketService.connect();
+            }
+            this.socketService.send('canJoinGame', [this.slide.name, this.inputValue2]);
+            this.socketService.on('cannotJoinGame', () => {
+                this.applyBorder = false;
+                this.socketService.disconnect();
+            });
+            this.socketService.on('canJoinGame', () => {
+                this.joinGame();
+            });
         }
+    }
+
+    joinGame() {
+        this.socketService.disconnect();
+        this.classicModeService.joinClassicModeMulti(this.slide.name, this.inputValue2);
         this.notify.emit(this.slide);
+        this.router.navigate([this.routeTwo]);
     }
 
     toggleBorder() {
@@ -87,7 +108,6 @@ export class GameCardComponent implements OnInit, OnDestroy {
             this.applyBorder = false;
         } else {
             this.btnTwoEmitter();
-            this.router.navigate([this.routeTwo]);
         }
     }
 
@@ -106,7 +126,7 @@ export class GameCardComponent implements OnInit, OnDestroy {
         // TODO: add more WORDS
         const forbiddenWords = ['foo', 'bar', 'baz'];
         for (const word of forbiddenWords) {
-            if (input.toLowerCase().includes(word)) {
+            if (input.toLowerCase().includes(word.toLowerCase())) {
                 return false;
             }
         }

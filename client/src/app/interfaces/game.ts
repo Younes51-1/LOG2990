@@ -4,7 +4,7 @@ export interface GameData {
 }
 
 export interface UserGame {
-    username: string;
+    username1: string;
     username2?: string;
     gameData: GameData;
     nbDifferenceFound: number;

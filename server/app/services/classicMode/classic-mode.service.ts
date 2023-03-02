@@ -20,13 +20,22 @@ export class ClassicModeService {
         return newRoom.roomId;
     }
 
-    joinGame(socket: Socket, gameName: string, userName: string): boolean {
+    canJoinGame(socket: Socket, gameName: string, userName: string): GameRoom {
         const gameRoom = this.getGameRooms(gameName);
-        if (!gameRoom) return false;
+        if (!gameRoom) return undefined;
         if (!gameRoom.userGame.potentielPlayers) {
             gameRoom.userGame.potentielPlayers = [];
         }
-        if (gameRoom.userGame.potentielPlayers.includes(userName)) return false;
+        if (gameRoom.userGame.username1.toLowerCase() === userName.toLowerCase()) return undefined;
+        for (const player of gameRoom.userGame.potentielPlayers) {
+            if (player.toLowerCase() === userName.toLowerCase()) return undefined;
+        }
+        return gameRoom;
+    }
+
+    joinGame(socket: Socket, gameName: string, userName: string): boolean {
+        const gameRoom = this.getGameRooms(gameName);
+        if (!gameName) return false;
         gameRoom.userGame.potentielPlayers.push(userName);
         this.gameRooms.delete(gameRoom.roomId);
         this.gameRooms.set(gameRoom.roomId, gameRoom);
@@ -61,7 +70,7 @@ export class ClassicModeService {
 
     getGameRooms(gameName: string): GameRoom {
         for (const gameRoom of this.gameRooms.values()) {
-            if (!gameRoom.started && gameRoom.userGame.gameData.gameForm.name === gameName) {
+            if (!gameRoom.started && gameRoom.userGame.gameData.gameForm.name.toLocaleLowerCase() === gameName.toLocaleLowerCase()) {
                 return gameRoom;
             }
         }

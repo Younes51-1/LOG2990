@@ -38,7 +38,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.userGameSubscription = this.classicModeService.userGame$.subscribe((userGame) => {
             this.userGame = userGame;
             this.gameName = userGame.gameData.gameForm.name;
-            this.player = userGame.username;
+            this.player = userGame.username1;
         });
     }
 

@@ -20,6 +20,7 @@ export class ClassicModeService {
     serverValidateResponse$ = new Subject<boolean>();
     rejected$ = new Subject<boolean>();
     accepted$ = new Subject<boolean>();
+    gameCanceled$ = new Subject<boolean>();
 
     constructor(private readonly socketService: CommunicationSocketService, private communicationService: CommunicationService) {}
 
@@ -31,7 +32,7 @@ export class ClassicModeService {
                         gameData: res,
                         nbDifferenceFound: 0,
                         timer: 0,
-                        username,
+                        username1: username,
                     },
                     roomId: '',
                     started: true,
@@ -53,7 +54,7 @@ export class ClassicModeService {
                         gameData: res,
                         nbDifferenceFound: 0,
                         timer: 0,
-                        username,
+                        username1: username,
                     },
                     roomId: '',
                     started: false,
@@ -82,13 +83,13 @@ export class ClassicModeService {
 
     playerRejected(player: string): void {
         if (this.socketService.isSocketAlive()) {
-            this.socketService.send('playerRejected', [this.gameRoom.userGame.gameData.gameForm.name, player]);
+            this.socketService.send('rejectPlayer', [this.gameRoom.userGame.gameData.gameForm.name, player]);
         }
     }
 
     playerAccepted(player: string): void {
         if (this.socketService.isSocketAlive()) {
-            this.socketService.send('playerAccepted', [this.gameRoom.userGame.gameData.gameForm.name, player]);
+            this.socketService.send('acceptPlayer', [this.gameRoom.userGame.gameData.gameForm.name, player]);
         }
     }
 
@@ -97,7 +98,7 @@ export class ClassicModeService {
             this.socketService.connect();
             this.handleSocket();
         } else {
-            alert('Problème de connexion');
+            alert('Problème de connexion Socket Alive');
         }
     }
 
@@ -136,7 +137,7 @@ export class ClassicModeService {
         });
 
         this.socketService.on('playerAccepted', (gameRoom: GameRoom) => {
-            if (gameRoom && gameRoom.userGame.username === this.userName) {
+            if (gameRoom && gameRoom.userGame.username1 === this.userName) {
                 this.gameRoom = gameRoom;
                 this.userGame$.next(gameRoom.userGame);
                 this.accepted$.next(true);
@@ -150,7 +151,7 @@ export class ClassicModeService {
         this.socketService.on('playerRejected', (gameRoom: GameRoom) => {
             if (
                 gameRoom &&
-                gameRoom.userGame.username !== this.userName &&
+                gameRoom.userGame.username1 !== this.userName &&
                 gameRoom.userGame.username2 !== this.userName &&
                 !gameRoom.userGame.potentielPlayers?.includes(this.userName)
             ) {
@@ -158,6 +159,12 @@ export class ClassicModeService {
             } else if (gameRoom) {
                 this.gameRoom = gameRoom;
                 this.userGame$.next(gameRoom.userGame);
+            }
+        });
+
+        this.socketService.on('gameCanceled', (gameName) => {
+            if (this.gameRoom?.userGame.gameData.gameForm.name === gameName) {
+                this.gameCanceled$.next(true);
             }
         });
 
@@ -187,10 +194,12 @@ export class ClassicModeService {
     }
 
     abortGame(): void {
-        if (this.socketService.isSocketAlive() && this.gameRoom?.userGame.username === this.userName) {
+        if (this.socketService.isSocketAlive() && this.gameRoom?.userGame.username1 === this.userName) {
             this.socketService.send('abortGameCreation', this.gameRoom.userGame.gameData.gameForm.name);
+            this.socketService.disconnect();
         } else if (this.socketService.isSocketAlive()) {
             this.socketService.send('leaveGame', [this.gameRoom.userGame.gameData.gameForm.name, this.userName]);
+            this.socketService.disconnect();
         }
     }
 }

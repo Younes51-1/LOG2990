@@ -49,6 +49,17 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
         this.server.emit(ClassicModeEvents.GameFound, userGame.gameData.gameForm.name);
     }
 
+    @SubscribeMessage(ClassicModeEvents.CanJoinGame)
+    canJoinGame(socket: Socket, userGame: [gameName: string, username: string]) {
+        if (this.classicModeService.canJoinGame(socket, userGame[0], userGame[1])) {
+            this.logger.log(`${userGame[1]} can join game: ${userGame[0]}`);
+            this.server.to(socket.id).emit(ClassicModeEvents.CanJoinGame);
+        } else {
+            this.logger.log(`${userGame[1]} cannot join game: ${userGame[0]}`);
+            this.server.to(socket.id).emit(ClassicModeEvents.CannotJoinGame);
+        }
+    }
+
     @SubscribeMessage(ClassicModeEvents.JoinGame)
     joinGame(socket: Socket, userGame: [gameName: string, username: string]) {
         this.logger.log(`Join game: ${userGame[0]}`);
@@ -66,6 +77,7 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
         this.logger.log(`Abort game creation: ${gameName}`);
         this.classicModeService.deleteRoom(socket.id);
         this.server.emit(ClassicModeEvents.GameDeleted, gameName);
+        this.server.emit(ClassicModeEvents.GameCanceled, gameName);
     }
 
     @SubscribeMessage(ClassicModeEvents.LeaveGame)
@@ -79,7 +91,7 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
         }
     }
 
-    @SubscribeMessage(ClassicModeEvents.PlayerRejected)
+    @SubscribeMessage(ClassicModeEvents.RejectPlayer)
     playerRejected(socket: Socket, playerInfo: [gameName: string, userName: string]) {
         const gameRoom = this.classicModeService.getGameRooms(playerInfo[0]);
         if (gameRoom) {
@@ -90,7 +102,7 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
         }
     }
 
-    @SubscribeMessage(ClassicModeEvents.PlayerAccepted)
+    @SubscribeMessage(ClassicModeEvents.AcceptPlayer)
     playerAccepted(socket: Socket, playerInfo: [gameName: string, userName: string]) {
         const gameRoom = this.classicModeService.getGameRooms(playerInfo[0]);
         if (gameRoom) {
