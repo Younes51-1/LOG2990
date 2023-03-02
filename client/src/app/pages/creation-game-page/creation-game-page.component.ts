@@ -3,6 +3,7 @@ import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, ViewChil
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.component';
+import { Canvas, DrawModes, ForegroundState, Rectangle } from '@app/interfaces/creation-game';
 import { NewGame } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
 import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
@@ -10,30 +11,6 @@ import { Vec2 } from 'src/app/interfaces/vec2';
 import { Color } from 'src/assets/variables/color';
 import { AsciiLetterValue, BIT_PER_PIXEL, OffsetValues, PossibleRadius } from 'src/assets/variables/images-values';
 import { MouseButton } from 'src/assets/variables/mouse-button';
-
-enum DrawModes {
-    PENCIL = 'pencil',
-    RECTANGLE = 'rectangle',
-    ERASER = 'eraser',
-    NOTHING = '',
-}
-
-interface ForegroundState {
-    layer: HTMLCanvasElement;
-    belonging: boolean;
-    swap: boolean;
-}
-
-interface Rectangle {
-    canvas: HTMLCanvasElement;
-    context: CanvasRenderingContext2D;
-    startPos: Vec2;
-}
-
-interface Canvas {
-    canvas: HTMLCanvasElement;
-    context: CanvasRenderingContext2D;
-}
 
 @Component({
     selector: 'app-creation-game-page',
@@ -245,15 +222,17 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         const img2HasContent: boolean = this.image2?.value !== undefined;
 
         if (img1HasContent && img2HasContent) {
-            const image1matrix: number[][] = await this.detectionService.readThenConvertImage(this.image1);
-            const image2matrix: number[][] = await this.detectionService.readThenConvertImage(this.image2);
+            const image1matrix: number[][] = await this.detectionService.readThenConvertImage(this.image1); // a supprimer
+            const image2matrix: number[][] = await this.detectionService.readThenConvertImage(this.image2); // a supprimer
 
+            this.differenceMatrix = this.detectionService.produceDifferencesMatrix(this.context1, this.context2, this.radius);
+
+            // a changer
             this.differenceCount = this.detectionService.countDifferences(
                 JSON.parse(JSON.stringify(image1matrix)),
                 JSON.parse(JSON.stringify(image2matrix)),
                 this.radius,
             );
-            this.differenceMatrix = this.detectionService.differencesMatrix(image1matrix, image2matrix, this.radius);
             this.imageDifferencesUrl = this.detectionService.createDifferencesImage(this.differenceMatrix);
             this.difficulty = this.detectionService.computeLevelDifficulty(this.differenceCount, JSON.parse(JSON.stringify(this.differenceMatrix)));
             this.openDifferencesDialog();

@@ -17,6 +17,8 @@
         <input *ngIf="drawMode === 'pencil'" type="text" id="pencilSize" [(ngModel)]="pencilSize" />
         <label *ngIf="drawMode === 'eraser'" for="eraserSize"> Taille de l'efface (px) </label>
         <input *ngIf="drawMode === 'eraser'" type="text" id="eraserSize" [(ngModel)]="eraserSize" />
+        <button class="button" (click)="ctrlZ()">Annuler</button>
+        <button class="button" (click)="ctrlShiftZ()">Refaire</button>
     </div>
     <p>* Les images doivent posséder le format 24-bit bitmap (BPM) avec une taille de 640x480 px *</p>
     <p>

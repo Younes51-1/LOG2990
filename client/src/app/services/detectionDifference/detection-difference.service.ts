@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { OffsetValues } from 'src/assets/variables/images-values';
+import { NumberArray, Rgba } from '@app/interfaces/creation-game';
 import { Vec2 } from '@app/interfaces/vec2';
+import { OffsetValues } from 'src/assets/variables/images-values';
 
 @Injectable({
     providedIn: 'root',
@@ -19,6 +20,73 @@ export class DetectionDifferenceService {
         this.positiveDifferenceCoord = 1;
         this.pixelDataSize = 4;
     }
+
+    produceDifferencesMatrix(ctx1: CanvasRenderingContext2D, ctx2: CanvasRenderingContext2D, radius: number): number[][] {
+        const matrix: number[][] = this.createEmptyMatrix(this.pictureDimensions.height, this.pictureDimensions.width, this.emptyPixelValue);
+        const data1 = ctx1.getImageData(0, 0, this.pictureDimensions.width, this.pictureDimensions.height).data;
+        const data2 = ctx2.getImageData(0, 0, this.pictureDimensions.width, this.pictureDimensions.height).data;
+        const rgbaOffset = 4;
+        const differencesCoordinates = [];
+        let differencesCoordinatesSize = 0;
+
+        for (let i = 0; i < data1.length; i += rgbaOffset) {
+            const pixelImg1: Rgba = { r: data1[i], g: data1[i + 1], b: data1[i + 2], a: data1[i + 3] };
+            const pixelImg2: Rgba = { r: data2[i], g: data2[i + 1], b: data2[i + 2], a: data2[i + 3] };
+
+            const row = Math.floor(i / rgbaOffset / this.pictureDimensions.width);
+            const column = i / rgbaOffset - row * this.pictureDimensions.width;
+            if (this.areEqual(pixelImg1, pixelImg2)) {
+                matrix[row][column] = -1;
+            } else {
+                matrix[row][column] = 1;
+                differencesCoordinates[differencesCoordinatesSize++] = row;
+                differencesCoordinates[differencesCoordinatesSize++] = column;
+            }
+        }
+
+        this.applyRadius(matrix, radius, { array: differencesCoordinates, length: differencesCoordinatesSize });
+
+        return matrix;
+    }
+
+    applyRadius(matrix: number[][], radius: number, diffCoordinates: NumberArray) {
+        const radiusCoordinates = this.computeRadiusRelativeCoordinates(radius);
+
+        for (let i = 0; i < diffCoordinates.length; i += 2) {
+            for (let k = 0; k < radiusCoordinates.length; k += 2) {
+                const coordX = diffCoordinates.array[i] + radiusCoordinates.array[k];
+                const coordY = diffCoordinates.array[i + 1] + radiusCoordinates.array[k + 1];
+                if (coordX >= 0 && coordY >= 0 && coordX < this.pictureDimensions.height && coordY < this.pictureDimensions.width) {
+                    if (matrix[coordX][coordY] === this.emptyPixelValue) {
+                        matrix[coordX][coordY] = 1;
+                    }
+                }
+            }
+        }
+        return matrix;
+    }
+
+    computeRadiusRelativeCoordinates(radius: number): NumberArray {
+        const radiusCoordinates = [];
+        let radiusCoordinatesSize = 0;
+        for (let i = -radius; i <= radius; i++) {
+            for (let j = -radius; j <= radius; j++) {
+                if (Math.sqrt(i ** 2 + j ** 2) <= radius) {
+                    radiusCoordinates[radiusCoordinatesSize++] = i;
+                    radiusCoordinates[radiusCoordinatesSize++] = j;
+                }
+            }
+        }
+        return { array: radiusCoordinates, length: radiusCoordinatesSize };
+    }
+
+    areEqual(val1: Rgba, val2: Rgba): boolean {
+        if (val1.r === val2.r && val1.g === val2.g && val1.b === val2.b && val1.a === val2.a) {
+            return true;
+        }
+        return false;
+    }
+
     createEmptyMatrix(height: number, width: number, filler: number | boolean) {
         const matrix = [];
         for (let i = 0; i < height; i++) {
@@ -27,6 +95,7 @@ export class DetectionDifferenceService {
         return matrix;
     }
 
+    // A SUPPRIMER DANS LE FUTUR
     convertImageToMatrix(buffer: ArrayBuffer): number[][] {
         const offset = new DataView(buffer).getInt32(OffsetValues.OFFSET, true);
         const width = Math.abs(new DataView(buffer).getInt32(OffsetValues.WIDTH, true));
@@ -44,6 +113,7 @@ export class DetectionDifferenceService {
         return matrix;
     }
 
+    // A SUPPRIMER DANS LE FUTUR
     async readThenConvertImage(input: HTMLInputElement): Promise<number[][]> {
         return new Promise((resolve) => {
             const file: File | null = input.files?.item(0) ?? null;
@@ -97,47 +167,6 @@ export class DetectionDifferenceService {
         }
 
         return differenceCount;
-    }
-
-    differencesMatrix(array1: number[][], array2: number[][], radius: number): number[][] {
-        const height = array1.length;
-        const width = array1[0].length;
-
-        const differenceMatrix = this.createEmptyMatrix(height, width, this.emptyPixelValue);
-        const differencesCoordinatesArray = [];
-        let differencesCoordinatesArraySize = 0;
-        for (let i = 0; i < height; i++) {
-            for (let j = 0; j < width; j++) {
-                if (array1[i][j] !== array2[i][j]) {
-                    differenceMatrix[i][j] = array2[i][j];
-                    differencesCoordinatesArray[differencesCoordinatesArraySize++] = i;
-                    differencesCoordinatesArray[differencesCoordinatesArraySize++] = j;
-                }
-            }
-        }
-        const radiusCoordinatesArray = [];
-        let radiusCoordinatesArraySize = 0;
-        for (let i = -radius; i <= radius; i++) {
-            for (let j = -radius; j <= radius; j++) {
-                if (Math.sqrt(i ** 2 + j ** 2) <= radius) {
-                    radiusCoordinatesArray[radiusCoordinatesArraySize++] = i;
-                    radiusCoordinatesArray[radiusCoordinatesArraySize++] = j;
-                }
-            }
-        }
-
-        for (let i = 0; i < differencesCoordinatesArraySize; i += 2) {
-            for (let k = 0; k < radiusCoordinatesArraySize; k += 2) {
-                const coordX = differencesCoordinatesArray[i] + radiusCoordinatesArray[k];
-                const coordY = differencesCoordinatesArray[i + 1] + radiusCoordinatesArray[k + 1];
-                if (coordX >= 0 && coordY >= 0 && coordX < height && coordY < width) {
-                    if (differenceMatrix[coordX][coordY] === this.emptyPixelValue) {
-                        differenceMatrix[coordX][coordY] = array2[coordX][coordY];
-                    }
-                }
-            }
-        }
-        return differenceMatrix;
     }
 
     createDifferencesImage(differenceMatrix: number[][]) {
