@@ -294,4 +294,30 @@ describe('PlayAreaComponent', () => {
         expect(component.isCheatModeOn).toBeTrue();
         expect(cheatModeSpy).toHaveBeenCalled();
     });
+
+    it('should call createAndFillNewLayer twice when in cheatMode', () => {
+        const spy = spyOn(component, 'createAndFillNewLayer');
+        component.cheatMode();
+        expect(spy).toHaveBeenCalledTimes(2);
+    });
+
+    it('should call createAndFillNewLayer 4 times when in cheatMode and the difference matrix changes', () => {
+        const spy = spyOn(component, 'createAndFillNewLayer');
+        component.currentDifferenceMatrix = [[0]];
+        component.cheatMode();
+        component.currentDifferenceMatrix = [[1]];
+        fixture.detectChanges();
+        expect(spy).toHaveBeenCalledTimes(4);
+    });
+
+    it('should call drawImage twice on both contexts when in cheatMode', fakeAsync(() => {
+        component.differenceMatrix = [[]];
+        component.isCheatModeOn = true;
+        component.context1 = component.canvas1.nativeElement.getContext('2d') as CanvasRenderingContext2D;
+        const drawImageSpy = spyOn(component.context1, 'drawImage');
+        component.cheatMode();
+        const ms = 1000;
+        tick(ms);
+        expect(drawImageSpy).toHaveBeenCalled();
+    }));
 });
