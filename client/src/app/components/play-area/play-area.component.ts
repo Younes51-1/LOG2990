@@ -34,6 +34,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     currentDifferenceMatrix: number[][];
     emptypixel: number;
     timesFlashDifferences: number;
+    isCheatModeOn = false;
     private canvasSize = { x: Dimensions.DEFAULT_WIDTH, y: Dimensions.DEFAULT_HEIGHT };
 
     constructor(
@@ -53,9 +54,13 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         return this.canvasSize.y;
     }
 
-    @HostListener('keydown', ['$event'])
+    @HostListener('document:keydown', ['$event'])
     buttonDetect(event: KeyboardEvent) {
         this.buttonPressed = event.key;
+        if (this.buttonPressed === 't') {
+            this.isCheatModeOn = !this.isCheatModeOn;
+            this.cheatMode();
+        }
     }
     ngAfterViewInit() {
         this.classicModeService.differencesFound$.subscribe((differencesFound) => {
@@ -210,5 +215,41 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         this.context2.clearRect(0, 0, this.width, this.height);
         this.context2.putImageData(image2, 0, 0);
         this.modified.src = this.canvas2.nativeElement.toDataURL();
+    }
+
+    cheatMode() {
+        const timeOut = 100;
+        const layer1 = document.createElement('canvas');
+        const layer2 = document.createElement('canvas');
+        layer1.width = this.width;
+        layer1.height = this.height;
+        layer2.width = this.width;
+        layer2.height = this.height;
+        const layerContext1 = layer1.getContext('2d');
+        const layerContext2 = layer2.getContext('2d');
+        if (this.context1 && layerContext1 && this.context2 && layerContext2) {
+            layerContext1.fillStyle = Color.Blue;
+            layerContext2.fillStyle = Color.Blue;
+            for (let i = 0; i < this.differenceMatrix.length; i++) {
+                for (let j = 0; j < this.differenceMatrix[0].length; j++) {
+                    if (this.differenceMatrix[i][j] !== this.emptypixel) {
+                        layerContext1.fillRect(j, i, 1, 1);
+                        layerContext2.fillRect(j, i, 1, 1);
+                    }
+                }
+            }
+            for (let i = 1; i <= this.timesFlashDifferences; i++) {
+                setTimeout(() => {
+                    this.context1.drawImage(layer1, 0, 0, this.width, this.height);
+                    this.context2.drawImage(layer2, 0, 0, this.width, this.height);
+                    setTimeout(() => {
+                        this.context1.drawImage(this.original, 0, 0, this.width, this.height);
+                        this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
+                        if (i === 1) this.removeDifference(this.currentDifferenceMatrix);
+                        if (i === this.timesFlashDifferences) this.playerIsAllowedToClick = true;
+                    }, timeOut);
+                }, 2 * i * timeOut);
+            }
+        }
     }
 }
