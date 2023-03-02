@@ -603,6 +603,7 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
             const state = this.redo.pop();
             if (state?.swap) {
                 this.swapForegrounds();
+                this.undo.push({ layer: document.createElement('canvas'), belonging: true, swap: true });
             } else {
                 const canvas = this.getCanvasAndUpdate(state);
                 this.undo.push({ layer: canvas, belonging: this.belongsToCanvas1, swap: false });
