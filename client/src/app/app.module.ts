@@ -37,6 +37,7 @@ import { WaitingPageComponent } from './pages/waiting-page/waiting-page.componen
         MainPageComponent,
         PlayAreaComponent,
         SidebarComponent,
+        OpponentSidebarComponent,
         GameCardComponent,
         CreationGamePageComponent,
         ConfigParamsComponent,
