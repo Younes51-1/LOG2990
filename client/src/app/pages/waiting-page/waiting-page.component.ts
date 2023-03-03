@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-waiting-page',
@@ -11,18 +12,25 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
     rejected = false;
     accepted = false;
     gameCanceled = false;
+    private rejectedSubscription: Subscription;
+    private acceptedSubscription: Subscription;
+    private gameCanceledSubscription: Subscription;
     constructor(public classicModeService: ClassicModeService, private readonly router: Router) {}
 
     ngOnInit() {
-        this.classicModeService.rejected$.subscribe((rejected) => {
+        this.rejectedSubscription = this.classicModeService.rejected$.subscribe((rejected) => {
             this.rejected = rejected;
         });
 
-        this.classicModeService.accepted$.subscribe((accepted) => {
-            this.accepted = accepted;
+        this.acceptedSubscription = this.classicModeService.accepted$.subscribe((accepted) => {
+            if (accepted) {
+                this.accepted = true;
+                this.router.navigate(['/game']);
+                this.classicModeService.startMultiPlayerGame();
+            }
         });
 
-        this.classicModeService.gameCanceled$.subscribe((finished) => {
+        this.gameCanceledSubscription = this.classicModeService.gameCanceled$.subscribe((finished) => {
             if (!this.gameCanceled && finished) {
                 this.gameCanceled = true;
                 alert('Game canceled');
@@ -41,6 +49,11 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.classicModeService.abortGame();
+        this.acceptedSubscription.unsubscribe();
+        this.rejectedSubscription.unsubscribe();
+        this.gameCanceledSubscription.unsubscribe();
+        if (!this.accepted) {
+            this.classicModeService.abortGame();
+        }
     }
 }

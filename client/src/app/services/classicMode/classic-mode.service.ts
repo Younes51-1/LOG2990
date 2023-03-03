@@ -124,6 +124,10 @@ export class ClassicModeService {
             }
         });
 
+        this.socketService.on('multiPlayerGameStarted', (roomId: string) => {
+            this.gameRoom.roomId = roomId;
+        });
+
         this.socketService.on('playerRejected', (gameRoom: GameRoom) => {
             if (
                 gameRoom &&
@@ -153,6 +157,12 @@ export class ClassicModeService {
 
     startGame(): void {
         this.socketService.send('start', this.gameRoom.userGame);
+    }
+
+    startMultiPlayerGame(): void {
+        if (this.gameRoom.userGame.username1 === this.userName) {
+            this.socketService.send('startMultiPlayerGame', this.gameRoom.userGame);
+        }
     }
 
     validateDifference(differencePos: Vec2) {

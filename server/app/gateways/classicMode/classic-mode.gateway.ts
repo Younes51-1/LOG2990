@@ -15,7 +15,15 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
     @SubscribeMessage(ClassicModeEvents.Start)
     startGame(socket: Socket, userGame: UserGame) {
         const newRoomId = this.classicModeService.initNewRoom(socket, userGame, true);
+        this.logger.log(`Lancement du jeu solo: ${userGame.gameData.gameForm.name}`);
         this.server.to(socket.id).emit(ClassicModeEvents.Started, newRoomId);
+    }
+
+    @SubscribeMessage(ClassicModeEvents.StartMultiPlayerGame)
+    startMultiPlayerGame(socket: Socket, userGame: UserGame) {
+        const newRoomId = this.classicModeService.initNewRoom(socket, userGame, true);
+        this.logger.log(`Lancement du jeu multi: ${userGame.gameData.gameForm.name}`);
+        this.server.to(newRoomId).emit(ClassicModeEvents.MultiPlayerGameStarted, newRoomId);
     }
 
     @SubscribeMessage(ClassicModeEvents.ValidateDifference)
@@ -127,11 +135,11 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
 
     handleDisconnect(socket: Socket) {
         this.logger.log(`${socket.id}: deconnexion`);
-        this.classicModeService.deleteRoom(socket.id);
         if (this.classicModeService.gameRooms.get(socket.id)) {
             this.logger.log(`Game deleted: ${this.classicModeService.gameRooms.get(socket.id).userGame.gameData.gameForm.name}`);
             this.server.emit(ClassicModeEvents.GameDeleted, this.classicModeService.gameRooms.get(socket.id).userGame.gameData.gameForm.name);
         }
+        this.classicModeService.deleteRoom(socket.id);
     }
 
     emitTime() {
