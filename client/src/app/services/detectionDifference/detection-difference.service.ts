@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { NumberArray, Rgba } from '@app/interfaces/creation-game';
 import { Vec2 } from '@app/interfaces/vec2';
-import { OffsetValues } from 'src/assets/variables/images-values';
 
 @Injectable({
     providedIn: 'root',
@@ -21,7 +20,7 @@ export class DetectionDifferenceService {
         this.pixelDataSize = 4;
     }
 
-    produceDifferencesMatrix(ctx1: CanvasRenderingContext2D, ctx2: CanvasRenderingContext2D, radius: number): number[][] {
+    generateDifferencesMatrix(ctx1: CanvasRenderingContext2D, ctx2: CanvasRenderingContext2D, radius: number): number[][] {
         const matrix: number[][] = this.createEmptyMatrix(this.pictureDimensions.height, this.pictureDimensions.width, this.emptyPixelValue);
         const data1 = ctx1.getImageData(0, 0, this.pictureDimensions.width, this.pictureDimensions.height).data;
         const data2 = ctx2.getImageData(0, 0, this.pictureDimensions.width, this.pictureDimensions.height).data;
@@ -36,7 +35,7 @@ export class DetectionDifferenceService {
             const row = Math.floor(i / rgbaOffset / this.pictureDimensions.width);
             const column = i / rgbaOffset - row * this.pictureDimensions.width;
             if (this.areEqual(pixelImg1, pixelImg2)) {
-                matrix[row][column] = -1;
+                matrix[row][column] = this.emptyPixelValue;
             } else {
                 matrix[row][column] = 1;
                 differencesCoordinates[differencesCoordinatesSize++] = row;
@@ -95,78 +94,60 @@ export class DetectionDifferenceService {
         return matrix;
     }
 
-    // A SUPPRIMER DANS LE FUTUR
-    convertImageToMatrix(buffer: ArrayBuffer): number[][] {
-        const offset = new DataView(buffer).getInt32(OffsetValues.OFFSET, true);
-        const width = Math.abs(new DataView(buffer).getInt32(OffsetValues.WIDTH, true));
-        const height = Math.abs(new DataView(buffer).getInt32(OffsetValues.HEIGHT, true));
-
-        const matrix = this.createEmptyMatrix(height, width, this.emptyPixelValue);
-
-        for (let i = 0; i < height; i++) {
-            for (let j = 0; j < width; j++) {
-                const index = offset + (width * (height - i - 1) + j) * 3;
-                matrix[i][j] = new Uint8Array(buffer, index, 1)[0];
-            }
-        }
-
-        return matrix;
-    }
-
-    // A SUPPRIMER DANS LE FUTUR
-    async readThenConvertImage(input: HTMLInputElement): Promise<number[][]> {
-        return new Promise((resolve) => {
-            const file: File | null = input.files?.item(0) ?? null;
-            const reader: FileReader = new FileReader();
-
-            reader.addEventListener(
-                'loadend',
-                () => {
-                    const matrix: number[][] = this.convertImageToMatrix(reader.result as ArrayBuffer);
-                    resolve(matrix);
-                },
-                false,
-            );
-            if (file) {
-                reader.readAsArrayBuffer(file);
-            }
-        });
-    }
-
-    populateNeighborhood(matrix: [array1: number[][], array2: number[][]], positions: Vec2, radius: number) {
-        const [array1, array2] = matrix;
-
-        const queue: Vec2[] = [{ x: positions.x, y: positions.y }];
-        while (queue.length) {
-            const curr = queue.shift();
-
-            if (!curr) return;
-
-            for (let k = -radius - 1; k <= radius + 1; k++) {
-                for (let l = -radius - 1; l <= radius + 1; l++) {
-                    const x = curr.x + k;
-                    const y = curr.y + l;
-                    if (x >= 0 && x < array1.length && y >= 0 && y < array1[0].length && array1[x][y] !== array2[x][y]) {
-                        array1[x][y] = array2[x][y];
-                        queue.push({ x, y });
-                    }
-                }
-            }
-        }
-    }
-
-    countDifferences(array1: number[][], array2: number[][], radius: number): number {
+    countDifferences(diffMatrix: number[][]): number {
         let differenceCount = 0;
-        for (let i = 0; i < array1.length; i++) {
-            for (let j = 0; j < array1[i].length; j++) {
-                if (array1[i][j] !== array2[i][j]) {
+        const matrix = this.copyMatrix(diffMatrix);
+        for (let i = 0; i < this.pictureDimensions.height; i++) {
+            for (let j = 0; j < this.pictureDimensions.width; j++) {
+                if (matrix[i][j] !== this.emptyPixelValue) {
                     differenceCount++;
-                    this.populateNeighborhood([array1, array2], { x: i, y: j }, radius);
+                    this.deleteDifference(matrix, { x: i, y: j });
                 }
             }
         }
-
         return differenceCount;
+    }
+
+    deleteDifference(matrix: number[][], pos: Vec2) {
+        const stack: Vec2[] = [];
+        this.pushNeighborsToStack(stack, pos);
+        matrix[pos.x][pos.y] = this.emptyPixelValue;
+        while (stack.length > 0) {
+            const newPos = stack.pop();
+            if (newPos) {
+                if (matrix[newPos.x][newPos.y] !== this.emptyPixelValue) {
+                    matrix[newPos.x][newPos.y] = this.emptyPixelValue;
+                    this.pushNeighborsToStack(stack, newPos);
+                }
+            }
+        }
+    }
+
+    pushNeighborsToStack(stack: Vec2[], pos: Vec2) {
+        this.pushToStack(stack, { x: pos.x, y: pos.y - 1 });
+        this.pushToStack(stack, { x: pos.x, y: pos.y + 1 });
+        this.pushToStack(stack, { x: pos.x + 1, y: pos.y - 1 });
+        this.pushToStack(stack, { x: pos.x + 1, y: pos.y });
+        this.pushToStack(stack, { x: pos.x + 1, y: pos.y + 1 });
+        this.pushToStack(stack, { x: pos.x - 1, y: pos.y - 1 });
+        this.pushToStack(stack, { x: pos.x - 1, y: pos.y });
+        this.pushToStack(stack, { x: pos.x - 1, y: pos.y + 1 });
+    }
+
+    pushToStack(stack: Vec2[], pos: Vec2) {
+        if (pos.x >= 0 && pos.x < this.pictureDimensions.height && pos.y >= 0 && pos.y < this.pictureDimensions.width) {
+            stack.push(pos);
+        }
+    }
+
+    copyMatrix(matrix: number[][]): number[][] {
+        const newMatrix = this.createEmptyMatrix(this.pictureDimensions.height, this.pictureDimensions.width, 1);
+        for (let i = 0; i < this.pictureDimensions.height; i++) {
+            for (let j = 0; j < this.pictureDimensions.width; j++) {
+                newMatrix[i][j] = matrix[i][j];
+            }
+        }
+        return newMatrix;
     }
 
     createDifferencesImage(differenceMatrix: number[][]) {

@@ -222,17 +222,8 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         const img2HasContent: boolean = this.image2?.value !== undefined;
 
         if (img1HasContent && img2HasContent) {
-            const image1matrix: number[][] = await this.detectionService.readThenConvertImage(this.image1); // a supprimer
-            const image2matrix: number[][] = await this.detectionService.readThenConvertImage(this.image2); // a supprimer
-
-            this.differenceMatrix = this.detectionService.produceDifferencesMatrix(this.context1, this.context2, this.radius);
-
-            // a changer
-            this.differenceCount = this.detectionService.countDifferences(
-                JSON.parse(JSON.stringify(image1matrix)),
-                JSON.parse(JSON.stringify(image2matrix)),
-                this.radius,
-            );
+            this.differenceMatrix = this.detectionService.generateDifferencesMatrix(this.context1, this.context2, this.radius);
+            this.differenceCount = this.detectionService.countDifferences(this.differenceMatrix);
             this.imageDifferencesUrl = this.detectionService.createDifferencesImage(this.differenceMatrix);
             this.difficulty = this.detectionService.computeLevelDifficulty(this.differenceCount, JSON.parse(JSON.stringify(this.differenceMatrix)));
             this.openDifferencesDialog();
