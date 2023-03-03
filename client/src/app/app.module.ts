@@ -22,7 +22,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
 import { ModalDialogComponent } from './components/modal-dialog/modal-dialog.component';
 import { ConfigSelectPageComponent } from './pages/config-select-page/config-select-page.component';
-import { OpponentSidebarComponent } from '@app/components/opponent-sidebar/opponent-sidebar.component';
+import { WaitingPageComponent } from './pages/waiting-page/waiting-page.component';
 
 /**
  * Main module that is used in main.ts.
@@ -44,6 +44,7 @@ import { OpponentSidebarComponent } from '@app/components/opponent-sidebar/oppon
         EndgameDialogComponent,
         ModalDialogComponent,
         ConfigSelectPageComponent,
+        WaitingPageComponent,
     ],
     providers: [],
     bootstrap: [AppComponent],

@@ -14,7 +14,7 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
 
     @SubscribeMessage(ClassicModeEvents.Start)
     startGame(socket: Socket, userGame: UserGame) {
-        const newRoomId = this.classicModeService.initNewRoom(socket, userGame);
+        const newRoomId = this.classicModeService.initNewRoom(socket, userGame, true);
         this.server.to(socket.id).emit(ClassicModeEvents.Started, newRoomId);
     }
 
@@ -30,6 +30,88 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
     @SubscribeMessage(ClassicModeEvents.EndGame)
     endGame(socket: Socket) {
         this.server.to(socket.id).emit(ClassicModeEvents.GameFinished, this.classicModeService.gameRooms.get(socket.id).userGame.timer);
+        this.server.emit(ClassicModeEvents.GameDeleted, this.classicModeService.gameRooms.get(socket.id).userGame.gameData.gameForm.name);
+    }
+
+    @SubscribeMessage(ClassicModeEvents.CheckGame)
+    checkGame(socket: Socket, gameName: string) {
+        if (this.classicModeService.getGameRooms(gameName)) {
+            this.logger.log(`Jeu ${gameName} trouvé`);
+            this.server.to(socket.id).emit(ClassicModeEvents.GameFound, gameName);
+        }
+    }
+
+    @SubscribeMessage(ClassicModeEvents.CreateGame)
+    createGame(socket: Socket, userGame: UserGame) {
+        this.classicModeService.initNewRoom(socket, userGame, false);
+        this.logger.log(`Creér le jeu: ${userGame.gameData.gameForm.name}`);
+        this.server.emit(ClassicModeEvents.GameFound, userGame.gameData.gameForm.name);
+    }
+
+    @SubscribeMessage(ClassicModeEvents.CanJoinGame)
+    canJoinGame(socket: Socket, userGame: [gameName: string, username: string]) {
+        if (this.classicModeService.canJoinGame(socket, userGame[0], userGame[1])) {
+            this.logger.log(`${userGame[1]} peut joindre le jeu: ${userGame[0]}`);
+            this.server.to(socket.id).emit(ClassicModeEvents.CanJoinGame);
+        } else {
+            this.logger.log(`${userGame[1]} ne peut pas joindre le jeu: ${userGame[0]}`);
+            this.server.to(socket.id).emit(ClassicModeEvents.CannotJoinGame);
+        }
+    }
+
+    @SubscribeMessage(ClassicModeEvents.JoinGame)
+    joinGame(socket: Socket, userGame: [gameName: string, username: string]) {
+        if (this.classicModeService.joinGame(socket, userGame[0], userGame[1])) {
+            this.logger.log(`${userGame[1]} rejoint le jeu: ${userGame[0]}`);
+            this.server.emit(ClassicModeEvents.GameInfo, this.classicModeService.getGameRooms(userGame[0]));
+        } else {
+            this.logger.log(`Jeu: ${userGame[0]} non trouvé`);
+            this.server.emit(ClassicModeEvents.GameInfo, undefined);
+        }
+    }
+
+    @SubscribeMessage(ClassicModeEvents.AbortGameCreation)
+    abortGameCreation(socket: Socket, gameName: string) {
+        this.logger.log(`Annuler la création du jeu: ${gameName}`);
+        this.classicModeService.deleteRoom(socket.id);
+        this.server.emit(ClassicModeEvents.GameDeleted, gameName);
+        this.server.emit(ClassicModeEvents.GameCanceled, gameName);
+    }
+
+    @SubscribeMessage(ClassicModeEvents.LeaveGame)
+    leaveGame(socket: Socket, playerInfo: [gameName: string, userName: string]) {
+        this.logger.log(`${playerInfo[1]} abondone le jeu: ${playerInfo[0]}`);
+        const gameRoom = this.classicModeService.getGameRooms(playerInfo[0]);
+        if (gameRoom) {
+            gameRoom.userGame.potentielPlayers = gameRoom.userGame.potentielPlayers.filter((player) => player !== playerInfo[1]);
+            this.classicModeService.gameRooms.set(gameRoom.roomId, gameRoom);
+            this.server.emit(ClassicModeEvents.GameInfo, gameRoom);
+        }
+    }
+
+    @SubscribeMessage(ClassicModeEvents.RejectPlayer)
+    playerRejected(socket: Socket, playerInfo: [gameName: string, userName: string]) {
+        const gameRoom = this.classicModeService.getGameRooms(playerInfo[0]);
+        if (gameRoom) {
+            this.logger.log(`${playerInfo[1]} rejeté dans le jeu: ${playerInfo[0]}`);
+            gameRoom.userGame.potentielPlayers = gameRoom.userGame.potentielPlayers.filter((player) => player !== playerInfo[1]);
+            this.classicModeService.gameRooms.set(gameRoom.roomId, gameRoom);
+            this.server.emit(ClassicModeEvents.PlayerRejected, gameRoom);
+        }
+    }
+
+    @SubscribeMessage(ClassicModeEvents.AcceptPlayer)
+    playerAccepted(socket: Socket, playerInfo: [gameName: string, userName: string]) {
+        const gameRoom = this.classicModeService.getGameRooms(playerInfo[0]);
+        if (gameRoom) {
+            this.logger.log(`${playerInfo[1]} accepté dans le jeu: ${playerInfo[0]}`);
+            gameRoom.userGame.potentielPlayers = [];
+            gameRoom.userGame.username2 = playerInfo[1];
+            gameRoom.started = true;
+            this.classicModeService.gameRooms.set(gameRoom.roomId, gameRoom);
+            this.server.emit(ClassicModeEvents.PlayerAccepted, gameRoom);
+            this.server.emit(ClassicModeEvents.PlayerRejected, gameRoom);
+        }
     }
 
     afterInit() {
@@ -46,6 +128,10 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
     handleDisconnect(socket: Socket) {
         this.logger.log(`${socket.id}: deconnexion`);
         this.classicModeService.deleteRoom(socket.id);
+        if (this.classicModeService.gameRooms.get(socket.id)) {
+            this.logger.log(`Game deleted: ${this.classicModeService.gameRooms.get(socket.id).userGame.gameData.gameForm.name}`);
+            this.server.emit(ClassicModeEvents.GameDeleted, this.classicModeService.gameRooms.get(socket.id).userGame.gameData.gameForm.name);
+        }
     }
 
     emitTime() {
