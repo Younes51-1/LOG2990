@@ -7,10 +7,11 @@ import { Canvas, DrawModes, ForegroundState, Rectangle } from '@app/interfaces/c
 import { NewGame } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
 import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
+import { DrawingService } from '@app/services/drawingService/drawing.service';
+import { ForegroundService } from '@app/services/foregroundService/foreground.service';
 import { Vec2 } from 'src/app/interfaces/vec2';
 import { Color } from 'src/assets/variables/color';
 import { AsciiLetterValue, BIT_PER_PIXEL, OffsetValues, PossibleRadius } from 'src/assets/variables/images-values';
-import { MouseButton } from 'src/assets/variables/mouse-button';
 
 @Component({
     selector: 'app-creation-game-page',
@@ -76,6 +77,8 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         private communicationService: CommunicationService,
         public dialog: MatDialog,
         public detectionService: DetectionDifferenceService,
+        private foregroundService: ForegroundService,
+        private drawingService: DrawingService,
         private router: Router,
     ) {
         this.width = 640;
@@ -118,63 +121,25 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     }
 
     ngAfterViewInit(): void {
+        this.drawingService.setComponent(this);
+        this.foregroundService.setComponent(this);
         const context1Init = this.canvas1.nativeElement.getContext('2d');
         if (context1Init) this.context1 = context1Init;
         const context2Init = this.canvas2.nativeElement.getContext('2d');
         if (context2Init) this.context2 = context2Init;
-        this.canvasForeground1 = this.createNewCanvas();
-        this.canvasForeground2 = this.createNewCanvas();
+        this.canvasForeground1 = this.drawingService.createNewCanvas();
+        this.canvasForeground2 = this.drawingService.createNewCanvas();
         const contextForeground1 = this.canvasForeground1.getContext('2d');
         if (contextForeground1) this.contextForeground1 = contextForeground1;
         const contextForeground2 = this.canvasForeground2.getContext('2d');
         if (contextForeground2) this.contextForeground2 = contextForeground2;
         this.mousePosition = { x: 0, y: 0 };
-        const canvasRectangle = this.createNewCanvas();
+        const canvasRectangle = this.drawingService.createNewCanvas();
         const contextRectangle = canvasRectangle.getContext('2d');
         if (contextRectangle) this.rectangleState = { canvas: canvasRectangle, context: contextRectangle, startPos: this.mousePosition };
-        const canvasTmp = this.createNewCanvas();
+        const canvasTmp = this.drawingService.createNewCanvas();
         const canvasTmpCtx = canvasTmp.getContext('2d');
         if (canvasTmpCtx) this.canvasTemp = { canvas: canvasTmp, context: canvasTmpCtx };
-    }
-
-    updateImageDisplay(event: Event, input: HTMLInputElement): void {
-        if (event) {
-            const file = (event.target as HTMLInputElement).files;
-            if (file) {
-                const urlPath = URL.createObjectURL(file[0]);
-                switch (input) {
-                    case this.inputImage1.nativeElement: {
-                        this.urlPath1 = urlPath;
-                        this.updateContext(this.context1, this.canvasForeground1, this.urlPath1);
-                        this.image1 = this.inputImage1.nativeElement;
-                        break;
-                    }
-                    case this.inputImage2.nativeElement: {
-                        this.urlPath2 = urlPath;
-                        this.updateContext(this.context2, this.canvasForeground2, this.urlPath2);
-                        this.image2 = this.inputImage2.nativeElement;
-                        break;
-                    }
-                    case this.inputImages1et2.nativeElement: {
-                        this.urlPath1 = this.urlPath2 = urlPath;
-                        this.updateContext(this.context1, this.canvasForeground1, this.urlPath1);
-                        this.updateContext(this.context2, this.canvasForeground2, this.urlPath2);
-                        this.image1 = this.image2 = this.inputImages1et2.nativeElement;
-                        break;
-                    }
-                    // No default
-                }
-            }
-        }
-    }
-
-    updateContext(context: CanvasRenderingContext2D, canvasForeground: HTMLCanvasElement, background: string): void {
-        const image = new Image();
-        image.src = background;
-        image.onload = () => {
-            context.drawImage(image, 0, 0, this.width, this.height);
-            context.drawImage(canvasForeground, 0, 0, this.width, this.height);
-        };
     }
 
     verifyImageFormat(e: Event, img: HTMLInputElement): void {
@@ -213,7 +178,7 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         } else if (!(isBmp && is24BitPerPixel)) {
             alert('Image refusée: elle ne respecte pas le format BMP-24 bit');
         } else {
-            this.updateImageDisplay(e, img);
+            this.foregroundService.updateImageDisplay(e, img);
         }
     }
 
@@ -260,55 +225,6 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         });
     }
 
-    reset(input: HTMLElement): void {
-        switch (input) {
-            case this.inputImage1.nativeElement: {
-                this.inputImage1.nativeElement.value = null;
-                this.urlPath1 = '';
-                this.context1.clearRect(0, 0, this.width, this.height);
-                this.context1.drawImage(this.canvasForeground1, 0, 0, this.width, this.height);
-                break;
-            }
-            case this.inputImage2.nativeElement: {
-                this.inputImage2.nativeElement.value = null;
-                this.urlPath2 = '';
-                this.context2.clearRect(0, 0, this.width, this.height);
-                this.context2.drawImage(this.canvasForeground2, 0, 0, this.width, this.height);
-                break;
-            }
-            case this.inputImages1et2.nativeElement: {
-                this.inputImage1.nativeElement.value = null;
-                this.inputImage2.nativeElement.value = null;
-                this.inputImages1et2.nativeElement.value = null;
-                this.urlPath1 = this.urlPath2 = '';
-                this.context1.clearRect(0, 0, this.width, this.height);
-                this.context2.clearRect(0, 0, this.width, this.height);
-                this.context1.drawImage(this.canvasForeground1, 0, 0, this.width, this.height);
-                this.context2.drawImage(this.canvasForeground2, 0, 0, this.width, this.height);
-                break;
-            }
-            case this.canvas1.nativeElement: {
-                this.currentCanvas = this.canvas1.nativeElement;
-                this.pushToUndoStack();
-                this.emptyRedoStack();
-                this.contextForeground1.clearRect(0, 0, this.width, this.height);
-                this.context1.clearRect(0, 0, this.width, this.height);
-                this.updateContext(this.context1, this.canvasForeground1, this.urlPath1);
-                break;
-            }
-            case this.canvas2.nativeElement: {
-                this.currentCanvas = this.canvas2.nativeElement;
-                this.pushToUndoStack();
-                this.emptyRedoStack();
-                this.contextForeground2.clearRect(0, 0, this.width, this.height);
-                this.context2.clearRect(0, 0, this.width, this.height);
-                this.updateContext(this.context2, this.canvasForeground2, this.urlPath2);
-                break;
-            }
-            // No default
-        }
-    }
-
     convertImageToB64Url(canvas: HTMLCanvasElement): string {
         return canvas.toDataURL().split(',')[1];
     }
@@ -318,330 +234,48 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         this.mousePressed = false;
     }
 
-    duplicateForeground(input: HTMLCanvasElement) {
-        this.emptyRedoStack();
-        switch (input) {
-            case this.canvas1.nativeElement: {
-                this.currentCanvas = this.canvas2.nativeElement;
-                this.pushToUndoStack();
-                this.contextForeground2.clearRect(0, 0, this.width, this.height);
-                this.context2.clearRect(0, 0, this.width, this.height);
-                this.updateContext(this.context2, this.canvasForeground2, this.urlPath2);
-                this.contextForeground2.drawImage(this.canvasForeground1, 0, 0, this.width, this.height);
-                this.context2.drawImage(this.canvasForeground1, 0, 0, this.width, this.height);
-                break;
-            }
-            case this.canvas2.nativeElement: {
-                this.currentCanvas = this.canvas1.nativeElement;
-                this.pushToUndoStack();
-                this.contextForeground1.clearRect(0, 0, this.width, this.height);
-                this.context1.clearRect(0, 0, this.width, this.height);
-                this.updateContext(this.context1, this.canvasForeground1, this.urlPath1);
-                this.contextForeground1.drawImage(this.canvasForeground2, 0, 0, this.width, this.height);
-                this.context1.drawImage(this.canvasForeground2, 0, 0, this.width, this.height);
-                break;
-            }
-            // No default
-        }
-    }
-
-    pushAndSwapForegrounds() {
-        this.undo.push({ layer: document.createElement('canvas'), belonging: true, swap: true });
-        this.emptyRedoStack();
-        this.swapForegrounds();
+    updateContext(context: CanvasRenderingContext2D, canvasForeground: HTMLCanvasElement, background: string) {
+        this.foregroundService.updateContext(context, canvasForeground, background);
     }
 
     swapForegrounds() {
-        const canvasTemp = document.createElement('canvas');
-        canvasTemp.width = this.width;
-        canvasTemp.height = this.height;
-        const contextTemp = canvasTemp.getContext('2d');
-        contextTemp?.drawImage(this.canvasForeground1, 0, 0);
+        this.foregroundService.swapForegrounds();
+    }
 
-        this.contextForeground1.clearRect(0, 0, this.width, this.height);
-        this.context1.clearRect(0, 0, this.width, this.height);
-        this.updateContext(this.context1, this.canvasForeground1, this.urlPath1);
-        this.contextForeground1.drawImage(this.canvasForeground2, 0, 0, this.width, this.height);
-        this.context1.drawImage(this.canvasForeground2, 0, 0, this.width, this.height);
+    reset(element: HTMLElement) {
+        this.foregroundService.reset(element);
+    }
 
-        this.contextForeground2.clearRect(0, 0, this.width, this.height);
-        this.context2.clearRect(0, 0, this.width, this.height);
-        this.updateContext(this.context2, this.canvasForeground2, this.urlPath2);
-        this.contextForeground2.drawImage(canvasTemp, 0, 0, this.width, this.height);
-        this.context2.drawImage(canvasTemp, 0, 0, this.width, this.height);
+    duplicateForeground(input: HTMLCanvasElement) {
+        this.foregroundService.duplicateForeground(input);
+    }
+
+    pushAndSwapForegrounds() {
+        this.foregroundService.pushAndSwapForegrounds();
     }
 
     handleCanvasEvent(eventType: string, event: MouseEvent, canvas: HTMLCanvasElement) {
-        if (eventType === 'mousedown') {
-            this.emptyRedoStack();
-            this.currentCanvas = canvas;
-            this.pushToUndoStack();
-        }
-
-        if (this.currentCanvas === canvas) {
-            let context = this.contextForeground1;
-            if (canvas === this.canvas2.nativeElement) {
-                context = this.contextForeground2;
-            }
-
-            switch (eventType) {
-                case 'mousedown':
-                    this.handleMouseDown(event, context);
-                    break;
-                case 'mousemove':
-                    this.handleMouseMove(event, context);
-                    break;
-                case 'mouseup':
-                    this.handleMouseUp();
-                    break;
-                case 'mouseleave':
-                    this.handleMouseLeave(event, context);
-                    break;
-                case 'mouseenter':
-                    this.handleMouseEnter(event);
-                    break;
-            }
-        }
-        this.updateCanvas1Display();
-        this.updateCanvas2Display();
-    }
-
-    updateCanvas1Display() {
-        if (this.urlPath1 === undefined || this.urlPath1 === '') {
-            this.context1.clearRect(0, 0, this.width, this.height);
-            this.context1.drawImage(this.canvasForeground1, 0, 0, this.width, this.height);
-        } else {
-            this.updateContext(this.context1, this.canvasForeground1, this.urlPath1);
-        }
-    }
-
-    updateCanvas2Display() {
-        if (this.urlPath2 === undefined || this.urlPath2 === '') {
-            this.context2.clearRect(0, 0, this.width, this.height);
-            this.context2.drawImage(this.canvasForeground2, 0, 0, this.width, this.height);
-        } else {
-            this.updateContext(this.context2, this.canvasForeground2, this.urlPath2);
-        }
-    }
-
-    handleMouseDown(event: MouseEvent, context: CanvasRenderingContext2D) {
-        if (event.button === MouseButton.Left) {
-            this.mousePosition = { x: event.offsetX, y: event.offsetY };
-            this.mousePressed = true;
-            this.mouseInCanvas = true;
-            switch (this.drawMode) {
-                case DrawModes.PENCIL: {
-                    context.fillStyle = this.color;
-                    this.drawCircle(context, this.mousePosition);
-                    break;
-                }
-                case DrawModes.RECTANGLE: {
-                    this.rectangleState.context.fillStyle = this.color;
-                    this.rectangleState.startPos = this.mousePosition;
-                    this.canvasTemp.context.clearRect(0, 0, this.width, this.height);
-                    if (context === this.contextForeground1) {
-                        this.canvasTemp.context.drawImage(this.canvasForeground1, 0, 0, this.width, this.height);
-                    } else {
-                        this.canvasTemp.context.drawImage(this.canvasForeground2, 0, 0, this.width, this.height);
-                    }
-                    break;
-                }
-                case DrawModes.ERASER: {
-                    this.eraserWidth = this.eraserSize;
-                    this.eraseSquare(context, this.mousePosition);
-                    break;
-                }
-                // No default
-            }
-        }
-    }
-
-    handleMouseMove(event: MouseEvent, context: CanvasRenderingContext2D) {
-        if (event.button === MouseButton.Left) {
-            const finish: Vec2 = { x: event.offsetX, y: event.offsetY };
-
-            if (this.mousePressed && this.mouseInCanvas) {
-                switch (this.drawMode) {
-                    case DrawModes.PENCIL: {
-                        this.traceShape(context, this.mousePosition, finish);
-                        break;
-                    }
-                    case DrawModes.RECTANGLE: {
-                        this.drawRectangle(context, finish);
-                        break;
-                    }
-                    case DrawModes.ERASER: {
-                        this.traceShape(context, this.mousePosition, finish);
-                        break;
-                    }
-                    // No default
-                }
-            }
-        }
+        this.drawingService.handleCanvasEvent(eventType, event, canvas);
     }
 
     handleMouseUp() {
-        this.mousePressed = false;
-    }
-
-    handleMouseLeave(event: MouseEvent, context: CanvasRenderingContext2D) {
-        this.mouseInCanvas = false;
-        this.mousePosition = { x: event.offsetX, y: event.offsetY };
-
-        if (this.mousePressed) {
-            const finish: Vec2 = { x: event.offsetX, y: event.offsetY };
-            if (this.drawMode === DrawModes.PENCIL || this.drawMode === DrawModes.ERASER) {
-                this.traceShape(context, this.mousePosition, finish);
-            } else if (this.drawMode === DrawModes.RECTANGLE) {
-                this.drawRectangle(context, finish);
-            }
-        }
-    }
-
-    handleMouseEnter(event: MouseEvent) {
-        if (this.drawMode !== DrawModes.NOTHING) {
-            this.mousePosition = { x: event.offsetX, y: event.offsetY };
-            this.mouseInCanvas = true;
-        }
-    }
-
-    drawRectangle(context: CanvasRenderingContext2D, pos: Vec2) {
-        const x = this.rectangleState.startPos.x;
-        const y = this.rectangleState.startPos.y;
-        let width = pos.x - x;
-        let height = pos.y - y;
-
-        if (this.shiftPressed) {
-            const length = Math.min(Math.abs(width), Math.abs(height));
-            width = width < 0 ? -length : length;
-            height = height < 0 ? -length : length;
-        }
-        this.rectangleState.context.clearRect(0, 0, this.width, this.height);
-        this.rectangleState.context.fillRect(x, y, width, height);
-        context.clearRect(0, 0, this.width, this.height);
-        context.drawImage(this.canvasTemp.canvas, 0, 0, this.width, this.height);
-        context.drawImage(this.rectangleState.canvas, 0, 0, this.width, this.height);
-    }
-
-    drawCircle(context: CanvasRenderingContext2D, position: Vec2) {
-        context.beginPath();
-        context.arc(position.x, position.y, this.pencilSize, 0, 2 * Math.PI);
-        context.fill();
-    }
-
-    eraseSquare(context: CanvasRenderingContext2D, position: Vec2) {
-        context.clearRect(position.x - this.eraserWidth, position.y - this.eraserWidth, 2 * this.eraserWidth, 2 * this.eraserWidth);
-    }
-
-    traceShape(context: CanvasRenderingContext2D, start: Vec2, finish: Vec2) {
-        context.lineWidth = this.eraserWidth * 2;
-        let slopeY = (finish.y - start.y) / (finish.x - start.x);
-        if (start.x < finish.x) {
-            for (let i = start.x; i <= finish.x; i++) {
-                this.drawShape(context, { x: i, y: start.y + slopeY * (i - start.x) });
-            }
-        } else {
-            slopeY = -slopeY;
-            for (let i = start.x; i >= finish.x; i--) {
-                this.drawShape(context, { x: i, y: start.y + slopeY * (start.x - i) });
-            }
-        }
-
-        let slopeX = (finish.x - start.x) / (finish.y - start.y);
-        if (start.y < finish.y) {
-            for (let i = start.y; i <= finish.y; i++) {
-                this.drawShape(context, { x: start.x + slopeX * (i - start.y), y: i });
-            }
-        } else {
-            slopeX = -slopeX;
-            for (let i = start.y; i >= finish.y; i--) {
-                this.drawShape(context, { x: start.x + slopeX * (start.y - i), y: i });
-            }
-        }
-        this.mousePosition = { x: finish.x, y: finish.y };
-    }
-
-    drawShape(context: CanvasRenderingContext2D, position: Vec2) {
-        if (this.drawMode === DrawModes.PENCIL) {
-            this.drawCircle(context, position);
-        } else if (this.drawMode === DrawModes.ERASER) {
-            this.eraseSquare(context, position);
-        }
-    }
-
-    createNewCanvas(): HTMLCanvasElement {
-        const canvas = document.createElement('canvas');
-        canvas.width = this.width;
-        canvas.height = this.height;
-        return canvas;
+        this.drawingService.handleMouseUp();
     }
 
     ctrlZ() {
-        if (this.undo.length > 0) {
-            const state = this.undo.pop();
-            if (state?.swap) {
-                this.swapForegrounds();
-                this.redo.push({ layer: document.createElement('canvas'), belonging: true, swap: true });
-            } else {
-                const canvas = this.getCanvasAndUpdate(state);
-                this.redo.push({ layer: canvas, belonging: this.belongsToCanvas1, swap: false });
-            }
-        }
+        this.drawingService.ctrlZ();
     }
 
     ctrlShiftZ() {
-        if (this.redo.length > 0) {
-            const state = this.redo.pop();
-            if (state?.swap) {
-                this.swapForegrounds();
-                this.undo.push({ layer: document.createElement('canvas'), belonging: true, swap: true });
-            } else {
-                const canvas = this.getCanvasAndUpdate(state);
-                this.undo.push({ layer: canvas, belonging: this.belongsToCanvas1, swap: false });
-            }
-        }
-    }
-
-    getCanvasAndUpdate(state: ForegroundState | undefined): HTMLCanvasElement {
-        const layer = state?.layer;
-        const canvas = this.createNewCanvas();
-        const ctx = canvas.getContext('2d');
-        if (layer) {
-            if (state.belonging) {
-                ctx?.drawImage(this.canvasForeground1, 0, 0, this.width, this.height);
-                this.belongsToCanvas1 = true;
-                this.contextForeground1.clearRect(0, 0, this.width, this.height);
-                this.contextForeground1.drawImage(layer, 0, 0, this.width, this.height);
-                this.updateCanvas1Display();
-            } else {
-                ctx?.drawImage(this.canvasForeground2, 0, 0, this.width, this.height);
-                this.belongsToCanvas1 = false;
-                this.contextForeground2.clearRect(0, 0, this.width, this.height);
-                this.contextForeground2.drawImage(layer, 0, 0, this.width, this.height);
-                this.updateCanvas2Display();
-            }
-        }
-        return canvas;
+        this.drawingService.ctrlShiftZ();
     }
 
     pushToUndoStack() {
-        const canvas = this.createNewCanvas();
-        const ctx = canvas.getContext('2d');
-
-        if (this.currentCanvas === this.canvas1.nativeElement) {
-            ctx?.drawImage(this.canvasForeground1, 0, 0, this.width, this.height);
-            this.belongsToCanvas1 = true;
-        } else {
-            ctx?.drawImage(this.canvasForeground2, 0, 0, this.width, this.height);
-            this.belongsToCanvas1 = false;
-        }
-        this.undo.push({ layer: canvas, belonging: this.belongsToCanvas1, swap: false });
+        this.drawingService.pushToUndoStack();
     }
 
     emptyRedoStack() {
-        while (this.redo.length > 0) {
-            this.redo.pop();
-        }
+        this.drawingService.emptyRedoStack();
     }
 
     ngOnDestroy(): void {
