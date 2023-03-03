@@ -42,6 +42,7 @@ export class GameCardComponent implements OnInit, OnDestroy {
         if (!this.socketService.isSocketAlive()) {
             this.socketService.connect();
         }
+
         if (!this.gameExists) {
             this.socketService.send('checkGame', this.slide.name);
         }
@@ -61,30 +62,39 @@ export class GameCardComponent implements OnInit, OnDestroy {
 
     btnOneEmitter() {
         if (this.page === PageKeys.Selection) {
-            this.classicModeService.initClassicModeSolo(this.slide.name, this.inputValue1);
+            this.classicModeService.initClassicModeSolo(this.slide.name, this.inputValue1, true);
         }
         this.notify.emit(this.slide.name);
     }
 
     btnTwoEmitter() {
         if (this.page === PageKeys.Selection && !this.gameExists) {
-            this.socketService.disconnect();
-            this.classicModeService.createClassicModeMulti(this.slide.name, this.inputValue2);
-            this.notify.emit(this.slide);
-            this.router.navigate([this.routeTwo]);
+            this.createGame();
         } else if (this.page === PageKeys.Selection && this.gameExists) {
             if (!this.socketService.isSocketAlive()) {
                 this.socketService.connect();
             }
-            this.socketService.send('canJoinGame', [this.slide.name, this.inputValue2]);
-            this.socketService.on('cannotJoinGame', () => {
-                this.applyBorder = false;
-                this.socketService.disconnect();
-            });
-            this.socketService.on('canJoinGame', () => {
-                this.joinGame();
-            });
+
+            this.canJoinGame();
         }
+    }
+
+    createGame() {
+        this.socketService.disconnect();
+        this.classicModeService.initClassicModeSolo(this.slide.name, this.inputValue2, false);
+        this.notify.emit(this.slide);
+        this.router.navigate([this.routeTwo]);
+    }
+
+    canJoinGame() {
+        this.socketService.send('canJoinGame', [this.slide.name, this.inputValue2]);
+        this.socketService.on('cannotJoinGame', () => {
+            this.applyBorder = false;
+            this.socketService.disconnect();
+        });
+        this.socketService.on('canJoinGame', () => {
+            this.joinGame();
+        });
     }
 
     joinGame() {
@@ -103,6 +113,7 @@ export class GameCardComponent implements OnInit, OnDestroy {
         }
     }
 
+    // TODO: change CSS to show border
     toggleBorder2() {
         if (!this.verifyUserInput(this.inputValue2)) {
             this.applyBorder = false;
@@ -126,7 +137,7 @@ export class GameCardComponent implements OnInit, OnDestroy {
         // TODO: add more WORDS
         const forbiddenWords = ['foo', 'bar', 'baz'];
         for (const word of forbiddenWords) {
-            if (input.toLowerCase().includes(word.toLowerCase())) {
+            if (input.toLowerCase() === word.toLowerCase()) {
                 return false;
             }
         }

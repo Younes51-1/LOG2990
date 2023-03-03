@@ -24,7 +24,7 @@ export class ClassicModeService {
 
     constructor(private readonly socketService: CommunicationSocketService, private communicationService: CommunicationService) {}
 
-    initClassicModeSolo(gameName: string, username: string): void {
+    initClassicModeSolo(gameName: string, username: string, started: boolean): void {
         this.communicationService.getGame(gameName).subscribe((res) => {
             if (Object.keys(res).length !== 0) {
                 this.gameRoom = {
@@ -35,34 +35,14 @@ export class ClassicModeService {
                         username1: username,
                     },
                     roomId: '',
-                    started: true,
+                    started,
                 };
                 this.userName = username;
                 this.userGame$.next(this.gameRoom.userGame);
                 this.connect();
-            } else {
-                alert('Jeu introuvable');
-            }
-        });
-    }
-
-    createClassicModeMulti(gameName: string, username: string): void {
-        this.communicationService.getGame(gameName).subscribe((res) => {
-            if (Object.keys(res).length !== 0) {
-                this.gameRoom = {
-                    userGame: {
-                        gameData: res,
-                        nbDifferenceFound: 0,
-                        timer: 0,
-                        username1: username,
-                    },
-                    roomId: '',
-                    started: false,
-                };
-                this.userName = username;
-                this.userGame$.next(this.gameRoom.userGame);
-                this.connect();
-                this.socketService.send('createGame', this.gameRoom.userGame);
+                if (!started) {
+                    this.socketService.send('createGame', this.gameRoom.userGame);
+                }
             } else {
                 alert('Jeu introuvable');
             }
@@ -98,7 +78,7 @@ export class ClassicModeService {
             this.socketService.connect();
             this.handleSocket();
         } else {
-            alert('Problème de connexion Socket Alive');
+            alert('Problème de connexion');
         }
     }
 
@@ -137,11 +117,7 @@ export class ClassicModeService {
         });
 
         this.socketService.on('playerAccepted', (gameRoom: GameRoom) => {
-            if (gameRoom && gameRoom.userGame.username1 === this.userName) {
-                this.gameRoom = gameRoom;
-                this.userGame$.next(gameRoom.userGame);
-                this.accepted$.next(true);
-            } else if (gameRoom && gameRoom.userGame.username2 === this.userName) {
+            if (gameRoom && (gameRoom.userGame.username1 === this.userName || gameRoom.userGame.username2 === this.userName)) {
                 this.gameRoom = gameRoom;
                 this.userGame$.next(gameRoom.userGame);
                 this.accepted$.next(true);
@@ -196,10 +172,9 @@ export class ClassicModeService {
     abortGame(): void {
         if (this.socketService.isSocketAlive() && this.gameRoom?.userGame.username1 === this.userName) {
             this.socketService.send('abortGameCreation', this.gameRoom.userGame.gameData.gameForm.name);
-            this.socketService.disconnect();
         } else if (this.socketService.isSocketAlive()) {
             this.socketService.send('leaveGame', [this.gameRoom.userGame.gameData.gameForm.name, this.userName]);
-            this.socketService.disconnect();
         }
+        this.socketService.disconnect();
     }
 }

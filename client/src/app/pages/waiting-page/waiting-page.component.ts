@@ -17,9 +17,11 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
         this.classicModeService.rejected$.subscribe((rejected) => {
             this.rejected = rejected;
         });
+
         this.classicModeService.accepted$.subscribe((accepted) => {
             this.accepted = accepted;
         });
+
         this.classicModeService.gameCanceled$.subscribe((finished) => {
             if (!this.gameCanceled && finished) {
                 this.gameCanceled = true;
