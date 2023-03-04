@@ -7,6 +7,21 @@ export enum ClassicModeEvents {
     GameFinished = 'GameFinished',
     EndGame = 'endGame',
     Timer = 'timer',
+    CheckGame = 'checkGame',
+    GameFound = 'gameFound',
+    GameDeleted = 'gameDeleted',
+    CreateGame = 'createGame',
+    AbortGameCreation = 'abortGameCreation',
+    GameInfo = 'gameInfo',
+    LeaveGame = 'leaveGame',
+    PlayerRejected = 'playerRejected',
+    PlayerAccepted = 'playerAccepted',
+    AcceptPlayer = 'acceptPlayer',
+    RejectPlayer = 'rejectPlayer',
+    CanJoinGame = 'canJoinGame',
+    CannotJoinGame = 'cannotJoinGame',
+    GameCanceled = 'gameCanceled',
+    AskingToJoinGame = 'askingToJoinGame',
 }
 
 export enum DelayBeforeEmmitingTime {

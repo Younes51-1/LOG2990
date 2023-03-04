@@ -4,13 +4,12 @@
         <p>Bienvenue au jeu : {{ gameName }}, {{ player }} !</p>
     </header>
     <section>
-        <app-sidebar
-            [gameName]="gameName"
-            [timer]="timer"
-            [differencesFound]="differencesFound"
-            [userGame]="userGame"
-            (endGame)="endGame()"
-        ></app-sidebar>
+        <app-sidebar [gameName]="gameName" [timer]="timer" [differencesFound]="differencesFound" [userGame]="userGame"
+            (endGame)="endGame()"></app-sidebar>
         <app-play-area class="play-area" tabindex="0" [userGame]="userGame"></app-play-area>
+        <div *ngIf="gameRoom.userGame.username2">
+            <app-opponent-sidebar [opponentDifferencesFound]="differencesFound" [gameRoom]="gameRoom"
+                [username]="player"></app-opponent-sidebar>
+        </div>
     </section>
 </div>

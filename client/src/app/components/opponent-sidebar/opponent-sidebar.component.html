@@ -1,0 +1,19 @@
+<div class="container">
+    <section>
+        <!-- {{ opponentName }} -->
+        <p>... a trouvé {{opponentDifferencesFound}} différences</p>
+    </section>
+    <section>
+        <div>
+            <ul>
+                <li *ngFor="let message of messages">
+                    {{ message }}
+                </li>
+            </ul>
+            <form (submit)="sendMessage()">
+                <input type="text" [(ngModel)]="message" />
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </section>
+</div>

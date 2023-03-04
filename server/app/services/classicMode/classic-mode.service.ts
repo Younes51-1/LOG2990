@@ -13,22 +13,45 @@ export class ClassicModeService {
         this.gameRooms = new Map<string, GameRoom>();
     }
 
-    initNewRoom(socket: Socket, userGame: UserGame): string {
-        const newRoom = { userGame, roomId: socket.id };
+    initNewRoom(socket: Socket, userGame: UserGame, started: boolean): string {
+        const newRoom = { userGame, roomId: socket.id, started };
         this.gameRooms.set(newRoom.roomId, newRoom);
         socket.join(newRoom.roomId);
         return newRoom.roomId;
     }
 
-    validateDifference(gameId: string, differencePos: Vector2D): boolean {
+    canJoinGame(socket: Socket, gameName: string, userName: string): GameRoom {
+        const gameRoom = this.getGameRooms(gameName);
+        if (!gameRoom) return undefined;
+        if (!gameRoom.userGame.potentielPlayers) {
+            gameRoom.userGame.potentielPlayers = [];
+        }
+        if (gameRoom.userGame.username1.toLowerCase() === userName.toLowerCase()) return undefined;
+        for (const player of gameRoom.userGame.potentielPlayers) {
+            if (player.toLowerCase() === userName.toLowerCase()) return undefined;
+        }
+        return gameRoom;
+    }
+
+    joinGame(socket: Socket, gameName: string, userName: string): boolean {
+        const gameRoom = this.getGameRooms(gameName);
+        if (!gameName) return false;
+        gameRoom.userGame.potentielPlayers.push(userName);
+        this.gameRooms.delete(gameRoom.roomId);
+        this.gameRooms.set(gameRoom.roomId, gameRoom);
+        socket.join(gameRoom.roomId);
+        return true;
+    }
+
+    validateDifference(gameId: string, differencePos: Vector2D): { validated: boolean; roomId: string } {
         const gameRoom = this.gameRooms.get(gameId);
-        if (gameRoom === undefined) return false;
+        if (gameRoom === undefined) return { validated: false, roomId: '' };
         const validated = gameRoom.userGame.gameData.differenceMatrix[differencePos.y][differencePos.x] !== EMPTY_PIXEL_VALUE;
         if (validated) {
             gameRoom.userGame.nbDifferenceFound++;
             this.gameRooms.set(gameRoom.roomId, gameRoom);
         }
-        return validated;
+        return { validated, roomId: gameRoom.roomId };
     }
 
     isGameFinished(gameId: string): boolean {
@@ -43,5 +66,14 @@ export class ClassicModeService {
 
     deleteRoom(roomId: string): void {
         this.gameRooms.delete(roomId);
+    }
+
+    getGameRooms(gameName: string): GameRoom {
+        for (const gameRoom of this.gameRooms.values()) {
+            if (!gameRoom.started && gameRoom.userGame.gameData.gameForm.name.toLocaleLowerCase() === gameName.toLocaleLowerCase()) {
+                return gameRoom;
+            }
+        }
+        return undefined;
     }
 }
