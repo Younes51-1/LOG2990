@@ -1,6 +1,6 @@
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, discardPeriodicTasks, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
 import { GameData, UserGame, GameRoom } from '@app/interfaces/game';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
@@ -295,23 +295,22 @@ describe('PlayAreaComponent', () => {
         expect(cheatModeSpy).toHaveBeenCalled();
     });
 
-    it('should call createAndFillNewLayer twice when in cheatMode', () => {
-        const spy = spyOn(component, 'createAndFillNewLayer');
+    it('should call createAndFillNewLayer twice when in cheatMode', fakeAsync(() => {
+        const canvasMock = document.createElement('canvas');
+        const canvasContextMock = jasmine.createSpyObj('CanvasRenderingContext2D', ['drawImage']);
+        canvasMock.getContext = jasmine.createSpy('getContext').and.returnValue(canvasContextMock);
+        const spy = spyOn(component, 'createAndFillNewLayer').and.returnValue(canvasMock);
+        component.isCheatModeOn = true;
+        component.differenceMatrix = [[]];
         component.cheatMode();
+        const ms = 125;
+        tick(ms);
         expect(spy).toHaveBeenCalledTimes(2);
-    });
-
-    it('should call createAndFillNewLayer 4 times when in cheatMode and the difference matrix changes', () => {
-        const spy = spyOn(component, 'createAndFillNewLayer');
-        component.currentDifferenceMatrix = [[0]];
-        component.cheatMode();
-        component.currentDifferenceMatrix = [[1]];
-        fixture.detectChanges();
-        expect(spy).toHaveBeenCalledTimes(4);
-    });
+        discardPeriodicTasks();
+    }));
 
     it('should call drawImage twice on both contexts when in cheatMode', fakeAsync(() => {
-        component.differenceMatrix = [[]];
+        component.differenceMatrix = differenceMatrix;
         component.isCheatModeOn = true;
         component.context1 = component.canvas1.nativeElement.getContext('2d') as CanvasRenderingContext2D;
         const drawImageSpy = spyOn(component.context1, 'drawImage');
@@ -319,5 +318,22 @@ describe('PlayAreaComponent', () => {
         const ms = 1000;
         tick(ms);
         expect(drawImageSpy).toHaveBeenCalled();
+        discardPeriodicTasks();
     }));
+
+    it('should clearInterval if cheatMode is deactivated', () => {
+        component.isCheatModeOn = false;
+        const clearIntervalSpy = spyOn(window, 'clearInterval');
+        component.cheatMode();
+        expect(clearIntervalSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should clear flashes from canvases if cheatMode is deactivated', () => {
+        component.isCheatModeOn = false;
+        const context1Spy = spyOn(component.context1, 'drawImage');
+        const context2Spy = spyOn(component.context2, 'drawImage');
+        component.cheatMode();
+        expect(context1Spy).toHaveBeenCalledTimes(1);
+        expect(context2Spy).toHaveBeenCalledTimes(1);
+    });
 });
