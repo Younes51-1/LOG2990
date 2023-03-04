@@ -34,6 +34,9 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     currentDifferenceMatrix: number[][];
     emptypixel: number;
     timesFlashDifferences: number;
+    isCheatModeOn = false;
+    layer: HTMLCanvasElement;
+    intervalId: ReturnType<typeof setInterval>;
     private canvasSize = { x: Dimensions.DEFAULT_WIDTH, y: Dimensions.DEFAULT_HEIGHT };
 
     constructor(
@@ -53,9 +56,13 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         return this.canvasSize.y;
     }
 
-    @HostListener('keydown', ['$event'])
+    @HostListener('document:keydown', ['$event'])
     buttonDetect(event: KeyboardEvent) {
         this.buttonPressed = event.key;
+        if (this.buttonPressed === 't') {
+            this.isCheatModeOn = !this.isCheatModeOn;
+            this.cheatMode();
+        }
     }
     ngAfterViewInit() {
         this.classicModeService.differencesFound$.subscribe((differencesFound) => {
@@ -149,29 +156,12 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
 
     flashDifference(difference: number[][]) {
         const timeOut = 100;
-        const layer1 = document.createElement('canvas');
-        const layer2 = document.createElement('canvas');
-        layer1.width = this.width;
-        layer1.height = this.height;
-        layer2.width = this.width;
-        layer2.height = this.height;
-        const layerContext1 = layer1.getContext('2d');
-        const layerContext2 = layer2.getContext('2d');
-        if (this.context1 && layerContext1 && this.context2 && layerContext2) {
-            layerContext1.fillStyle = Color.Luigi;
-            layerContext2.fillStyle = Color.Luigi;
-            for (let i = 0; i < difference.length; i++) {
-                for (let j = 0; j < difference[0].length; j++) {
-                    if (difference[i][j] !== this.emptypixel) {
-                        layerContext1.fillRect(j, i, 1, 1);
-                        layerContext2.fillRect(j, i, 1, 1);
-                    }
-                }
-            }
+        const layer = this.createAndFillNewLayer(Color.Luigi, false, difference);
+        if (this.context1 && this.context2) {
             for (let i = 1; i <= this.timesFlashDifferences; i++) {
                 setTimeout(() => {
-                    this.context1.drawImage(layer1, 0, 0, this.width, this.height);
-                    this.context2.drawImage(layer2, 0, 0, this.width, this.height);
+                    this.context1.drawImage(layer, 0, 0, this.width, this.height);
+                    this.context2.drawImage(layer, 0, 0, this.width, this.height);
                     setTimeout(() => {
                         this.context1.drawImage(this.original, 0, 0, this.width, this.height);
                         this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
@@ -210,5 +200,55 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         this.context2.clearRect(0, 0, this.width, this.height);
         this.context2.putImageData(image2, 0, 0);
         this.modified.src = this.canvas2.nativeElement.toDataURL();
+        this.verifyDifferenceMatrix();
+    }
+
+    verifyDifferenceMatrix() {
+        this.layer = this.createAndFillNewLayer(Color.Cheat, true, this.differenceMatrix);
+    }
+
+    cheatMode() {
+        if (!this.isCheatModeOn) {
+            clearInterval(this.intervalId);
+            this.context1.drawImage(this.original, 0, 0, this.width, this.height);
+            this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
+            return;
+        }
+        const flashDuration = 125;
+        let isFlashing = true;
+        this.verifyDifferenceMatrix();
+        if (this.context1 && this.context2) {
+            this.intervalId = setInterval(() => {
+                if (isFlashing) {
+                    this.context1.drawImage(this.original, 0, 0, this.width, this.height);
+                    this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
+                    isFlashing = !isFlashing;
+                } else {
+                    this.context1.drawImage(this.layer, 0, 0, this.width, this.height);
+                    this.context2.drawImage(this.layer, 0, 0, this.width, this.height);
+                    isFlashing = !isFlashing;
+                }
+            }, flashDuration);
+        }
+    }
+
+    createAndFillNewLayer(color: Color, isCheat: boolean, matrix: number[][]): HTMLCanvasElement {
+        const cheatAlphaValue = 0.7;
+        const layer = document.createElement('canvas');
+        layer.width = this.width;
+        layer.height = this.height;
+        const context = layer.getContext('2d');
+        if (context) {
+            context.globalAlpha = isCheat ? cheatAlphaValue : 1;
+            context.fillStyle = color;
+            for (let i = 0; i < matrix.length; i++) {
+                for (let j = 0; j < matrix[0].length; j++) {
+                    if (matrix[i][j] !== this.emptypixel) {
+                        context.fillRect(j, i, 1, 1);
+                    }
+                }
+            }
+        }
+        return layer;
     }
 }
