@@ -35,6 +35,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     emptypixel: number;
     timesFlashDifferences: number;
     isCheatModeOn = false;
+    layer: HTMLCanvasElement;
     private canvasSize = { x: Dimensions.DEFAULT_WIDTH, y: Dimensions.DEFAULT_HEIGHT };
 
     constructor(
@@ -154,13 +155,12 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
 
     flashDifference(difference: number[][]) {
         const timeOut = 100;
-        const layer1 = this.createAndFillNewLayer(Color.Luigi, false, difference);
-        const layer2 = this.createAndFillNewLayer(Color.Luigi, false, difference);
+        const layer = this.createAndFillNewLayer(Color.Luigi, false, difference);
         if (this.context1 && this.context2) {
             for (let i = 1; i <= this.timesFlashDifferences; i++) {
                 setTimeout(() => {
-                    this.context1.drawImage(layer1, 0, 0, this.width, this.height);
-                    this.context2.drawImage(layer2, 0, 0, this.width, this.height);
+                    this.context1.drawImage(layer, 0, 0, this.width, this.height);
+                    this.context2.drawImage(layer, 0, 0, this.width, this.height);
                     setTimeout(() => {
                         this.context1.drawImage(this.original, 0, 0, this.width, this.height);
                         this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
@@ -199,25 +199,24 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         this.context2.clearRect(0, 0, this.width, this.height);
         this.context2.putImageData(image2, 0, 0);
         this.modified.src = this.canvas2.nativeElement.toDataURL();
+        this.verifyDifferenceMatrix();
+    }
+
+    verifyDifferenceMatrix() {
+        this.layer = this.createAndFillNewLayer(Color.Cheat, true, this.differenceMatrix);
     }
 
     cheatMode() {
         const cycleDuration = 250;
         const flashDuration = 125;
         const notFlashDuration = cycleDuration - flashDuration;
-        let layer1 = this.createAndFillNewLayer(Color.Cheat, true, this.differenceMatrix);
-        let layer2 = this.createAndFillNewLayer(Color.Cheat, true, this.differenceMatrix);
-        const originalDifferenceMatrix = this.currentDifferenceMatrix;
+        this.layer = this.createAndFillNewLayer(Color.Cheat, true, this.differenceMatrix);
         if (this.context1 && this.context2) {
             const flashDifferences = () => {
-                if (originalDifferenceMatrix !== this.currentDifferenceMatrix) {
-                    layer1 = this.createAndFillNewLayer(Color.Cheat, true, this.differenceMatrix);
-                    layer2 = this.createAndFillNewLayer(Color.Cheat, true, this.differenceMatrix);
-                }
                 setTimeout(() => {
                     if (this.isCheatModeOn) {
-                        this.context1.drawImage(layer1, 0, 0, this.width, this.height);
-                        this.context2.drawImage(layer2, 0, 0, this.width, this.height);
+                        this.context1.drawImage(this.layer, 0, 0, this.width, this.height);
+                        this.context2.drawImage(this.layer, 0, 0, this.width, this.height);
                         setTimeout(() => {
                             this.context1.drawImage(this.original, 0, 0, this.width, this.height);
                             this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
