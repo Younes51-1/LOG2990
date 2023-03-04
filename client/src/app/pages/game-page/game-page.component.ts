@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
-import { UserGame, GameRoom } from '@app/interfaces/game';
+import { GameRoom } from '@app/interfaces/game';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { Subscription } from 'rxjs';
 
@@ -15,14 +15,13 @@ export class GamePageComponent implements OnInit, OnDestroy {
     player: string;
     timer = 0;
     differencesFound = 0;
-    userGame: UserGame;
     gameRoom: GameRoom;
     dialogRef: MatDialogRef<EndgameDialogComponent>;
 
     private timerSubscription: Subscription;
     private differencesFoundSubscription: Subscription;
     private gameFinishedSubscription: Subscription;
-    private userGameSubscription: Subscription;
+    private gameRoomSubscription: Subscription;
 
     constructor(public dialog: MatDialog, private classicModeService: ClassicModeService) {}
 
@@ -36,19 +35,19 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.gameFinishedSubscription = this.classicModeService.gameFinished$.subscribe(() => {
             this.endGame();
         });
-        this.userGameSubscription = this.classicModeService.userGame$.subscribe((userGame) => {
-            this.userGame = userGame;
-            this.gameName = userGame.gameData.gameForm.name;
-            this.player = userGame.username1;
-            this.gameRoom = this.classicModeService.gameRoom;
+        this.gameRoomSubscription = this.classicModeService.gameRoom$.subscribe((gameRoom) => {
+            this.gameRoom = gameRoom;
+            this.gameName = gameRoom.userGame.gameData.gameForm.name;
+            this.player = gameRoom.userGame.username1;
         });
     }
 
     endGame() {
-        if (this.differencesFound === this.userGame.gameData.gameForm.nbDifference) {
+        if (this.differencesFound === this.gameRoom.userGame.gameData.gameForm.nbDifference) {
             this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true });
+        } else {
+            this.classicModeService.endGame();
         }
-        this.classicModeService.endGame();
     }
 
     ngOnDestroy() {
@@ -57,6 +56,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.timerSubscription.unsubscribe();
         this.differencesFoundSubscription.unsubscribe();
         this.gameFinishedSubscription.unsubscribe();
-        this.userGameSubscription.unsubscribe();
+        this.gameRoomSubscription.unsubscribe();
     }
 }
