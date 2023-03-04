@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
-import { UserGame } from '@app/interfaces/game';
+import { UserGame, GameRoom } from '@app/interfaces/game';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { Subscription } from 'rxjs';
 
@@ -16,6 +16,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     timer = 0;
     differencesFound = 0;
     userGame: UserGame;
+    gameRoom: GameRoom;
     dialogRef: MatDialogRef<EndgameDialogComponent>;
 
     private timerSubscription: Subscription;
@@ -39,6 +40,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.userGame = userGame;
             this.gameName = userGame.gameData.gameForm.name;
             this.player = userGame.username1;
+            this.gameRoom = this.classicModeService.gameRoom;
         });
     }
 
