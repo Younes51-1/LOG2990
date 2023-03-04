@@ -7,10 +7,9 @@
         <app-sidebar [gameName]="gameName" [timer]="timer" [differencesFound]="differencesFound" [userGame]="userGame"
             (endGame)="endGame()"></app-sidebar>
         <app-play-area class="play-area" tabindex="0" [userGame]="userGame"></app-play-area>
-        <!-- <div *ngIf=""> -->
-            <app-opponent-sidebar>
-
-            </app-opponent-sidebar>
-        <!-- </div> -->
+        <div *ngIf="gameRoom.userGame.username2">
+            <app-opponent-sidebar [opponentDifferencesFound]="differencesFound" [gameRoom]="gameRoom"
+                [username]="player"></app-opponent-sidebar>
+        </div>
     </section>
 </div>
