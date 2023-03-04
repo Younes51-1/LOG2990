@@ -8,17 +8,21 @@
         <img src="../../../assets/pictures/creation.png" />
     </header>
     <div class="tools">
-        <button class="button" (click)="enableMode('pencil')"><i class="fa fa-pencil"></i></button>
-        <button class="button" (click)="enableMode('rectangle')"><i class="fa fa-square-o"></i></button>
+        <button class="button" (click)="enableMode('pencil')"><i class="fas fa-pencil-alt"></i></button>
+        <button class="button" (click)="enableMode('rectangle')"><i class="fas fa-vector-square"></i></button>
         <button class="button" (click)="enableMode('eraser')"><i class="fa fa-eraser"></i></button>
         <label *ngIf="drawMode === 'pencil' || drawMode === 'rectangle'" for="colorpicker"> Couleur </label>
         <input *ngIf="drawMode === 'pencil' || drawMode === 'rectangle'" id="colorpicker" [(colorPicker)]="color" [style.background]="color" />
-        <label *ngIf="drawMode === 'pencil'" for="pencilSize"> Épaisseur du trait (px) </label>
-        <input *ngIf="drawMode === 'pencil'" type="text" id="pencilSize" [(ngModel)]="pencilSize" />
-        <label *ngIf="drawMode === 'eraser'" for="eraserSize"> Taille de l'efface (px) </label>
-        <input *ngIf="drawMode === 'eraser'" type="text" id="eraserSize" [(ngModel)]="eraserSize" />
-        <button class="button" (click)="ctrlZ()">Annuler</button>
-        <button class="button" (click)="ctrlShiftZ()">Refaire</button>
+        <label *ngIf="drawMode === 'pencil'" for="pencilSize"> Épaisseur du trait ({{ pencilSize }} px) </label>
+        <mat-slider *ngIf="drawMode === 'pencil'" id="pencilSize" min="1" max="100" step="1" [(ngModel)]="pencilSize">
+            <input matSliderThumb />
+        </mat-slider>
+        <label *ngIf="drawMode === 'eraser'" for="eraserSize"> Taille de l'efface ({{ eraserSize }} px) </label>
+        <mat-slider *ngIf="drawMode === 'eraser'" id="eraserSize" min="1" max="100" step="1" [(ngModel)]="eraserSize">
+            <input matSliderThumb />
+        </mat-slider>
+        <button class="button" (click)="ctrlZ()"><i class="fas fa-undo"></i></button>
+        <button class="button" (click)="ctrlShiftZ()"><i class="fas fa-redo"></i></button>
     </div>
     <p>* Les images doivent posséder le format 24-bit bitmap (BPM) avec une taille de 640x480 px *</p>
     <p>

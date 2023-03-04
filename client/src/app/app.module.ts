@@ -6,6 +6,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSliderModule } from '@angular/material/slider';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ConfigParamsComponent } from '@app/components/config-params/config-params.component';
@@ -60,6 +61,7 @@ import { ConfigSelectPageComponent } from './pages/config-select-page/config-sel
         CommonModule,
         MatDialogModule,
         ColorPickerModule,
+        MatSliderModule,
     ],
 })
 export class AppModule {}
