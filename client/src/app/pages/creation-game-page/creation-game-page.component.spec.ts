@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import { HttpClientModule } from '@angular/common/http';
-import { ComponentFixture, fakeAsync, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialog, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -10,13 +10,16 @@ import { GameData } from '@app/interfaces/game';
 import { CreationGamePageComponent } from '@app/pages/creation-game-page/creation-game-page.component';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
 import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
+import { DrawingService } from '@app/services/drawingService/drawing.service';
+import { ForegroundService } from '@app/services/foregroundService/foreground.service';
 import { of } from 'rxjs';
 import SpyObj = jasmine.SpyObj;
 
 describe('CreationGamePageComponent', () => {
     let component: CreationGamePageComponent;
     let fixture: ComponentFixture<CreationGamePageComponent>;
-    // let detectionDifferenceService: DetectionDifferenceService;
+    let foregroundService: ForegroundService;
+    let drawingService: DrawingService;
     let communicationServiceSpy: SpyObj<CommunicationService>;
 
     const differenceMatrix: number[][] = [[]];
@@ -87,6 +90,8 @@ describe('CreationGamePageComponent', () => {
     });
 
     beforeEach(() => {
+        foregroundService = TestBed.inject(ForegroundService);
+        drawingService = TestBed.inject(DrawingService);
         fixture = TestBed.createComponent(CreationGamePageComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
@@ -156,53 +161,32 @@ describe('CreationGamePageComponent', () => {
         });
     });
 
-    // it('should open Differences Dialog when image 1 and 2 has content', fakeAsync(() => {
-    //     const spy = spyOn(component, 'openDifferencesDialog');
-    //     detectionDifferenceService = TestBed.inject(DetectionDifferenceService);
-    //     spyOn(detectionDifferenceService, 'readThenConvertImage').and.returnValue(
-    //         Promise.resolve([
-    //             [0, 0],
-    //             [0, 0],
-    //         ]),
-    //     );
-    //     component.image1 = { value: 'image_2_diff.bmp' } as HTMLInputElement;
-    //     component.image2 = { value: 'image_2_diff.bmp' } as HTMLInputElement;
-    //     component.runDetectionSystem();
-    //     tick();
-    //     expect(spy).toHaveBeenCalled();
-    // }));
+    it('should open Differences Dialog when image 1 and 2 has content', fakeAsync(() => {
+        const spy = spyOn(component, 'openDifferencesDialog');
+        component.image1 = { value: 'image_2_diff.bmp' } as HTMLInputElement;
+        component.image2 = { value: 'image_2_diff.bmp' } as HTMLInputElement;
+        component.runDetectionSystem();
+        tick();
+        expect(spy).toHaveBeenCalled();
+    }));
 
-    // it('should not open Differences Dialog if image2 has no content', fakeAsync(() => {
-    //     const spy = spyOn(component, 'openDifferencesDialog');
-    //     detectionDifferenceService = TestBed.inject(DetectionDifferenceService);
-    //     spyOn(detectionDifferenceService, 'readThenConvertImage').and.returnValue(
-    //         Promise.resolve([
-    //             [0, 0],
-    //             [0, 0],
-    //         ]),
-    //     );
-    //     component.image1 = { value: 'image_2_diff.bmp' } as HTMLInputElement;
-    //     component.image2 = { value: undefined } as unknown as HTMLInputElement;
-    //     component.runDetectionSystem();
-    //     tick();
-    //     expect(spy).not.toHaveBeenCalled();
-    // }));
+    it('should not open Differences Dialog if image2 has no content', fakeAsync(() => {
+        const spy = spyOn(component, 'openDifferencesDialog');
+        component.image1 = { value: 'image_2_diff.bmp' } as HTMLInputElement;
+        component.image2 = { value: undefined } as unknown as HTMLInputElement;
+        component.runDetectionSystem();
+        tick();
+        expect(spy).not.toHaveBeenCalled();
+    }));
 
-    // it('should not open Differences Dialog if image1 has no content', fakeAsync(() => {
-    //     const spy = spyOn(component, 'openDifferencesDialog');
-    //     detectionDifferenceService = TestBed.inject(DetectionDifferenceService);
-    //     spyOn(detectionDifferenceService, 'readThenConvertImage').and.returnValue(
-    //         Promise.resolve([
-    //             [0, 0],
-    //             [0, 0],
-    //         ]),
-    //     );
-    //     component.image2 = { value: 'image_2_diff.bmp' } as HTMLInputElement;
-    //     component.image1 = { value: undefined } as unknown as HTMLInputElement;
-    //     component.runDetectionSystem();
-    //     tick();
-    //     expect(spy).not.toHaveBeenCalled();
-    // }));
+    it('should not open Differences Dialog if image1 has no content', fakeAsync(() => {
+        const spy = spyOn(component, 'openDifferencesDialog');
+        component.image2 = { value: 'image_2_diff.bmp' } as HTMLInputElement;
+        component.image1 = { value: undefined } as unknown as HTMLInputElement;
+        component.runDetectionSystem();
+        tick();
+        expect(spy).not.toHaveBeenCalled();
+    }));
 
     it('save name game should set nameGame', () => {
         const newGameName = 'newGameName';
@@ -225,79 +209,79 @@ describe('CreationGamePageComponent', () => {
         expect(mock.close).toHaveBeenCalled();
     });
 
-    // it('handleReaderOnload should call updateImageDisplay for valid image', () => {
-    //     const mockFileReader = new FileReader();
-    //     const mockEvent = new Event('test');
-    //     const mockImageElement = {
-    //         value: '',
-    //     } as HTMLInputElement;
-    //     spyOn(component, 'getImageData').and.returnValue({ hasCorrectDimensions: true, isBmp: true, is24BitPerPixel: true });
-    //     spyOn(component, 'updateImageDisplay');
+    it('handleReaderOnload should call updateImageDisplay for valid image', () => {
+        const mockFileReader = new FileReader();
+        const mockEvent = new Event('test');
+        const mockImageElement = {
+            value: '',
+        } as HTMLInputElement;
+        spyOn(component, 'getImageData').and.returnValue({ hasCorrectDimensions: true, isBmp: true, is24BitPerPixel: true });
+        const spy = spyOn(foregroundService, 'updateImageDisplay');
 
-    //     component.handleReaderOnload(mockFileReader, mockEvent, mockImageElement);
+        component.handleReaderOnload(mockFileReader, mockEvent, mockImageElement);
 
-    //     expect(component.updateImageDisplay).toHaveBeenCalledWith(mockEvent, mockImageElement);
-    // });
+        expect(spy).toHaveBeenCalledWith(mockEvent, mockImageElement);
+    });
 
-    // it("handleReaderOnload should alert if image doesn't have correct dimmensions", () => {
-    //     const mockFileReader = new FileReader();
-    //     const mockEvent = new Event('test');
-    //     const mockImageElement = {
-    //         value: '',
-    //     } as HTMLInputElement;
-    //     spyOn(component, 'getImageData').and.returnValue({ hasCorrectDimensions: false, isBmp: true, is24BitPerPixel: true });
-    //     spyOn(component, 'updateImageDisplay');
-    //     spyOn(window, 'alert');
+    it("handleReaderOnload should alert if image doesn't have correct dimmensions", () => {
+        const mockFileReader = new FileReader();
+        const mockEvent = new Event('test');
+        const mockImageElement = {
+            value: '',
+        } as HTMLInputElement;
+        spyOn(component, 'getImageData').and.returnValue({ hasCorrectDimensions: false, isBmp: true, is24BitPerPixel: true });
+        spyOn(foregroundService, 'updateImageDisplay');
+        spyOn(window, 'alert');
 
-    //     component.handleReaderOnload(mockFileReader, mockEvent, mockImageElement);
+        component.handleReaderOnload(mockFileReader, mockEvent, mockImageElement);
 
-    //     expect(window.alert).toHaveBeenCalledWith("Image refusée: elle n'est pas de taille 640x480");
-    // });
+        expect(window.alert).toHaveBeenCalledWith("Image refusée: elle n'est pas de taille 640x480");
+    });
 
-    // it("handleReaderOnload should alert if image isn't a 24 bmp image", () => {
-    //     const mockFileReader = new FileReader();
-    //     const mockEvent = new Event('test');
-    //     const mockImageElement = {
-    //         value: '',
-    //     } as HTMLInputElement;
-    //     spyOn(component, 'getImageData').and.returnValue({ hasCorrectDimensions: true, isBmp: false, is24BitPerPixel: false });
-    //     spyOn(component, 'updateImageDisplay');
-    //     spyOn(window, 'alert');
+    it("handleReaderOnload should alert if image isn't a 24 bmp image", () => {
+        const mockFileReader = new FileReader();
+        const mockEvent = new Event('test');
+        const mockImageElement = {
+            value: '',
+        } as HTMLInputElement;
+        spyOn(component, 'getImageData').and.returnValue({ hasCorrectDimensions: true, isBmp: false, is24BitPerPixel: false });
+        spyOn(foregroundService, 'updateImageDisplay');
+        spyOn(window, 'alert');
 
-    //     component.handleReaderOnload(mockFileReader, mockEvent, mockImageElement);
+        component.handleReaderOnload(mockFileReader, mockEvent, mockImageElement);
 
-    //     expect(window.alert).toHaveBeenCalledWith('Image refusée: elle ne respecte pas le format BMP-24 bit');
-    // });
+        expect(window.alert).toHaveBeenCalledWith('Image refusée: elle ne respecte pas le format BMP-24 bit');
+    });
 
-    // it("handleReaderOnload should alert if image doesn't have correct dimmensions and isn't 24 bits bmp image", () => {
-    //     const mockFileReader = new FileReader();
-    //     const mockEvent = new Event('test');
-    //     const mockImageElement = {
-    //         value: '',
-    //     } as HTMLInputElement;
-    //     spyOn(component, 'getImageData').and.returnValue({ hasCorrectDimensions: false, isBmp: false, is24BitPerPixel: false });
-    //     spyOn(component, 'updateImageDisplay');
-    //     spyOn(window, 'alert');
+    it("handleReaderOnload should alert if image doesn't have correct dimmensions and isn't 24 bits bmp image", () => {
+        const mockFileReader = new FileReader();
+        const mockEvent = new Event('test');
+        const mockImageElement = {
+            value: '',
+        } as HTMLInputElement;
+        spyOn(component, 'getImageData').and.returnValue({ hasCorrectDimensions: false, isBmp: false, is24BitPerPixel: false });
+        spyOn(foregroundService, 'updateImageDisplay');
+        spyOn(window, 'alert');
 
-    //     component.handleReaderOnload(mockFileReader, mockEvent, mockImageElement);
+        component.handleReaderOnload(mockFileReader, mockEvent, mockImageElement);
 
-    //     expect(window.alert).toHaveBeenCalledWith('Image refusée: elle ne respecte pas le format BMP-24 bit de taille 640x480');
-    // });
+        expect(window.alert).toHaveBeenCalledWith('Image refusée: elle ne respecte pas le format BMP-24 bit de taille 640x480');
+    });
 
-    // it('handleReaderOnload should call getImageData', () => {
-    //     const mockFileReader = new FileReader();
-    //     const mockEvent = new Event('test');
-    //     const mockImageElement = {
-    //         value: '',
-    //     } as HTMLInputElement;
-    //     spyOn(component, 'getImageData').and.returnValue({ hasCorrectDimensions: false, isBmp: false, is24BitPerPixel: false });
-    //     spyOn(component, 'updateImageDisplay');
-    //     spyOn(window, 'alert');
+    it('handleReaderOnload should call getImageData', () => {
+        const mockFileReader = new FileReader();
+        const mockEvent = new Event('test');
+        const mockImageElement = {
+            value: '',
+        } as HTMLInputElement;
+        spyOn(component, 'getImageData').and.returnValue({ hasCorrectDimensions: false, isBmp: false, is24BitPerPixel: false });
+        spyOn(foregroundService, 'updateImageDisplay');
+        spyOn(window, 'alert');
 
-    //     component.handleReaderOnload(mockFileReader, mockEvent, mockImageElement);
+        component.handleReaderOnload(mockFileReader, mockEvent, mockImageElement);
 
-    //     expect(component.getImageData).toHaveBeenCalledWith(mockFileReader);
-    // });
+        expect(component.getImageData).toHaveBeenCalledWith(mockFileReader);
+    });
 
     /* eslint-disable @typescript-eslint/no-magic-numbers */
     it('getImageData should return bool after being called', fakeAsync(() => {
@@ -328,16 +312,15 @@ describe('CreationGamePageComponent', () => {
         expect(saveNameGameSpy).not.toHaveBeenCalled();
     });
 
-    // it('should reset input value if file format is invalid', fakeAsync(() => {
-    //     const readerAsArrayBufferSpy = spyOn(FileReader.prototype, 'readAsArrayBuffer');
-    //     detectionDifferenceService = TestBed.inject(DetectionDifferenceService);
-    //     component.image2 = { value: 'image_empty.bmp' } as HTMLInputElement;
-    //     const file = new File(['image_empty.bmp'], 'image_empty.bmp', { type: 'image/bmp' });
-    //     const event = { target: { files: [file] } } as unknown as Event;
-    //     component.verifyImageFormat(event, component.image2);
-    //     tick();
-    //     expect(readerAsArrayBufferSpy).toHaveBeenCalled();
-    // }));
+    it('should reset input value if file format is invalid', fakeAsync(() => {
+        const readerAsArrayBufferSpy = spyOn(FileReader.prototype, 'readAsArrayBuffer');
+        component.image2 = { value: 'image_empty.bmp' } as HTMLInputElement;
+        const file = new File(['image_empty.bmp'], 'image_empty.bmp', { type: 'image/bmp' });
+        const event = { target: { files: [file] } } as unknown as Event;
+        component.verifyImageFormat(event, component.image2);
+        tick();
+        expect(readerAsArrayBufferSpy).toHaveBeenCalled();
+    }));
 
     it('should enable the mode', () => {
         component.drawMode = DrawModes.PENCIL;
@@ -345,5 +328,107 @@ describe('CreationGamePageComponent', () => {
         component.enableMode(DrawModes.RECTANGLE);
         expect(component.drawMode).toEqual(DrawModes.RECTANGLE);
         expect(component.mousePressed).toBeFalse();
+    });
+
+    it('should call updateContext of ForegroundService', () => {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        const background = 'background';
+        const spy = spyOn(foregroundService, 'updateContext');
+        component.updateContext(context as CanvasRenderingContext2D, canvas, background);
+        expect(spy).toHaveBeenCalledOnceWith(context as CanvasRenderingContext2D, canvas, background);
+    });
+
+    it('should call swapForegrounds of ForegroundService', () => {
+        const spy = spyOn(foregroundService, 'swapForegrounds');
+        component.swapForegrounds();
+        expect(spy).toHaveBeenCalled();
+    });
+
+    it('should call reset of ForegroundService', () => {
+        const element = document.createElement('canvas');
+        const spy = spyOn(foregroundService, 'reset');
+        component.reset(element as HTMLElement);
+        expect(spy).toHaveBeenCalledOnceWith(element);
+    });
+
+    it('should call duplicateForeground of ForegroundService', () => {
+        const element = document.createElement('canvas');
+        const spy = spyOn(foregroundService, 'duplicateForeground');
+        component.duplicateForeground(element);
+        expect(spy).toHaveBeenCalledOnceWith(element);
+    });
+
+    it('should call pushAndSwapForegrounds of ForegroundService', () => {
+        const spy = spyOn(foregroundService, 'pushAndSwapForegrounds');
+        component.pushAndSwapForegrounds();
+        expect(spy).toHaveBeenCalled();
+    });
+
+    it('should call handleCanvasEvent of DrawingService', () => {
+        const str = 'event';
+        const event = new MouseEvent('mouseup');
+        const canvas = document.createElement('canvas');
+        const spy = spyOn(drawingService, 'handleCanvasEvent');
+        component.handleCanvasEvent(str, event, canvas);
+        expect(spy).toHaveBeenCalledOnceWith(str, event, canvas);
+    });
+
+    it('should call handleMouseUp of DrawingService', () => {
+        const spy = spyOn(drawingService, 'handleMouseUp');
+        component.handleMouseUp();
+        expect(spy).toHaveBeenCalled();
+    });
+
+    it('should call ctrlZ of DrawingService', () => {
+        const spy = spyOn(drawingService, 'ctrlZ');
+        component.ctrlZ();
+        expect(spy).toHaveBeenCalled();
+    });
+
+    it('should call ctrlShiftZ of DrawingService', () => {
+        const spy = spyOn(drawingService, 'ctrlShiftZ');
+        component.ctrlShiftZ();
+        expect(spy).toHaveBeenCalled();
+    });
+
+    it('should call pushToUndoStack of DrawingService', () => {
+        const spy = spyOn(drawingService, 'pushToUndoStack');
+        component.pushToUndoStack();
+        expect(spy).toHaveBeenCalled();
+    });
+
+    it('should call emptyRedoStack of DrawingService', () => {
+        const spy = spyOn(drawingService, 'emptyRedoStack');
+        component.emptyRedoStack();
+        expect(spy).toHaveBeenCalled();
+    });
+
+    it('should call ctrlZ() if ctrl + Z is pressed', () => {
+        const event = new KeyboardEvent('keydown', { key: 'z', ctrlKey: true });
+        const spy = spyOn(component, 'ctrlZ');
+        document.dispatchEvent(event);
+        expect(spy).toHaveBeenCalled();
+    });
+
+    it('should call ctrlShiftZ() if ctrl + Shift + Z is pressed', () => {
+        const event = new KeyboardEvent('keydown', { key: 'Z', ctrlKey: true, shiftKey: true });
+        const spy = spyOn(component, 'ctrlShiftZ');
+        document.dispatchEvent(event);
+        expect(spy).toHaveBeenCalled();
+    });
+
+    it('should set shiftPressed to true is Shift is pressed', () => {
+        const event = new KeyboardEvent('keydown', { shiftKey: true });
+        component.shiftPressed = false;
+        document.dispatchEvent(event);
+        expect(component.shiftPressed).toBeTruthy();
+    });
+
+    it('should set shiftPressed to false is Shift is unpressed', () => {
+        const event = new KeyboardEvent('keyup', { key: 'Shift' });
+        component.shiftPressed = true;
+        document.dispatchEvent(event);
+        expect(component.shiftPressed).toBeFalsy();
     });
 });
