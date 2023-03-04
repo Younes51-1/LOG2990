@@ -11,7 +11,6 @@ export enum ClassicModeEvents {
     GameFound = 'gameFound',
     GameDeleted = 'gameDeleted',
     CreateGame = 'createGame',
-    JoinGame = 'joinGame',
     AbortGameCreation = 'abortGameCreation',
     GameInfo = 'gameInfo',
     LeaveGame = 'leaveGame',
@@ -22,8 +21,7 @@ export enum ClassicModeEvents {
     CanJoinGame = 'canJoinGame',
     CannotJoinGame = 'cannotJoinGame',
     GameCanceled = 'gameCanceled',
-    StartMultiPlayerGame = 'startMultiPlayerGame',
-    MultiPlayerGameStarted = 'multiPlayerGameStarted',
+    AskingToJoinGame = 'askingToJoinGame',
 }
 
 export enum DelayBeforeEmmitingTime {

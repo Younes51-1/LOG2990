@@ -99,7 +99,7 @@ export class GameCardComponent implements OnInit, OnDestroy {
 
     joinGame() {
         this.socketService.disconnect();
-        this.classicModeService.joinClassicModeMulti(this.slide.name, this.inputValue2);
+        this.classicModeService.joinWaitingRoomClassicModeMulti(this.slide.name, this.inputValue2);
         this.notify.emit(this.slide);
         this.router.navigate([this.routeTwo]);
     }

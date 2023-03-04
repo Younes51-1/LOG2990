@@ -43,15 +43,15 @@ export class ClassicModeService {
         return true;
     }
 
-    validateDifference(gameId: string, differencePos: Vector2D): boolean {
+    validateDifference(gameId: string, differencePos: Vector2D): { validated: boolean; roomId: string } {
         const gameRoom = this.gameRooms.get(gameId);
-        if (gameRoom === undefined) return false;
+        if (gameRoom === undefined) return { validated: false, roomId: '' };
         const validated = gameRoom.userGame.gameData.differenceMatrix[differencePos.y][differencePos.x] !== EMPTY_PIXEL_VALUE;
         if (validated) {
             gameRoom.userGame.nbDifferenceFound++;
             this.gameRooms.set(gameRoom.roomId, gameRoom);
         }
-        return validated;
+        return { validated, roomId: gameRoom.roomId };
     }
 
     isGameFinished(gameId: string): boolean {

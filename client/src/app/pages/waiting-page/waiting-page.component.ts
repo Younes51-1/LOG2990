@@ -25,8 +25,8 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
         this.acceptedSubscription = this.classicModeService.accepted$.subscribe((accepted) => {
             if (accepted) {
                 this.accepted = true;
+                this.classicModeService.startGame();
                 this.router.navigate(['/game']);
-                this.classicModeService.startMultiPlayerGame();
             }
         });
 
