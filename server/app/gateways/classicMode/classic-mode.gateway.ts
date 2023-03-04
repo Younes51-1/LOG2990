@@ -1,44 +1,41 @@
 import { UserGame } from '@app/model/schema/user-game.schema';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { Injectable, Logger } from '@nestjs/common';
-import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ClassicModeEvents, DelayBeforeEmmitingTime } from '@app/gateways/classicMode/classic-mode.gateway.variables';
 
 @WebSocketGateway({ cors: true })
 @Injectable()
-export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
+export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @WebSocketServer() private server: Server;
+    intervalId: NodeJS.Timeout;
 
     constructor(private readonly logger: Logger, private readonly classicModeService: ClassicModeService) {}
 
     @SubscribeMessage(ClassicModeEvents.Start)
     startGame(socket: Socket, userGame: UserGame) {
         const newRoomId = this.classicModeService.initNewRoom(socket, userGame, true);
+        this.startTimer();
         this.logger.log(`Lancement du jeu solo: ${userGame.gameData.gameForm.name}`);
         this.server.to(socket.id).emit(ClassicModeEvents.Started, newRoomId);
     }
 
-    @SubscribeMessage(ClassicModeEvents.StartMultiPlayerGame)
-    startMultiPlayerGame(socket: Socket, userGame: UserGame) {
-        const newRoomId = this.classicModeService.initNewRoom(socket, userGame, true);
-        this.logger.log(`Lancement du jeu multi: ${userGame.gameData.gameForm.name}`);
-        this.server.to(newRoomId).emit(ClassicModeEvents.MultiPlayerGameStarted, newRoomId);
-    }
-
     @SubscribeMessage(ClassicModeEvents.ValidateDifference)
     async validateDifference(socket: Socket, differencePos) {
-        const validated = await this.classicModeService.validateDifference(socket.id, differencePos);
+        const { validated, roomId } = await this.classicModeService.validateDifference(socket.id, differencePos);
         this.server.to(socket.id).emit(ClassicModeEvents.DifferenceValidated, { validated, differencePos });
         if (this.classicModeService.isGameFinished(socket.id)) {
-            this.endGame(socket);
+            this.endGame(socket, roomId);
         }
     }
 
     @SubscribeMessage(ClassicModeEvents.EndGame)
-    endGame(socket: Socket) {
-        this.server.to(socket.id).emit(ClassicModeEvents.GameFinished, this.classicModeService.gameRooms.get(socket.id).userGame.timer);
-        this.server.emit(ClassicModeEvents.GameDeleted, this.classicModeService.gameRooms.get(socket.id).userGame.gameData.gameForm.name);
+    endGame(socket: Socket, roomId: string) {
+        this.server.to(roomId).emit(ClassicModeEvents.GameFinished, this.classicModeService.gameRooms.get(roomId).userGame.timer);
+        this.server.emit(ClassicModeEvents.GameDeleted, this.classicModeService.gameRooms.get(roomId).userGame.gameData.gameForm.name);
+        this.classicModeService.deleteRoom(roomId);
+        clearInterval(this.intervalId);
     }
 
     @SubscribeMessage(ClassicModeEvents.CheckGame)
@@ -67,7 +64,7 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
         }
     }
 
-    @SubscribeMessage(ClassicModeEvents.JoinGame)
+    @SubscribeMessage(ClassicModeEvents.AskingToJoinGame)
     joinGame(socket: Socket, userGame: [gameName: string, username: string]) {
         if (this.classicModeService.joinGame(socket, userGame[0], userGame[1])) {
             this.logger.log(`${userGame[1]} rejoint le jeu: ${userGame[0]}`);
@@ -122,8 +119,8 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
         }
     }
 
-    afterInit() {
-        setInterval(() => {
+    startTimer() {
+        this.intervalId = setInterval(() => {
             this.emitTime();
         }, DelayBeforeEmmitingTime.DELAY_BEFORE_EMITTING_TIME);
     }

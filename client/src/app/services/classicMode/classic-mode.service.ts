@@ -49,12 +49,13 @@ export class ClassicModeService {
         });
     }
 
-    joinClassicModeMulti(gameName: string, username: string): void {
+    joinWaitingRoomClassicModeMulti(gameName: string, username: string): void {
         this.communicationService.getGame(gameName).subscribe((res) => {
             if (Object.keys(res).length !== 0) {
+                this.gameRoom = {} as GameRoom;
                 this.userName = username;
                 this.connect();
-                this.socketService.send('joinGame', [gameName, username]);
+                this.socketService.send('askingToJoinGame', [gameName, username]);
             } else {
                 alert('Jeu introuvable');
             }
@@ -124,10 +125,6 @@ export class ClassicModeService {
             }
         });
 
-        this.socketService.on('multiPlayerGameStarted', (roomId: string) => {
-            this.gameRoom.roomId = roomId;
-        });
-
         this.socketService.on('playerRejected', (gameRoom: GameRoom) => {
             if (
                 gameRoom &&
@@ -156,12 +153,8 @@ export class ClassicModeService {
     }
 
     startGame(): void {
-        this.socketService.send('start', this.gameRoom.userGame);
-    }
-
-    startMultiPlayerGame(): void {
         if (this.gameRoom.userGame.username1 === this.userName) {
-            this.socketService.send('startMultiPlayerGame', this.gameRoom.userGame);
+            this.socketService.send('start', this.gameRoom.userGame);
         }
     }
 
@@ -175,7 +168,7 @@ export class ClassicModeService {
 
     endGame(): void {
         if (this.socketService.isSocketAlive()) {
-            this.socketService.send('endGame');
+            this.socketService.send('endGame', this.gameRoom.roomId);
         }
     }
 
