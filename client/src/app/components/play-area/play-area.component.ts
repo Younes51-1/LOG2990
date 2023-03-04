@@ -36,6 +36,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     timesFlashDifferences: number;
     isCheatModeOn = false;
     layer: HTMLCanvasElement;
+    intervalId: ReturnType<typeof setInterval>;
     private canvasSize = { x: Dimensions.DEFAULT_WIDTH, y: Dimensions.DEFAULT_HEIGHT };
 
     constructor(
@@ -207,21 +208,29 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     }
 
     cheatMode() {
-        const cycleDuration = 250;
+        if (!this.isCheatModeOn) {
+            clearInterval(this.intervalId);
+            this.context1.drawImage(this.original, 0, 0, this.width, this.height);
+            this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
+            return;
+        }
         const flashDuration = 125;
-        const notFlashDuration = cycleDuration - flashDuration;
-        this.layer = this.createAndFillNewLayer(Color.Cheat, true, this.differenceMatrix);
+        let layer1: HTMLCanvasElement;
+        let layer2: HTMLCanvasElement;
+        let isFlashing = true;
         if (this.context1 && this.context2) {
             const flashDifferences = () => {
-                setTimeout(() => {
-                    if (this.isCheatModeOn) {
-                        this.context1.drawImage(this.layer, 0, 0, this.width, this.height);
-                        this.context2.drawImage(this.layer, 0, 0, this.width, this.height);
-                        setTimeout(() => {
-                            this.context1.drawImage(this.original, 0, 0, this.width, this.height);
-                            this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
-                            flashDifferences();
-                        }, notFlashDuration);
+                this.intervalId = setInterval(() => {
+                    layer1 = this.createAndFillNewLayer(Color.Cheat, true, this.differenceMatrix);
+                    layer2 = this.createAndFillNewLayer(Color.Cheat, true, this.differenceMatrix);
+                    if (isFlashing) {
+                        this.context1.drawImage(this.original, 0, 0, this.width, this.height);
+                        this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
+                        isFlashing = !isFlashing;
+                    } else {
+                        this.context1.drawImage(layer1, 0, 0, this.width, this.height);
+                        this.context2.drawImage(layer2, 0, 0, this.width, this.height);
+                        isFlashing = !isFlashing;
                     }
                 }, flashDuration);
             };
