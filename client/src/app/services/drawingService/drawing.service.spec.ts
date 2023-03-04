@@ -1,39 +1,51 @@
-import { TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialogModule } from '@angular/material/dialog';
+import { ChildrenOutletContexts, DefaultUrlSerializer, RouterModule, UrlSerializer } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
+import { CreationGamePageComponent } from '@app/pages/creation-game-page/creation-game-page.component';
+import { CommunicationService } from '../communicationService/communication.service';
 
 import { DrawingService } from './drawing.service';
 
 describe('DrawingService', () => {
     let service: DrawingService;
+    let fixture: ComponentFixture<CreationGamePageComponent>;
 
     beforeEach(() => {
-        TestBed.configureTestingModule({});
+        TestBed.configureTestingModule({
+            imports: [HttpClientTestingModule, MatDialogModule, RouterModule, RouterTestingModule],
+            providers: [CommunicationService, { provide: UrlSerializer, useClass: DefaultUrlSerializer }, ChildrenOutletContexts],
+        });
         service = TestBed.inject(DrawingService);
+        fixture = TestBed.createComponent(CreationGamePageComponent);
+        service.setComponent(fixture.componentInstance);
     });
 
     it('should be created', () => {
         expect(service).toBeTruthy();
     });
 
-    // it('createNewCanvas should create a new canvas', () => {
-    //     const width = 640;
-    //     const height = 480;
-    //     const spy = spyOn(service, 'createNewCanvas').and.callThrough();
-    //     const canvas = service.createNewCanvas();
-    //     expect(spy).toHaveBeenCalled();
-    //     expect(canvas.width).toEqual(width);
-    //     expect(canvas.height).toEqual(height);
-    // });
+    it('createNewCanvas should create a new canvas', () => {
+        const width = 640;
+        const height = 480;
+        const spy = spyOn(service, 'createNewCanvas').and.callThrough();
+        const canvas = service.createNewCanvas();
+        expect(spy).toHaveBeenCalled();
+        expect(canvas.width).toEqual(width);
+        expect(canvas.height).toEqual(height);
+    });
 
     // it('drawRectangle should draw a rectangle if shift is not pressed', () => {
-    //     const canvas = service.createNewCanvas();
-    //     const context = canvas.getContext('2d');
+    //     const canvas1 = document.createElement('canvas');
+    //     const context1 = canvas1.getContext('2d');
     //     const pos = { x: 13, y: 12 };
     //     service.component.shiftPressed = false;
-    //     const spy = spyOn(service.component, 'drawRectangle').and.callThrough();
-    //     if (context) {
-    //         service.component.rectangleState = { canvas, context, startPos: { x: 0, y: 0 } };
+    //     const spy = spyOn(service, 'drawRectangle').and.callThrough();
+    //     if (context1) {
+    //         service.component.rectangleState = { canvas: canvas1, context: context1, startPos: { x: 0, y: 0 } };
     //         const spy2 = spyOn(service.component.rectangleState.context, 'fillRect');
-    //         service.component.drawRectangle(context, pos);
+    //         service.drawRectangle(context1, pos);
     //         expect(spy).toHaveBeenCalled();
     //         expect(spy2).toHaveBeenCalledWith(0, 0, pos.x, pos.y);
     //     }
