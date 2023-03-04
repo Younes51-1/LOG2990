@@ -218,20 +218,17 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         let isFlashing = true;
         this.verifyDifferenceMatrix();
         if (this.context1 && this.context2) {
-            const flashDifferences = () => {
-                this.intervalId = setInterval(() => {
-                    if (isFlashing) {
-                        this.context1.drawImage(this.original, 0, 0, this.width, this.height);
-                        this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
-                        isFlashing = !isFlashing;
-                    } else {
-                        this.context1.drawImage(this.layer, 0, 0, this.width, this.height);
-                        this.context2.drawImage(this.layer, 0, 0, this.width, this.height);
-                        isFlashing = !isFlashing;
-                    }
-                }, flashDuration);
-            };
-            flashDifferences();
+            this.intervalId = setInterval(() => {
+                if (isFlashing) {
+                    this.context1.drawImage(this.original, 0, 0, this.width, this.height);
+                    this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
+                    isFlashing = !isFlashing;
+                } else {
+                    this.context1.drawImage(this.layer, 0, 0, this.width, this.height);
+                    this.context2.drawImage(this.layer, 0, 0, this.width, this.height);
+                    isFlashing = !isFlashing;
+                }
+            }, flashDuration);
         }
     }
 

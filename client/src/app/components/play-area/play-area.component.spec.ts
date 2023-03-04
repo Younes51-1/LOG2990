@@ -295,29 +295,33 @@ describe('PlayAreaComponent', () => {
         expect(cheatModeSpy).toHaveBeenCalled();
     });
 
-    it('should call createAndFillNewLayer twice when in cheatMode', fakeAsync(() => {
+    it('should call createAndFillNewLayer when in cheatMode', fakeAsync(() => {
         const canvasMock = document.createElement('canvas');
         const canvasContextMock = jasmine.createSpyObj('CanvasRenderingContext2D', ['drawImage']);
         canvasMock.getContext = jasmine.createSpy('getContext').and.returnValue(canvasContextMock);
         const spy = spyOn(component, 'createAndFillNewLayer').and.returnValue(canvasMock);
         component.isCheatModeOn = true;
-        component.differenceMatrix = [[]];
+        component.differenceMatrix = differenceMatrix;
         component.cheatMode();
         const ms = 125;
         tick(ms);
-        expect(spy).toHaveBeenCalledTimes(2);
+        expect(spy).toHaveBeenCalledTimes(1);
         discardPeriodicTasks();
     }));
 
-    it('should call drawImage twice on both contexts when in cheatMode', fakeAsync(() => {
+    it('should call drawImage 8 times per second on both contexts when in cheatMode', fakeAsync(() => {
         component.differenceMatrix = differenceMatrix;
         component.isCheatModeOn = true;
         component.context1 = component.canvas1.nativeElement.getContext('2d') as CanvasRenderingContext2D;
-        const drawImageSpy = spyOn(component.context1, 'drawImage');
+        component.context2 = component.canvas2.nativeElement.getContext('2d') as CanvasRenderingContext2D;
+        const drawImageSpy1 = spyOn(component.context1, 'drawImage');
+        const drawImageSpy2 = spyOn(component.context2, 'drawImage');
         component.cheatMode();
         const ms = 1000;
         tick(ms);
-        expect(drawImageSpy).toHaveBeenCalled();
+        const timesCalled = 8;
+        expect(drawImageSpy1).toHaveBeenCalledTimes(timesCalled);
+        expect(drawImageSpy2).toHaveBeenCalledTimes(timesCalled);
         discardPeriodicTasks();
     }));
 
