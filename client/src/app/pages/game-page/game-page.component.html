@@ -4,11 +4,11 @@
         <p>Bienvenue au jeu : {{ gameName }}, {{ player }} !</p>
     </header>
     <section>
-        <app-sidebar [gameName]="gameName" [timer]="timer" [differencesFound]="differencesFound"
+        <app-sidebar [gameName]="gameName" [timer]="timer" [differencesFound]="totalDifferencesFound"
             [gameRoom]="gameRoom" (endGame)="endGame()"></app-sidebar>
         <app-play-area class="play-area" tabindex="0" [gameRoom]="gameRoom"></app-play-area>
         <div>
-            <app-opponent-sidebar [opponentDifferencesFound]="differencesFound" [gameRoom]="gameRoom"
+            <app-opponent-sidebar [opponentDifferencesFound]="totalDifferencesFound" [gameRoom]="gameRoom"
                 [username]="player"></app-opponent-sidebar>
         </div>
     </section>

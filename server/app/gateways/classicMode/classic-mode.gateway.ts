@@ -23,19 +23,21 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
     }
 
     @SubscribeMessage(ClassicModeEvents.ValidateDifference)
-    validateDifference(socket: Socket, data: [differencePos: Vector2D, roomId: string]) {
+    validateDifference(socket: Socket, data: [differencePos: Vector2D, roomId: string, username: string]) {
         const validated = this.classicModeService.validateDifference(data[1], data[0]);
-        this.server.to(data[1]).emit(ClassicModeEvents.DifferenceValidated, { validated, differencePos: data[0] });
+        this.server.to(data[1]).emit(ClassicModeEvents.DifferenceValidated, { validated, differencePos: data[0], username: data[2] });
         if (this.classicModeService.isGameFinished(data[1])) {
-            this.endGame(socket, data[1]);
+            this.endGame(socket, [data[1], data[2]]);
         }
     }
 
     @SubscribeMessage(ClassicModeEvents.EndGame)
-    endGame(socket: Socket, roomId: string) {
-        this.logger.log(`Fin du jeu: ${this.classicModeService.gameRooms.get(roomId).userGame.gameData.gameForm.name}`);
-        this.server.to(roomId).emit(ClassicModeEvents.GameFinished);
-        this.classicModeService.deleteRoom(roomId);
+    endGame(socket: Socket, data: [roomId: string, userName: string]) {
+        const gameRoom = this.classicModeService.gameRooms.get(data[0]);
+        if (!gameRoom) return;
+        this.logger.log(`Fin du jeu: ${gameRoom.userGame.gameData.gameForm.name}`);
+        this.server.to(data[0]).emit(ClassicModeEvents.GameFinished, data[1]);
+        this.classicModeService.deleteRoom(data[0]);
         clearInterval(this.intervalId);
     }
 

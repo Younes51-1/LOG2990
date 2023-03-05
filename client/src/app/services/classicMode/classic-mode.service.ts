@@ -13,11 +13,13 @@ export class ClassicModeService {
     gameRoom: GameRoom;
     canSendValidate = true;
     userName: string;
-    differencesFound$ = new Subject<number>();
+    userDifferencesFound = 0;
+    totalDifferencesFound$ = new Subject<number>();
+    userDifferencesFound$ = new Subject<number>();
     timer$ = new Subject<number>();
     gameFinished$ = new Subject<boolean>();
     gameRoom$ = new Subject<GameRoom>();
-    serverValidateResponse$ = new Subject<boolean>();
+    serverValidateResponse$ = new Subject<DifferenceTry>();
     rejected$ = new Subject<boolean>();
     accepted$ = new Subject<boolean>();
     gameCanceled$ = new Subject<boolean>();
@@ -121,12 +123,18 @@ export class ClassicModeService {
         this.socketService.on('validated', (differenceTry: DifferenceTry) => {
             if (differenceTry.validated) {
                 this.gameRoom.userGame.nbDifferenceFound++;
-                this.differencesFound$.next(this.gameRoom.userGame.nbDifferenceFound);
+                this.totalDifferencesFound$.next(this.gameRoom.userGame.nbDifferenceFound);
+                if (differenceTry.username === this.userName) {
+                    this.userDifferencesFound++;
+                    this.userDifferencesFound$.next(this.userDifferencesFound);
+                }
             }
-            this.serverValidateResponse$.next(differenceTry.validated);
+            this.serverValidateResponse$.next(differenceTry);
         });
 
-        this.socketService.on('GameFinished', () => {
+        // TODO: Remove disable lint and use userName for dialog
+        // eslint-disable-next-line no-unused-vars
+        this.socketService.on('GameFinished', (userName: string) => {
             this.gameFinished$.next(true);
             this.socketService.disconnect();
         });
@@ -179,13 +187,13 @@ export class ClassicModeService {
         if (!this.canSendValidate) {
             return;
         }
-        this.socketService.send('validate', [differencePos, this.gameRoom.roomId]);
+        this.socketService.send('validate', [differencePos, this.gameRoom.roomId, this.userName]);
         this.canSendValidate = false;
     }
 
     endGame(): void {
         if (this.socketService.isSocketAlive()) {
-            this.socketService.send('endGame', this.gameRoom.roomId);
+            this.socketService.send('endGame', [this.gameRoom.roomId, this.userName]);
         }
     }
 
