@@ -36,8 +36,8 @@ describe('PlayAreaComponent', () => {
         vsBestTimes: [],
     };
     const gameData: GameData = { gameForm, differenceMatrix };
-    const userGame: UserGame = { username: '', gameData, nbDifferenceFound: 0, timer: 0 };
-    const gameRoom: GameRoom = { userGame, roomId: 'testRoom' };
+    const userGame: UserGame = { username1: '', gameData, nbDifferenceFound: 0, timer: 0 };
+    const gameRoom: GameRoom = { userGame, roomId: 'testRoom', started: false };
 
     let component: PlayAreaComponent;
     let classicModeService: ClassicModeService;

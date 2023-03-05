@@ -13,11 +13,11 @@ export class ClassicModeService {
         this.gameRooms = new Map<string, GameRoom>();
     }
 
-    initNewRoom(socket: Socket, userGame: UserGame, started: boolean): string {
+    initNewRoom(socket: Socket, userGame: UserGame, started: boolean): GameRoom {
         const newRoom = { userGame, roomId: socket.id, started };
         this.gameRooms.set(newRoom.roomId, newRoom);
         socket.join(newRoom.roomId);
-        return newRoom.roomId;
+        return newRoom;
     }
 
     canJoinGame(socket: Socket, gameName: string, userName: string): GameRoom {
@@ -43,15 +43,15 @@ export class ClassicModeService {
         return true;
     }
 
-    validateDifference(gameId: string, differencePos: Vector2D): { validated: boolean; roomId: string } {
+    validateDifference(gameId: string, differencePos: Vector2D): boolean {
         const gameRoom = this.gameRooms.get(gameId);
-        if (gameRoom === undefined) return { validated: false, roomId: '' };
+        if (gameRoom === undefined) return false;
         const validated = gameRoom.userGame.gameData.differenceMatrix[differencePos.y][differencePos.x] !== EMPTY_PIXEL_VALUE;
         if (validated) {
             gameRoom.userGame.nbDifferenceFound++;
             this.gameRooms.set(gameRoom.roomId, gameRoom);
         }
-        return { validated, roomId: gameRoom.roomId };
+        return validated;
     }
 
     isGameFinished(gameId: string): boolean {
