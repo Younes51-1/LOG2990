@@ -96,8 +96,7 @@ describe('DetectionDifferenceService', () => {
             [emptyPixelValue, emptyPixelValue, emptyPixelValue],
         ];
         const radius = 2;
-        const array1 = [0, 1];
-        const diffCoordinates = { array: array1, length: array1.length };
+        const diffCoordinates = [0, 1];
         const matrixAfterRadius = service.applyRadius(initialMatrix, radius, diffCoordinates);
         const expectedMatrix = [
             [1, 1, 1],

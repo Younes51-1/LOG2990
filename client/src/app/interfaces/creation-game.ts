@@ -7,11 +7,6 @@ export interface Rgba {
     a: number;
 }
 
-export interface NumberArray {
-    array: number[];
-    length: number;
-}
-
 export enum DrawModes {
     PENCIL = 'pencil',
     RECTANGLE = 'rectangle',
