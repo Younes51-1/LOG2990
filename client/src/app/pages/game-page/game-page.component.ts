@@ -13,6 +13,7 @@ import { Subscription } from 'rxjs';
 export class GamePageComponent implements OnInit, OnDestroy {
     gameName: string;
     player: string;
+    player2 = '';
     timer = 0;
     totalDifferencesFound = 0;
     userDifferencesFound = 0;
@@ -51,6 +52,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.gameRoom = gameRoom;
             this.gameName = gameRoom.userGame.gameData.gameForm.name;
             this.player = gameRoom.userGame.username1;
+            this.player2 = gameRoom.userGame.username2!;
             if (gameRoom.userGame.gameData.gameForm.nbDifference % 2 === 0) {
                 this.multiplayerThreshold = gameRoom.userGame.gameData.gameForm.nbDifference / 2;
             } else {

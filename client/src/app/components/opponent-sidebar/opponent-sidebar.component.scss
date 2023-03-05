@@ -135,3 +135,12 @@ svg {
 .form-container .btn:hover, .open-button:hover {
   opacity: 1;
 }
+
+.chatbox {
+  border:3px solid black;
+}
+
+.chat {
+  overflow-y: scroll;
+  height: 200px;
+}

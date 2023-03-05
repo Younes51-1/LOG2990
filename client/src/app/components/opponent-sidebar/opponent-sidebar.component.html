@@ -1,18 +1,17 @@
 <div class="container">
-    <section>
-        <!-- {{ opponentName }} -->
-        <p>... a trouvé {{opponentDifferencesFound}} différences</p>
+    <section *ngIf="this.gameRoom.userGame.username2">
+        <p>{{username}} a trouvé {{opponentDifferencesFound}} différences</p>
     </section>
     <section>
-        <div>
-            <ul>
+        <div class="chatbox">
+            <ul class="chat">
                 <li *ngFor="let message of messages">
-                    {{ message }}
+                    {{username}} : {{ message }}
                 </li>
             </ul>
             <form (submit)="sendMessage()">
-                <input type="text" [(ngModel)]="message" />
-                <button type="submit">Send</button>
+                <input type="text" [(ngModel)]="message" maxlength="200"/>
+                <button *ngIf="this.gameRoom.userGame.username2" type="submit">Send</button>
             </form>
         </div>
     </section>
