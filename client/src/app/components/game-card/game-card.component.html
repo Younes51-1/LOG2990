@@ -16,18 +16,18 @@
         </div>
     </div>
     <p>{{slide.name}}</p>
-    <button *ngIf="this.page === 'config'" routerLink="{{ routeOne }}" (click)="btnOneEmitter()">{{ btnOne }}</button>
-    <button *ngIf="this.page === 'config'" routerLink="{{ routeTwo }}" (click)="btnTwoEmitter()">{{ btnTwo }}</button>
-    <button *ngIf="this.page === 'selection'" (click)="showInput1 = true; showInput2 = false; createJoin = false;">Jouer en solo</button>
-    <button *ngIf="this.page === 'selection'" (click)="showInput1 = false; showInput2 = true; createJoin = false; checkGame()">Option
+    <button *ngIf="this.page === 'config'" routerLink="{{ routeOne }}" (click)="startSoloGame()">{{ btnOne }}</button>
+    <button *ngIf="this.page === 'config'" routerLink="{{ routeTwo }}" (click)="createJoinMultiGame()">{{ btnTwo }}</button>
+    <button *ngIf="this.page === 'selection'" (click)="showInput1 = true; showInput2 = false;">Jouer en solo</button>
+    <button *ngIf="this.page === 'selection'" (click)="showInput1 = false; showInput2 = true; checkGame()">Option
         multijoueur</button>
     <div class="player-name" *ngIf="showInput1">
         <input type="text" [(ngModel)]="inputValue1" placeholder="Entrez votre nom" [ngClass]="{'error-border': applyBorder}">
-        <button (click)="toggleBorder()">{{ btnOne }}</button>
+        <button (click)="verifySoloInput()">{{ btnOne }}</button>
     </div>
     <div class="player-name" *ngIf="showInput2">
         <input type="text" [(ngModel)]="inputValue2" placeholder="Entrez votre nom" [ngClass]="{'error-border': applyBorder}">
-        <button (click)="toggleBorder2()">{{ this.gameExists ? "Joindre" : "Créer" }}</button>
+        <button (click)="verifyMultiInput()">{{ this.gameExists ? "Joindre" : "Créer" }}</button>
     </div>
 
 </div>

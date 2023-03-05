@@ -1,6 +1,5 @@
 export enum ClassicModeEvents {
     Start = 'start',
-    Waiting = 'waiting',
     Started = 'started',
     ValidateDifference = 'validate',
     DifferenceValidated = 'validated',
@@ -22,6 +21,7 @@ export enum ClassicModeEvents {
     CannotJoinGame = 'cannotJoinGame',
     GameCanceled = 'gameCanceled',
     AskingToJoinGame = 'askingToJoinGame',
+    GameCreated = 'gameCreated',
 }
 
 export enum DelayBeforeEmmitingTime {

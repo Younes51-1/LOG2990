@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges, ViewChild } from '@angular/core';
-import { UserGame } from '@app/interfaces/game';
+import { GameRoom } from '@app/interfaces/game';
 import { Vec2 } from '@app/interfaces/vec2';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
@@ -16,7 +16,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     @ViewChild('canvas1', { static: false }) canvas1: ElementRef<HTMLCanvasElement>;
     @ViewChild('canvas2', { static: false }) canvas2: ElementRef<HTMLCanvasElement>;
 
-    @Input() userGame: UserGame;
+    @Input() gameRoom: GameRoom;
 
     canvasClicked: HTMLCanvasElement;
     playerIsAllowedToClick = true;
@@ -24,7 +24,8 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     context1text: CanvasRenderingContext2D;
     context2: CanvasRenderingContext2D;
     mousePosition: Vec2 = { x: 0, y: 0 };
-    differencesFound = 0;
+    totalDifferencesFound = 0;
+    userDifferencesFound = 0;
     buttonPressed = '';
     original = new Image();
     modified = new Image();
@@ -58,13 +59,17 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         this.buttonPressed = event.key;
     }
     ngAfterViewInit() {
-        this.classicModeService.differencesFound$.subscribe((differencesFound) => {
-            this.differencesFound = differencesFound;
+        this.classicModeService.totalDifferencesFound$.subscribe((differencesFound) => {
+            this.totalDifferencesFound = differencesFound;
         });
-        this.classicModeService.serverValidateResponse$.subscribe((response) => {
-            if (response) {
+
+        this.classicModeService.userDifferencesFound$.subscribe((differencesFound) => {
+            this.userDifferencesFound = differencesFound;
+        });
+        this.classicModeService.serverValidateResponse$.subscribe((difference) => {
+            if (difference.validated) {
                 this.playerIsAllowedToClick = false;
-                this.correctAnswerVisuals(this.mousePosition.x, this.mousePosition.y);
+                this.correctAnswerVisuals(difference.differencePos.x, difference.differencePos.y);
                 this.audioValid.pause();
                 this.audioValid.currentTime = 0;
                 this.audioValid.play();
@@ -87,10 +92,10 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     }
 
     async ngOnChanges() {
-        if (this.classicModeService.gameRoom && this.userGame?.gameData) {
-            this.differenceMatrix = this.userGame.gameData.differenceMatrix;
-            this.original.src = this.userGame.gameData.gameForm.image1url;
-            this.modified.src = this.userGame.gameData.gameForm.image2url;
+        if (this.classicModeService.gameRoom && this.gameRoom?.userGame?.gameData) {
+            this.differenceMatrix = this.gameRoom.userGame.gameData.differenceMatrix;
+            this.original.src = this.gameRoom.userGame.gameData.gameForm.image1url;
+            this.modified.src = this.gameRoom.userGame.gameData.gameForm.image2url;
         }
         this.original.crossOrigin = 'Anonymous'; // needed to get access to images of server
         this.modified.crossOrigin = 'Anonymous';

@@ -60,28 +60,29 @@ export class GameCardComponent implements OnInit, OnDestroy {
         });
     }
 
-    btnOneEmitter() {
+    startSoloGame() {
         if (this.page === PageKeys.Selection) {
-            this.classicModeService.initClassicModeSolo(this.slide.name, this.inputValue1, true);
+            this.classicModeService.initClassicMode(this.slide.name, this.inputValue1, true);
+            this.router.navigate([this.routeOne]);
         }
         this.notify.emit(this.slide.name);
     }
 
-    btnTwoEmitter() {
+    createJoinMultiGame() {
+        if (!this.socketService.isSocketAlive()) {
+            this.socketService.connect();
+        }
+
         if (this.page === PageKeys.Selection && !this.gameExists) {
             this.createGame();
+            this.createJoin = true;
         } else if (this.page === PageKeys.Selection && this.gameExists) {
-            if (!this.socketService.isSocketAlive()) {
-                this.socketService.connect();
-            }
-
             this.canJoinGame();
         }
     }
 
     createGame() {
-        this.socketService.disconnect();
-        this.classicModeService.initClassicModeSolo(this.slide.name, this.inputValue2, false);
+        this.classicModeService.initClassicMode(this.slide.name, this.inputValue2, false);
         this.notify.emit(this.slide);
         this.router.navigate([this.routeTwo]);
     }
@@ -94,31 +95,30 @@ export class GameCardComponent implements OnInit, OnDestroy {
         });
         this.socketService.on('canJoinGame', () => {
             this.joinGame();
+            this.createJoin = true;
         });
     }
 
     joinGame() {
-        this.socketService.disconnect();
         this.classicModeService.joinWaitingRoomClassicModeMulti(this.slide.name, this.inputValue2);
         this.notify.emit(this.slide);
         this.router.navigate([this.routeTwo]);
     }
 
-    toggleBorder() {
+    verifySoloInput() {
         if (!this.verifyUserInput(this.inputValue1)) {
             this.applyBorder = false;
         } else {
-            this.btnOneEmitter();
-            this.router.navigate([this.routeOne]);
+            this.startSoloGame();
         }
     }
 
     // TODO: change CSS to show border
-    toggleBorder2() {
+    verifyMultiInput() {
         if (!this.verifyUserInput(this.inputValue2)) {
             this.applyBorder = false;
         } else {
-            this.btnTwoEmitter();
+            this.createJoinMultiGame();
         }
     }
 
@@ -145,6 +145,8 @@ export class GameCardComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.socketService.disconnect();
+        if (this.socketService.isSocketAlive() && !this.createJoin) {
+            this.socketService.disconnect();
+        }
     }
 }
