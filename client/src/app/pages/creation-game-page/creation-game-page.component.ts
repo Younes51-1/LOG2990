@@ -11,6 +11,7 @@ import { DrawingService } from '@app/services/drawingService/drawing.service';
 import { ForegroundService } from '@app/services/foregroundService/foreground.service';
 import { Vec2 } from 'src/app/interfaces/vec2';
 import { Color } from 'src/assets/variables/color';
+import { DefaultSize } from 'src/assets/variables/default-size';
 import { AsciiLetterValue, BIT_PER_PIXEL, OffsetValues, PossibleRadius } from 'src/assets/variables/images-values';
 
 @Component({
@@ -34,7 +35,6 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     contextForeground2: CanvasRenderingContext2D;
 
     mousePosition: Vec2;
-    eraserWidth: number;
     rectangleState: Rectangle;
     canvasTemp: Canvas;
     drawMode: string = DrawModes.NOTHING;
@@ -69,8 +69,8 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     urlPath2: string;
 
     color: string = Color.Luigi;
-    pencilSize: number;
-    eraserSize: number;
+    pencilSize: number = DefaultSize.Pencil;
+    eraserSize: number = DefaultSize.Eraser;
 
     // eslint-disable-next-line max-params -- needed for constructor
     constructor(

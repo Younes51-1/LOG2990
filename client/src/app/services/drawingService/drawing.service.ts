@@ -94,7 +94,6 @@ export class DrawingService {
                     break;
                 }
                 case DrawModes.ERASER: {
-                    this.component.eraserWidth = this.component.eraserSize;
                     this.eraseSquare(context, this.component.mousePosition);
                     break;
                 }
@@ -178,15 +177,15 @@ export class DrawingService {
 
     eraseSquare(context: CanvasRenderingContext2D, position: Vec2) {
         context.clearRect(
-            position.x - this.component.eraserWidth,
-            position.y - this.component.eraserWidth,
-            2 * this.component.eraserWidth,
-            2 * this.component.eraserWidth,
+            position.x - this.component.eraserSize,
+            position.y - this.component.eraserSize,
+            2 * this.component.eraserSize,
+            2 * this.component.eraserSize,
         );
     }
 
     traceShape(context: CanvasRenderingContext2D, start: Vec2, finish: Vec2) {
-        context.lineWidth = this.component.eraserWidth * 2;
+        context.lineWidth = this.component.eraserSize * 2;
         let slopeY = (finish.y - start.y) / (finish.x - start.x);
         if (start.x < finish.x) {
             for (let i = start.x; i <= finish.x; i++) {
