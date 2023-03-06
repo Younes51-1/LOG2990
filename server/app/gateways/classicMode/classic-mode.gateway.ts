@@ -41,6 +41,11 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
         clearInterval(this.intervalId);
     }
 
+    @SubscribeMessage(ClassicModeEvents.Abondend)
+    abondone(socket: Socket, roomId: string) {
+        this.server.to(roomId).emit(ClassicModeEvents.Abondend);
+    }
+
     @SubscribeMessage(ClassicModeEvents.CheckGame)
     checkGame(socket: Socket, gameName: string) {
         if (this.classicModeService.getGameRooms(gameName)) {

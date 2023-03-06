@@ -23,6 +23,7 @@ export class ClassicModeService {
     rejected$ = new Subject<boolean>();
     accepted$ = new Subject<boolean>();
     gameCanceled$ = new Subject<boolean>();
+    abondend$ = new Subject<boolean>();
 
     constructor(private readonly socketService: CommunicationSocketService, private communicationService: CommunicationService) {}
 
@@ -165,6 +166,10 @@ export class ClassicModeService {
             }
         });
 
+        this.socketService.on('abondend', () => {
+            this.abondend$.next(true);
+        });
+
         this.socketService.on('timer', (timer: number) => {
             this.gameRoom.userGame.timer = timer;
             this.timer$.next(timer);
@@ -194,6 +199,12 @@ export class ClassicModeService {
     endGame(): void {
         if (this.socketService.isSocketAlive()) {
             this.socketService.send('endGame', [this.gameRoom.roomId, this.userName]);
+        }
+    }
+
+    abondonGame() {
+        if (this.socketService.isSocketAlive()) {
+            this.socketService.send('abondonGame', this.gameRoom.roomId);
         }
     }
 

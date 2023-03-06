@@ -1,6 +1,11 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { GameRoom } from '@app/interfaces/game';
 import { ChatService } from '@app/services/chatService/chat.service';
+// TODO: remove this
+export interface Message {
+    message: string;
+    username: string;
+}
 
 @Component({
     selector: 'app-opponent-sidebar',
@@ -8,20 +13,24 @@ import { ChatService } from '@app/services/chatService/chat.service';
     styleUrls: ['./opponent-sidebar.component.scss'],
 })
 export class OpponentSidebarComponent implements OnInit {
+    @ViewChild('chatbox', { static: true }) chatbox: ElementRef;
     @Input() opponentDifferencesFound: number;
     @Input() gameRoom: GameRoom;
     @Input() username: string;
+    @Input() opponentUsername: string;
     totalNumber: number;
 
     message = '';
-    messages: string[] = [];
+    messages: Message[] = [];
 
-    constructor(private chatService: ChatService) {}
+    constructor(private chatService: ChatService) {
+        this.chatService.handleSocket();
+    }
 
     ngOnInit() {
-        this.chatService.handleSocket();
-        this.chatService.message$.subscribe((message: string) => {
+        this.chatService.message$.subscribe((message: Message) => {
             this.messages.push(message);
+            this.chatbox.nativeElement.scrollTop = this.chatbox.nativeElement.scrollHeight;
         });
     }
 

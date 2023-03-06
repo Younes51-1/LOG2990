@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, ViewChild } from '@angular/core';
 import { GameRoom } from '@app/interfaces/game';
 import { Vec2 } from '@app/interfaces/vec2';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
@@ -17,6 +17,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     @ViewChild('canvas2', { static: false }) canvas2: ElementRef<HTMLCanvasElement>;
 
     @Input() gameRoom: GameRoom;
+    @Output() userError = new EventEmitter();
 
     canvasClicked: HTMLCanvasElement;
     playerIsAllowedToClick = true;
@@ -77,6 +78,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
                 this.playerIsAllowedToClick = false;
                 this.audioInvalid.play();
                 this.visualRetroaction(this.canvasClicked);
+                this.userError.emit();
             }
         });
         const context1 = this.canvas1.nativeElement.getContext('2d');
@@ -125,6 +127,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
                 this.playerIsAllowedToClick = false;
                 this.audioInvalid.play();
                 this.visualRetroaction(canvas);
+                this.userError.emit();
             }
         }
     }

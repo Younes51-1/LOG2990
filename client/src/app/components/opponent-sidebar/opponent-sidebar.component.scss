@@ -1,146 +1,76 @@
 .container {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-    height: 95%;
-    background: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  height: 95%;
+  background: #fff;
 }
 
 button {
-    font-size: 100%;
-    display: inline-block;
-    text-align: center;
-    padding: 0.7em 2em;
-    border: 3px solid #8200FF;
-    border-radius: 5px;
-    position: relative;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.1);
-    color: #8200FF;
-    text-decoration: none;
-    transition: 0.3s ease all;
-    z-index: 1;
+  font-size: 100%;
+  display: inline-block;
+  text-align: center;
+  padding: 0.7em 2em;
+  border: 3px solid #8200FF;
+  border-radius: 5px;
+  position: relative;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.1);
+  color: #8200FF;
+  text-decoration: none;
+  transition: 0.3s ease all;
+  z-index: 1;
 }
 
 button:before {
-    transition: 0.15s all ease;
-    position: absolute;
-    top: 0;
-    left: 50%;
-    right: 50%;
-    bottom: 0;
-    opacity: 0;
-    content: '';
-    background-color: #8200FF;
-    z-index: -1;
-}
-
-button:hover, button:focus {
-    color: white;
-}
-
-button:hover:before, button:focus:before {
-    left: 0;
-    right: 0;
-    opacity: 1;
-}
-
-button:active {
-    transform: scale(0.9);
-}
-
-.countdown {
-    display: grid;
-    width: 25%;
-    height: 25%;
-}
-
-svg {
-    stroke-width: 5;
-    fill: none;
-    stroke: #8200FF;
-}
-
-.timer {
-    font-size: 100%;
-    margin-top: -65%;
-}
-
-/* Button used to open the chat form - fixed at the bottom of the page */
-.open-button {
-  background-color: #555;
-  color: white;
-  padding: 16px 20px;
-  border: none;
-  cursor: pointer;
-  opacity: 0.8;
-  position: fixed;
-  bottom: 23px;
-  right: 28px;
-  width: 280px;
-}
-
-/* The popup chat - hidden by default */
-.form-popup {
-  display: none;
-  position: fixed;
+  transition: 0.15s all ease;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  right: 50%;
   bottom: 0;
-  right: 15px;
-  border: 3px solid #f1f1f1;
-  z-index: 9;
+  opacity: 0;
+  content: '';
+  background-color: #8200FF;
+  z-index: -1;
 }
 
-/* Add styles to the form container */
-.form-container {
-  max-width: 300px;
-  padding: 10px;
-  background-color: white;
-}
-
-/* Full-width textarea */
-.form-container textarea {
-  width: 100%;
-  padding: 15px;
-  margin: 5px 0 22px 0;
-  border: none;
-  background: #f1f1f1;
-  resize: none;
-  min-height: 200px;
-}
-
-/* When the textarea gets focus, do something */
-.form-container textarea:focus {
-  background-color: #ddd;
-  outline: none;
-}
-
-/* Set a style for the submit/login button */
-.form-container .btn {
-  background-color: #04AA6D;
+button:hover,
+button:focus {
   color: white;
-  padding: 16px 20px;
-  border: none;
-  cursor: pointer;
-  width: 100%;
-  margin-bottom:10px;
-  opacity: 0.8;
 }
 
-/* Add a red background color to the cancel button */
-.form-container .cancel {
-  background-color: red;
-}
-
-/* Add some hover effects to buttons */
-.form-container .btn:hover, .open-button:hover {
+button:hover:before,
+button:focus:before {
+  left: 0;
+  right: 0;
   opacity: 1;
 }
 
-.chatbox {
-  border:3px solid black;
+button:active {
+  transform: scale(0.9);
 }
 
-.chat {
+.countdown {
+  display: grid;
+  width: 25%;
+  height: 25%;
+}
+
+svg {
+  stroke-width: 5;
+  fill: none;
+  stroke: #8200FF;
+}
+
+.timer {
+  font-size: 100%;
+  margin-top: -65%;
+}
+
+.chatbox {
+  border: 3px solid black;
   overflow-y: scroll;
-  height: 200px;
+  height: 400px;
+  width: 400px;
 }
