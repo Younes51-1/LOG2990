@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.component';
 
@@ -9,6 +10,7 @@ describe('ModalDialogComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [ModalDialogComponent],
+            imports: [FormsModule],
             providers: [
                 { provide: MatDialogRef, useValue: {} },
                 { provide: MAT_DIALOG_DATA, useValue: {} },
