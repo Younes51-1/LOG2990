@@ -8,10 +8,7 @@
             [gameRoom]="gameRoom" (endGameParent)="endGame()"></app-sidebar>
         <app-play-area class="play-area" tabindex="0" [gameRoom]="gameRoom"
             (userError)="sendEvent('error')"></app-play-area>
-        <div>
-            <app-opponent-sidebar [opponentDifferencesFound]="totalDifferencesFound-userDifferencesFound"
-                [gameRoom]="gameRoom" [username]="userName"
-                [opponentUsername]="opponentUsername"></app-opponent-sidebar>
-        </div>
+        <app-opponent-sidebar [opponentDifferencesFound]="totalDifferencesFound-userDifferencesFound"
+            [gameRoom]="gameRoom" [username]="userName" [opponentUsername]="opponentUsername"></app-opponent-sidebar>
     </section>
 </div>

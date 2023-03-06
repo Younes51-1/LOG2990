@@ -1,5 +1,5 @@
 <div class="container">
-    <section *ngIf="this.gameRoom.userGame.username2">
+    <section *ngIf="this.gameRoom?.userGame?.username2">
         <p>{{opponentUsername}} a trouvé {{opponentDifferencesFound}} différences</p>
     </section>
     <section>
@@ -10,7 +10,7 @@
                 </li>
             </ul>
         </div>
-        <form *ngIf="this.gameRoom.userGame.username2" (submit)="sendMessage()">
+        <form *ngIf="this.gameRoom?.userGame?.username2" (submit)="sendMessage()">
             <input type="text" [(ngModel)]="message" maxlength="200"/>
             <button type="submit">Send</button>
         </form>

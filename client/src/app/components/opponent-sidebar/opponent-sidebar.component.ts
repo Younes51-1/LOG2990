@@ -23,9 +23,7 @@ export class OpponentSidebarComponent implements OnInit {
     message = '';
     messages: Message[] = [];
 
-    constructor(private chatService: ChatService) {
-        this.chatService.handleSocket();
-    }
+    constructor(private chatService: ChatService) {}
 
     ngOnInit() {
         this.chatService.message$.subscribe((message: Message) => {

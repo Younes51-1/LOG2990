@@ -28,7 +28,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     private userDifferencesFoundSubscription: Subscription;
     private gameFinishedSubscription: Subscription;
     private gameRoomSubscription: Subscription;
-    private abondonGameSubscription: Subscription;
+    private abandonedGameSubscription: Subscription;
 
     constructor(public dialog: MatDialog, private classicModeService: ClassicModeService, private chatService: ChatService) {}
 
@@ -66,8 +66,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 this.multiplayerThreshold = (gameRoom.userGame.gameData.gameForm.nbDifference - 1) / 2;
             }
         });
-        this.abondonGameSubscription = this.classicModeService.abondend$.subscribe((abondend: boolean) => {
-            if (abondend) {
+        this.abandonedGameSubscription = this.classicModeService.abandoned$.subscribe((abandoned: boolean) => {
+            if (abandoned) {
                 this.classicModeService.endGame();
             }
         });
@@ -115,6 +115,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.userDifferencesFoundSubscription.unsubscribe();
         this.gameFinishedSubscription.unsubscribe();
         this.gameRoomSubscription.unsubscribe();
-        this.abondonGameSubscription.unsubscribe();
+        this.abandonedGameSubscription.unsubscribe();
     }
 }
