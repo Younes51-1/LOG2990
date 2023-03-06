@@ -31,6 +31,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     private gameRoomSubscription: Subscription;
     private abandonedGameSubscription: Subscription;
 
+    // eslint-disable-next-line max-params
     constructor(public dialog: MatDialog, private classicModeService: ClassicModeService, private chatService: ChatService, private router: Router) {}
 
     ngOnInit() {
@@ -93,6 +94,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.classicModeService.abondonGame();
             setTimeout(() => {
                 this.router.navigate(['/home']);
+                // eslint-disable-next-line @typescript-eslint/no-magic-numbers
             }, 1000);
         }
     }
