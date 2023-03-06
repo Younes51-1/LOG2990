@@ -43,7 +43,7 @@ describe('ClassicModeService', () => {
     it('initRoom should create a new room with the given id', () => {
         const roomId = 'socketid';
         socket.join.returns();
-        service.initNewRoom(socket, getFakeUserGame());
+        service.initNewRoom(socket, getFakeUserGame(), true);
         expect(service.gameRooms.get(roomId)).toBeDefined();
     });
 
@@ -103,9 +103,10 @@ describe('ClassicModeService', () => {
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 const getFakeUserGame = (): UserGame => ({
-    username: 'FakeUser',
+    username1: 'FakeUser',
     nbDifferenceFound: 0,
     timer: 0,
+    potentielPlayers: [],
     gameData: {
         differenceMatrix: [
             [-1, -1, -1],
@@ -128,4 +129,5 @@ const getFakeUserGame = (): UserGame => ({
 const getFakeGameRoom = (): GameRoom => ({
     userGame: getFakeUserGame(),
     roomId: 'socketid',
+    started: false,
 });
