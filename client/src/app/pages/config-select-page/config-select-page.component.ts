@@ -42,9 +42,9 @@ export class ConfigSelectPageComponent implements OnInit {
 
     initializeImgSource(): void {
         if (this.pageType === PageKeys.Config) {
-            this.imgSource = '../../../assets/pictures/config.png';
+            this.imgSource = './assets/pictures/config.png';
         } else if (this.pageType === PageKeys.Selection) {
-            this.imgSource = '../../../assets/pictures/selection.png';
+            this.imgSource = './assets/pictures/selection.png';
         }
     }
 }

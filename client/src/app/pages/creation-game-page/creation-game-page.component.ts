@@ -5,7 +5,7 @@ import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.
 import { NewGame } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
 import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
-import { OffsetValues, AsciiLetterValue, BIT_PER_PIXEL, PossibleRadius } from 'src/assets/variables/images-values';
+import { AsciiLetterValue, BIT_PER_PIXEL, OffsetValues, PossibleRadius } from 'src/assets/variables/images-values';
 
 @Component({
     selector: 'app-creation-game-page',
