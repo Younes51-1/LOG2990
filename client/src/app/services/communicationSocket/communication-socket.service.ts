@@ -27,6 +27,10 @@ export class CommunicationSocketService {
         this.socket.on(event, action);
     }
 
+    off(event: string): void {
+        this.socket.off(event);
+    }
+
     send<T>(event: string, data?: T): void {
         if (data) {
             this.socket.emit(event, data);

@@ -1,16 +1,14 @@
 <div class="container">
     <header>
-        <img src="./assets/pictures/jeu.png" />
-        <p>Bienvenue au jeu : {{ gameName }}, {{ player }} !</p>
+        <img src="../../../assets/pictures/jeu.png" />
+        <p>Bienvenue au jeu : {{ gameName }}, {{ userName }} !</p>
     </header>
     <section>
-        <app-sidebar
-            [gameName]="gameName"
-            [timer]="timer"
-            [differencesFound]="differencesFound"
-            [userGame]="userGame"
-            (endGame)="endGame()"
-        ></app-sidebar>
-        <app-play-area class="play-area" tabindex="0" [userGame]="userGame"></app-play-area>
+        <app-sidebar [gameName]="gameName" [timer]="timer" [differencesFound]="userDifferencesFound"
+            [gameRoom]="gameRoom" (endGameParent)="endGame()"></app-sidebar>
+        <app-play-area class="play-area" tabindex="0" [gameRoom]="gameRoom"
+            (userError)="sendEvent('error')"></app-play-area>
+        <app-opponent-sidebar [opponentDifferencesFound]="totalDifferencesFound-userDifferencesFound"
+            [gameRoom]="gameRoom" [username]="userName" [opponentUsername]="opponentUsername"></app-opponent-sidebar>
     </section>
 </div>

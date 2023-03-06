@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
-import { UserGame } from '@app/interfaces/game';
+import { GameRoom } from '@app/interfaces/game';
 
 enum Times {
     MinInSec = 60,
@@ -16,7 +16,7 @@ export class SidebarComponent implements OnChanges {
     @Input() gameName: string;
     @Input() timer: number;
     @Input() differencesFound: number;
-    @Input() userGame: UserGame;
+    @Input() gameRoom: GameRoom;
     @Output() endGameParent: EventEmitter<unknown> = new EventEmitter();
 
     gameMode: string = 'classique solo';
@@ -27,9 +27,9 @@ export class SidebarComponent implements OnChanges {
     seconds = 0;
 
     ngOnChanges() {
-        if (this.userGame) {
-            this.totalNumber = this.userGame.gameData.gameForm.nbDifference;
-            this.difficulty = this.userGame.gameData.gameForm.difficulte;
+        if (this.gameRoom) {
+            this.totalNumber = this.gameRoom.userGame.gameData.gameForm.nbDifference;
+            this.difficulty = this.gameRoom.userGame.gameData.gameForm.difficulte;
             this.minutes = Math.floor(this.timer / Times.MinInSec);
             this.seconds = this.timer % Times.MinInSec;
         }
