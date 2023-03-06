@@ -5,6 +5,7 @@ import { GameRoom } from '@app/interfaces/game';
 import { ChatService } from '@app/services/chatService/chat.service';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-game-page',
@@ -30,7 +31,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     private gameRoomSubscription: Subscription;
     private abandonedGameSubscription: Subscription;
 
-    constructor(public dialog: MatDialog, private classicModeService: ClassicModeService, private chatService: ChatService) {}
+    constructor(public dialog: MatDialog, private classicModeService: ClassicModeService, private chatService: ChatService, private router: Router) {}
 
     ngOnInit() {
         this.timerSubscription = this.classicModeService.timer$.subscribe((timer: number) => {
@@ -90,6 +91,9 @@ export class GamePageComponent implements OnInit, OnDestroy {
             alert('Are you sure you want to quit the game?');
             this.sendEvent('abandon');
             this.classicModeService.abondonGame();
+            setTimeout(() => {
+                this.router.navigate(['/home']);
+            }, 1000);
         }
     }
 
