@@ -107,7 +107,7 @@ export class GameCardComponent implements OnInit, OnDestroy {
 
     verifySoloInput() {
         if (!this.verifyUserInput(this.inputValue1)) {
-            this.applyBorder = false;
+            this.applyBorder = true;
         } else {
             this.startSoloGame();
         }
@@ -116,7 +116,7 @@ export class GameCardComponent implements OnInit, OnDestroy {
     // TODO: change CSS to show border
     verifyMultiInput() {
         if (!this.verifyUserInput(this.inputValue2)) {
-            this.applyBorder = false;
+            this.applyBorder = true;
         } else {
             this.createJoinMultiGame();
         }

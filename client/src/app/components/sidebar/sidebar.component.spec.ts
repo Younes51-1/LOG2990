@@ -3,9 +3,8 @@ import { NgModule } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
-import { Location } from '@angular/common';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
-import { GameData, UserGame } from '@app/interfaces/game';
+import { GameData } from '@app/interfaces/game';
 import { By } from '@angular/platform-browser';
 
 @NgModule({
@@ -28,11 +27,11 @@ describe('SidebarComponent', () => {
         const differenceMatrix: number[][] = [[]];
         const gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulte: '', soloBestTimes: [], vsBestTimes: [] };
         const gameData: GameData = { gameForm, differenceMatrix };
-        const userGame: UserGame = { username: '', gameData, nbDifferenceFound: 0, timer: 0 };
+        const gameRoom = { userGame: { gameData, nbDifferenceFound: 0, timer: 0, username1: 'Test' }, roomId: 'fakeId', started: false };
 
         fixture = TestBed.createComponent(SidebarComponent);
         component = fixture.componentInstance;
-        component.userGame = userGame;
+        component.gameRoom = gameRoom;
         fixture.detectChanges();
     });
 
@@ -66,11 +65,11 @@ describe('SidebarComponent', () => {
     });
 
     it('should have a button to quit the game', fakeAsync(() => {
-        const location = TestBed.inject(Location);
         const quitBtn = fixture.debugElement.nativeElement.querySelector('button');
+        const endGameSpy = spyOn(component.endGameParent, 'emit');
         quitBtn.click();
         tick();
-        expect(location.path()).toEqual('/selection');
+        expect(endGameSpy).toHaveBeenCalled();
     }));
 
     it('should show the timer in the right format (minutes:seconds)', () => {
