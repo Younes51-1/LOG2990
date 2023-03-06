@@ -5,6 +5,7 @@ import { Vec2 } from '@app/interfaces/vec2';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
 import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
 import { Subject } from 'rxjs';
+import { ChatService } from '@app/services/chatService/chat.service';
 
 @Injectable({
     providedIn: 'root',
@@ -23,8 +24,13 @@ export class ClassicModeService {
     rejected$ = new Subject<boolean>();
     accepted$ = new Subject<boolean>();
     gameCanceled$ = new Subject<boolean>();
+    abandoned$ = new Subject<boolean>();
 
-    constructor(private readonly socketService: CommunicationSocketService, private communicationService: CommunicationService) {}
+    constructor(
+        private readonly socketService: CommunicationSocketService,
+        private communicationService: CommunicationService,
+        private chatService: ChatService,
+    ) {}
 
     initClassicMode(gameName: string, username: string, started: boolean): void {
         this.communicationService.getGame(gameName).subscribe((res) => {
@@ -106,7 +112,7 @@ export class ClassicModeService {
         });
 
         this.socketService.on('gameCreated', (gameRoom: GameRoom) => {
-            if (gameRoom && this.gameRoom.userGame.gameData.gameForm.name === gameRoom.userGame.gameData.gameForm.name) {
+            if (gameRoom) {
                 this.gameRoom = gameRoom;
                 this.gameRoom$.next(this.gameRoom);
                 if (gameRoom.started) {
@@ -165,6 +171,10 @@ export class ClassicModeService {
             }
         });
 
+        this.socketService.on('abandoned', () => {
+            this.abandoned$.next(true);
+        });
+
         this.socketService.on('timer', (timer: number) => {
             this.gameRoom.userGame.timer = timer;
             this.timer$.next(timer);
@@ -175,12 +185,13 @@ export class ClassicModeService {
     startGame(): void {
         if (this.gameRoom.userGame.username1 === this.userName) {
             this.socketService.send('start', this.gameRoom.roomId);
-            this.socketService.off('gameInfo');
-            this.socketService.off('gameCreated');
-            this.socketService.off('playerAccepted');
-            this.socketService.off('playerRejected');
-            this.socketService.off('gameCanceled');
         }
+        this.chatService.handleSocket();
+        this.socketService.off('gameInfo');
+        this.socketService.off('gameCreated');
+        this.socketService.off('playerAccepted');
+        this.socketService.off('playerRejected');
+        this.socketService.off('gameCanceled');
     }
 
     validateDifference(differencePos: Vec2) {
@@ -194,6 +205,12 @@ export class ClassicModeService {
     endGame(): void {
         if (this.socketService.isSocketAlive()) {
             this.socketService.send('endGame', [this.gameRoom.roomId, this.userName]);
+        }
+    }
+
+    abondonGame() {
+        if (this.socketService.isSocketAlive()) {
+            this.socketService.send('abondonGame', this.gameRoom.roomId);
         }
     }
 

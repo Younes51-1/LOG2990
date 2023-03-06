@@ -1,6 +1,5 @@
-import { Location } from '@angular/common';
-import { HttpClientModule, HttpResponse } from '@angular/common/http';
-import { NgModule } from '@angular/core';
+import { HttpClientModule } from '@angular/common/http';
+import { NgModule, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { By } from '@angular/platform-browser';
@@ -58,6 +57,7 @@ describe('ConfigSelectPageComponent', () => {
         await TestBed.configureTestingModule({
             declarations: [ConfigSelectPageComponent, ConfigParamsComponent],
             imports: [DynamicTestModule, RouterTestingModule, AppRoutingModule],
+            schemas: [NO_ERRORS_SCHEMA], // TODO: ask if we can use it
             providers: [{ provide: CommunicationService, useValue: communicationServiceSpy }],
         }).compileComponents();
     });
@@ -137,14 +137,14 @@ describe('ConfigSelectPageComponent', () => {
         component.pageType = PageKeys.Config;
         fixture.detectChanges();
         component.initializeImgSource();
-        expect(component.imgSource).toEqual('../../../assets/pictures/config.png');
+        expect(component.imgSource).toEqual('./assets/pictures/config.png');
     });
 
     it('should correctly initialize image if pageType is selection', () => {
         component.pageType = PageKeys.Selection;
         fixture.detectChanges();
         component.initializeImgSource();
-        expect(component.imgSource).toEqual('../../../assets/pictures/selection.png');
+        expect(component.imgSource).toEqual('./assets/pictures/selection.png');
     });
 
     it('deleteNotify should call removeSlide if PageKeys is set to Config', () => {

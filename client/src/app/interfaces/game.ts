@@ -8,6 +8,7 @@ export interface UserGame {
     username2?: string;
     gameData: GameData;
     nbDifferenceFound: number;
+    nbDifferenceFound2?: number;
     timer: number;
     potentielPlayers?: string[];
 }

@@ -22,6 +22,7 @@ export enum ClassicModeEvents {
     GameCanceled = 'gameCanceled',
     AskingToJoinGame = 'askingToJoinGame',
     GameCreated = 'gameCreated',
+    Abandoned = 'abandoned',
 }
 
 export enum DelayBeforeEmmitingTime {
