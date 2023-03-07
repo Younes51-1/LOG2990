@@ -1,10 +1,17 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+/* eslint-disable max-lines */
+import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.component';
+import { Canvas, DrawModes, ForegroundState, Rectangle } from '@app/interfaces/creation-game';
 import { NewGame } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
 import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
+import { DrawingService } from '@app/services/drawingService/drawing.service';
+import { ForegroundService } from '@app/services/foregroundService/foreground.service';
+import { Vec2 } from 'src/app/interfaces/vec2';
+import { Color } from 'src/assets/variables/color';
+import { DefaultSize } from 'src/assets/variables/default-size';
 import { AsciiLetterValue, BIT_PER_PIXEL, OffsetValues, PossibleRadius } from 'src/assets/variables/images-values';
 
 @Component({
@@ -21,6 +28,24 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
 
     context1: CanvasRenderingContext2D;
     context2: CanvasRenderingContext2D;
+
+    canvasForeground1: HTMLCanvasElement;
+    canvasForeground2: HTMLCanvasElement;
+    contextForeground1: CanvasRenderingContext2D;
+    contextForeground2: CanvasRenderingContext2D;
+
+    mousePosition: Vec2;
+    rectangleState: Rectangle;
+    canvasTemp: Canvas;
+    drawMode: string = DrawModes.NOTHING;
+    mousePressed: boolean = false;
+    mouseInCanvas: boolean = true;
+    shiftPressed: boolean = false;
+    belongsToCanvas1: boolean = true;
+    currentCanvas: HTMLCanvasElement;
+
+    undo: ForegroundState[] = [];
+    redo: ForegroundState[] = [];
 
     image1: HTMLInputElement;
     image2: HTMLInputElement;
@@ -40,16 +65,42 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     flipImage: boolean = false;
 
     dialogRef: MatDialogRef<ModalDialogComponent>;
+    urlPath1: string;
+    urlPath2: string;
+
+    color: string = Color.Luigi;
+    pencilSize: number = DefaultSize.Pencil;
+    eraserSize: number = DefaultSize.Eraser;
 
     // eslint-disable-next-line max-params -- needed for constructor
     constructor(
         private communicationService: CommunicationService,
         public dialog: MatDialog,
         public detectionService: DetectionDifferenceService,
+        private foregroundService: ForegroundService,
+        private drawingService: DrawingService,
         private router: Router,
     ) {
         this.width = 640;
         this.height = 480;
+    }
+
+    @HostListener('document:keydown', ['$event'])
+    handleKeyboardEvent(event: KeyboardEvent) {
+        if (event.key === 'z' && event.ctrlKey) {
+            this.ctrlZ();
+        } else if (event.key === 'Z' && event.ctrlKey && event.shiftKey) {
+            this.ctrlShiftZ();
+        } else if (event.shiftKey) {
+            this.shiftPressed = true;
+        }
+    }
+
+    @HostListener('document:keyup', ['$event'])
+    handleKeyUpEvent(event: KeyboardEvent) {
+        if (event.key === 'Shift') {
+            this.shiftPressed = false;
+        }
     }
 
     async openDifferencesDialog() {
@@ -70,46 +121,25 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     }
 
     ngAfterViewInit(): void {
+        this.drawingService.setComponent(this);
+        this.foregroundService.setComponent(this);
         const context1Init = this.canvas1.nativeElement.getContext('2d');
         if (context1Init) this.context1 = context1Init;
         const context2Init = this.canvas2.nativeElement.getContext('2d');
         if (context2Init) this.context2 = context2Init;
-    }
-
-    updateImageDisplay(event: Event, input: HTMLInputElement): void {
-        if (event) {
-            const file = (event.target as HTMLInputElement).files;
-            if (file) {
-                const urlPath = URL.createObjectURL(file[0]);
-                switch (input) {
-                    case this.inputImage1.nativeElement: {
-                        this.updateContext(this.context1, urlPath);
-                        this.image1 = this.inputImage1.nativeElement;
-                        break;
-                    }
-                    case this.inputImage2.nativeElement: {
-                        this.updateContext(this.context2, urlPath);
-                        this.image2 = this.inputImage2.nativeElement;
-                        break;
-                    }
-                    case this.inputImages1et2.nativeElement: {
-                        this.updateContext(this.context1, urlPath);
-                        this.updateContext(this.context2, urlPath);
-                        this.image1 = this.image2 = this.inputImages1et2.nativeElement;
-                        break;
-                    }
-                    // No default
-                }
-            }
-        }
-    }
-
-    updateContext(context: CanvasRenderingContext2D, background: string): void {
-        const image = new Image();
-        image.src = background;
-        image.onload = () => {
-            context.drawImage(image, 0, 0, this.width, this.height);
-        };
+        this.canvasForeground1 = this.drawingService.createNewCanvas();
+        this.canvasForeground2 = this.drawingService.createNewCanvas();
+        const contextForeground1 = this.canvasForeground1.getContext('2d');
+        if (contextForeground1) this.contextForeground1 = contextForeground1;
+        const contextForeground2 = this.canvasForeground2.getContext('2d');
+        if (contextForeground2) this.contextForeground2 = contextForeground2;
+        this.mousePosition = { x: 0, y: 0 };
+        const canvasRectangle = this.drawingService.createNewCanvas();
+        const contextRectangle = canvasRectangle.getContext('2d');
+        if (contextRectangle) this.rectangleState = { canvas: canvasRectangle, context: contextRectangle, startPos: this.mousePosition };
+        const canvasTmp = this.drawingService.createNewCanvas();
+        const canvasTmpCtx = canvasTmp.getContext('2d');
+        if (canvasTmpCtx) this.canvasTemp = { canvas: canvasTmp, context: canvasTmpCtx };
     }
 
     verifyImageFormat(e: Event, img: HTMLInputElement): void {
@@ -148,7 +178,7 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         } else if (!(isBmp && is24BitPerPixel)) {
             alert('Image refusée: elle ne respecte pas le format BMP-24 bit');
         } else {
-            this.updateImageDisplay(e, img);
+            this.foregroundService.updateImageDisplay(e, img);
         }
     }
 
@@ -157,15 +187,8 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         const img2HasContent: boolean = this.image2?.value !== undefined;
 
         if (img1HasContent && img2HasContent) {
-            const image1matrix: number[][] = await this.detectionService.readThenConvertImage(this.image1);
-            const image2matrix: number[][] = await this.detectionService.readThenConvertImage(this.image2);
-
-            this.differenceCount = this.detectionService.countDifferences(
-                JSON.parse(JSON.stringify(image1matrix)),
-                JSON.parse(JSON.stringify(image2matrix)),
-                this.radius,
-            );
-            this.differenceMatrix = this.detectionService.differencesMatrix(image1matrix, image2matrix, this.radius);
+            this.differenceMatrix = this.detectionService.generateDifferencesMatrix(this.context1, this.context2, this.radius);
+            this.differenceCount = this.detectionService.countDifferences(this.differenceMatrix);
             this.imageDifferencesUrl = this.detectionService.createDifferencesImage(this.differenceMatrix);
             this.difficulty = this.detectionService.computeLevelDifficulty(this.differenceCount, JSON.parse(JSON.stringify(this.differenceMatrix)));
             this.openDifferencesDialog();
@@ -202,32 +225,57 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         });
     }
 
-    reset(input: HTMLInputElement): void {
-        switch (input) {
-            case this.inputImage1.nativeElement: {
-                this.inputImage1.nativeElement.value = null;
-                this.context1.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas1.nativeElement.height);
-                break;
-            }
-            case this.inputImage2.nativeElement: {
-                this.inputImage2.nativeElement.value = null;
-                this.context2.clearRect(0, 0, this.canvas2.nativeElement.width, this.canvas2.nativeElement.height);
-                break;
-            }
-            case this.inputImages1et2.nativeElement: {
-                this.inputImage1.nativeElement.value = null;
-                this.inputImage2.nativeElement.value = null;
-                this.inputImages1et2.nativeElement.value = null;
-                this.context1.clearRect(0, 0, this.canvas1.nativeElement.width, this.canvas1.nativeElement.height);
-                this.context2.clearRect(0, 0, this.canvas2.nativeElement.width, this.canvas2.nativeElement.height);
-                break;
-            }
-            // No default
-        }
-    }
-
     convertImageToB64Url(canvas: HTMLCanvasElement): string {
         return canvas.toDataURL().split(',')[1];
+    }
+
+    enableMode(mode: string) {
+        this.drawMode = mode;
+        this.mousePressed = false;
+    }
+
+    updateContext(context: CanvasRenderingContext2D, canvasForeground: HTMLCanvasElement, background: string) {
+        this.foregroundService.updateContext(context, canvasForeground, background);
+    }
+
+    swapForegrounds() {
+        this.foregroundService.swapForegrounds();
+    }
+
+    reset(element: HTMLElement) {
+        this.foregroundService.reset(element);
+    }
+
+    duplicateForeground(input: HTMLCanvasElement) {
+        this.foregroundService.duplicateForeground(input);
+    }
+
+    pushAndSwapForegrounds() {
+        this.foregroundService.pushAndSwapForegrounds();
+    }
+
+    handleCanvasEvent(eventType: string, event: MouseEvent, canvas: HTMLCanvasElement) {
+        this.drawingService.handleCanvasEvent(eventType, event, canvas);
+    }
+
+    handleMouseUp() {
+        this.drawingService.handleMouseUp();
+    }
+
+    ctrlZ() {
+        this.drawingService.ctrlZ();
+    }
+
+    ctrlShiftZ() {
+        this.drawingService.ctrlShiftZ();
+    }
+
+    pushToUndoStack() {
+        this.drawingService.pushToUndoStack();
+    }
+
+    emptyRedoStack() {
+        this.drawingService.emptyRedoStack();
     }
 
     ngOnDestroy(): void {

@@ -1,11 +1,31 @@
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.1/css/all.css" crossorigin="anonymous" />
-<div class="container">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+<div class="container" (mouseup)="handleMouseUp()">
     <header>
         <button class="config-button" routerLink="/config">
             <i class="fa fa-cog fa-3x" aria-hidden="true"></i>
         </button>
         <img src="./assets/pictures/creation.png" />
     </header>
+    <div class="tools">
+        <button class="button" (click)="enableMode('pencil')"><i class="fas fa-pencil-alt"></i></button>
+        <button class="button" (click)="enableMode('rectangle')"><i class="fas fa-vector-square"></i></button>
+        <button class="button" (click)="enableMode('eraser')"><i class="fa fa-eraser"></i></button>
+        <button class="button" (click)="ctrlZ()"><i class="fas fa-undo"></i></button>
+        <button class="button" (click)="ctrlShiftZ()"><i class="fas fa-redo"></i></button>
+    </div>
+    <div class="config-tools">
+        <label *ngIf="drawMode === 'pencil' || drawMode === 'rectangle'" for="colorpicker"> Couleur </label>
+        <input *ngIf="drawMode === 'pencil' || drawMode === 'rectangle'" id="colorpicker" [(colorPicker)]="color" [style.background]="color" />
+        <label *ngIf="drawMode === 'pencil'" for="pencilSize"> Épaisseur du trait ({{ pencilSize }} px) </label>
+        <mat-slider *ngIf="drawMode === 'pencil'" id="pencilSize" min="1" max="100" step="1" [(ngModel)]="pencilSize">
+            <input matSliderThumb />
+        </mat-slider>
+        <label *ngIf="drawMode === 'eraser'" for="eraserSize"> Taille de l'efface ({{ eraserSize }} px) </label>
+        <mat-slider *ngIf="drawMode === 'eraser'" id="eraserSize" min="1" max="100" step="1" [(ngModel)]="eraserSize">
+            <input matSliderThumb />
+        </mat-slider>
+    </div>
     <p>* Les images doivent posséder le format 24-bit bitmap (BPM) avec une taille de 640x480 px *</p>
     <p>
         Téléverser deux images simultanément : <input #images1et2 type="file" accept="image/bmp" (change)="verifyImageFormat($event, images1et2)" />
@@ -13,16 +33,47 @@
     <section>
         <div>
             <p>Téléverser l'image originale : <input #image1 type="file" accept="image/bmp" (change)="verifyImageFormat($event, image1)" /></p>
-            <canvas #canvas1 [attr.width]="width" [attr.height]="height"></canvas>
+            <div>
+                <canvas
+                    #canvas1
+                    (mousedown)="handleCanvasEvent('mousedown', $event, canvas1)"
+                    (mousemove)="handleCanvasEvent('mousemove', $event, canvas1)"
+                    (mouseup)="handleCanvasEvent('mouseup', $event, canvas1)"
+                    (mouseleave)="handleCanvasEvent('mouseleave', $event, canvas1)"
+                    (mouseenter)="handleCanvasEvent('mouseenter', $event, canvas1)"
+                    [attr.width]="width"
+                    [attr.height]="height"
+                ></canvas>
+            </div>
             <p><button class="button" (click)="reset(image1)">Réinitialiser l'image</button></p>
+            <p>
+                <button class="button" (click)="reset(canvas1)">Réinitialiser l'avant-plan</button>
+                <button class="button" (click)="duplicateForeground(canvas1)">Dupliquer l'avant-plan</button>
+            </p>
         </div>
         <div>
             <p>Téléverser l'image modifiée : <input #image2 type="file" accept="image/bmp" (change)="verifyImageFormat($event, image2)" /></p>
-            <canvas #canvas2 [attr.width]="width" [attr.height]="height"></canvas>
+            <div>
+                <canvas
+                    #canvas2
+                    (mousedown)="handleCanvasEvent('mousedown', $event, canvas2)"
+                    (mousemove)="handleCanvasEvent('mousemove', $event, canvas2)"
+                    (mouseup)="handleCanvasEvent('mouseup', $event, canvas2)"
+                    (mouseleave)="handleCanvasEvent('mouseleave', $event, canvas2)"
+                    (mouseenter)="handleCanvasEvent('mouseenter', $event, canvas2)"
+                    [attr.width]="width"
+                    [attr.height]="height"
+                ></canvas>
+            </div>
             <p><button class="button" (click)="reset(image2)">Réinitialiser l'image</button></p>
+            <p>
+                <button class="button" (click)="reset(canvas2)">Réinitialiser l'avant-plan</button>
+                <button class="button" (click)="duplicateForeground(canvas2)">Dupliquer l'avant-plan</button>
+            </p>
         </div>
     </section>
     <button class="button" (click)="reset(images1et2)">Réinitialiser les deux images simultanément</button>
+    <button class="button" (click)="pushAndSwapForegrounds()">Intervertir les deux avant-plans</button>
     <section>
         <fieldset>
             <legend>Paramètres du rayon d'élargissement</legend>
@@ -41,7 +92,7 @@
             </div>
         </fieldset>
         <button *ngIf="(image1?.value !== '' && image2?.value !== '') || images1et2?.value !== ''" class="button" (click)="runDetectionSystem()">
-            Visualiser les différence
+            Visualiser les différences
         </button>
     </section>
 </div>
