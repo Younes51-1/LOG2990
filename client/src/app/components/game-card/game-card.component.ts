@@ -4,6 +4,8 @@ import { GameForm } from '@app/interfaces/game';
 import { Router } from '@angular/router';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
+import { WaitingRoomComponent } from '../waiting-room-dialog/waiting-room-dialog.component';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
     selector: 'app-game-card',
@@ -28,8 +30,15 @@ export class GameCardComponent implements OnInit, OnDestroy {
     inputValue2: string;
     gameExists = false;
     createJoin = false;
+    dialogRef: MatDialogRef<WaitingRoomComponent>;
 
-    constructor(public classicModeService: ClassicModeService, private router: Router, private readonly socketService: CommunicationSocketService) {}
+    // eslint-disable-next-line max-params
+    constructor(
+        public classicModeService: ClassicModeService,
+        private router: Router,
+        private readonly socketService: CommunicationSocketService,
+        public dialog: MatDialog,
+    ) {}
     ngOnInit() {
         const { routeOne, btnOne, routeTwo, btnTwo } = options[this.page];
         this.routeOne = routeOne;
@@ -84,7 +93,8 @@ export class GameCardComponent implements OnInit, OnDestroy {
     createGame() {
         this.classicModeService.initClassicMode(this.slide.name, this.inputValue2, false);
         this.notify.emit(this.slide);
-        this.router.navigate([this.routeTwo]);
+        this.deconnect();
+        this.dialogRef = this.dialog.open(WaitingRoomComponent, { disableClose: true, width: '80%', height: '80%' });
     }
 
     canJoinGame() {
@@ -102,7 +112,8 @@ export class GameCardComponent implements OnInit, OnDestroy {
     joinGame() {
         this.classicModeService.joinWaitingRoomClassicModeMulti(this.slide.name, this.inputValue2);
         this.notify.emit(this.slide);
-        this.router.navigate([this.routeTwo]);
+        this.deconnect();
+        this.dialogRef = this.dialog.open(WaitingRoomComponent, { disableClose: true, width: '80%', height: '80%' });
     }
 
     verifySoloInput() {
@@ -144,9 +155,15 @@ export class GameCardComponent implements OnInit, OnDestroy {
         return true;
     }
 
-    ngOnDestroy() {
+    deconnect() {
         if (this.socketService.isSocketAlive() && !this.createJoin) {
             this.socketService.disconnect();
+        }
+    }
+
+    ngOnDestroy() {
+        if (this.dialogRef) {
+            this.dialogRef.close();
         }
     }
 }

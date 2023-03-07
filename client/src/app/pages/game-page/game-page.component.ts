@@ -65,7 +65,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             if (gameRoom.userGame.gameData.gameForm.nbDifference % 2 === 0) {
                 this.multiplayerThreshold = gameRoom.userGame.gameData.gameForm.nbDifference / 2;
             } else {
-                this.multiplayerThreshold = (gameRoom.userGame.gameData.gameForm.nbDifference - 1) / 2;
+                this.multiplayerThreshold = (gameRoom.userGame.gameData.gameForm.nbDifference + 1) / 2;
             }
         });
         this.abandonedGameSubscription = this.classicModeService.abandoned$.subscribe((abandoned: boolean) => {
@@ -78,24 +78,27 @@ export class GamePageComponent implements OnInit, OnDestroy {
     endGame() {
         if (this.gameFinished) {
             if (this.totalDifferencesFound === this.gameRoom.userGame.gameData.gameForm.nbDifference) {
-                this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true });
+                this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
             } else if (this.gameRoom.userGame.username2 && this.userDifferencesFound >= this.multiplayerThreshold) {
-                // TODO: add a dialog for the winner in case of 2 players
-                this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true });
+                this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
             } else if (this.gameRoom.userGame.username2) {
-                // TODO: add a dialog for the loser in case of 2 players
-                alert(this.gameRoom.userGame.username2 ? 'Vous avez perdu' : 'Vous avez gagné');
+                this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: false } });
             }
             this.classicModeService.endGame();
         } else {
-            // TODO: add a dialog so the user can choose to quit or continue
-            alert('Are you sure you want to quit the game?');
-            this.sendEvent('abandon');
-            this.classicModeService.abondonGame();
-            setTimeout(() => {
-                this.router.navigate(['/home']);
-                // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-            }, 1000);
+            this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: false, gameWinner: false } });
+            if (this.dialogRef) {
+                this.dialogRef.afterClosed().subscribe((abandon) => {
+                    if (abandon) {
+                        this.sendEvent('abandon');
+                        this.classicModeService.abondonGame();
+                        setTimeout(() => {
+                            this.router.navigate(['/home']);
+                            // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+                        }, 1000);
+                    }
+                });
+            }
         }
     }
 

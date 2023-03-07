@@ -7,7 +7,7 @@ import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
 import { Socket } from 'socket.io-client';
-import { WaitingPageComponent } from './waiting-page.component';
+import { WaitingRoomComponent } from './waiting-room-dialog.component';
 
 @NgModule({
     imports: [HttpClientModule],
@@ -20,8 +20,8 @@ class SocketClientServiceMock extends CommunicationSocketService {
 }
 
 describe('WaitingPageComponent', () => {
-    let component: WaitingPageComponent;
-    let fixture: ComponentFixture<WaitingPageComponent>;
+    let component: WaitingRoomComponent;
+    let fixture: ComponentFixture<WaitingRoomComponent>;
     let socketServiceMock: SocketClientServiceMock;
     let socketHelper: SocketTestHelper;
 
@@ -31,14 +31,14 @@ describe('WaitingPageComponent', () => {
         socketServiceMock = new SocketClientServiceMock();
         socketServiceMock.socket = socketHelper as unknown as Socket;
         await TestBed.configureTestingModule({
-            declarations: [WaitingPageComponent],
+            declarations: [WaitingRoomComponent],
             imports: [DynamicTestModule, RouterTestingModule],
             providers: [ClassicModeService, { provide: CommunicationSocketService, useValue: socketServiceMock }],
         }).compileComponents();
     });
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(WaitingPageComponent);
+        fixture = TestBed.createComponent(WaitingRoomComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });

@@ -210,7 +210,7 @@ export class ClassicModeService {
 
     abondonGame() {
         if (this.socketService.isSocketAlive()) {
-            this.socketService.send('abondonGame', this.gameRoom.roomId);
+            this.socketService.send('abandoned', this.gameRoom.roomId);
         }
     }
 

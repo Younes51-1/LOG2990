@@ -4,11 +4,11 @@ import { ClassicModeService } from '@app/services/classicMode/classic-mode.servi
 import { Subscription } from 'rxjs';
 
 @Component({
-    selector: 'app-waiting-page',
-    templateUrl: './waiting-page.component.html',
-    styleUrls: ['./waiting-page.component.scss'],
+    selector: 'app-waiting-room-dialog',
+    templateUrl: './waiting-room-dialog.component.html',
+    styleUrls: ['./waiting-room-dialog.component.scss'],
 })
-export class WaitingPageComponent implements OnInit, OnDestroy {
+export class WaitingRoomComponent implements OnInit, OnDestroy {
     rejected = false;
     accepted = false;
     gameCanceled = false;

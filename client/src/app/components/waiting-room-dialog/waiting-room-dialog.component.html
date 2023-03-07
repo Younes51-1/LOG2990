@@ -1,0 +1,25 @@
+<p>Salle d'attente</p>
+<p *ngIf="classicModeService.gameRoom?.userGame?.username1 === classicModeService?.userName">Création du jeu en cours</p>
+<p *ngIf="classicModeService.gameRoom?.userGame?.username1 !== classicModeService?.userName">Joindre</p>
+<div *ngIf="classicModeService.gameRoom?.userGame?.username1 === classicModeService?.userName">
+    <p *ngIf="classicModeService.gameRoom?.userGame?.potentielPlayers;">Joueurs en attente : </p>
+    <p *ngFor="let player of classicModeService.gameRoom?.userGame?.potentielPlayers">
+        {{player}}<button (click)="playerAccepted(player)">Accepter</button><button
+            (click)="playerRejected(player)">Refuser</button></p>
+    <div *ngIf="!classicModeService.gameRoom?.userGame?.potentielPlayers;">
+        <div class="wrapper">
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="shadow"></div>
+            <div class="shadow"></div>
+            <div class="shadow"></div>
+            <span>Attente d'un joueur</span>
+        </div>
+    </div>
+</div>
+<button routerLink="/selection">Quitter</button>
+<div *ngIf="this.rejected">
+    <p>Vous avez été rejeté</p>
+    <button routerLink="/selection">Quitter</button>
+</div>
