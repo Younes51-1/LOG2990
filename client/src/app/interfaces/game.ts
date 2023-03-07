@@ -4,10 +4,13 @@ export interface GameData {
 }
 
 export interface UserGame {
-    username: string;
+    username1: string;
+    username2?: string;
     gameData: GameData;
     nbDifferenceFound: number;
+    nbDifferenceFound2?: number;
     timer: number;
+    potentielPlayers?: string[];
 }
 
 export interface GameForm {
@@ -28,6 +31,7 @@ export interface BestTime {
 export interface GameRoom {
     userGame: UserGame;
     roomId: string;
+    started: boolean;
 }
 
 export interface NewGame {

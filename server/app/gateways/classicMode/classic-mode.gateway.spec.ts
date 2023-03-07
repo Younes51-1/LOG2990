@@ -52,16 +52,16 @@ describe('ClassicModeGateway', () => {
         expect(gateway).toBeDefined();
     });
 
-    it('startGame should connect socket to new room and emit the room id with code started', () => {
+    it('createGame should connect socket to new room and emit the room id with code started', () => {
         const initNewRoomSpy = jest.spyOn(classicModeService, 'initNewRoom').mockImplementation(() => {
-            return 'socketId';
+            return getFakeGameRoom();
         });
         server.to.returns({
             emit: (event: string) => {
-                expect(event).toEqual(ClassicModeEvents.Started);
+                expect(event).toEqual(ClassicModeEvents.GameCreated);
             },
         } as BroadcastOperator<unknown, unknown>);
-        gateway.startGame(socket, getFakeUserGame1());
+        gateway.createGame(socket, getFakeGameRoom());
         expect(initNewRoomSpy).toHaveBeenCalled();
     });
 
@@ -79,7 +79,7 @@ describe('ClassicModeGateway', () => {
                 expect(validated).toEqual(true);
             },
         } as BroadcastOperator<unknown, unknown>);
-        await gateway.validateDifference(socket, differencePos);
+        await gateway.validateDifference(socket, [differencePos, getFakeGameRoom().roomId, getFakeGameRoom().userGame.username1]);
         expect(validateDifferenceSpy).toHaveBeenCalled();
     });
 
@@ -97,7 +97,7 @@ describe('ClassicModeGateway', () => {
                 expect(validated).toEqual(false);
             },
         } as BroadcastOperator<unknown, unknown>);
-        await gateway.validateDifference(socket, differencePos);
+        await gateway.validateDifference(socket, [differencePos, getFakeGameRoom().roomId, getFakeGameRoom().userGame.username1]);
         expect(validateDifferenceSpy).toHaveBeenCalled();
     });
 
@@ -119,7 +119,7 @@ describe('ClassicModeGateway', () => {
                 expect(validated).toEqual(true);
             },
         } as BroadcastOperator<unknown, unknown>);
-        await gateway.validateDifference(socket, differencePos);
+        await gateway.validateDifference(socket, [differencePos, getFakeGameRoom().roomId, getFakeGameRoom().userGame.username1]);
         expect(validateDifferenceSpy).toHaveBeenCalled();
         expect(isGameFinishedSpy).toHaveBeenCalled();
         expect(endGameSpy).toHaveBeenCalled();
@@ -132,10 +132,10 @@ describe('ClassicModeGateway', () => {
                 expect(event).toEqual(ClassicModeEvents.GameFinished);
             },
         } as BroadcastOperator<unknown, unknown>);
-        gateway.endGame(socket);
+        gateway.endGame(socket, [getFakeGameRoom().roomId, getFakeGameRoom().userGame.username1]);
     });
 
-    it('afterInit() should emit time after 1s to connected socket', () => {
+    it('emitTime() should emit time after 1s to connected socket', () => {
         const emitTimeSpy = jest.spyOn(gateway, 'emitTime');
         myMapStub.get.withArgs(getFakeGameRoom().roomId).returns(getFakeGameRoom());
         myMapStub.values.returns([getFakeGameRoom()] as unknown as IterableIterator<GameRoom>);
@@ -145,34 +145,35 @@ describe('ClassicModeGateway', () => {
                 expect(event).toEqual(ClassicModeEvents.Timer);
             },
         } as BroadcastOperator<unknown, unknown>);
-        gateway.afterInit();
+        gateway.emitTime();
         jest.advanceTimersByTime(DelayBeforeEmmitingTime.DELAY_BEFORE_EMITTING_TIME);
         expect(emitTimeSpy).toHaveBeenCalled();
     });
 
-    it('Waiting message should be sent on connection and connection to be logged', () => {
-        server.to.returns({
-            emit: (event: string) => {
-                expect(event).toEqual(ClassicModeEvents.Waiting);
-            },
-        } as BroadcastOperator<unknown, unknown>);
-        gateway.handleConnection(socket);
-        expect(logger.log.calledOnce).toBeTruthy();
-    });
-
     it('socket disconnection should be logged', () => {
         const deleteRoomSpy = jest.spyOn(classicModeService, 'deleteRoom').mockImplementation();
+        myMapStub.get.withArgs(getFakeGameRoom().roomId).returns(getFakeGameRoom());
         gateway.handleDisconnect(socket);
-        expect(logger.log.calledOnce).toBeTruthy();
+        expect(logger.log.called).toBeTruthy();
         expect(deleteRoomSpy).toHaveBeenCalled();
+    });
+
+    it('cancelDeletedGame should emit gameCanceled event', () => {
+        server.to.returns({
+            emit: (event: string) => {
+                expect(event).toEqual(ClassicModeEvents.GameCanceled);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        gateway.cancelDeletedGame('FakeGame');
     });
 });
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 const getFakeUserGame1 = (): UserGame => ({
-    username: 'FakeUser',
+    username1: 'FakeUser',
     nbDifferenceFound: 0,
     timer: 0,
+    potentielPlayers: [],
     gameData: {
         differenceMatrix: [
             [-1, -1, -1],
@@ -195,4 +196,5 @@ const getFakeUserGame1 = (): UserGame => ({
 const getFakeGameRoom = (): GameRoom => ({
     userGame: getFakeUserGame1(),
     roomId: 'socketid',
+    started: true,
 });
