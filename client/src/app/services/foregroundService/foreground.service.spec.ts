@@ -29,7 +29,6 @@ describe('ForegroundService', () => {
     });
 
     it('should reset foreground 1', () => {
-        service.component.context1 = document.createElement('canvas').getContext('2d') as CanvasRenderingContext2D;
         const spyClearRect = spyOn(service.component.context1, 'clearRect').and.callThrough();
         const spyPushToUndoStack = spyOn(service.component, 'pushToUndoStack').and.callFake(() => {
             return;
@@ -37,7 +36,6 @@ describe('ForegroundService', () => {
         const spyEmptyRedoStack = spyOn(service.component, 'emptyRedoStack').and.callFake(() => {
             return;
         });
-        service.component.canvas1.nativeElement = document.createElement('canvas');
         service.reset(service.component.canvas1.nativeElement);
         expect(spyClearRect).toHaveBeenCalled();
         expect(spyPushToUndoStack).toHaveBeenCalled();
@@ -52,8 +50,7 @@ describe('ForegroundService', () => {
         const spyEmptyRedoStack = spyOn(service.component, 'emptyRedoStack').and.callFake(() => {
             return;
         });
-        service.component.canvas2.nativeElement = document.createElement('canvas');
-        service.component.reset(service.component.canvas2.nativeElement);
+        service.reset(service.component.canvas2.nativeElement);
         expect(spyClearRect).toHaveBeenCalled();
         expect(spyPushToUndoStack).toHaveBeenCalled();
         expect(spyEmptyRedoStack).toHaveBeenCalled();
@@ -68,8 +65,7 @@ describe('ForegroundService', () => {
         const spyEmptyRedoStack = spyOn(service.component, 'emptyRedoStack').and.callFake(() => {
             return;
         });
-        service.component.canvas1.nativeElement = document.createElement('canvas');
-        service.component.duplicateForeground(service.component.canvas1.nativeElement);
+        service.duplicateForeground(service.component.canvas1.nativeElement);
         expect(spyUpdateContext).toHaveBeenCalledWith(service.component.context2, service.component.canvasForeground2, service.component.urlPath2);
         expect(spyDrawImage).toHaveBeenCalled();
         expect(spyPushToUndoStack).toHaveBeenCalled();
@@ -85,8 +81,7 @@ describe('ForegroundService', () => {
         const spyEmptyRedoStack = spyOn(service.component, 'emptyRedoStack').and.callFake(() => {
             return;
         });
-        service.component.canvas2.nativeElement = document.createElement('canvas');
-        service.component.duplicateForeground(service.component.canvas2.nativeElement);
+        service.duplicateForeground(service.component.canvas2.nativeElement);
         expect(spyUpdateContext).toHaveBeenCalledWith(service.component.context1, service.component.canvasForeground1, service.component.urlPath1);
         expect(spyDrawImage).toHaveBeenCalled();
         expect(spyPushToUndoStack).toHaveBeenCalled();
@@ -97,7 +92,7 @@ describe('ForegroundService', () => {
         const spyUpdateContext = spyOn(service, 'updateContext').and.callThrough();
         const spyDrawImage1 = spyOn(service.component.context1, 'drawImage').and.callThrough();
         const spyDrawImage2 = spyOn(service.component.context2, 'drawImage').and.callThrough();
-        service.component.swapForegrounds();
+        service.swapForegrounds();
         expect(spyUpdateContext).toHaveBeenCalledTimes(2);
         expect(spyDrawImage1).toHaveBeenCalled();
         expect(spyDrawImage2).toHaveBeenCalled();
@@ -110,7 +105,7 @@ describe('ForegroundService', () => {
         const spySwapForeground = spyOn(service, 'swapForegrounds').and.callFake(() => {
             return;
         });
-        service.component.pushAndSwapForegrounds();
+        service.pushAndSwapForegrounds();
         expect(spyEmptyRedoStack).toHaveBeenCalled();
         expect(spySwapForeground).toHaveBeenCalled();
     });
