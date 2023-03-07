@@ -157,6 +157,15 @@ describe('ClassicModeGateway', () => {
         expect(logger.log.called).toBeTruthy();
         expect(deleteRoomSpy).toHaveBeenCalled();
     });
+
+    it('cancelDeletedGame should emit gameCanceled event', () => {
+        server.to.returns({
+            emit: (event: string) => {
+                expect(event).toEqual(ClassicModeEvents.GameCanceled);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        gateway.cancelDeletedGame('FakeGame');
+    });
 });
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
