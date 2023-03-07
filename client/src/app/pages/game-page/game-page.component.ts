@@ -65,7 +65,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             if (gameRoom.userGame.gameData.gameForm.nbDifference % 2 === 0) {
                 this.multiplayerThreshold = gameRoom.userGame.gameData.gameForm.nbDifference / 2;
             } else {
-                this.multiplayerThreshold = (gameRoom.userGame.gameData.gameForm.nbDifference - 1) / 2;
+                this.multiplayerThreshold = (gameRoom.userGame.gameData.gameForm.nbDifference + 1) / 2;
             }
         });
         this.abandonedGameSubscription = this.classicModeService.abandoned$.subscribe((abandoned: boolean) => {

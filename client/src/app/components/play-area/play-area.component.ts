@@ -84,7 +84,9 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
             } else {
                 this.playerIsAllowedToClick = false;
                 this.audioInvalid.play();
-                this.visualRetroaction(this.canvasClicked);
+                if (difference.username === this.classicModeService.userName) {
+                    this.visualRetroaction(this.canvasClicked);
+                }
                 this.userError.emit();
             }
         });
