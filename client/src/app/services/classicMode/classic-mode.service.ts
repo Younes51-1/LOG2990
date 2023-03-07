@@ -24,7 +24,7 @@ export class ClassicModeService {
     rejected$ = new Subject<boolean>();
     accepted$ = new Subject<boolean>();
     gameCanceled$ = new Subject<boolean>();
-    abandoned$ = new Subject<boolean>();
+    abandoned$ = new Subject<string>();
 
     constructor(
         private readonly socketService: CommunicationSocketService,
@@ -171,8 +171,8 @@ export class ClassicModeService {
             }
         });
 
-        this.socketService.on('abandoned', () => {
-            this.abandoned$.next(true);
+        this.socketService.on('abandoned', (userName: string) => {
+            this.abandoned$.next(userName);
         });
 
         this.socketService.on('timer', (timer: number) => {
@@ -210,7 +210,7 @@ export class ClassicModeService {
 
     abondonGame() {
         if (this.socketService.isSocketAlive()) {
-            this.socketService.send('abandoned', this.gameRoom.roomId);
+            this.socketService.send('abandoned', [this.gameRoom.roomId, this.userName]);
         }
     }
 
@@ -221,5 +221,10 @@ export class ClassicModeService {
             this.socketService.send('leaveGame', [this.gameRoom.roomId, this.userName]);
         }
         this.socketService.disconnect();
+    }
+    disconnect(): void {
+        if (this.socketService.isSocketAlive()) {
+            this.socketService.disconnect();
+        }
     }
 }

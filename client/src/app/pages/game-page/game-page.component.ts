@@ -6,7 +6,6 @@ import { ChatService } from '@app/services/chatService/chat.service';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
-
 @Component({
     selector: 'app-game-page',
     templateUrl: './game-page.component.html',
@@ -21,6 +20,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     userDifferencesFound = 0;
     multiplayerThreshold = 0;
     gameFinished = false;
+    abandon = false;
     gameRoom: GameRoom;
     dialogRef: MatDialogRef<EndgameDialogComponent>;
 
@@ -68,8 +68,10 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 this.multiplayerThreshold = (gameRoom.userGame.gameData.gameForm.nbDifference + 1) / 2;
             }
         });
-        this.abandonedGameSubscription = this.classicModeService.abandoned$.subscribe((abandoned: boolean) => {
-            if (abandoned) {
+        this.abandonedGameSubscription = this.classicModeService.abandoned$.subscribe((userName: string) => {
+            if (userName !== this.userName) {
+                this.unsubscribe();
+                this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
                 this.classicModeService.endGame();
             }
         });
@@ -86,19 +88,26 @@ export class GamePageComponent implements OnInit, OnDestroy {
             }
             this.classicModeService.endGame();
         } else {
-            this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: false, gameWinner: false } });
-            if (this.dialogRef) {
-                this.dialogRef.afterClosed().subscribe((abandon) => {
-                    if (abandon) {
-                        this.sendEvent('abandon');
-                        this.classicModeService.abondonGame();
-                        setTimeout(() => {
-                            this.router.navigate(['/home']);
-                            // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-                        }, 1000);
-                    }
-                });
-            }
+            this.abondonConfirmation();
+        }
+    }
+
+    abondonConfirmation() {
+        this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: false, gameWinner: false } });
+        if (this.dialogRef) {
+            this.dialogRef.afterClosed().subscribe((abandon) => {
+                if (abandon) {
+                    this.abandon = true;
+                    this.sendEvent('abandon');
+                    this.classicModeService.abondonGame();
+                    this.unsubscribe();
+                    setTimeout(() => {
+                        this.classicModeService.disconnect();
+                        this.router.navigate(['/home']);
+                        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+                    }, 1000);
+                }
+            });
         }
     }
 
@@ -116,14 +125,17 @@ export class GamePageComponent implements OnInit, OnDestroy {
         }
     }
 
-    ngOnDestroy() {
-        this.classicModeService.endGame();
-        this.dialog.closeAll();
+    unsubscribe() {
         this.timerSubscription.unsubscribe();
         this.differencesFoundSubscription.unsubscribe();
         this.userDifferencesFoundSubscription.unsubscribe();
         this.gameFinishedSubscription.unsubscribe();
         this.gameRoomSubscription.unsubscribe();
         this.abandonedGameSubscription.unsubscribe();
+    }
+
+    ngOnDestroy() {
+        this.dialog.closeAll();
+        this.unsubscribe();
     }
 }
