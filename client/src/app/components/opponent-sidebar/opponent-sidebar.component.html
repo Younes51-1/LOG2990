@@ -11,7 +11,7 @@
             </ul>
         </div>
         <form *ngIf="this.gameRoom?.userGame?.username2" (submit)="sendMessage()">
-            <input type="text" [(ngModel)]="message" maxlength="200"/>
+            <input type="text" [(ngModel)]="message" maxlength="200" (focus)="chatInputFocus()" (blur)="chatInputBlur()"/>
             <button type="submit">Send</button>
         </form>
     </section>

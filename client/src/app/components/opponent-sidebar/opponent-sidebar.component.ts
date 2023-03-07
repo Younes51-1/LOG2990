@@ -36,4 +36,12 @@ export class OpponentSidebarComponent implements OnInit {
         this.chatService.sendMessage(this.message, this.username, this.gameRoom.roomId);
         this.message = '';
     }
+
+    chatInputFocus() {
+        this.chatService.setIsTyping(true);
+    }
+
+    chatInputBlur() {
+        this.chatService.setIsTyping(false);
+    }
 }
