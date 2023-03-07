@@ -62,7 +62,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
 
     @HostListener('document:keydown', ['$event'])
     buttonDetect(event: KeyboardEvent) {
-        if (this.chatService.isTyping) {
+        if (this.chatService.getIsTyping()) {
             return;
         }
         this.buttonPressed = event.key;

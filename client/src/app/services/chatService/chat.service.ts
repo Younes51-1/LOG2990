@@ -26,7 +26,11 @@ export class ChatService {
         this.socketService.send('sendMessage', [message, username, roomId]);
     }
 
-    setIsTyping(value: boolean) {
+    setIsTyping(value: boolean): void {
         this.isTyping = value;
+    }
+
+    getIsTyping(): boolean {
+        return this.isTyping;
     }
 }

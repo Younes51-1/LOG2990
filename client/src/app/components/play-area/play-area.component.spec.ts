@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { ComponentFixture, discardPeriodicTasks, fakeAsync, TestBed, tick } from '@angular/core/testing';
@@ -6,6 +7,7 @@ import { DifferenceTry } from '@app/interfaces/difference-try';
 import { GameData, UserGame, GameRoom } from '@app/interfaces/game';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
+import { ChatService } from '@app/services/chatService/chat.service';
 
 @NgModule({
     imports: [HttpClientModule],
@@ -44,6 +46,7 @@ describe('PlayAreaComponent', () => {
     let classicModeService: ClassicModeService;
     let fixture: ComponentFixture<PlayAreaComponent>;
     let detectionDifferenceService: DetectionDifferenceService;
+    let chatService: ChatService;
     // eslint-disable-next-line @typescript-eslint/ban-types
     let imageOnload: Function | null = null;
 
@@ -290,9 +293,7 @@ describe('PlayAreaComponent', () => {
     it('should set variables and call cheatMode on press of T', () => {
         const cheatModeSpy = spyOn(component, 'cheatMode');
         const cheatModeKey = 't';
-        const buttonEvent = {
-            key: cheatModeKey,
-        } as KeyboardEvent;
+        const buttonEvent = { key: cheatModeKey } as KeyboardEvent;
         component.buttonDetect(buttonEvent);
         expect(component.isCheatModeOn).toBeTrue();
         expect(cheatModeSpy).toHaveBeenCalled();
@@ -342,5 +343,15 @@ describe('PlayAreaComponent', () => {
         component.cheatMode();
         expect(context1Spy).toHaveBeenCalledTimes(1);
         expect(context2Spy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not call cheatMode if player is typing', () => {
+        chatService = TestBed.inject(ChatService);
+        spyOn(chatService, 'getIsTyping').and.returnValue(true);
+        const cheatModeSpy = spyOn(component, 'cheatMode');
+        const cheatModeKey = 't';
+        const buttonEvent = { key: cheatModeKey } as KeyboardEvent;
+        component.buttonDetect(buttonEvent);
+        expect(cheatModeSpy).not.toHaveBeenCalled();
     });
 });
