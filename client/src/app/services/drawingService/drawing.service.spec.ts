@@ -193,4 +193,63 @@ describe('DrawingService', () => {
         service.updateCanvas2Display();
         expect(spy).toHaveBeenCalled();
     });
+
+    it('should draw a circle on selected context', () => {
+        const blankCanvas = document.createElement('canvas');
+        const position = { x: 0, y: 0 };
+        const spy = spyOn(service.component.context1, 'arc').and.callThrough();
+        service.drawCircle(service.component.context1, position);
+        expect(spy).toHaveBeenCalled();
+        expect(blankCanvas.toDataURL() === service.component.canvas1.nativeElement.toDataURL()).toBeFalse();
+    });
+
+    it('should erase the drawing on selected context', () => {
+        const spy = spyOn(service.component.context1, 'clearRect').and.callFake(() => {
+            return;
+        });
+        const position = { x: 0, y: 0 };
+        service.eraseSquare(service.component.context1, position);
+        expect(spy).toHaveBeenCalled();
+    });
+
+    it('drawShape should call drawCircle when the draw mode is Pencil', () => {
+        const spy = spyOn(service, 'drawCircle').and.callFake(() => {
+            return;
+        });
+        const position = { x: 0, y: 0 };
+        service.component.drawMode = DrawModes.PENCIL;
+        service.drawShape(service.component.context1, position);
+        expect(spy).toHaveBeenCalled();
+    });
+
+    it('drawShape should call eraseSquare when the draw mode is Eraser', () => {
+        const spy = spyOn(service, 'eraseSquare').and.callFake(() => {
+            return;
+        });
+        const position = { x: 0, y: 0 };
+        service.component.drawMode = DrawModes.ERASER;
+        service.drawShape(service.component.context1, position);
+        expect(spy).toHaveBeenCalled();
+    });
+
+    it('traceShape should call drawShape', () => {
+        const spy = spyOn(service, 'drawShape').and.callFake(() => {
+            return;
+        });
+        let start = { x: 0, y: 0 };
+        let finish = { x: 10, y: 10 };
+        service.traceShape(service.component.context1, start, finish);
+        start = { x: 10, y: 10 };
+        finish = { x: 0, y: 0 };
+        service.traceShape(service.component.context1, start, finish);
+        expect(spy).toHaveBeenCalled();
+    });
+
+    it('traceShape should update the mouse position', () => {
+        const start = { x: 3, y: 12 };
+        const finish = { x: 13, y: 12 };
+        service.component.mousePosition = { x: 7, y: 9 };
+        service.traceShape(service.component.context1, start, finish);
+        expect(service.component.mousePosition).toEqual(finish);
+    });
 });
