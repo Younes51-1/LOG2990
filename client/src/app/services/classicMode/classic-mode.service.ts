@@ -2,10 +2,10 @@ import { Injectable } from '@angular/core';
 import { DifferenceTry } from '@app/interfaces/difference-try';
 import { GameRoom } from '@app/interfaces/game';
 import { Vec2 } from '@app/interfaces/vec2';
+import { ChatService } from '@app/services/chatService/chat.service';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
 import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
 import { Subject } from 'rxjs';
-import { ChatService } from '@app/services/chatService/chat.service';
 
 @Injectable({
     providedIn: 'root',
@@ -222,6 +222,7 @@ export class ClassicModeService {
         }
         this.socketService.disconnect();
     }
+
     disconnect(): void {
         if (this.socketService.isSocketAlive()) {
             this.socketService.disconnect();

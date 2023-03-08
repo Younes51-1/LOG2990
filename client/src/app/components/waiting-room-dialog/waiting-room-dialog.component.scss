@@ -1,10 +1,42 @@
+* {
+    user-select: none;
+}
+
+.container {
+    display: grid;
+    grid: space-around;
+}
+
+h1 {
+    font-size: 340%;
+    text-align: center;
+    margin-top: 8%;
+}
+
+h2 {
+    font-size: 200%;
+    text-align: center;
+    margin-top: 3%;
+}
+
+p {
+    margin-top: 3%;
+    font-size: 150%;
+    text-align: center;
+}
+
+.waiting {
+    text-align: center;
+}
+
 .wrapper {
     width: 20%;
     height: 20%;
-    position: absolute;
+    position: fixed;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
+    margin-top: 4%;
 }
 
 .circle {
@@ -53,7 +85,7 @@
     height: 4px;
     border-radius: 50%;
     background-color: rgba(0, 0, 0, .5);
-    position: absolute;
+    position: fixed;
     top: 62px;
     transform-origin: 50%;
     z-index: -1;
@@ -98,10 +130,9 @@
     color: #8200FF;
 }
 
-
 button {
-    font-size: 15px;
-    display: inline-block;
+    font-size: 10px;
+    margin-left: 5px;
     text-align: center;
     padding: 0.7em 2em;
     border: 3px solid #8200FF;
@@ -111,10 +142,6 @@ button {
     color: #8200FF;
     text-decoration: none;
     transition: 0.3s ease all;
-    z-index: 1;
-    margin-left: 5px;
-    margin-top: 20px;
-    margin-bottom: 5%;
 }
 
 button:before {
@@ -130,11 +157,13 @@ button:before {
     z-index: -1;
 }
 
-button:hover, button:focus {
+button:hover,
+button:focus {
     color: white;
 }
 
-button:hover:before, button:focus:before {
+button:hover:before,
+button:focus:before {
     left: 0;
     right: 0;
     opacity: 1;
@@ -142,4 +171,11 @@ button:hover:before, button:focus:before {
 
 button:active {
     transform: scale(0.9);
+}
+
+.quit {
+    font-size: 20px;
+    position: fixed;
+    top: 70%;
+    left: 46%;
 }

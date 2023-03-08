@@ -1,11 +1,11 @@
-import { Component, EventEmitter, Input, OnInit, Output, OnDestroy } from '@angular/core';
-import { options, PageKeys } from 'src/assets/variables/game-card-options';
-import { GameForm } from '@app/interfaces/game';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { GameForm } from '@app/interfaces/game';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
+import { options, PageKeys } from 'src/assets/variables/game-card-options';
 import { WaitingRoomComponent } from '../waiting-room-dialog/waiting-room-dialog.component';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
     selector: 'app-game-card',

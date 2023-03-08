@@ -28,7 +28,9 @@ export class OpponentSidebarComponent implements OnInit {
     ngOnInit() {
         this.chatService.message$.subscribe((message: Message) => {
             this.messages.push(message);
-            this.chatbox.nativeElement.scrollTop = this.chatbox.nativeElement.scrollHeight;
+            setTimeout(() => {
+                this.chatbox.nativeElement.scrollTop = this.chatbox.nativeElement.scrollHeight;
+            }, 0);
         });
     }
 
