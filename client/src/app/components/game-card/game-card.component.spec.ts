@@ -1,3 +1,4 @@
+// eslint-disable-next-line max-classes-per-file
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { GameCardComponent } from '@app/components/game-card/game-card.component';
 import { PageKeys, options } from 'src/assets/variables/game-card-options';
@@ -5,20 +6,66 @@ import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { RouterTestingModule } from '@angular/router/testing';
+import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
+import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
+import { SocketTestHelper } from '@app/classes/socket-test-helper';
+import { Socket } from 'socket.io-client';
+import { CommunicationService } from '@app/services/communicationService/communication.service';
+import SpyObj = jasmine.SpyObj;
+import { GameData } from '@app/interfaces/game';
+import { of } from 'rxjs';
 
 @NgModule({
     imports: [HttpClientModule],
 })
 export class DynamicTestModule {}
 
+class SocketClientServiceMock extends CommunicationSocketService {
+    override connect() {
+        return;
+    }
+}
+
 describe('GameCardComponent', () => {
+    const differenceMatrix: number[][] = [[]];
+    const gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulte: '', soloBestTimes: [], vsBestTimes: [] };
+    const gameData: GameData = { gameForm, differenceMatrix };
+
     let component: GameCardComponent;
     let fixture: ComponentFixture<GameCardComponent>;
+    let socketServiceMock: SocketClientServiceMock;
+    let socketHelper: SocketTestHelper;
+    let communicationServiceSpy: SpyObj<CommunicationService>;
 
     beforeEach(async () => {
+        communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getGame']);
+        communicationServiceSpy.getGame.and.returnValue(of(gameData));
+        jasmine.createSpyObj('ClassicModeService', [
+            'timer$',
+            'differencesFound$',
+            'gameFinished$',
+            'totalDifferences$',
+            'gameRoom$',
+            'userDifferences$',
+            'serverValidateResponse$',
+            'rejected$',
+            'accepted$',
+            'gameCaneled$',
+            'abandoned$',
+        ]);
+        socketHelper = new SocketTestHelper();
+        socketServiceMock = new SocketClientServiceMock();
+        socketServiceMock.socket = socketHelper as unknown as Socket;
         await TestBed.configureTestingModule({
             declarations: [GameCardComponent],
             imports: [AppRoutingModule, DynamicTestModule, RouterTestingModule],
+            providers: [
+                ClassicModeService,
+                CommunicationSocketService,
+                { provide: CommunicationSocketService, useValue: socketServiceMock },
+                { provide: CommunicationService, useValue: communicationServiceSpy },
+                CommunicationService,
+            ],
         }).compileComponents();
     });
     beforeEach(() => {
