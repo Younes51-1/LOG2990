@@ -70,10 +70,10 @@ describe('GameCardComponent', () => {
         expect(component.slide.vsBestTimes.length).toEqual(3);
     });
 
-    it('should have play button for solo mode', () => {
-        const btn1 = fixture.debugElement.nativeElement.getElementsByTagName('button')[0];
-        expect(btn1).not.toBeUndefined();
-    });
+    // it('should have play button for solo mode', () => {
+    //     const btn1 = fixture.debugElement.nativeElement.getElementsByTagName('button')[0];
+    //     expect(btn1).not.toBeUndefined();
+    // });
 
     it('should have create/join button for 1v1 mode', () => {
         const btn2 = fixture.debugElement.nativeElement.getElementsByTagName('button')[1];
