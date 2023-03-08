@@ -34,7 +34,7 @@ export class ClassicModeService {
 
     initClassicMode(gameName: string, username: string, started: boolean): void {
         this.communicationService.getGame(gameName).subscribe((res) => {
-            if (Object.keys(res).length !== 0) {
+            if (res && Object.keys(res).length !== 0) {
                 this.gameRoom = {
                     userGame: {
                         gameData: res,
