@@ -53,10 +53,32 @@ export class ModalDialogComponent implements AfterViewInit {
     }
 
     toggleBorder() {
-        if (!this.inputValue) {
+        if (!this.verifyUserInput(this.inputValue)) {
             this.applyBorder = !this.applyBorder;
         } else {
             this.emitNameGame();
         }
+    }
+
+    verifyUserInput(input: string): boolean {
+        if (typeof input !== 'string') {
+            return false;
+        }
+
+        if (/[\u200B-\u200D\uFEFF]/.test(input)) {
+            return false;
+        }
+
+        if (input.trim().length === 0) {
+            return false;
+        }
+        // TODO: add more WORDS
+        const forbiddenWords = ['foo', 'bar', 'baz'];
+        for (const word of forbiddenWords) {
+            if (input.toLowerCase() === word.toLowerCase()) {
+                return false;
+            }
+        }
+        return true;
     }
 }

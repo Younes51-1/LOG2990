@@ -31,7 +31,30 @@ export class OpponentSidebarComponent implements OnInit {
     }
 
     sendMessage() {
-        this.chatService.sendMessage(this.message, this.username, this.gameRoom.roomId);
-        this.message = '';
+        if (!this.verifyUserInput(this.message)) {
+            // TODO: CSS for invalid input
+            return;
+        } else {
+            this.chatService.sendMessage(this.message, this.username, this.gameRoom.roomId);
+            this.message = '';
+        }
+    }
+
+    verifyUserInput(input: string): boolean {
+        if (typeof input !== 'string') {
+            return false;
+        }
+
+        if (/[\u200B-\u200D\uFEFF]/.test(input)) {
+            return false;
+        }
+
+        if (input.trim().length === 0) {
+            return false;
+        }
+        // TODO: add more WORDS
+        const forbiddenWords = ['foo', 'bar', 'baz'];
+        const regex = new RegExp('\\b(' + forbiddenWords.join('|') + ')\\b', 'i');
+        return !regex.test(input);
     }
 }
