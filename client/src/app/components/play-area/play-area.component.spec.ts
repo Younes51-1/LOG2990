@@ -225,6 +225,7 @@ describe('PlayAreaComponent', () => {
         expect(playSpy).toHaveBeenCalled();
     });
 
+    // TODO: fix this test
     // it('should react accordingly on invalid response from server', () => {
     //     const serverValidateResponseSpy = spyOn(component.classicModeService.serverValidateResponse$, 'subscribe').and.callThrough();
     //     const playSpy = spyOn(component.audioInvalid, 'play').and.callFake(async () => {
@@ -239,7 +240,7 @@ describe('PlayAreaComponent', () => {
     //     expect(component.playerIsAllowedToClick).toBeFalse();
     //     expect(serverValidateResponseSpy).toHaveBeenCalled();
     //     expect(playSpy).toHaveBeenCalled();
-    //     // expect(visualRetroactionSpy).toHaveBeenCalledOnceWith(component.canvasClicked);
+    //     expect(visualRetroactionSpy).toHaveBeenCalledOnceWith(component.canvasClicked);
     // });
 
     it('should correctly set the variables if the desired gameRoom exists', () => {
