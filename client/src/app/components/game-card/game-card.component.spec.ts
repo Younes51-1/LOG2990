@@ -5,6 +5,8 @@ import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { RouterTestingModule } from '@angular/router/testing';
+import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
+import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
 
 @NgModule({
     imports: [HttpClientModule],
@@ -19,6 +21,7 @@ describe('GameCardComponent', () => {
         await TestBed.configureTestingModule({
             declarations: [GameCardComponent],
             imports: [AppRoutingModule, DynamicTestModule, RouterTestingModule],
+            providers: [ClassicModeService, CommunicationSocketService],
         }).compileComponents();
     });
     beforeEach(() => {
