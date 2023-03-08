@@ -47,7 +47,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.sendEvent('success');
             if (this.gameRoom.userGame.username2 && this.userDifferencesFound >= this.multiplayerThreshold) {
                 this.gameFinished = true;
-                this.classicModeService.endGame();
+                this.endGame();
             }
         });
         this.gameFinishedSubscription = this.classicModeService.gameFinished$.subscribe(() => {
@@ -71,10 +71,10 @@ export class GamePageComponent implements OnInit, OnDestroy {
         });
         this.abandonedGameSubscription = this.classicModeService.abandoned$.subscribe((userName: string) => {
             if (userName !== this.userName) {
-                this.unsubscribe();
                 this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
-                this.classicModeService.endGame();
             }
+            this.unsubscribe();
+            this.classicModeService.endGame();
         });
     }
 
@@ -88,6 +88,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: false } });
             }
             this.classicModeService.endGame();
+            this.unsubscribe();
         } else {
             this.abondonConfirmation();
         }
@@ -136,7 +137,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
+        this.classicModeService.reset();
         this.dialog.closeAll();
-        this.unsubscribe();
     }
 }

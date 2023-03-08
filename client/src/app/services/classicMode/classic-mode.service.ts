@@ -34,7 +34,7 @@ export class ClassicModeService {
 
     initClassicMode(gameName: string, username: string, started: boolean): void {
         this.communicationService.getGame(gameName).subscribe((res) => {
-            if (Object.keys(res).length !== 0) {
+            if (res && Object.keys(res).length !== 0) {
                 this.gameRoom = {
                     userGame: {
                         gameData: res,
@@ -46,6 +46,7 @@ export class ClassicModeService {
                     started,
                 };
                 this.userName = username;
+                this.disconnect();
                 this.connect();
                 this.socketService.send('createGame', this.gameRoom);
             } else {
@@ -59,6 +60,7 @@ export class ClassicModeService {
             if (Object.keys(res).length !== 0) {
                 this.gameRoom = undefined as unknown as GameRoom;
                 this.userName = username;
+                this.disconnect();
                 this.connect();
                 this.socketService.send('joinGame', [gameName, username]);
             } else {
@@ -72,6 +74,7 @@ export class ClassicModeService {
             if (Object.keys(res).length !== 0) {
                 this.gameRoom = undefined as unknown as GameRoom;
                 this.userName = username;
+                this.disconnect();
                 this.connect();
                 this.socketService.send('askingToJoinGame', [gameName, username]);
             } else {
@@ -142,7 +145,7 @@ export class ClassicModeService {
         // eslint-disable-next-line no-unused-vars
         this.socketService.on('GameFinished', (userName: string) => {
             this.gameFinished$.next(true);
-            this.socketService.disconnect();
+            this.disconnect();
         });
 
         this.socketService.on('playerAccepted', (gameRoom: GameRoom) => {
@@ -220,12 +223,29 @@ export class ClassicModeService {
         } else if (this.socketService.isSocketAlive()) {
             this.socketService.send('leaveGame', [this.gameRoom.roomId, this.userName]);
         }
-        this.socketService.disconnect();
+        this.disconnect();
     }
 
     disconnect(): void {
         if (this.socketService.isSocketAlive()) {
             this.socketService.disconnect();
         }
+    }
+
+    reset() {
+        this.gameRoom = undefined as unknown as GameRoom;
+        this.canSendValidate = true;
+        this.userName = '';
+        this.userDifferencesFound = 0;
+        this.totalDifferencesFound$ = new Subject<number>();
+        this.userDifferencesFound$ = new Subject<number>();
+        this.timer$ = new Subject<number>();
+        this.gameFinished$ = new Subject<boolean>();
+        this.gameRoom$ = new Subject<GameRoom>();
+        this.serverValidateResponse$ = new Subject<DifferenceTry>();
+        this.rejected$ = new Subject<boolean>();
+        this.accepted$ = new Subject<boolean>();
+        this.gameCanceled$ = new Subject<boolean>();
+        this.abandoned$ = new Subject<string>();
     }
 }

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
@@ -9,7 +9,7 @@ import { Subscription } from 'rxjs';
     templateUrl: './waiting-room-dialog.component.html',
     styleUrls: ['./waiting-room-dialog.component.scss'],
 })
-export class WaitingRoomComponent implements OnInit, OnDestroy {
+export class WaitingRoomComponent implements OnInit {
     rejected = false;
     accepted = false;
     gameCanceled = false;
@@ -54,16 +54,12 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     }
 
     close() {
-        this.dialogRef.close();
-        this.acceptedSubscription.unsubscribe();
-        this.rejectedSubscription.unsubscribe();
-        this.gameCanceledSubscription.unsubscribe();
         if (!this.accepted) {
             this.classicModeService.abortGame();
         }
-    }
-
-    ngOnDestroy() {
-        this.close();
+        this.acceptedSubscription.unsubscribe();
+        this.rejectedSubscription.unsubscribe();
+        this.gameCanceledSubscription.unsubscribe();
+        this.dialogRef.close();
     }
 }
