@@ -63,6 +63,7 @@ describe('GameCardComponent', () => {
                 ClassicModeService,
                 CommunicationSocketService,
                 { provide: CommunicationSocketService, useValue: socketServiceMock },
+                { provide: CommunicationService, useValue: communicationServiceSpy },
                 CommunicationService,
             ],
         }).compileComponents();
