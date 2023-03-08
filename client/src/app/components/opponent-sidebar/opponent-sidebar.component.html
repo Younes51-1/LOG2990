@@ -8,7 +8,7 @@
             <li [ngClass]="message.username === 'Système' ? 'system' : message.username === this.username ? 'player': 'opponent'"
                 *ngFor="let message of messages">
                 <strong>{{message.username}}</strong>
-                <span class="glyphicon glyphicon-time"> HH:MM:SS</span>
+                <span class="glyphicon glyphicon-time"> {{ message.time | date: 'HH:mm:ss' }}</span>
                 <p>
                     {{ message.message }}
                 </p>

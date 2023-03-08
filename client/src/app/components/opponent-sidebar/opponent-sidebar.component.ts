@@ -1,11 +1,7 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { Message } from '@app/interfaces/chat';
 import { GameRoom } from '@app/interfaces/game';
 import { ChatService } from '@app/services/chatService/chat.service';
-// TODO: remove this
-export interface Message {
-    message: string;
-    username: string;
-}
 
 @Component({
     selector: 'app-opponent-sidebar',
