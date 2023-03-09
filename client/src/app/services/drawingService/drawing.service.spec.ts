@@ -41,33 +41,42 @@ describe('DrawingService', () => {
     });
 
     it('drawRectangle should draw a rectangle if shift is not pressed', () => {
-        const canvas1 = document.createElement('canvas');
-        const context1 = canvas1.getContext('2d');
         const pos = { x: 13, y: 12 };
         service.component.shiftPressed = false;
-        const spy = spyOn(service, 'drawRectangle').and.callThrough();
-        if (context1) {
-            service.component.rectangleState = { canvas: canvas1, context: context1, startPos: { x: 0, y: 0 } };
-            const spy2 = spyOn(service.component.rectangleState.context, 'fillRect');
-            service.drawRectangle(context1, pos);
-            expect(spy).toHaveBeenCalled();
-            expect(spy2).toHaveBeenCalledWith(0, 0, pos.x, pos.y);
-        }
+        service.component.rectangleState = {
+            canvas: service.component.canvas1.nativeElement,
+            context: service.component.context1,
+            startPos: { x: 0, y: 0 },
+        };
+        const spyFillRect = spyOn(service.component.rectangleState.context, 'fillRect');
+        const spyDrawImage = spyOn(service.component.context1, 'drawImage').and.callFake(() => {
+            return;
+        });
+        service.drawRectangle(service.component.context1, pos);
+        expect(spyFillRect).toHaveBeenCalledWith(0, 0, pos.x, pos.y);
+        expect(spyDrawImage).toHaveBeenCalledTimes(2);
     });
 
     it('drawRectangle should draw a square if shift is pressed', () => {
-        const canvas = service.createNewCanvas();
-        const context = canvas.getContext('2d');
         const pos = { x: 13, y: 12 };
+        const value = 4;
         service.component.shiftPressed = true;
-        const spy = spyOn(service, 'drawRectangle').and.callThrough();
-        if (context) {
-            service.component.rectangleState = { canvas, context, startPos: { x: 0, y: 0 } };
-            const spy2 = spyOn(service.component.rectangleState.context, 'fillRect');
-            service.drawRectangle(context, pos);
-            expect(spy).toHaveBeenCalled();
-            expect(spy2).toHaveBeenCalledWith(0, 0, pos.y, pos.y);
-        }
+        const spyDrawImage = spyOn(service.component.context1, 'drawImage').and.callFake(() => {
+            return;
+        });
+        service.component.rectangleState = {
+            canvas: service.component.canvas1.nativeElement,
+            context: service.component.context1,
+            startPos: { x: 0, y: 0 },
+        };
+        service.drawRectangle(service.component.context1, pos);
+        service.component.rectangleState = {
+            canvas: service.component.canvas1.nativeElement,
+            context: service.component.context1,
+            startPos: { x: 31, y: 21 },
+        };
+        service.drawRectangle(service.component.context1, pos);
+        expect(spyDrawImage).toHaveBeenCalledTimes(value);
     });
 
     it('should call the mousedown event handler', () => {
