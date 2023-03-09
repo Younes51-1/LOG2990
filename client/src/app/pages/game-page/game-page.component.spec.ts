@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-// eslint-disable-next-line max-classes-per-file
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
@@ -13,57 +12,38 @@ import { CommunicationService } from '@app/services/communicationService/communi
 import { of } from 'rxjs';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import SpyObj = jasmine.SpyObj;
-import { RouterTestingModule } from '@angular/router/testing';
-import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
-import { SocketTestHelper } from '@app/classes/socket-test-helper';
-import { Socket } from 'socket.io-client';
 
 @NgModule({
     imports: [MatDialogModule, HttpClientModule],
 })
 export class DynamicTestModule {}
-class SocketClientServiceMock extends CommunicationSocketService {
-    override connect() {
-        return;
-    }
-}
+
 describe('GamePageComponent', () => {
     const differenceMatrix: number[][] = [[]];
     const gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulte: '', soloBestTimes: [], vsBestTimes: [] };
     const gameData: GameData = { gameForm, differenceMatrix };
-    const userGame: UserGame = { username1: '', gameData, nbDifferenceFound: 0, timer: 0 };
-    const gameRoom = { userGame: { gameData, nbDifferenceFound: 0, timer: 0, username1: 'Test' }, roomId: 'fakeId', started: false };
+    const userGame: UserGame = { username: '', gameData, nbDifferenceFound: 0, timer: 0 };
 
     let component: GamePageComponent;
     let fixture: ComponentFixture<GamePageComponent>;
     let communicationServiceSpy: SpyObj<CommunicationService>;
     let classicModeServiceSpy: ClassicModeService;
-    let socketServiceMock: SocketClientServiceMock;
-    let socketHelper: SocketTestHelper;
 
     beforeEach(async () => {
         communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getGame']);
         communicationServiceSpy.getGame.and.returnValue(of(gameData));
         classicModeServiceSpy = jasmine.createSpyObj('ClassicModeService', ['timer$', 'differencesFound$', 'gameFinished$', 'userGame$']);
-        socketHelper = new SocketTestHelper();
-        socketServiceMock = new SocketClientServiceMock();
-        socketServiceMock.socket = socketHelper as unknown as Socket;
         await TestBed.configureTestingModule({
             declarations: [GamePageComponent, SidebarComponent, MatToolbar, EndgameDialogComponent],
-            imports: [DynamicTestModule, RouterTestingModule],
-            providers: [
-                ClassicModeService,
-                CommunicationSocketService,
-                CommunicationService,
-                { provide: CommunicationSocketService, useValue: socketServiceMock },
-            ],
+            imports: [DynamicTestModule],
+            providers: [ClassicModeService],
         }).compileComponents();
     });
 
     beforeEach(() => {
         fixture = TestBed.createComponent(GamePageComponent);
         component = fixture.componentInstance;
-        component.gameRoom = gameRoom;
+        component.userGame = userGame;
         fixture.detectChanges();
     });
 
@@ -90,11 +70,11 @@ describe('GamePageComponent', () => {
     it('should subscribe to differencesFound$ observable', () => {
         const testingValue = 5;
         classicModeServiceSpy = TestBed.inject(ClassicModeService);
-        const spyDifferencesFound = spyOn(classicModeServiceSpy.userDifferencesFound$, 'subscribe').and.callThrough();
+        const spyDifferencesFound = spyOn(classicModeServiceSpy.differencesFound$, 'subscribe').and.callThrough();
         component.ngOnInit();
-        classicModeServiceSpy.userDifferencesFound$.next(testingValue);
+        classicModeServiceSpy.differencesFound$.next(testingValue);
         expect(spyDifferencesFound).toHaveBeenCalled();
-        expect(component.userDifferencesFound).toEqual(testingValue);
+        expect(component.differencesFound).toEqual(testingValue);
     });
 
     it('should subscribe to gameFinished$ observable', fakeAsync(() => {
@@ -109,21 +89,19 @@ describe('GamePageComponent', () => {
         expect(endGameSpy).toHaveBeenCalled();
     }));
 
-    it('should subscribe to gameRoom$ observable', () => {
+    it('should subscribe to userGame$ observable', () => {
         classicModeServiceSpy = TestBed.inject(ClassicModeService);
-        const spyUserGame = spyOn(classicModeServiceSpy.gameRoom$, 'subscribe').and.callThrough();
+        const spyUserGame = spyOn(classicModeServiceSpy.userGame$, 'subscribe').and.callThrough();
         component.ngOnInit();
-        classicModeServiceSpy.gameRoom$.next(gameRoom);
+        classicModeServiceSpy.userGame$.next(userGame);
         expect(spyUserGame).toHaveBeenCalled();
-        expect(component.gameRoom).toEqual(gameRoom);
+        expect(component.userGame).toEqual(userGame);
         expect(component.gameName).toEqual(userGame.gameData.gameForm.name);
-        expect(component.userName).toEqual(classicModeServiceSpy.userName);
+        expect(component.player).toEqual(userGame.username);
     });
 
     it('endGame should call dialog.open', async () => {
         const spy = spyOn(component.dialog, 'open');
-        component.gameFinished = true;
-        component.totalDifferencesFound = gameRoom.userGame.gameData.gameForm.nbDifference;
         await component.endGame();
         expect(spy).toHaveBeenCalledOnceWith(EndgameDialogComponent, {
             disableClose: true,

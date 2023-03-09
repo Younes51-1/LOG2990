@@ -1,5 +1,5 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, ViewChild } from '@angular/core';
-import { GameRoom } from '@app/interfaces/game';
+import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges, ViewChild } from '@angular/core';
+import { UserGame } from '@app/interfaces/game';
 import { Vec2 } from '@app/interfaces/vec2';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
@@ -16,8 +16,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     @ViewChild('canvas1', { static: false }) canvas1: ElementRef<HTMLCanvasElement>;
     @ViewChild('canvas2', { static: false }) canvas2: ElementRef<HTMLCanvasElement>;
 
-    @Input() gameRoom: GameRoom;
-    @Output() userError = new EventEmitter();
+    @Input() userGame: UserGame;
 
     canvasClicked: HTMLCanvasElement;
     playerIsAllowedToClick = true;
@@ -25,20 +24,16 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     context1text: CanvasRenderingContext2D;
     context2: CanvasRenderingContext2D;
     mousePosition: Vec2 = { x: 0, y: 0 };
-    totalDifferencesFound = 0;
-    userDifferencesFound = 0;
+    differencesFound = 0;
     buttonPressed = '';
     original = new Image();
     modified = new Image();
-    audioValid = new Audio('assets/sounds/valid_sound.mp3');
-    audioInvalid = new Audio('assets/sounds/invalid_sound.mp3');
+    audioValid = new Audio('../assets/sounds/valid_sound.mp3');
+    audioInvalid = new Audio('../assets/sounds/invalid_sound.mp3');
     differenceMatrix: number[][];
     currentDifferenceMatrix: number[][];
     emptypixel: number;
     timesFlashDifferences: number;
-    isCheatModeOn = false;
-    layer: HTMLCanvasElement;
-    intervalId: ReturnType<typeof setInterval>;
     private canvasSize = { x: Dimensions.DEFAULT_WIDTH, y: Dimensions.DEFAULT_HEIGHT };
 
     constructor(
@@ -58,26 +53,18 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         return this.canvasSize.y;
     }
 
-    @HostListener('document:keydown', ['$event'])
+    @HostListener('keydown', ['$event'])
     buttonDetect(event: KeyboardEvent) {
         this.buttonPressed = event.key;
-        if (this.buttonPressed === 't') {
-            this.isCheatModeOn = !this.isCheatModeOn;
-            this.cheatMode();
-        }
     }
     ngAfterViewInit() {
-        this.classicModeService.totalDifferencesFound$.subscribe((differencesFound) => {
-            this.totalDifferencesFound = differencesFound;
+        this.classicModeService.differencesFound$.subscribe((differencesFound) => {
+            this.differencesFound = differencesFound;
         });
-
-        this.classicModeService.userDifferencesFound$.subscribe((differencesFound) => {
-            this.userDifferencesFound = differencesFound;
-        });
-        this.classicModeService.serverValidateResponse$.subscribe((difference) => {
-            if (difference.validated) {
+        this.classicModeService.serverValidateResponse$.subscribe((response) => {
+            if (response) {
                 this.playerIsAllowedToClick = false;
-                this.correctAnswerVisuals(difference.differencePos.x, difference.differencePos.y);
+                this.correctAnswerVisuals(this.mousePosition.x, this.mousePosition.y);
                 this.audioValid.pause();
                 this.audioValid.currentTime = 0;
                 this.audioValid.play();
@@ -85,7 +72,6 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
                 this.playerIsAllowedToClick = false;
                 this.audioInvalid.play();
                 this.visualRetroaction(this.canvasClicked);
-                this.userError.emit();
             }
         });
         const context1 = this.canvas1.nativeElement.getContext('2d');
@@ -101,10 +87,10 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     }
 
     async ngOnChanges() {
-        if (this.classicModeService.gameRoom && this.gameRoom?.userGame?.gameData) {
-            this.differenceMatrix = this.gameRoom.userGame.gameData.differenceMatrix;
-            this.original.src = this.gameRoom.userGame.gameData.gameForm.image1url;
-            this.modified.src = this.gameRoom.userGame.gameData.gameForm.image2url;
+        if (this.classicModeService.gameRoom && this.userGame?.gameData) {
+            this.differenceMatrix = this.userGame.gameData.differenceMatrix;
+            this.original.src = this.userGame.gameData.gameForm.image1url;
+            this.modified.src = this.userGame.gameData.gameForm.image2url;
         }
         this.original.crossOrigin = 'Anonymous'; // needed to get access to images of server
         this.modified.crossOrigin = 'Anonymous';
@@ -134,7 +120,6 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
                 this.playerIsAllowedToClick = false;
                 this.audioInvalid.play();
                 this.visualRetroaction(canvas);
-                this.userError.emit();
             }
         }
     }
@@ -164,12 +149,29 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
 
     flashDifference(difference: number[][]) {
         const timeOut = 100;
-        const layer = this.createAndFillNewLayer(Color.Luigi, false, difference);
-        if (this.context1 && this.context2) {
+        const layer1 = document.createElement('canvas');
+        const layer2 = document.createElement('canvas');
+        layer1.width = this.width;
+        layer1.height = this.height;
+        layer2.width = this.width;
+        layer2.height = this.height;
+        const layerContext1 = layer1.getContext('2d');
+        const layerContext2 = layer2.getContext('2d');
+        if (this.context1 && layerContext1 && this.context2 && layerContext2) {
+            layerContext1.fillStyle = Color.Luigi;
+            layerContext2.fillStyle = Color.Luigi;
+            for (let i = 0; i < difference.length; i++) {
+                for (let j = 0; j < difference[0].length; j++) {
+                    if (difference[i][j] !== this.emptypixel) {
+                        layerContext1.fillRect(j, i, 1, 1);
+                        layerContext2.fillRect(j, i, 1, 1);
+                    }
+                }
+            }
             for (let i = 1; i <= this.timesFlashDifferences; i++) {
                 setTimeout(() => {
-                    this.context1.drawImage(layer, 0, 0, this.width, this.height);
-                    this.context2.drawImage(layer, 0, 0, this.width, this.height);
+                    this.context1.drawImage(layer1, 0, 0, this.width, this.height);
+                    this.context2.drawImage(layer2, 0, 0, this.width, this.height);
                     setTimeout(() => {
                         this.context1.drawImage(this.original, 0, 0, this.width, this.height);
                         this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
@@ -208,55 +210,5 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         this.context2.clearRect(0, 0, this.width, this.height);
         this.context2.putImageData(image2, 0, 0);
         this.modified.src = this.canvas2.nativeElement.toDataURL();
-        this.verifyDifferenceMatrix();
-    }
-
-    verifyDifferenceMatrix() {
-        this.layer = this.createAndFillNewLayer(Color.Cheat, true, this.differenceMatrix);
-    }
-
-    cheatMode() {
-        if (!this.isCheatModeOn) {
-            clearInterval(this.intervalId);
-            this.context1.drawImage(this.original, 0, 0, this.width, this.height);
-            this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
-            return;
-        }
-        const flashDuration = 125;
-        let isFlashing = true;
-        this.verifyDifferenceMatrix();
-        if (this.context1 && this.context2) {
-            this.intervalId = setInterval(() => {
-                if (isFlashing) {
-                    this.context1.drawImage(this.original, 0, 0, this.width, this.height);
-                    this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
-                    isFlashing = !isFlashing;
-                } else {
-                    this.context1.drawImage(this.layer, 0, 0, this.width, this.height);
-                    this.context2.drawImage(this.layer, 0, 0, this.width, this.height);
-                    isFlashing = !isFlashing;
-                }
-            }, flashDuration);
-        }
-    }
-
-    createAndFillNewLayer(color: Color, isCheat: boolean, matrix: number[][]): HTMLCanvasElement {
-        const cheatAlphaValue = 0.7;
-        const layer = document.createElement('canvas');
-        layer.width = this.width;
-        layer.height = this.height;
-        const context = layer.getContext('2d');
-        if (context) {
-            context.globalAlpha = isCheat ? cheatAlphaValue : 1;
-            context.fillStyle = color;
-            for (let i = 0; i < matrix.length; i++) {
-                for (let j = 0; j < matrix[0].length; j++) {
-                    if (matrix[i][j] !== this.emptypixel) {
-                        context.fillRect(j, i, 1, 1);
-                    }
-                }
-            }
-        }
-        return layer;
     }
 }

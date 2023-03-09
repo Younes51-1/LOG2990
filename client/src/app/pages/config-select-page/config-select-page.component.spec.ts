@@ -1,17 +1,17 @@
-import { Location } from '@angular/common';
-import { HttpClientModule, HttpResponse } from '@angular/common/http';
-import { NgModule, NO_ERRORS_SCHEMA } from '@angular/core';
+import { HttpClientModule } from '@angular/common/http';
+import { NgModule } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
-import { By } from '@angular/platform-browser';
-import { Router } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
-import { ConfigParamsComponent } from '@app/components/config-params/config-params.component';
-import { AppRoutingModule } from '@app/modules/app-routing.module';
+import { ConfigSelectPageComponent } from './config-select-page.component';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
 import { of } from 'rxjs';
+import { Router } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
+import { Location } from '@angular/common';
+import { By } from '@angular/platform-browser';
+import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { PageKeys } from 'src/assets/variables/game-card-options';
-import { ConfigSelectPageComponent } from './config-select-page.component';
+import { ConfigParamsComponent } from '@app/components/config-params/config-params.component';
 import SpyObj = jasmine.SpyObj;
 
 @NgModule({
@@ -25,7 +25,7 @@ describe('ConfigSelectPageComponent', () => {
     let communicationServiceSpy: SpyObj<CommunicationService>;
 
     beforeEach(async () => {
-        communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getAllGames', 'deleteGame']);
+        communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getAllGames']);
         communicationServiceSpy.getAllGames.and.returnValue(
             of([
                 {
@@ -54,11 +54,10 @@ describe('ConfigSelectPageComponent', () => {
                 },
             ]),
         );
-        communicationServiceSpy.deleteGame.and.returnValue(of(new HttpResponse({ status: 200 }) as HttpResponse<string>));
+
         await TestBed.configureTestingModule({
             declarations: [ConfigSelectPageComponent, ConfigParamsComponent],
             imports: [DynamicTestModule, RouterTestingModule, AppRoutingModule],
-            schemas: [NO_ERRORS_SCHEMA], // TODO: ask if we can use it
             providers: [{ provide: CommunicationService, useValue: communicationServiceSpy }],
         }).compileComponents();
     });
@@ -138,27 +137,13 @@ describe('ConfigSelectPageComponent', () => {
         component.pageType = PageKeys.Config;
         fixture.detectChanges();
         component.initializeImgSource();
-        expect(component.imgSource).toEqual('./assets/pictures/config.png');
+        expect(component.imgSource).toEqual('../../../assets/pictures/config.png');
     });
 
     it('should correctly initialize image if pageType is selection', () => {
         component.pageType = PageKeys.Selection;
         fixture.detectChanges();
         component.initializeImgSource();
-        expect(component.imgSource).toEqual('./assets/pictures/selection.png');
-    });
-
-    it('deleteNotify should call removeSlide if PageKeys is set to Config', () => {
-        const spy = spyOn(component, 'removeSlide');
-        component.pageType = PageKeys.Config;
-        component.deleteNotify('Find the Differences 1');
-        expect(spy).toHaveBeenCalled();
-    });
-
-    it('removeSlide should remove the slide from the carousel and call deleteGame', () => {
-        component.pageType = PageKeys.Config;
-        component.removeSlide('Find the Differences 1');
-        expect(component.slides.length).toEqual(1);
-        expect(communicationServiceSpy.deleteGame).toHaveBeenCalled();
+        expect(component.imgSource).toEqual('../../../assets/pictures/selection.png');
     });
 });

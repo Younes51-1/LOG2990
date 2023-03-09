@@ -5,6 +5,7 @@ import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { RouterTestingModule } from '@angular/router/testing';
+import { Router } from '@angular/router';
 
 @NgModule({
     imports: [HttpClientModule],
@@ -80,15 +81,15 @@ describe('GameCardComponent', () => {
         expect(btn2).not.toBeUndefined();
     });
 
-    it('should emit the correct value when startSoloGame is called', () => {
+    it('should emit the correct value when btnOneEmitter is called', () => {
         const spy = spyOn(component.notify, 'emit');
-        component.startSoloGame();
+        component.btnOneEmitter();
         expect(spy).toHaveBeenCalledWith(component.slide.name);
     });
 
-    it('should emit the correct object when createGame is called', () => {
+    it('should emit the correct object when btnTwoEmitter is called', () => {
         const spy = spyOn(component.notify, 'emit');
-        component.createGame();
+        component.btnTwoEmitter();
         expect(spy).toHaveBeenCalledWith(component.slide);
     });
 
@@ -109,34 +110,37 @@ describe('GameCardComponent', () => {
         expect(component.btnTwo).toEqual(options.selection.btnTwo);
     });
 
-    it("should call 'initClassicMode' by startSoloGame if page is Selection", () => {
+    it("should call 'initClassicMode' by btnOneEmitter if page is Selection", () => {
         const spy = spyOn(component.classicModeService, 'initClassicMode');
         component.page = PageKeys.Selection;
         component.ngOnInit();
-        component.startSoloGame();
+        component.btnOneEmitter();
         expect(spy).toHaveBeenCalled();
     });
 
-    it("shouldn't call 'initClassicMode' by startSoloGame if page isn't Selection", () => {
+    it("shouldn't call 'initClassicMode' by btnOneEmitter if page isn't Selection", () => {
         const spy = spyOn(component.classicModeService, 'initClassicMode');
-        component.startSoloGame();
+        component.btnOneEmitter();
         expect(spy).not.toHaveBeenCalled();
     });
 
     it('should toggle the border if inputValue1 is incorrect', () => {
         component.inputValue1 = '';
         component.applyBorder = false;
-        component.verifySoloInput();
+        component.toggleBorder();
         expect(component.applyBorder).toBe(true);
     });
 
-    it('should call startSoloGame and navigate to routeOne if inputValue1 is correct', () => {
-        component.page = PageKeys.Selection;
-        component.ngOnInit();
-        spyOn(component, 'startSoloGame');
-        component.inputValue1 = 'test';
-        component.verifySoloInput();
+    it('should call btnOneEmitter and navigate to routeOne if inputValue1 is correct', () => {
+        const router = TestBed.inject(Router);
 
-        expect(component.startSoloGame).toHaveBeenCalled();
+        spyOn(component, 'btnOneEmitter');
+        spyOn(router, 'navigate');
+
+        component.inputValue1 = 'test';
+        component.toggleBorder();
+
+        expect(component.btnOneEmitter).toHaveBeenCalled();
+        expect(router.navigate).toHaveBeenCalledWith([component.routeOne]);
     });
 });

@@ -3,13 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class UserGame {
     @ApiProperty()
-    username1: string;
-
-    @ApiProperty()
-    username2?: string;
-
-    @ApiProperty()
-    potentielPlayers: string[];
+    username: string;
 
     @ApiProperty()
     gameData: GameData;

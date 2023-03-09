@@ -1,25 +1,21 @@
 import { DELAY_BEFORE_CLOSING_CONNECTION } from '@app/constants';
 import { environment } from '@app/environments/environment';
-import { ClassicModeGateway } from '@app/gateways/classicMode/classic-mode.gateway';
 import { Game, GameDocument, gameSchema } from '@app/model/database/game';
 import { GameData } from '@app/model/dto/game/game-data.dto';
 import { BestTime } from '@app/model/schema/best-time.schema';
-import { GameService } from '@app/services/game/game.service';
 import { getConnectionToken, getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Model } from 'mongoose';
-import { createStubInstance, SinonStubbedInstance } from 'sinon';
+import { GameService } from '@app/services/game/game.service';
 
 describe('GameService', () => {
     let service: GameService;
     let gameModel: Model<GameDocument>;
     let mongoServer: MongoMemoryServer;
     let connection: Connection;
-    let classicModeGateway: SinonStubbedInstance<ClassicModeGateway>;
 
     beforeEach(async () => {
-        classicModeGateway = createStubInstance(ClassicModeGateway);
         mongoServer = await MongoMemoryServer.create();
         const module = await Test.createTestingModule({
             imports: [
@@ -31,13 +27,7 @@ describe('GameService', () => {
                 }),
                 MongooseModule.forFeature([{ name: Game.name, schema: gameSchema }]),
             ],
-            providers: [
-                GameService,
-                {
-                    provide: ClassicModeGateway,
-                    useValue: classicModeGateway,
-                },
-            ],
+            providers: [GameService],
         }).compile();
 
         service = module.get<GameService>(GameService);
@@ -131,13 +121,11 @@ describe('GameService', () => {
     });
 
     it('deleteGame() should delete the game', async () => {
-        jest.spyOn(classicModeGateway, 'cancelDeletedGame').mockImplementation();
         await gameModel.deleteMany({});
         const game = getFakeGame();
         await gameModel.create(game);
         await service.deleteGame(game.name);
         expect(await gameModel.countDocuments()).toEqual(0);
-        expect(classicModeGateway.cancelDeletedGame).toHaveBeenCalledWith(game.name);
     });
 
     it('deleteGame() should fail if the game does not exist', async () => {

@@ -7,7 +7,4 @@ export class GameRoom {
 
     @ApiProperty()
     roomId: string;
-
-    @ApiProperty()
-    started: boolean;
 }

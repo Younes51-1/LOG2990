@@ -6,7 +6,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ClassicModeGateway } from './gateways/classicMode/classic-mode.gateway';
 import { Game, gameSchema } from './model/database/game';
 import { ClassicModeService } from './services/classicMode/classic-mode.service';
-import { ChatGateway } from './gateways/chat/chat.gateway';
 
 @Module({
     imports: [
@@ -21,6 +20,6 @@ import { ChatGateway } from './gateways/chat/chat.gateway';
         MongooseModule.forFeature([{ name: Game.name, schema: gameSchema }]),
     ],
     controllers: [GameController],
-    providers: [Logger, GameService, ClassicModeService, ClassicModeGateway, ChatGateway],
+    providers: [Logger, GameService, ClassicModeService, ClassicModeGateway],
 })
 export class AppModule {}

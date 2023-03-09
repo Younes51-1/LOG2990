@@ -4,11 +4,11 @@
         <button class="home-button" routerLink="/home">
             <i class="fa fa-home fa-2x" aria-hidden="true"></i>
         </button>
-        <img src="{{ imgSource }}" />
+        <img src={{imgSource}}>
     </header>
     <ngx-slick-carousel class="carousel" [config]="slideConfig">
         <div ngxSlickItem *ngFor="let slide of slides" class="slide">
-            <app-game-card [slide]="slide" [page]="pageType" (notify)="deleteNotify($event)"></app-game-card>
+            <app-game-card [slide]="slide" [page]="pageType"></app-game-card>
         </div>
     </ngx-slick-carousel>
     <div *ngIf="this.pageType === 'config'" class="configElement">

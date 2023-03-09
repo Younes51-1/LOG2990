@@ -19,8 +19,8 @@ describe('ClassicModeService', () => {
     const differenceMatrix: number[][] = [[]];
     const gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulte: '', soloBestTimes: [], vsBestTimes: [] };
     const gameData: GameData = { gameForm, differenceMatrix };
-    const gameRoom = { userGame: { gameData, nbDifferenceFound: 0, timer: 0, username1: 'Test' }, roomId: 'fakeId', started: false };
-    const differenceTry: DifferenceTry = { validated: true, differencePos: { x: 0, y: 0 }, username: 'Test' };
+    const gameRoom = { userGame: { gameData, nbDifferenceFound: 0, timer: 0, username: 'Test' }, roomId: 'fakeId' };
+    const differenceTry: DifferenceTry = { validated: true, differencePos: { x: 0, y: 0 } };
 
     let service: ClassicModeService;
     let communicationSocketService: CommunicationSocketService;
@@ -52,7 +52,6 @@ describe('ClassicModeService', () => {
         const spy2 = spyOn(communicationSocketService, 'isSocketAlive').and.callFake(() => {
             return true;
         });
-        service.gameRoom = gameRoom;
         service.endGame();
         expect(spy).toHaveBeenCalled();
         expect(spy2).toHaveBeenCalled();
@@ -64,7 +63,6 @@ describe('ClassicModeService', () => {
         const spy = spyOn(communicationSocketService, 'send').and.callFake(() => {
             return;
         });
-        service.gameRoom = gameRoom;
         service.validateDifference({ x: 0, y: 0 });
         expect(service.canSendValidate).toBeFalsy();
         expect(spy).toHaveBeenCalled();
@@ -86,16 +84,14 @@ describe('ClassicModeService', () => {
         const spy = spyOn(communicationSocketService, 'send').and.callFake(() => {
             return;
         });
-        service.userName = 'Test';
         service.gameRoom = {
             userGame: {
                 gameData,
                 nbDifferenceFound: 0,
                 timer: 0,
-                username1: 'Test',
+                username: 'Test',
             },
             roomId: '',
-            started: true,
         };
         service.startGame();
         expect(spy).toHaveBeenCalled();
@@ -137,8 +133,16 @@ describe('ClassicModeService', () => {
         const spy2 = spyOn(service, 'connect').and.callFake(() => {
             return;
         });
-        service.initClassicMode('', '', false);
+        service.initClassicMode('', '');
         expect(spy2).toHaveBeenCalled();
+    });
+
+    it('should handle on waiting message', () => {
+        const spy = spyOn(service, 'startGame').and.callFake(() => {
+            return;
+        });
+        socketHelper.peerSideEmit('waiting');
+        expect(spy).toHaveBeenCalled();
     });
 
     it('should handle on started message', () => {

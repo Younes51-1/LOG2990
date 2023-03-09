@@ -173,13 +173,11 @@ deploy:server:
                 if which node &> /dev/null
                 then
                     echo 'node is already installed, skipping...'
-                    nvm install 16
-                    nvm alias default 16
                 else
                     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
                     source ~/.nvm/nvm.sh
-                    nvm install 16
-                    nvm alias default 16
+                    nvm install 17
+                    nvm alias default 17
                 fi
 
                 echo 'Setting up forever'
@@ -199,7 +197,7 @@ deploy:server:
                     echo '[plugins]'             | sudo tee /etc/awslogs/awscli.conf
                     echo 'cwlogs = cwlogs'       | sudo tee -a /etc/awslogs/awscli.conf
                     echo '[default]'             | sudo tee -a /etc/awslogs/awscli.conf
-                    echo 'region = us-east-1'    | sudo tee -a /etc/awslogs/awscli.conf
+                    echo 'region = ca-central-1' | sudo tee -a /etc/awslogs/awscli.conf
                     sudo systemctl enable awslogsd.service
                     sudo systemctl start awslogsd
                     sudo chmod 777 /var/log/messages
