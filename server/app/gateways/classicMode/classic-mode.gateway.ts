@@ -48,7 +48,7 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
 
     @SubscribeMessage(ClassicModeEvents.CheckGame)
     checkGame(socket: Socket, gameName: string) {
-        if (this.classicModeService.getGameRooms(gameName)) {
+        if (this.classicModeService.getGameRoom(gameName)) {
             this.logger.log(`Jeu ${gameName} trouvé`);
             this.server.to(socket.id).emit(ClassicModeEvents.GameFound, gameName);
         }
@@ -77,7 +77,7 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
     joinGame(socket: Socket, userGame: [gameName: string, username: string]) {
         if (this.classicModeService.joinGame(socket, userGame[0], userGame[1])) {
             this.logger.log(`${userGame[1]} rejoint le jeu: ${userGame[0]}`);
-            this.server.emit(ClassicModeEvents.GameInfo, this.classicModeService.getGameRooms(userGame[0]));
+            this.server.emit(ClassicModeEvents.GameInfo, this.classicModeService.getGameRoom(userGame[0]));
         } else {
             this.logger.log(`Jeu: ${userGame[0]} non trouvé`);
             this.server.emit(ClassicModeEvents.GameInfo, undefined);
