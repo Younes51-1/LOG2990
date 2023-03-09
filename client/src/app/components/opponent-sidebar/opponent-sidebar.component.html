@@ -1,0 +1,18 @@
+<div class="container">
+    <section *ngIf="this.gameRoom?.userGame?.username2">
+        <p>{{opponentUsername}} a trouvé {{opponentDifferencesFound}} différences</p>
+    </section>
+    <section>
+        <div class="chatbox" #chatbox>
+            <ul class="chat">
+                <li *ngFor="let message of messages">
+                    <span [ngClass]="message.username === 'Système' ? 'server' : message.username === this.gameRoom.userGame.username1 ? 'player1': 'player2'">{{message.username}} : {{ message.message }}</span>
+                </li>
+            </ul>
+        </div>
+        <form *ngIf="this.gameRoom?.userGame?.username2" (submit)="sendMessage()">
+            <input type="text" [(ngModel)]="message" maxlength="200"/>
+            <button type="submit">Send</button>
+        </form>
+    </section>
+</div>
