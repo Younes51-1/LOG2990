@@ -156,7 +156,6 @@ describe('CreationGamePageComponent', () => {
             data: {
                 imageUrl: component.imageDifferencesUrl,
                 nbDifferences: component.differenceCount,
-                flipped: component.flipImage,
             },
         });
     });
