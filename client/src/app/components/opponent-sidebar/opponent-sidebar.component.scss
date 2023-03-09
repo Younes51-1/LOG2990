@@ -51,23 +51,6 @@ button:active {
   transform: scale(0.9);
 }
 
-.countdown {
-  display: grid;
-  width: 25%;
-  height: 25%;
-}
-
-svg {
-  stroke-width: 5;
-  fill: none;
-  stroke: #8200FF;
-}
-
-.timer {
-  font-size: 100%;
-  margin-top: -65%;
-}
-
 .chatbox {
   border: 5px solid black;
   overflow-y: scroll;
