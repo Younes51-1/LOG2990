@@ -1,11 +1,13 @@
-import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
+import { Vec2 } from '@app/interfaces/vec2';
 import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
 
 describe('DetectionDifferenceService', () => {
     let service: DetectionDifferenceService;
     const emptyPixelValue = -1;
+    const width = 640;
+    const height = 480;
     let matrix: number[][];
-    let differentmatrix: number[][];
 
     beforeEach(() => {
         TestBed.configureTestingModule({});
@@ -14,12 +16,6 @@ describe('DetectionDifferenceService', () => {
             [1, 1, 1],
             [1, 1, 1],
             [1, 1, 1],
-        ];
-
-        differentmatrix = [
-            [1, 0, 1],
-            [1, 1, 1],
-            [1, 0, 1],
         ];
     });
 
@@ -43,44 +39,142 @@ describe('DetectionDifferenceService', () => {
         expect(serviceMatrix).toEqual(matrix);
     });
 
-    it('Difference Matrix should return 0 differences when given identical matrix', () => {
-        const differencesCount = service.countDifferences(matrix, matrix, 0);
-        expect(differencesCount).toEqual(0);
+    it('difference matrix should be filled with emptyPixelValue if there is no difference', () => {
+        const canvas1 = document.createElement('canvas');
+        const canvas2 = document.createElement('canvas');
+        const context1 = canvas1.getContext('2d');
+        const context2 = canvas2.getContext('2d');
+        if (context1 && context2) {
+            context1.fillStyle = 'black';
+            context2.fillStyle = 'black';
+            const randomValue = 100;
+            context1.fillRect(randomValue, randomValue, randomValue, randomValue);
+            context2.fillRect(randomValue, randomValue, randomValue, randomValue);
+            const diffMatrix = service.generateDifferencesMatrix(context1, context2, 3);
+            const emptyMatrix = service.createEmptyMatrix(height, width, emptyPixelValue);
+            expect(diffMatrix).toEqual(emptyMatrix);
+        }
     });
 
-    it('Difference Matrix should return an empty matrix when given identical matrix', () => {
-        const differenceMatrix = service.differencesMatrix(matrix, matrix, 0);
-        expect(differenceMatrix).toEqual(service.createEmptyMatrix(matrix.length, matrix[0].length, emptyPixelValue));
+    it('difference matrix should have value 1 if pixels are different', () => {
+        const canvas1 = document.createElement('canvas');
+        const canvas2 = document.createElement('canvas');
+        const context1 = canvas1.getContext('2d');
+        const context2 = canvas2.getContext('2d');
+        if (context1 && context2) {
+            context1.fillStyle = 'black';
+            context2.fillStyle = 'black';
+            const randomValue = 100;
+            context1.fillRect(randomValue, randomValue, randomValue, randomValue);
+            context2.fillRect(randomValue, randomValue, randomValue, randomValue);
+            context1.fillStyle = 'red';
+            context1.fillRect(1, 1, 1, 1); // difference
+            const diffMatrix = service.generateDifferencesMatrix(context1, context2, 0);
+            const emptyMatrix = service.createEmptyMatrix(height, width, emptyPixelValue);
+            emptyMatrix[1][1] = 1;
+            expect(diffMatrix).toEqual(emptyMatrix);
+        }
     });
 
-    it('Difference Matrix should return 2 differences when given differents matrix and 0 in a radius', () => {
-        const differencesCount = service.countDifferences(matrix, differentmatrix, 0);
-        expect(differencesCount).toEqual(2);
+    it('difference matrix should take radius into account', () => {
+        const canvas1 = document.createElement('canvas');
+        const canvas2 = document.createElement('canvas');
+        const context1 = canvas1.getContext('2d');
+        const context2 = canvas2.getContext('2d');
+        const spy = spyOn(service, 'applyRadius');
+        if (context1 && context2) {
+            service.generateDifferencesMatrix(context1, context2, 3);
+            expect(spy).toHaveBeenCalled();
+        }
     });
 
-    it('Difference Matrix should return a correct matrix when given differents matrix and 0 in a radius', () => {
-        const differenceMatrix = service.differencesMatrix(matrix, differentmatrix, 0);
-        const matrixRes = [
-            [emptyPixelValue, 0, emptyPixelValue],
+    it('should apply radius correctly', () => {
+        const spy = spyOn(service, 'computeRadiusRelativeCoordinates').and.callThrough();
+        const initialMatrix = [
+            [emptyPixelValue, 1, emptyPixelValue],
             [emptyPixelValue, emptyPixelValue, emptyPixelValue],
-            [emptyPixelValue, 0, emptyPixelValue],
+            [emptyPixelValue, emptyPixelValue, emptyPixelValue],
         ];
-        expect(differenceMatrix).toEqual(matrixRes);
-    });
-
-    it('Difference Matrix should return 1 differences when given differents matrix and 3 in a radius', () => {
-        const differencesCount = service.countDifferences(matrix, differentmatrix, 3);
-        expect(differencesCount).toEqual(1);
-    });
-
-    it('Difference Matrix should return a correct matrix when given differents matrix and 3 in a radius', () => {
-        const differenceMatrix = service.differencesMatrix(matrix, differentmatrix, 3);
-        const matrixRes = [
-            [1, 0, 1],
+        const radius = 2;
+        const diffCoordinates = [0, 1];
+        const matrixAfterRadius = service.applyRadius(initialMatrix, radius, diffCoordinates);
+        const expectedMatrix = [
             [1, 1, 1],
-            [1, 0, 1],
+            [1, 1, 1],
+            [emptyPixelValue, 1, emptyPixelValue],
         ];
-        expect(differenceMatrix).toEqual(matrixRes);
+        expect(matrixAfterRadius).toEqual(expectedMatrix);
+        expect(spy).toHaveBeenCalledWith(radius);
+    });
+
+    it('should compare rgba values correctly', () => {
+        let rgba1 = { r: 0, g: 0, b: 0, a: 0 };
+        const rgba2 = { r: 0, g: 0, b: 0, a: 0 };
+        const result1 = service.areEqual(rgba1, rgba2);
+        expect(result1).toBeTruthy();
+        rgba1 = { r: 1, g: 0, b: 0, a: 0 };
+        const result2 = service.areEqual(rgba1, rgba2);
+        expect(result2).toBeFalsy();
+    });
+
+    it('should count the number of differences correctly', () => {
+        const diffMatrix = service.createEmptyMatrix(height, width, emptyPixelValue);
+        diffMatrix[1][1] = 1; // first difference
+        diffMatrix[1][2] = 1; // should be counted as the same difference
+        diffMatrix[5][2] = 1; // second difference
+        const nDiff = service.countDifferences(diffMatrix);
+        expect(nDiff).toEqual(2);
+    });
+
+    it('should delete the difference', () => {
+        const diffMatrix = service.createEmptyMatrix(height, width, emptyPixelValue);
+        diffMatrix[1][1] = 1;
+        const referenceMatrix = service.copyMatrix(diffMatrix);
+        diffMatrix[100][1] = 1;
+        diffMatrix[100][2] = 1; // adding a difference
+        service.deleteDifference(diffMatrix, { x: 100, y: 1 }); // deleting it
+        expect(diffMatrix).toEqual(referenceMatrix);
+    });
+
+    it('should push neighbors to stack', () => {
+        const stack: Vec2[] = [];
+        const pos = { x: 1, y: 1 };
+        const spy = spyOn(service, 'pushToStack');
+        service.pushNeighborsToStack(stack, pos);
+        expect(spy).toHaveBeenCalledWith(stack, { x: pos.x, y: pos.y - 1 });
+        expect(spy).toHaveBeenCalledWith(stack, { x: pos.x, y: pos.y + 1 });
+        expect(spy).toHaveBeenCalledWith(stack, { x: pos.x + 1, y: pos.y - 1 });
+        expect(spy).toHaveBeenCalledWith(stack, { x: pos.x + 1, y: pos.y });
+        expect(spy).toHaveBeenCalledWith(stack, { x: pos.x + 1, y: pos.y + 1 });
+        expect(spy).toHaveBeenCalledWith(stack, { x: pos.x - 1, y: pos.y - 1 });
+        expect(spy).toHaveBeenCalledWith(stack, { x: pos.x - 1, y: pos.y });
+        expect(spy).toHaveBeenCalledWith(stack, { x: pos.x - 1, y: pos.y + 1 });
+        const nNeighbors = 8;
+        expect(spy).toHaveBeenCalledTimes(nNeighbors);
+    });
+
+    it('should push to stack if pos is valid', () => {
+        const stack: Vec2[] = [];
+        const pos = { x: 1, y: 1 };
+        const spy = spyOn(stack, 'push');
+        service.pushToStack(stack, pos);
+        expect(spy).toHaveBeenCalledWith(pos);
+    });
+
+    it('should not push to stack if pos is not valid', () => {
+        const stack: Vec2[] = [];
+        const pos = { x: 648, y: 1 };
+        const spy = spyOn(stack, 'push');
+        service.pushToStack(stack, pos);
+        expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('should copy matrix', () => {
+        const matrix1 = service.createEmptyMatrix(height, width, 1);
+        const copyMatrix = service.copyMatrix(matrix1);
+        expect(copyMatrix).toEqual(matrix1);
+        copyMatrix[0][0] = emptyPixelValue;
+        expect(copyMatrix).not.toEqual(matrix1);
     });
 
     it('should extract the current difference given a valid matrix and coordinates', () => {
@@ -113,42 +207,6 @@ describe('DetectionDifferenceService', () => {
         expect(result).toEqual(expectedMatrix);
     });
 
-    /* eslint-disable @typescript-eslint/no-magic-numbers */
-    it('should convert ArrayBuffer to Matrix', () => {
-        const arrayBuffer = new ArrayBuffer(54);
-        const dv = new DataView(arrayBuffer);
-        dv.setInt16(0, 19778, true);
-        dv.setUint32(2, 54, true);
-        dv.setUint32(10, 54 - 14, true);
-        dv.setUint32(14, 40, true);
-        dv.setInt32(18, 2, true);
-        dv.setInt32(22, 2, true);
-        dv.setInt16(26, 1, true);
-        dv.setInt16(28, 24, true);
-        dv.setUint32(34, 16, true);
-        dv.setUint8(54 - 16, 0);
-        dv.setUint8(54 - 15, 0);
-        dv.setUint8(54 - 14, 0);
-        dv.setUint8(54 - 13, 0);
-        dv.setUint8(54 - 12, 0);
-        dv.setUint8(54 - 11, 0);
-        dv.setUint8(54 - 10, 0);
-        dv.setUint8(54 - 9, 0);
-        dv.setUint8(54 - 8, 0);
-        dv.setUint8(54 - 7, 0);
-        dv.setUint8(54 - 6, 0);
-        dv.setUint8(54 - 5, 0);
-
-        const expectedMatrix = [
-            [0, 0],
-            [0, 0],
-        ];
-        const resultMatrix = service.convertImageToMatrix(arrayBuffer);
-        expect(resultMatrix.length).toBe(2);
-        expect(resultMatrix).toEqual(expectedMatrix);
-    });
-    /* eslint-enable @typescript-eslint/no-magic-numbers */
-
     it('should return easy if differences number lower than 7', () => {
         const diffuculte = service.computeLevelDifficulty(1, matrix);
         expect(diffuculte).toEqual('facile');
@@ -174,72 +232,4 @@ describe('DetectionDifferenceService', () => {
         expect(canvasUrl).toBeDefined();
         expect(canvasUrl).toContain('data:image/png;base64');
     });
-    /* eslint-enable @typescript-eslint/no-magic-numbers */
-
-    it('should populate neighborhood', () => {
-        const position = { x: 0, y: 0 };
-        service.populateNeighborhood([matrix, differentmatrix], position, 3);
-        expect(differentmatrix).toEqual(matrix);
-    });
-
-    /* eslint-disable @typescript-eslint/no-magic-numbers */
-    it('should convert an image to a matrix', fakeAsync(() => {
-        const inputElement = document.createElement('input');
-        inputElement.type = 'file';
-        const arrayBuffer = new ArrayBuffer(54);
-        const dv = new DataView(arrayBuffer);
-        dv.setInt16(0, 19778, true);
-        dv.setUint32(2, 54, true);
-        dv.setUint32(10, 54 - 14, true);
-        dv.setUint32(14, 40, true);
-        dv.setInt32(18, 2, true);
-        dv.setInt32(22, 2, true);
-        dv.setInt16(26, 1, true);
-        dv.setInt16(28, 24, true);
-        dv.setUint32(34, 16, true);
-        dv.setUint8(54 - 16, 0);
-        dv.setUint8(54 - 15, 0);
-        dv.setUint8(54 - 14, 0);
-        dv.setUint8(54 - 13, 0);
-        dv.setUint8(54 - 12, 0);
-        dv.setUint8(54 - 11, 0);
-        dv.setUint8(54 - 10, 0);
-        dv.setUint8(54 - 9, 0);
-        dv.setUint8(54 - 8, 0);
-        dv.setUint8(54 - 7, 0);
-        dv.setUint8(54 - 6, 0);
-        dv.setUint8(54 - 5, 0);
-        const bmpFile = new File([arrayBuffer], 'test.bmp', { type: 'image/bmp' });
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const fileList = {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            0: bmpFile,
-            length: 1,
-            // eslint-disable-next-line no-unused-vars
-            item: (index: number) => bmpFile,
-        };
-        Object.defineProperty(inputElement, 'files', {
-            value: fileList,
-        });
-        let result: number[][];
-        service.readThenConvertImage(inputElement).then((data) => {
-            result = data;
-            expect(result).toBeDefined();
-        });
-        tick();
-    }));
-
-    it('should return null if the image is a null', fakeAsync(() => {
-        const inputElement = document.createElement('input');
-        inputElement.type = 'file';
-        Object.defineProperty(inputElement, 'files', {
-            value: null,
-        });
-        let result: number[][] | null;
-        service.readThenConvertImage(inputElement).then((data) => {
-            result = data;
-            expect(result).toBeUndefined();
-        });
-        tick();
-    }));
 });

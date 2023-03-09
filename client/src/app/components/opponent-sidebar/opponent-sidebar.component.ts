@@ -57,4 +57,12 @@ export class OpponentSidebarComponent implements OnInit {
         const regex = new RegExp('\\b(' + forbiddenWords.join('|') + ')\\b', 'i');
         return !regex.test(input);
     }
+
+    chatInputFocus() {
+        this.chatService.setIsTyping(true);
+    }
+
+    chatInputBlur() {
+        this.chatService.setIsTyping(false);
+    }
 }

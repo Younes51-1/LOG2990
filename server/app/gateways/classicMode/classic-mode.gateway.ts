@@ -1,10 +1,10 @@
+import { ClassicModeEvents, DelayBeforeEmmitingTime } from '@app/gateways/classicMode/classic-mode.gateway.variables';
+import { GameRoom } from '@app/model/schema/game-room.schema';
+import { Vector2D } from '@app/model/schema/vector2d.schema';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { ClassicModeEvents, DelayBeforeEmmitingTime } from '@app/gateways/classicMode/classic-mode.gateway.variables';
-import { Vector2D } from '@app/model/schema/vector2d.schema';
-import { GameRoom } from '@app/model/schema/game-room.schema';
 
 @WebSocketGateway({ cors: true })
 @Injectable()
@@ -157,5 +157,9 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
                 this.server.to(gameRoom.roomId).emit(ClassicModeEvents.Timer, this.classicModeService.gameRooms.get(gameRoom.roomId).userGame.timer);
             }
         }
+    }
+
+    cancelDeletedGame(gameName: string): void {
+        this.server.emit(ClassicModeEvents.GameCanceled, gameName);
     }
 }

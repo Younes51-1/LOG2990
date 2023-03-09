@@ -1,5 +1,6 @@
 import { DIFFICULTY_THRESHOLD } from '@app/constants';
-import { environment } from '@app/environments/environment.prod';
+import { environment } from '@app/environments/environment';
+import { ClassicModeGateway } from '@app/gateways/classicMode/classic-mode.gateway';
 import { Game, GameDocument } from '@app/model/database/game';
 import { GameData } from '@app/model/dto/game/game-data.dto';
 import { GameForm } from '@app/model/dto/game/game-form.dto';
@@ -12,7 +13,7 @@ import { Model } from 'mongoose';
 
 @Injectable()
 export class GameService {
-    constructor(@InjectModel(Game.name) public gameModel: Model<GameDocument>) {}
+    constructor(@InjectModel(Game.name) public gameModel: Model<GameDocument>, private readonly classicModeGateway: ClassicModeGateway) {}
 
     async getAllGames(): Promise<GameForm[]> {
         const games = await this.gameModel.find({});
@@ -46,6 +47,7 @@ export class GameService {
                 return Promise.reject('Could not find game');
             }
             this.deleteImages(name);
+            this.classicModeGateway.cancelDeletedGame(name);
         } catch (error) {
             return Promise.reject(`Failed to delete game: ${error}`);
         }

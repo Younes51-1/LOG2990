@@ -8,6 +8,7 @@ import { Subject } from 'rxjs';
 })
 export class ChatService {
     message$ = new Subject<Message>();
+    isTyping = false;
 
     constructor(private readonly socketService: CommunicationSocketService) {}
 
@@ -20,5 +21,13 @@ export class ChatService {
 
     sendMessage(message: string, username: string, roomId: string): void {
         this.socketService.send('sendMessage', [message, username, roomId]);
+    }
+
+    setIsTyping(value: boolean): void {
+        this.isTyping = value;
+    }
+
+    getIsTyping(): boolean {
+        return this.isTyping;
     }
 }

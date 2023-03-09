@@ -28,6 +28,12 @@ class SocketClientServiceMock extends CommunicationSocketService {
     }
 }
 
+class SocketClientServiceMock extends CommunicationSocketService {
+    override connect() {
+        return;
+    }
+}
+
 describe('GameCardComponent', () => {
     const differenceMatrix: number[][] = [[]];
     const gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulte: '', soloBestTimes: [], vsBestTimes: [] };
