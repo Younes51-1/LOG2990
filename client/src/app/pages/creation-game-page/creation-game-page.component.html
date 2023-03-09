@@ -91,7 +91,11 @@
                 <label for="rayon{{ radius }}">{{ radius }} </label>
             </div>
         </fieldset>
-        <button *ngIf="(image1?.value !== '' && image2?.value !== '') || images1et2?.value !== ''" class="button" (click)="runDetectionSystem()">
+        <button
+            *ngIf="(image1?.value !== '' && image2?.value !== '') || images1et2?.value !== '' || this.undo.length > 0"
+            class="button"
+            (click)="runDetectionSystem()"
+        >
             Visualiser les différences
         </button>
     </section>

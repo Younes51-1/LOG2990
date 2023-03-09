@@ -183,7 +183,7 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         const img1HasContent: boolean = this.image1?.value !== undefined;
         const img2HasContent: boolean = this.image2?.value !== undefined;
 
-        if (img1HasContent && img2HasContent) {
+        if ((img1HasContent && img2HasContent) || this.undo.length > 0) {
             this.differenceMatrix = this.detectionService.generateDifferencesMatrix(this.context1, this.context2, this.radius);
             this.differenceCount = this.detectionService.countDifferences(this.differenceMatrix);
             this.imageDifferencesUrl = this.detectionService.createDifferencesImage(this.differenceMatrix);
