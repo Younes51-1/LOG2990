@@ -1,10 +1,9 @@
 .container {
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
-  height: 95%;
-  background: #fff;
+  height: 100%;
 }
 
 button {
@@ -20,6 +19,7 @@ button {
   text-decoration: none;
   transition: 0.3s ease all;
   z-index: 1;
+  top: 5%;
 }
 
 button:before {
@@ -51,38 +51,49 @@ button:active {
   transform: scale(0.9);
 }
 
-.countdown {
-  display: grid;
-  width: 25%;
-  height: 25%;
-}
-
-svg {
-  stroke-width: 5;
-  fill: none;
-  stroke: #8200FF;
-}
-
-.timer {
-  font-size: 100%;
-  margin-top: -65%;
-}
-
 .chatbox {
-  border: 3px solid black;
+  border: 5px solid black;
   overflow-y: scroll;
   height: 400px;
   width: 400px;
 }
 
-.player1 {
-  color: red;
+.chat {
+  list-style: none;
 }
 
-.player2 {
-  color: blue;
+.chat .system {
+  background-color: #8200FF;
+  clear: both;
+  text-align: left;
+  float: left;
 }
 
-.server {
-  color: purple;
+.chat .player {
+  background-color: #efb5ff;
+  clear: both;
+  text-align: right;
+  float: right;
+  margin-right: 10%;
+}
+
+.chat .opponent {
+  background-color: #c8c5ff;
+  clear: both;
+  text-align: left;
+  float: left;
+}
+
+.chat li {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  display: inline-block;
+  max-width: 80%;
+  border-radius: 12.5px;
+  padding: 15px;
+  overflow-y: auto;
+}
+
+form {
+  margin-top: 5%;
 }

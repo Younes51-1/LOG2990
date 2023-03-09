@@ -1,21 +1,26 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { Subscription } from 'rxjs';
 
 @Component({
-    selector: 'app-waiting-page',
-    templateUrl: './waiting-page.component.html',
-    styleUrls: ['./waiting-page.component.scss'],
+    selector: 'app-waiting-room-dialog',
+    templateUrl: './waiting-room-dialog.component.html',
+    styleUrls: ['./waiting-room-dialog.component.scss'],
 })
-export class WaitingPageComponent implements OnInit, OnDestroy {
+export class WaitingRoomComponent implements OnInit {
     rejected = false;
     accepted = false;
     gameCanceled = false;
     private rejectedSubscription: Subscription;
     private acceptedSubscription: Subscription;
     private gameCanceledSubscription: Subscription;
-    constructor(public classicModeService: ClassicModeService, private readonly router: Router) {}
+    constructor(
+        public classicModeService: ClassicModeService,
+        private readonly router: Router,
+        public dialogRef: MatDialogRef<WaitingRoomComponent>,
+    ) {}
 
     ngOnInit() {
         this.rejectedSubscription = this.classicModeService.rejected$.subscribe((rejected) => {
@@ -48,12 +53,13 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
         this.classicModeService.playerRejected(player);
     }
 
-    ngOnDestroy() {
-        this.acceptedSubscription.unsubscribe();
-        this.rejectedSubscription.unsubscribe();
-        this.gameCanceledSubscription.unsubscribe();
+    close() {
         if (!this.accepted) {
             this.classicModeService.abortGame();
         }
+        this.acceptedSubscription.unsubscribe();
+        this.rejectedSubscription.unsubscribe();
+        this.gameCanceledSubscription.unsubscribe();
+        this.dialogRef.close();
     }
 }

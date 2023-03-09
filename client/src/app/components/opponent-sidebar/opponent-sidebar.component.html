@@ -1,18 +1,22 @@
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 <div class="container">
-    <section *ngIf="this.gameRoom?.userGame?.username2">
-        <p>{{opponentUsername}} a trouvé {{opponentDifferencesFound}} différences</p>
-    </section>
-    <section>
-        <div class="chatbox" #chatbox>
-            <ul class="chat">
-                <li *ngFor="let message of messages">
-                    <span [ngClass]="message.username === 'Système' ? 'server' : message.username === this.gameRoom.userGame.username1 ? 'player1': 'player2'">{{message.username}} : {{ message.message }}</span>
-                </li>
-            </ul>
-        </div>
-        <form *ngIf="this.gameRoom?.userGame?.username2" (submit)="sendMessage()">
-            <input type="text" [(ngModel)]="message" maxlength="200"/>
-            <button type="submit">Send</button>
-        </form>
-    </section>
+    <p *ngIf="opponentUsername">{{opponentUsername}} a trouvé {{opponentDifferencesFound}} différences</p>
+    <p>Section messages</p>
+    <div class="chatbox" #chatbox>
+        <ul class="chat">
+            <li [ngClass]="message.username === 'Système' ? 'system' : message.username === this.username ? 'player': 'opponent'"
+                *ngFor="let message of messages">
+                <strong>{{message.username}}</strong>
+                <span class="glyphicon glyphicon-time"> {{ message.time | date: 'HH:mm:ss' }}</span>
+                <p>
+                    {{ message.message }}
+                </p>
+            </li>
+        </ul>
+    </div>
+    <form *ngIf="this.gameRoom?.userGame?.username2" (submit)="sendMessage()">
+        <input type="text" [(ngModel)]="message" placeholder="Tapez un message" maxlength="200" />
+        <button type="submit">Envoyer</button>
+    </form>
 </div>

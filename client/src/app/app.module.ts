@@ -24,7 +24,7 @@ import { ColorPickerModule } from 'ngx-color-picker';
 import { SlickCarouselModule } from 'ngx-slick-carousel';
 import { ModalDialogComponent } from './components/modal-dialog/modal-dialog.component';
 import { ConfigSelectPageComponent } from './pages/config-select-page/config-select-page.component';
-import { WaitingPageComponent } from './pages/waiting-page/waiting-page.component';
+import { WaitingRoomComponent } from './components/waiting-room-dialog/waiting-room-dialog.component';
 import { OpponentSidebarComponent } from './components/opponent-sidebar/opponent-sidebar.component';
 
 /**
@@ -47,7 +47,7 @@ import { OpponentSidebarComponent } from './components/opponent-sidebar/opponent
         EndgameDialogComponent,
         ModalDialogComponent,
         ConfigSelectPageComponent,
-        WaitingPageComponent,
+        WaitingRoomComponent,
     ],
     providers: [],
     bootstrap: [AppComponent],

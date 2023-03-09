@@ -42,8 +42,8 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
     }
 
     @SubscribeMessage(ClassicModeEvents.Abandoned)
-    abandoned(socket: Socket, roomId: string) {
-        this.server.to(roomId).emit(ClassicModeEvents.Abandoned);
+    abandoned(socket: Socket, data: [roomId: string, userName: string]) {
+        this.server.to(data[0]).emit(ClassicModeEvents.Abandoned, data[1]);
     }
 
     @SubscribeMessage(ClassicModeEvents.CheckGame)

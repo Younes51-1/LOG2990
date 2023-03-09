@@ -35,11 +35,13 @@ button:before {
     z-index: -1;
 }
 
-button:hover, button:focus {
+button:hover,
+button:focus {
     color: white;
 }
 
-button:hover:before, button:focus:before {
+button:hover:before,
+button:focus:before {
     left: 0;
     right: 0;
     opacity: 1;
@@ -51,8 +53,7 @@ button:active {
 
 .countdown {
     display: grid;
-    width: 25%;
-    height: 25%;
+    width: 50%;
 }
 
 svg {
@@ -63,5 +64,10 @@ svg {
 
 .timer {
     font-size: 100%;
-    margin-top: -65%;
+    margin-top: -120%;
+}
+
+.timer1 {
+    font-size: 100%;
+    margin-top: -60%;
 }

@@ -1,26 +1,78 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { GameCardComponent } from '@app/components/game-card/game-card.component';
-import { PageKeys, options } from 'src/assets/variables/game-card-options';
-import { AppRoutingModule } from '@app/modules/app-routing.module';
+// eslint-disable-next-line max-classes-per-file
+import { OverlayModule } from '@angular/cdk/overlay';
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialog, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
+import { SocketTestHelper } from '@app/classes/socket-test-helper';
+import { GameCardComponent } from '@app/components/game-card/game-card.component';
+import { GameData } from '@app/interfaces/game';
+import { AppRoutingModule } from '@app/modules/app-routing.module';
+import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
+import { CommunicationService } from '@app/services/communicationService/communication.service';
+import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
+import { of } from 'rxjs';
+import { Socket } from 'socket.io-client';
+import { options, PageKeys } from 'src/assets/variables/game-card-options';
+import SpyObj = jasmine.SpyObj;
 
 @NgModule({
-    imports: [HttpClientModule],
+    imports: [HttpClientModule, OverlayModule, MatDialogModule, BrowserAnimationsModule],
 })
 export class DynamicTestModule {}
+class SocketClientServiceMock extends CommunicationSocketService {
+    override connect() {
+        return;
+    }
+}
 
 describe('GameCardComponent', () => {
+    const differenceMatrix: number[][] = [[]];
+    const gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulte: '', soloBestTimes: [], vsBestTimes: [] };
+    const gameData: GameData = { gameForm, differenceMatrix };
+
     let component: GameCardComponent;
     let fixture: ComponentFixture<GameCardComponent>;
+    let socketServiceMock: SocketClientServiceMock;
+    let socketHelper: SocketTestHelper;
+    let communicationServiceSpy: SpyObj<CommunicationService>;
 
     beforeEach(async () => {
+        communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getGame']);
+        communicationServiceSpy.getGame.and.returnValue(of(gameData));
+        jasmine.createSpyObj('ClassicModeService', [
+            'timer$',
+            'differencesFound$',
+            'gameFinished$',
+            'totalDifferences$',
+            'gameRoom$',
+            'userDifferences$',
+            'serverValidateResponse$',
+            'rejected$',
+            'accepted$',
+            'gameCanceled$',
+            'abandoned$',
+        ]);
+        socketHelper = new SocketTestHelper();
+        socketServiceMock = new SocketClientServiceMock();
+        socketServiceMock.socket = socketHelper as unknown as Socket;
         await TestBed.configureTestingModule({
             declarations: [GameCardComponent],
             imports: [AppRoutingModule, DynamicTestModule, RouterTestingModule],
+            providers: [
+                ClassicModeService,
+                CommunicationSocketService,
+                { provide: CommunicationSocketService, useValue: socketServiceMock },
+                { provide: CommunicationService, useValue: communicationServiceSpy },
+                { provide: MatDialog },
+                { provide: MAT_DIALOG_DATA, useValue: {} },
+                CommunicationService,
+            ],
         }).compileComponents();
     });
+
     beforeEach(() => {
         fixture = TestBed.createComponent(GameCardComponent);
         component = fixture.componentInstance;

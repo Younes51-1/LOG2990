@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, ViewChild } from '@angular/core';
 import { GameRoom } from '@app/interfaces/game';
 import { Vec2 } from '@app/interfaces/vec2';
+import { ChatService } from '@app/services/chatService/chat.service';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
 import { MouseService } from '@app/services/mouseService/mouse.service';
@@ -45,6 +46,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         private mouseService: MouseService,
         private detectionService: DetectionDifferenceService,
         public classicModeService: ClassicModeService,
+        private chatService: ChatService,
     ) {
         this.emptypixel = -1;
         this.timesFlashDifferences = 5;
@@ -60,6 +62,9 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
 
     @HostListener('document:keydown', ['$event'])
     buttonDetect(event: KeyboardEvent) {
+        if (this.chatService.getIsTyping()) {
+            return;
+        }
         this.buttonPressed = event.key;
         if (this.buttonPressed === 't') {
             this.isCheatModeOn = !this.isCheatModeOn;
