@@ -16,6 +16,8 @@ export class SidebarComponent implements OnChanges {
     @Input() gameName: string;
     @Input() timer: number;
     @Input() differencesFound: number;
+    @Input() opponentDifferencesFound: number;
+    @Input() opponentUsername: string;
     @Input() gameRoom: GameRoom;
     @Output() endGameParent: EventEmitter<unknown> = new EventEmitter();
 
