@@ -42,6 +42,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     intervalId: ReturnType<typeof setInterval>;
     private canvasSize = { x: Dimensions.DEFAULT_WIDTH, y: Dimensions.DEFAULT_HEIGHT };
 
+    // eslint-disable-next-line max-params
     constructor(
         private mouseService: MouseService,
         private detectionService: DetectionDifferenceService,

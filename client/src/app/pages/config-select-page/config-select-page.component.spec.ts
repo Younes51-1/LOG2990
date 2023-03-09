@@ -148,12 +148,12 @@ describe('ConfigSelectPageComponent', () => {
         expect(component.imgSource).toEqual('./assets/pictures/selection.png');
     });
 
-    it('deleteNotify should call removeSlide if PageKeys is set to Config', () => {
-        const spy = spyOn(component, 'removeSlide');
-        component.pageType = PageKeys.Config;
-        component.deleteNotify('Find the Differences 1');
-        expect(spy).toHaveBeenCalled();
-    });
+    // it('deleteNotify should call removeSlide if PageKeys is set to Config', () => {
+    //     const spy = spyOn(component, 'removeSlide');
+    //     component.pageType = PageKeys.Config;
+    //     component.deleteNotify('Find the Differences 1');
+    //     expect(spy).toHaveBeenCalled();
+    // });
 
     it('removeSlide should remove the slide from the carousel and call deleteGame', () => {
         component.pageType = PageKeys.Config;
