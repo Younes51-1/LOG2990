@@ -252,4 +252,67 @@ describe('DrawingService', () => {
         service.traceShape(service.component.context1, start, finish);
         expect(service.component.mousePosition).toEqual(finish);
     });
+
+    it('should get the canvas 1 and update it', () => {
+        const state = { layer: service.component.canvas1.nativeElement, belonging: true, swap: true };
+        service.component.canvas1.nativeElement = document.createElement('canvas');
+        const spyDrawImage = spyOn(service.component.contextForeground1, 'drawImage').and.callThrough();
+        const spyUpdateCanvasDisplay = spyOn(service, 'updateCanvas1Display').and.callFake(() => {
+            return;
+        });
+        service.component.belongsToCanvas1 = false;
+        service.getCanvasAndUpdate(state);
+        expect(spyDrawImage).toHaveBeenCalled();
+        expect(spyUpdateCanvasDisplay).toHaveBeenCalled();
+        expect(service.component.belongsToCanvas1).toBeTrue();
+    });
+
+    it('should get the canvas 2 and update it', () => {
+        const state = { layer: service.component.canvas2.nativeElement, belonging: false, swap: true };
+        service.component.canvas2.nativeElement = document.createElement('canvas');
+        const spyDrawImage = spyOn(service.component.contextForeground2, 'drawImage').and.callThrough();
+        const spyUpdateCanvasDisplay = spyOn(service, 'updateCanvas2Display').and.callFake(() => {
+            return;
+        });
+        service.component.belongsToCanvas1 = true;
+        service.getCanvasAndUpdate(state);
+        expect(spyDrawImage).toHaveBeenCalled();
+        expect(spyUpdateCanvasDisplay).toHaveBeenCalled();
+        expect(service.component.belongsToCanvas1).toBeFalse();
+    });
+
+    it('should push to undo stack for canvas 1', () => {
+        service.component.currentCanvas = service.component.canvas1.nativeElement;
+        service.component.belongsToCanvas1 = false;
+        const spy = spyOn(service.component.undo, 'push').and.callThrough();
+        const length = service.component.undo.length;
+        service.pushToUndoStack();
+        expect(spy).toHaveBeenCalled();
+        expect(service.component.belongsToCanvas1).toBeTrue();
+        expect(service.component.undo.length).toEqual(length + 1);
+    });
+
+    it('should push to undo stack for canvas 2', () => {
+        service.component.currentCanvas = service.component.canvas2.nativeElement;
+        service.component.belongsToCanvas1 = true;
+        const spy = spyOn(service.component.undo, 'push').and.callThrough();
+        const length = service.component.undo.length;
+        service.pushToUndoStack();
+        expect(spy).toHaveBeenCalled();
+        expect(service.component.belongsToCanvas1).toBeFalse();
+        expect(service.component.undo.length).toEqual(length + 1);
+    });
+
+    it('should empty the redo stack', () => {
+        const canvas = document.createElement('canvas');
+        const redoTest = [
+            { layer: canvas, belonging: true, swap: false },
+            { layer: canvas, belonging: false, swap: true },
+            { layer: canvas, belonging: true, swap: true },
+        ];
+        service.component.redo = redoTest;
+        expect(service.component.redo.length).toEqual(3);
+        service.emptyRedoStack();
+        expect(service.component.redo.length).toEqual(0);
+    });
 });
