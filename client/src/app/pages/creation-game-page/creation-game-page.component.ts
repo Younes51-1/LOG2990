@@ -1,4 +1,3 @@
-/* eslint-disable max-lines */
 import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
@@ -25,51 +24,46 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     @ViewChild('images1et2', { static: false }) inputImages1et2: ElementRef;
     @ViewChild('canvas1', { static: false }) canvas1: ElementRef<HTMLCanvasElement>;
     @ViewChild('canvas2', { static: false }) canvas2: ElementRef<HTMLCanvasElement>;
-
     context1: CanvasRenderingContext2D;
     context2: CanvasRenderingContext2D;
-
     canvasForeground1: HTMLCanvasElement;
     canvasForeground2: HTMLCanvasElement;
     contextForeground1: CanvasRenderingContext2D;
     contextForeground2: CanvasRenderingContext2D;
+    currentCanvas: HTMLCanvasElement;
+    width: number;
+    height: number;
 
     mousePosition: Vec2;
     rectangleState: Rectangle;
     canvasTemp: Canvas;
-    drawMode: string = DrawModes.NOTHING;
-    mousePressed: boolean = false;
-    mouseInCanvas: boolean = true;
-    shiftPressed: boolean = false;
-    belongsToCanvas1: boolean = true;
-    currentCanvas: HTMLCanvasElement;
+    drawMode: string;
+    mousePressed: boolean;
+    mouseInCanvas: boolean;
+    shiftPressed: boolean;
+    belongsToCanvas1: boolean;
 
     undo: ForegroundState[] = [];
     redo: ForegroundState[] = [];
 
     image1: HTMLInputElement;
     image2: HTMLInputElement;
-
     imageDifferencesUrl: string;
-    width: number;
-    height: number;
-
-    radius: number = 3;
-    possibleRadius: number[] = [PossibleRadius.ZERO, PossibleRadius.THREE, PossibleRadius.NINE, PossibleRadius.FIFTEEN];
-
-    differenceCount: number;
-
-    differenceMatrix: number[][];
-    nameGame: string;
-    difficulty: string;
-
-    dialogRef: MatDialogRef<ModalDialogComponent>;
     urlPath1: string;
     urlPath2: string;
 
-    color: string = Color.Luigi;
-    pencilSize: number = DefaultSize.Pencil;
-    eraserSize: number = DefaultSize.Eraser;
+    color: string;
+    pencilSize: number;
+    eraserSize: number;
+
+    radius: number;
+    possibleRadius: number[];
+
+    differenceCount: number;
+    differenceMatrix: number[][];
+    nameGame: string;
+    difficulty: string;
+    dialogRef: MatDialogRef<ModalDialogComponent>;
 
     // eslint-disable-next-line max-params -- needed for constructor
     constructor(
@@ -82,6 +76,16 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     ) {
         this.width = 640;
         this.height = 480;
+        this.mousePressed = false;
+        this.mouseInCanvas = true;
+        this.shiftPressed = false;
+        this.belongsToCanvas1 = true;
+        this.drawMode = DrawModes.NOTHING;
+        this.possibleRadius = [PossibleRadius.ZERO, PossibleRadius.THREE, PossibleRadius.NINE, PossibleRadius.FIFTEEN];
+        this.radius = 3;
+        this.color = Color.Luigi;
+        this.pencilSize = DefaultSize.Pencil;
+        this.eraserSize = DefaultSize.Eraser;
     }
 
     @HostListener('document:keydown', ['$event'])
