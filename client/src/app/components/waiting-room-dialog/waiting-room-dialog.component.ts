@@ -40,7 +40,7 @@ export class WaitingRoomComponent implements OnInit {
                 this.gameCanceled = true;
                 alert('Game canceled');
                 this.classicModeService.abortGame();
-                this.router.navigate(['/selection']);
+                this.close();
             }
         });
     }
