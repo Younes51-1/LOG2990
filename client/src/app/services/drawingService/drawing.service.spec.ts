@@ -79,6 +79,16 @@ describe('DrawingService', () => {
         expect(spyDrawImage).toHaveBeenCalledTimes(value);
     });
 
+    it('should draw rectangle and update canvas', () => {
+        const spy1 = spyOn(service, 'drawRectangle');
+        const spy2 = spyOn(service, 'updateCanvas1Display');
+        const spy3 = spyOn(service, 'updateCanvas2Display');
+        service.updateRectangle();
+        expect(spy1).toHaveBeenCalledWith(service.component.rectangleContext, service.component.mousePosition);
+        expect(spy2).toHaveBeenCalled();
+        expect(spy3).toHaveBeenCalled();
+    });
+
     it('should call the mousedown event handler', () => {
         const event = new MouseEvent('mousedown');
         const canvas = document.createElement('canvas');

@@ -30,6 +30,7 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     canvasForeground2: HTMLCanvasElement;
     contextForeground1: CanvasRenderingContext2D;
     contextForeground2: CanvasRenderingContext2D;
+    rectangleContext: CanvasRenderingContext2D;
     currentCanvas: HTMLCanvasElement;
     width: number;
     height: number;
@@ -94,8 +95,11 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
             this.ctrlZ();
         } else if (event.key === 'Z' && event.ctrlKey && event.shiftKey) {
             this.ctrlShiftZ();
-        } else if (event.shiftKey) {
+        } else if (event.shiftKey && !this.shiftPressed) {
             this.shiftPressed = true;
+            if (this.mousePressed && this.drawMode === DrawModes.RECTANGLE) {
+                this.drawingService.updateRectangle();
+            }
         }
     }
 
@@ -103,6 +107,9 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     handleKeyUpEvent(event: KeyboardEvent) {
         if (event.key === 'Shift') {
             this.shiftPressed = false;
+            if (this.mousePressed && this.drawMode === DrawModes.RECTANGLE) {
+                this.drawingService.updateRectangle();
+            }
         }
     }
 
