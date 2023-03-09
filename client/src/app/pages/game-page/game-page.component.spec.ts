@@ -5,18 +5,18 @@ import { NgModule } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatToolbar } from '@angular/material/toolbar';
+import { RouterTestingModule } from '@angular/router/testing';
+import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { GameData, UserGame } from '@app/interfaces/game';
+import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
-import { of } from 'rxjs';
-import { GamePageComponent } from '@app/pages/game-page/game-page.component';
-import SpyObj = jasmine.SpyObj;
-import { RouterTestingModule } from '@angular/router/testing';
 import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
-import { SocketTestHelper } from '@app/classes/socket-test-helper';
+import { of } from 'rxjs';
 import { Socket } from 'socket.io-client';
+import SpyObj = jasmine.SpyObj;
 
 @NgModule({
     imports: [MatDialogModule, HttpClientModule],
@@ -127,6 +127,10 @@ describe('GamePageComponent', () => {
         await component.endGame();
         expect(spy).toHaveBeenCalledOnceWith(EndgameDialogComponent, {
             disableClose: true,
+            data: {
+                gameFinished: true,
+                gameWinner: true,
+            },
         });
     });
 });

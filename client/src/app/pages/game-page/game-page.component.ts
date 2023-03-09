@@ -1,11 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
 import { GameRoom } from '@app/interfaces/game';
 import { ChatService } from '@app/services/chatService/chat.service';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { Subscription } from 'rxjs';
-import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-game-page',
@@ -21,6 +21,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     userDifferencesFound = 0;
     multiplayerThreshold = 0;
     gameFinished = false;
+    abandon = false;
     gameRoom: GameRoom;
     dialogRef: MatDialogRef<EndgameDialogComponent>;
 
@@ -46,7 +47,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.sendEvent('success');
             if (this.gameRoom.userGame.username2 && this.userDifferencesFound >= this.multiplayerThreshold) {
                 this.gameFinished = true;
-                this.classicModeService.endGame();
+                this.endGame();
             }
         });
         this.gameFinishedSubscription = this.classicModeService.gameFinished$.subscribe(() => {
@@ -68,34 +69,47 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 this.multiplayerThreshold = (gameRoom.userGame.gameData.gameForm.nbDifference + 1) / 2;
             }
         });
-        this.abandonedGameSubscription = this.classicModeService.abandoned$.subscribe((abandoned: boolean) => {
-            if (abandoned) {
-                this.classicModeService.endGame();
+        this.abandonedGameSubscription = this.classicModeService.abandoned$.subscribe((userName: string) => {
+            if (userName !== this.userName) {
+                this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
             }
+            this.unsubscribe();
+            this.classicModeService.endGame();
         });
     }
 
     endGame() {
         if (this.gameFinished) {
             if (this.totalDifferencesFound === this.gameRoom.userGame.gameData.gameForm.nbDifference) {
-                this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true });
+                this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
             } else if (this.gameRoom.userGame.username2 && this.userDifferencesFound >= this.multiplayerThreshold) {
-                // TODO: add a dialog for the winner in case of 2 players
-                this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true });
+                this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
             } else if (this.gameRoom.userGame.username2) {
-                // TODO: add a dialog for the loser in case of 2 players
-                alert(this.gameRoom.userGame.username2 ? 'Vous avez perdu' : 'Vous avez gagné');
+                this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: false } });
             }
             this.classicModeService.endGame();
+            this.unsubscribe();
         } else {
-            // TODO: add a dialog so the user can choose to quit or continue
-            alert('Are you sure you want to quit the game?');
-            this.sendEvent('abandon');
-            this.classicModeService.abondonGame();
-            setTimeout(() => {
-                this.router.navigate(['/home']);
-                // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-            }, 1000);
+            this.abondonConfirmation();
+        }
+    }
+
+    abondonConfirmation() {
+        this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: false, gameWinner: false } });
+        if (this.dialogRef) {
+            this.dialogRef.afterClosed().subscribe((abandon) => {
+                if (abandon) {
+                    this.abandon = true;
+                    this.sendEvent('abandon');
+                    this.classicModeService.abondonGame();
+                    this.unsubscribe();
+                    setTimeout(() => {
+                        this.classicModeService.disconnect();
+                        this.router.navigate(['/home']);
+                        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+                    }, 1000);
+                }
+            });
         }
     }
 
@@ -113,14 +127,17 @@ export class GamePageComponent implements OnInit, OnDestroy {
         }
     }
 
-    ngOnDestroy() {
-        this.classicModeService.endGame();
-        this.dialog.closeAll();
+    unsubscribe() {
         this.timerSubscription.unsubscribe();
         this.differencesFoundSubscription.unsubscribe();
         this.userDifferencesFoundSubscription.unsubscribe();
         this.gameFinishedSubscription.unsubscribe();
         this.gameRoomSubscription.unsubscribe();
         this.abandonedGameSubscription.unsubscribe();
+    }
+
+    ngOnDestroy() {
+        this.classicModeService.reset();
+        this.dialog.closeAll();
     }
 }

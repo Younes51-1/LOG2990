@@ -1,11 +1,7 @@
 import { Injectable } from '@angular/core';
+import { Message } from '@app/interfaces/chat';
 import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
 import { Subject } from 'rxjs';
-// TODO: move this
-export interface Message {
-    message: string;
-    username: string;
-}
 
 @Injectable({
     providedIn: 'root',
@@ -18,6 +14,7 @@ export class ChatService {
 
     handleSocket(): void {
         this.socketService.on('message', (message: Message) => {
+            message.time = Date.now();
             this.message$.next(message);
         });
     }

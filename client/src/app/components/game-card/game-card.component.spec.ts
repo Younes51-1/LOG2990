@@ -1,25 +1,27 @@
 // eslint-disable-next-line max-classes-per-file
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { GameCardComponent } from '@app/components/game-card/game-card.component';
-import { PageKeys, options } from 'src/assets/variables/game-card-options';
-import { AppRoutingModule } from '@app/modules/app-routing.module';
+import { OverlayModule } from '@angular/cdk/overlay';
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialog, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
-import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
-import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
-import { Socket } from 'socket.io-client';
-import { CommunicationService } from '@app/services/communicationService/communication.service';
-import SpyObj = jasmine.SpyObj;
+import { GameCardComponent } from '@app/components/game-card/game-card.component';
 import { GameData } from '@app/interfaces/game';
+import { AppRoutingModule } from '@app/modules/app-routing.module';
+import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
+import { CommunicationService } from '@app/services/communicationService/communication.service';
+import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
 import { of } from 'rxjs';
+import { Socket } from 'socket.io-client';
+import { options, PageKeys } from 'src/assets/variables/game-card-options';
+import SpyObj = jasmine.SpyObj;
 
 @NgModule({
-    imports: [HttpClientModule],
+    imports: [HttpClientModule, OverlayModule, MatDialogModule, BrowserAnimationsModule],
 })
 export class DynamicTestModule {}
-
 class SocketClientServiceMock extends CommunicationSocketService {
     override connect() {
         return;
@@ -50,7 +52,7 @@ describe('GameCardComponent', () => {
             'serverValidateResponse$',
             'rejected$',
             'accepted$',
-            'gameCaneled$',
+            'gameCanceled$',
             'abandoned$',
         ]);
         socketHelper = new SocketTestHelper();
@@ -64,10 +66,13 @@ describe('GameCardComponent', () => {
                 CommunicationSocketService,
                 { provide: CommunicationSocketService, useValue: socketServiceMock },
                 { provide: CommunicationService, useValue: communicationServiceSpy },
+                { provide: MatDialog },
+                { provide: MAT_DIALOG_DATA, useValue: {} },
                 CommunicationService,
             ],
         }).compileComponents();
     });
+
     beforeEach(() => {
         fixture = TestBed.createComponent(GameCardComponent);
         component = fixture.componentInstance;
