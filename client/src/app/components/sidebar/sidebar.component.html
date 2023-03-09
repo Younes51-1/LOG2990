@@ -12,6 +12,7 @@
         <p>Niveau {{difficulty}}</p>
         <p>Vous devez trouver un total de {{totalNumber}} différences</p>
         <p>Vous avez trouvé {{differencesFound}} différences</p>
+        <p *ngIf="opponentUsername">{{opponentUsername}} a trouvé {{opponentDifferencesFound}} différences</p>
     </section>
     <button (click)="endGameParent.emit()">Abandonner la partie</button>
 </div>
