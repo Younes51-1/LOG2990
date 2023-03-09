@@ -62,7 +62,6 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     differenceMatrix: number[][];
     nameGame: string;
     difficulty: string;
-    flipImage: boolean = false;
 
     dialogRef: MatDialogRef<ModalDialogComponent>;
     urlPath1: string;
@@ -108,7 +107,6 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
             data: {
                 imageUrl: this.imageDifferencesUrl,
                 nbDifferences: this.differenceCount,
-                flipped: this.flipImage,
             },
         });
         if (this.dialogRef) {
@@ -161,7 +159,6 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         const hasCorrectDimensions = width === this.width && height === this.height;
         const isBmp = data[0] === AsciiLetterValue.B && data[1] === AsciiLetterValue.M;
         const is24BitPerPixel = data[OffsetValues.DHP] === BIT_PER_PIXEL.BIT_PER_PIXEL;
-        this.flipImage = new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.HEIGHT, true) < 0;
 
         return { hasCorrectDimensions, isBmp, is24BitPerPixel };
     }
@@ -207,7 +204,7 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
             image2: this.convertImageToB64Url(this.canvas2.nativeElement),
             nbDifference: this.differenceCount,
             difficulty: this.difficulty,
-            differenceMatrix: this.flipImage ? this.differenceMatrix.reverse() : this.differenceMatrix,
+            differenceMatrix: this.differenceMatrix,
         };
         this.communicationService.getGame(newGame.name).subscribe((res) => {
             if (!res.gameForm) {
