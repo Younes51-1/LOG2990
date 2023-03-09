@@ -1,11 +1,7 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { Message } from '@app/interfaces/chat';
 import { GameRoom } from '@app/interfaces/game';
 import { ChatService } from '@app/services/chatService/chat.service';
-// TODO: remove this
-export interface Message {
-    message: string;
-    username: string;
-}
 
 @Component({
     selector: 'app-opponent-sidebar',
@@ -28,12 +24,45 @@ export class OpponentSidebarComponent implements OnInit {
     ngOnInit() {
         this.chatService.message$.subscribe((message: Message) => {
             this.messages.push(message);
-            this.chatbox.nativeElement.scrollTop = this.chatbox.nativeElement.scrollHeight;
+            setTimeout(() => {
+                this.chatbox.nativeElement.scrollTop = this.chatbox.nativeElement.scrollHeight;
+            }, 0);
         });
     }
 
     sendMessage() {
-        this.chatService.sendMessage(this.message, this.username, this.gameRoom.roomId);
-        this.message = '';
+        if (!this.verifyUserInput(this.message)) {
+            // TODO: CSS for invalid input
+            return;
+        } else {
+            this.chatService.sendMessage(this.message, this.username, this.gameRoom.roomId);
+            this.message = '';
+        }
+    }
+
+    verifyUserInput(input: string): boolean {
+        if (typeof input !== 'string') {
+            return false;
+        }
+
+        if (/[\u200B-\u200D\uFEFF]/.test(input)) {
+            return false;
+        }
+
+        if (input.trim().length === 0) {
+            return false;
+        }
+        // TODO: add more WORDS
+        const forbiddenWords = ['foo', 'bar', 'baz'];
+        const regex = new RegExp('\\b(' + forbiddenWords.join('|') + ')\\b', 'i');
+        return !regex.test(input);
+    }
+
+    chatInputFocus() {
+        this.chatService.setIsTyping(true);
+    }
+
+    chatInputBlur() {
+        this.chatService.setIsTyping(false);
     }
 }

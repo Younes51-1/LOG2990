@@ -1,11 +1,11 @@
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
-import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
-import { AppRoutingModule } from '@app/modules/app-routing.module';
-import { GameData } from '@app/interfaces/game';
 import { By } from '@angular/platform-browser';
+import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
+import { GameData } from '@app/interfaces/game';
+import { AppRoutingModule } from '@app/modules/app-routing.module';
 
 @NgModule({
     imports: [MatDialogModule, HttpClientModule],
@@ -76,7 +76,7 @@ describe('SidebarComponent', () => {
         component.minutes = 10;
         component.seconds = 20;
         fixture.detectChanges();
-        const timer = fixture.debugElement.query(By.css('.timer')).nativeElement;
+        const timer = fixture.debugElement.query(By.css('.timer1')).nativeElement;
         expect(timer.textContent).toEqual('10:20');
     });
 

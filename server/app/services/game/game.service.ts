@@ -1,6 +1,6 @@
 import { DIFFICULTY_THRESHOLD } from '@app/constants';
-import { environment } from '@app/environments/environment';
-import { ClassicModeGateway } from '@app/gateways/classicMode/classic-mode.gateway';
+import { environment } from '@app/environments/environment.prod';
+import { ClassicModeGateway } from '@app/gateways/classic-mode/classic-mode.gateway';
 import { Game, GameDocument } from '@app/model/database/game';
 import { GameData } from '@app/model/dto/game/game-data.dto';
 import { GameForm } from '@app/model/dto/game/game-form.dto';
@@ -22,9 +22,7 @@ export class GameService {
 
     async getGame(name: string): Promise<GameData> {
         const game = await this.gameModel.findOne({ name });
-        if (game === undefined || game === null) {
-            return new GameData();
-        }
+        if (!game) return new GameData();
         return await this.convertGameToGameData(game);
     }
 
