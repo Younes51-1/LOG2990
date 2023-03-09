@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -305,14 +306,80 @@ describe('DrawingService', () => {
 
     it('should empty the redo stack', () => {
         const canvas = document.createElement('canvas');
-        const redoTest = [
+        service.component.redo = [
             { layer: canvas, belonging: true, swap: false },
             { layer: canvas, belonging: false, swap: true },
-            { layer: canvas, belonging: true, swap: true },
         ];
-        service.component.redo = redoTest;
-        expect(service.component.redo.length).toEqual(3);
+        expect(service.component.redo.length).toEqual(2);
         service.emptyRedoStack();
         expect(service.component.redo.length).toEqual(0);
+    });
+
+    it('should cancel an event when foregrounds are swapped', () => {
+        const canvas = document.createElement('canvas');
+        service.component.undo = [{ layer: canvas, belonging: true, swap: true }];
+        service.component.redo = [{ layer: canvas, belonging: true, swap: false }];
+        const lengthRedo = service.component.redo.length;
+        const lengthUndo = service.component.undo.length;
+        const spyPush = spyOn(service.component.redo, 'push').and.callThrough();
+        const spySwap = spyOn(service.component, 'swapForegrounds').and.callFake(() => {
+            return;
+        });
+        service.ctrlZ();
+        expect(spyPush).toHaveBeenCalledWith({ layer: canvas, belonging: true, swap: true });
+        expect(spySwap).toHaveBeenCalled();
+        expect(service.component.redo.length).toEqual(lengthRedo + 1);
+        expect(service.component.undo.length).toEqual(lengthUndo - 1);
+    });
+
+    it('should cancel an event when foregrounds are not swapped', () => {
+        const canvas = document.createElement('canvas');
+        service.component.undo = [{ layer: canvas, belonging: true, swap: false }];
+        service.component.redo = [{ layer: canvas, belonging: true, swap: false }];
+        const lengthRedo = service.component.redo.length;
+        const lengthUndo = service.component.undo.length;
+        const spyPush = spyOn(service.component.redo, 'push').and.callThrough();
+        const spyCanvasAndUpdate = spyOn(service, 'getCanvasAndUpdate').and.callFake(() => {
+            return canvas;
+        });
+        service.ctrlZ();
+        expect(spyPush).toHaveBeenCalledWith({ layer: canvas, belonging: service.component.belongsToCanvas1, swap: false });
+        expect(spyCanvasAndUpdate).toHaveBeenCalledWith({ layer: canvas, belonging: true, swap: false });
+        expect(service.component.redo.length).toEqual(lengthRedo + 1);
+        expect(service.component.undo.length).toEqual(lengthUndo - 1);
+    });
+
+    it('should redo an event when foregrounds are swapped ', () => {
+        const canvas = document.createElement('canvas');
+        service.component.redo = [{ layer: canvas, belonging: true, swap: true }];
+        service.component.undo = [{ layer: canvas, belonging: true, swap: false }];
+        const lengthRedo = service.component.redo.length;
+        const lengthUndo = service.component.undo.length;
+        const spyPush = spyOn(service.component.undo, 'push').and.callThrough();
+        const spySwap = spyOn(service.component, 'swapForegrounds').and.callFake(() => {
+            return;
+        });
+        service.ctrlShiftZ();
+        expect(spyPush).toHaveBeenCalledWith({ layer: canvas, belonging: true, swap: true });
+        expect(spySwap).toHaveBeenCalled();
+        expect(service.component.redo.length).toEqual(lengthRedo - 1);
+        expect(service.component.undo.length).toEqual(lengthUndo + 1);
+    });
+
+    it('should redo an event when foregrounds are not swapped ', () => {
+        const canvas = document.createElement('canvas');
+        service.component.redo = [{ layer: canvas, belonging: true, swap: false }];
+        service.component.undo = [{ layer: canvas, belonging: true, swap: false }];
+        const lengthRedo = service.component.redo.length;
+        const lengthUndo = service.component.undo.length;
+        const spyPush = spyOn(service.component.undo, 'push').and.callThrough();
+        const spyCanvasAndUpdate = spyOn(service, 'getCanvasAndUpdate').and.callFake(() => {
+            return canvas;
+        });
+        service.ctrlShiftZ();
+        expect(spyPush).toHaveBeenCalledWith({ layer: canvas, belonging: service.component.belongsToCanvas1, swap: false });
+        expect(spyCanvasAndUpdate).toHaveBeenCalled();
+        expect(service.component.redo.length).toEqual(lengthRedo - 1);
+        expect(service.component.undo.length).toEqual(lengthUndo + 1);
     });
 });
