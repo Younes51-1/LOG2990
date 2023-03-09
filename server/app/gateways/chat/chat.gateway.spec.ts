@@ -5,8 +5,9 @@ import { UserGame } from '@app/model/schema/user-game.schema';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { createStubInstance, SinonStubbedInstance } from 'sinon';
-import { Server, Socket } from 'socket.io';
+import { BroadcastOperator, Server, Socket } from 'socket.io';
 import { ChatGateway } from './chat.gateway';
+import { ChatEvents } from './chat.gateway.variables';
 
 describe('ChatGateway', () => {
     let gateway: ChatGateway;
@@ -38,6 +39,16 @@ describe('ChatGateway', () => {
 
     it('should be defined', () => {
         expect(gateway).toBeDefined();
+    });
+
+    it('should send a message to the room', () => {
+        const room = getFakeGameRoom();
+        server.to.returns({
+            emit: (event: string) => {
+                expect(event).toEqual(ChatEvents.Message);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        gateway.sendMessage(socket, ['fake message', room.userGame.username1, room.roomId]);
     });
 });
 
