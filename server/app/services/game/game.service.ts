@@ -1,5 +1,5 @@
 import { DIFFICULTY_THRESHOLD } from '@app/constants';
-import { environment } from '@app/environments/environment';
+import { environment } from '@app/environments/environment.prod';
 import { ClassicModeGateway } from '@app/gateways/classicMode/classic-mode.gateway';
 import { Game, GameDocument } from '@app/model/database/game';
 import { GameData } from '@app/model/dto/game/game-data.dto';

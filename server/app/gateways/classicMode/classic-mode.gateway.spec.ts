@@ -1,4 +1,4 @@
-import { environment } from '@app/environments/environment';
+import { environment } from '@app/environments/environment.prod';
 import { BestTime } from '@app/model/schema/best-times.schema';
 import { GameRoom } from '@app/model/schema/game-room.schema';
 import { UserGame } from '@app/model/schema/user-game.schema';
