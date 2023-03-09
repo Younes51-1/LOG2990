@@ -1,23 +1,21 @@
-import { ClassicModeEvents, DelayBeforeEmmitingTime } from '@app/gateways/classicMode/classic-mode.gateway.variables';
+import { ClassicModeEvents } from '@app/gateways/classic-mode/classic-mode.gateway.variables';
 import { GameRoom } from '@app/model/schema/game-room.schema';
 import { Vector2D } from '@app/model/schema/vector2d.schema';
-import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
+import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
 import { Injectable, Logger } from '@nestjs/common';
-import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({ cors: true })
 @Injectable()
-export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
     @WebSocketServer() private server: Server;
-    intervalId: NodeJS.Timeout;
 
     constructor(private readonly logger: Logger, private readonly classicModeService: ClassicModeService) {}
 
     @SubscribeMessage(ClassicModeEvents.Start)
     startGame(socket: Socket, roomId: string) {
         const gameRoom = this.classicModeService.gameRooms.get(roomId);
-        this.startTimer();
         this.logger.log(`Lancement du jeu: ${gameRoom.userGame.gameData.gameForm.name}`);
         this.server.to(roomId).emit(ClassicModeEvents.Started);
     }
@@ -38,7 +36,6 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
         this.logger.log(`Fin du jeu: ${gameRoom.userGame.gameData.gameForm.name}`);
         this.server.to(data[0]).emit(ClassicModeEvents.GameFinished, data[1]);
         this.classicModeService.deleteRoom(data[0]);
-        clearInterval(this.intervalId);
     }
 
     @SubscribeMessage(ClassicModeEvents.Abandoned)
@@ -129,10 +126,10 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
         }
     }
 
-    startTimer() {
-        this.intervalId = setInterval(() => {
+    afterInit() {
+        setInterval(() => {
             this.emitTime();
-        }, DelayBeforeEmmitingTime.DELAY_BEFORE_EMITTING_TIME);
+        }, 10000); // DelayBeforeEmmitingTime.DELAY_BEFORE_EMITTING_TIME);
     }
 
     handleConnection(socket: Socket) {
@@ -146,7 +143,6 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
             this.logger.log(`Game deleted: ${this.classicModeService.gameRooms.get(socket.id).userGame.gameData.gameForm.name}`);
             this.server.emit(ClassicModeEvents.GameDeleted, this.classicModeService.gameRooms.get(socket.id).userGame.gameData.gameForm.name);
             this.classicModeService.deleteRoom(socket.id);
-            clearInterval(this.intervalId);
         }
     }
 

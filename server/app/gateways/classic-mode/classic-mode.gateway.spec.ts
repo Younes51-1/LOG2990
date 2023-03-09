@@ -3,7 +3,7 @@ import { BestTime } from '@app/model/schema/best-times.schema';
 import { GameRoom } from '@app/model/schema/game-room.schema';
 import { UserGame } from '@app/model/schema/user-game.schema';
 import { Vector2D } from '@app/model/schema/vector2d.schema';
-import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
+import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { createStubInstance, SinonStubbedInstance } from 'sinon';

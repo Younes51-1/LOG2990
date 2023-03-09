@@ -3,10 +3,10 @@ import { BestTime } from '@app/model/schema/best-times.schema';
 import { GameRoom } from '@app/model/schema/game-room.schema';
 import { UserGame } from '@app/model/schema/user-game.schema';
 import { Vector2D } from '@app/model/schema/vector2d.schema';
+import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { createStubInstance, SinonStubbedInstance } from 'sinon';
 import { Socket } from 'socket.io';
-import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 
 class TestClassicModeService extends ClassicModeService {
     addElementToMap(key: string, value: GameRoom) {

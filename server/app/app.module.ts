@@ -3,10 +3,10 @@ import { GameService } from '@app/services/game/game.service';
 import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ClassicModeGateway } from './gateways/classicMode/classic-mode.gateway';
-import { Game, gameSchema } from './model/database/game';
-import { ClassicModeService } from './services/classicMode/classic-mode.service';
 import { ChatGateway } from './gateways/chat/chat.gateway';
+import { ClassicModeGateway } from './gateways/classic-mode/classic-mode.gateway';
+import { Game, gameSchema } from './model/database/game';
+import { ClassicModeService } from './services/classic-mode/classic-mode.service';
 
 @Module({
     imports: [
