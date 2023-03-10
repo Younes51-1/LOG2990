@@ -137,7 +137,7 @@ describe('PlayAreaComponent', () => {
         const spyExtractDiff = spyOn(detectionDifferenceService, 'extractDifference').and.callFake(() => {
             return component.differenceMatrix;
         });
-        component.correctAnswerVisuals(1, 2);
+        component.correctAnswerVisuals({ x: 1, y: 2 });
         expect(spyFlashDifferent).toHaveBeenCalled();
         expect(spyExtractDiff).toHaveBeenCalled();
     });
@@ -220,7 +220,7 @@ describe('PlayAreaComponent', () => {
         component.ngAfterViewInit();
         expect(serverValidateResponseSpy).toHaveBeenCalled();
         expect(component.playerIsAllowedToClick).toBeFalse();
-        expect(correctAnswerVisualsSpy).toHaveBeenCalledOnceWith(component.mousePosition.x, component.mousePosition.y);
+        expect(correctAnswerVisualsSpy).toHaveBeenCalledOnceWith(component.mousePosition);
         expect(pauseSpy).toHaveBeenCalled();
         expect(playSpy).toHaveBeenCalled();
     });

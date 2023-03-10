@@ -188,7 +188,7 @@ describe('DetectionDifferenceService', () => {
             [1, emptyPixelValue, emptyPixelValue],
             [emptyPixelValue, emptyPixelValue, emptyPixelValue],
         ];
-        const result = service.extractDifference(differenceMatrix, 0, 0);
+        const result = service.extractDifference(differenceMatrix, { x: 0, y: 0 });
         expect(result).toEqual(expectedMatrix);
     });
 
@@ -203,7 +203,7 @@ describe('DetectionDifferenceService', () => {
             [emptyPixelValue, emptyPixelValue, emptyPixelValue],
             [emptyPixelValue, emptyPixelValue, emptyPixelValue],
         ];
-        const result = service.extractDifference(differenceMatrix, 1, 0);
+        const result = service.extractDifference(differenceMatrix, { x: 1, y: 0 });
         expect(result).toEqual(expectedMatrix);
     });
 
