@@ -4,17 +4,14 @@ import { GameRoom } from '@app/interfaces/game';
 import { ChatService } from '@app/services/chatService/chat.service';
 
 @Component({
-    selector: 'app-opponent-sidebar',
-    templateUrl: './opponent-sidebar.component.html',
-    styleUrls: ['./opponent-sidebar.component.scss'],
+    selector: 'app-chat-box',
+    templateUrl: './chat-box.component.html',
+    styleUrls: ['./chat-box.component.scss'],
 })
-export class OpponentSidebarComponent implements OnInit {
+export class ChatBoxComponent implements OnInit {
     @ViewChild('chatbox', { static: true }) chatbox: ElementRef;
-    @Input() opponentDifferencesFound: number;
     @Input() gameRoom: GameRoom;
     @Input() username: string;
-    @Input() opponentUsername: string;
-    totalNumber: number;
 
     message = '';
     messages: Message[] = [];

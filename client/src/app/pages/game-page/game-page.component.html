@@ -4,19 +4,11 @@
         <p>Bienvenue au jeu : {{ gameName }}, {{ userName }} !</p>
     </header>
     <section>
-        <app-sidebar
-            [gameName]="gameName"
-            [timer]="timer"
-            [differencesFound]="userDifferencesFound"
-            [gameRoom]="gameRoom"
-            (endGameParent)="endGame()"
-        ></app-sidebar>
-        <app-play-area class="play-area" tabindex="0" [gameRoom]="gameRoom" (userError)="sendEvent('error')"></app-play-area>
-        <app-opponent-sidebar
+        <app-sidebar [gameName]="gameName" [timer]="timer" [differencesFound]="userDifferencesFound"
             [opponentDifferencesFound]="totalDifferencesFound - userDifferencesFound"
-            [gameRoom]="gameRoom"
-            [username]="userName"
-            [opponentUsername]="opponentUsername"
-        ></app-opponent-sidebar>
+            [opponentUsername]="opponentUsername" [gameRoom]="gameRoom" (endGameParent)="endGame()"></app-sidebar>
+        <app-play-area class="play-area" tabindex="0" [gameRoom]="gameRoom"
+            (userError)="sendEvent('error')"></app-play-area>
+        <app-chat-box [gameRoom]="gameRoom" [username]="userName"></app-chat-box>
     </section>
 </div>
