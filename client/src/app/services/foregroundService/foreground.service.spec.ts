@@ -28,6 +28,29 @@ describe('ForegroundService', () => {
         expect(service).toBeTruthy();
     });
 
+    it('should reset image 1', () => {
+        const spyClearRect = spyOn(component.context1, 'clearRect').and.callThrough();
+        component.inputImage1.nativeElement = document.createElement('input');
+        component.reset(component.inputImage1.nativeElement);
+        expect(spyClearRect).toHaveBeenCalled();
+    });
+
+    it('should reset image 2', () => {
+        const spyClearRect = spyOn(component.context2, 'clearRect').and.callThrough();
+        component.inputImage2.nativeElement = document.createElement('input');
+        component.reset(component.inputImage2.nativeElement);
+        expect(spyClearRect).toHaveBeenCalled();
+    });
+
+    it('should reset image 1 and 2', () => {
+        const spyClearRect = spyOn(component.context1, 'clearRect').and.callThrough();
+        const spyClearRect2 = spyOn(component.context2, 'clearRect').and.callThrough();
+        component.inputImage2.nativeElement = document.createElement('input');
+        component.reset(component.inputImages1et2.nativeElement);
+        expect(spyClearRect).toHaveBeenCalled();
+        expect(spyClearRect2).toHaveBeenCalled();
+    });
+
     it('should reset foreground 1', () => {
         service.component.context1 = document.createElement('canvas').getContext('2d') as CanvasRenderingContext2D;
         const spyClearRect = spyOn(service.component.context1, 'clearRect').and.callThrough();
