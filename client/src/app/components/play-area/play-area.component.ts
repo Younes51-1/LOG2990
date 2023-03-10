@@ -83,7 +83,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         this.classicModeService.serverValidateResponse$.subscribe((difference) => {
             if (difference.validated) {
                 this.playerIsAllowedToClick = false;
-                this.correctAnswerVisuals(difference.differencePos.x, difference.differencePos.y);
+                this.correctAnswerVisuals(difference.differencePos);
                 this.audioValid.pause();
                 this.audioValid.currentTime = 0;
                 this.audioValid.play();
@@ -163,9 +163,9 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         }
     }
 
-    correctAnswerVisuals(xCoord: number, yCoord: number) {
+    correctAnswerVisuals(coords: Vec2) {
         if (this.differenceMatrix) {
-            this.currentDifferenceMatrix = this.detectionService.extractDifference(JSON.parse(JSON.stringify(this.differenceMatrix)), xCoord, yCoord);
+            this.currentDifferenceMatrix = this.detectionService.extractDifference(JSON.parse(JSON.stringify(this.differenceMatrix)), coords);
             this.flashDifference(this.currentDifferenceMatrix);
         }
     }

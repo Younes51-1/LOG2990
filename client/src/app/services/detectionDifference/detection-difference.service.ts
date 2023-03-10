@@ -197,16 +197,19 @@ export class DetectionDifferenceService {
         return surfaceCovered > surfaceCoveredThreshold ? 'facile' : 'difficile';
     }
 
-    extractDifference(differenceMatrix: number[][], xCoord: number, yCoord: number) {
+    extractDifference(differenceMatrix: number[][], coords: Vec2): number[][] {
         const result = this.createEmptyMatrix(differenceMatrix.length, differenceMatrix[0].length, this.emptyPixelValue);
-        const difference = this.findDifference(differenceMatrix, yCoord, xCoord);
+        if (differenceMatrix[coords.y][coords.x] === this.emptyPixelValue) {
+            return result;
+        }
+        const difference = this.findDifference(differenceMatrix, coords);
         for (const [x, y] of difference) {
             result[x][y] = 1;
         }
         return result;
     }
 
-    findDifference(differenceMatrix: number[][], yCoord: number, xCoord: number) {
+    private findDifference(differenceMatrix: number[][], coords: Vec2): number[][] {
         const difference: [number, number][] = [];
         const visited = this.createEmptyMatrix(differenceMatrix.length, differenceMatrix[0].length, 0);
         const directions = [
@@ -216,32 +219,34 @@ export class DetectionDifferenceService {
             [0, this.negativeDifferenceCoord],
         ];
 
-        if (differenceMatrix[yCoord][xCoord] !== this.emptyPixelValue) {
-            const stack = [[yCoord, xCoord]];
-            while (stack.length > 0) {
-                const curr = stack.shift();
-                if (curr === undefined) continue;
-                const [x, y] = curr;
-                if (!visited[x][y]) {
-                    visited[x][y] = 1;
-                    difference.push([x, y]);
-                    for (const [dx, dy] of directions) {
-                        const nx = x + dx;
-                        const ny = y + dy;
-                        if (
-                            nx >= 0 &&
-                            nx < differenceMatrix.length &&
-                            ny >= 0 &&
-                            ny < differenceMatrix[0].length &&
-                            differenceMatrix[nx][ny] !== this.emptyPixelValue
-                        ) {
-                            stack.push([nx, ny]);
-                        }
-                    }
+        const stack = [[coords.y, coords.x]];
+        while (stack.length > 0) {
+            const curr = stack.shift();
+            if (!curr) continue;
+            const [x, y] = curr;
+            if (!visited[x][y]) {
+                visited[x][y] = 1;
+                difference.push([x, y]);
+                for (const [dx, dy] of directions) {
+                    const newCoords: Vec2 = { x: x + dx, y: y + dy };
+                    this.addCoordOnValidValue(differenceMatrix, stack, newCoords);
                 }
             }
         }
-
         return difference;
+    }
+
+    private addCoordOnValidValue(differenceMatrix: number[][], stack: number[][], coords: Vec2) {
+        const nx = coords.x;
+        const ny = coords.y;
+        if (
+            nx >= 0 &&
+            nx < differenceMatrix.length &&
+            ny >= 0 &&
+            ny < differenceMatrix[0].length &&
+            differenceMatrix[nx][ny] !== this.emptyPixelValue
+        ) {
+            stack.push([nx, ny]);
+        }
     }
 }
