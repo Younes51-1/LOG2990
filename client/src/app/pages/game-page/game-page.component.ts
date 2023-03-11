@@ -33,7 +33,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     private abandonedGameSubscription: Subscription;
 
     // eslint-disable-next-line max-params
-    constructor(public dialog: MatDialog, private classicModeService: ClassicModeService, private chatService: ChatService, private router: Router) {}
+    constructor(public dialog: MatDialog, public classicModeService: ClassicModeService, private chatService: ChatService, public router: Router) {}
 
     ngOnInit() {
         this.timerSubscription = this.classicModeService.timer$.subscribe((timer: number) => {
@@ -90,18 +90,18 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.classicModeService.endGame();
             this.unsubscribe();
         } else {
-            this.abondonConfirmation();
+            this.abandonConfirmation();
         }
     }
 
-    abondonConfirmation() {
+    abandonConfirmation() {
         this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: false, gameWinner: false } });
         if (this.dialogRef) {
             this.dialogRef.afterClosed().subscribe((abandon) => {
                 if (abandon) {
                     this.abandon = true;
                     this.sendEvent('abandon');
-                    this.classicModeService.abondonGame();
+                    this.classicModeService.abandonGame();
                     this.unsubscribe();
                     setTimeout(() => {
                         this.classicModeService.disconnect();
