@@ -1,11 +1,12 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { WaitingRoomComponent } from '@app/components/waiting-room-dialog/waiting-room-dialog.component';
 import { GameForm } from '@app/interfaces/game';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
+import { VerifyInputService } from '@app/services/verifyInput/verify-input.service';
 import { options, PageKeys } from 'src/assets/variables/game-card-options';
-import { WaitingRoomComponent } from '@app/components/waiting-room-dialog/waiting-room-dialog.component';
 
 @Component({
     selector: 'app-game-card',
@@ -38,6 +39,7 @@ export class GameCardComponent implements OnInit, OnDestroy {
         private router: Router,
         private readonly socketService: CommunicationSocketService,
         public dialog: MatDialog,
+        private verifyService: VerifyInputService,
     ) {}
 
     ngOnInit() {
@@ -110,7 +112,7 @@ export class GameCardComponent implements OnInit, OnDestroy {
     }
 
     verifySoloInput() {
-        if (!this.verifyUserInput(this.inputValue1)) {
+        if (!this.verifyService.verify(this.inputValue1)) {
             this.applyBorder = true;
         } else {
             this.startSoloGame();
@@ -119,34 +121,12 @@ export class GameCardComponent implements OnInit, OnDestroy {
 
     // TODO: change CSS to show border
     verifyMultiInput() {
-        if (!this.verifyUserInput(this.inputValue2)) {
+        if (!this.verifyService.verify(this.inputValue2)) {
             this.applyBorder = true;
         } else {
             this.connect();
             this.createJoinMultiGame();
         }
-    }
-
-    verifyUserInput(input: string): boolean {
-        if (typeof input !== 'string') {
-            return false;
-        }
-
-        if (/[\u200B-\u200D\uFEFF]/.test(input)) {
-            return false;
-        }
-
-        if (input.trim().length === 0) {
-            return false;
-        }
-        // TODO: add more WORDS
-        const forbiddenWords = ['foo', 'bar', 'baz'];
-        for (const word of forbiddenWords) {
-            if (input.toLowerCase() === word.toLowerCase()) {
-                return false;
-            }
-        }
-        return true;
     }
 
     connect() {

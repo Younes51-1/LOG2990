@@ -1,5 +1,4 @@
-import { Location } from '@angular/common';
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
@@ -27,11 +26,19 @@ describe('EndgameDialogComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should redirect to home page on click', fakeAsync(() => {
-        const location = TestBed.inject(Location);
-        const button = fixture.debugElement.nativeElement.querySelector('button');
-        button.click();
-        tick();
-        expect(location.path()).toEqual('/home');
-    }));
+    it('should emit true if abandon click', () => {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        component.dialogRef = { close: () => {} } as MatDialogRef<EndgameDialogComponent>;
+        const emitAbandonSpy = spyOn(component.dialogRef, 'close').and.callThrough();
+        component.emitAbandon(true);
+        expect(emitAbandonSpy).toHaveBeenCalledWith(true);
+    });
+
+    it('should emit true if no abandon click', () => {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        component.dialogRef = { close: () => {} } as MatDialogRef<EndgameDialogComponent>;
+        const emitAbandonSpy = spyOn(component.dialogRef, 'close').and.callThrough();
+        component.emitAbandon(false);
+        expect(emitAbandonSpy).toHaveBeenCalledWith(false);
+    });
 });

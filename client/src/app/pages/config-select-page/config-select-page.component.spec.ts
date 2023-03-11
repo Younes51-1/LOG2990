@@ -1,6 +1,6 @@
 import { Location } from '@angular/common';
 import { HttpClientModule, HttpResponse } from '@angular/common/http';
-import { NgModule, NO_ERRORS_SCHEMA } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { By } from '@angular/platform-browser';
@@ -58,7 +58,6 @@ describe('ConfigSelectPageComponent', () => {
         await TestBed.configureTestingModule({
             declarations: [ConfigSelectPageComponent, ConfigParamsComponent],
             imports: [DynamicTestModule, RouterTestingModule, AppRoutingModule],
-            schemas: [NO_ERRORS_SCHEMA], // TODO: ask if we can use it
             providers: [{ provide: CommunicationService, useValue: communicationServiceSpy }],
         }).compileComponents();
     });
@@ -149,9 +148,13 @@ describe('ConfigSelectPageComponent', () => {
     });
 
     // it('deleteNotify should call removeSlide if PageKeys is set to Config', () => {
-    //     const spy = spyOn(component, 'removeSlide');
     //     component.pageType = PageKeys.Config;
+    //     component.ngOnInit();
+    //     const spy = spyOn(component, 'removeSlide');
+    //     spyOn(matDialog, 'open').and.returnValue(matDialogRef);
     //     component.deleteNotify('Find the Differences 1');
+    //     expect(matDialog.open).toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true });
+    //     expect(matDialogRef.afterClosed).toHaveBeenCalled();
     //     expect(spy).toHaveBeenCalled();
     // });
 
