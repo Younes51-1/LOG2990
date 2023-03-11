@@ -1,4 +1,4 @@
-import { ClassicModeEvents } from '@app/gateways/classic-mode/classic-mode.gateway.variables';
+import { ClassicModeEvents, DelayBeforeEmmitingTime } from '@app/gateways/classic-mode/classic-mode.gateway.variables';
 import { GameRoom } from '@app/model/schema/game-room.schema';
 import { Vector2D } from '@app/model/schema/vector2d.schema';
 import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
@@ -129,7 +129,7 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
     afterInit() {
         setInterval(() => {
             this.emitTime();
-        }, 10000); // DelayBeforeEmmitingTime.DELAY_BEFORE_EMITTING_TIME);
+        }, DelayBeforeEmmitingTime.DELAY_BEFORE_EMITTING_TIME);
     }
 
     handleConnection(socket: Socket) {
