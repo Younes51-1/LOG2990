@@ -171,21 +171,23 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     }
 
     flashDifference(difference: number[][]) {
+        // TODO check if you can transform this to use setInterval like in cheatMode
+        if (!this.context1 || !this.context2) {
+            return;
+        }
         const timeOut = 100;
         const layer = this.createAndFillNewLayer(Color.Luigi, false, difference);
-        if (this.context1 && this.context2) {
-            for (let i = 1; i <= this.timesFlashDifferences; i++) {
+        for (let i = 1; i <= this.timesFlashDifferences; i++) {
+            setTimeout(() => {
+                this.context1.drawImage(layer, 0, 0, this.width, this.height);
+                this.context2.drawImage(layer, 0, 0, this.width, this.height);
                 setTimeout(() => {
-                    this.context1.drawImage(layer, 0, 0, this.width, this.height);
-                    this.context2.drawImage(layer, 0, 0, this.width, this.height);
-                    setTimeout(() => {
-                        this.context1.drawImage(this.original, 0, 0, this.width, this.height);
-                        this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
-                        if (i === 1) this.removeDifference(this.currentDifferenceMatrix);
-                        if (i === this.timesFlashDifferences) this.playerIsAllowedToClick = true;
-                    }, timeOut);
-                }, 2 * i * timeOut);
-            }
+                    this.context1.drawImage(this.original, 0, 0, this.width, this.height);
+                    this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
+                    if (i === 1) this.removeDifference(this.currentDifferenceMatrix);
+                    if (i === this.timesFlashDifferences) this.playerIsAllowedToClick = true;
+                }, timeOut);
+            }, 2 * i * timeOut);
         }
     }
 
@@ -224,6 +226,9 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     }
 
     cheatMode() {
+        if (!this.context1 || !this.context2) {
+            return;
+        }
         if (!this.isCheatModeOn) {
             clearInterval(this.intervalId);
             this.context1.drawImage(this.original, 0, 0, this.width, this.height);
@@ -233,19 +238,17 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         const flashDuration = 125;
         let isFlashing = true;
         this.verifyDifferenceMatrix();
-        if (this.context1 && this.context2) {
-            this.intervalId = setInterval(() => {
-                if (isFlashing) {
-                    this.context1.drawImage(this.original, 0, 0, this.width, this.height);
-                    this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
-                    isFlashing = !isFlashing;
-                } else {
-                    this.context1.drawImage(this.layer, 0, 0, this.width, this.height);
-                    this.context2.drawImage(this.layer, 0, 0, this.width, this.height);
-                    isFlashing = !isFlashing;
-                }
-            }, flashDuration);
-        }
+        this.intervalId = setInterval(() => {
+            if (isFlashing) {
+                this.context1.drawImage(this.original, 0, 0, this.width, this.height);
+                this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
+                isFlashing = !isFlashing;
+            } else {
+                this.context1.drawImage(this.layer, 0, 0, this.width, this.height);
+                this.context2.drawImage(this.layer, 0, 0, this.width, this.height);
+                isFlashing = !isFlashing;
+            }
+        }, flashDuration);
     }
 
     createAndFillNewLayer(color: Color, isCheat: boolean, matrix: number[][]): HTMLCanvasElement {
@@ -254,14 +257,15 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         layer.width = this.width;
         layer.height = this.height;
         const context = layer.getContext('2d');
-        if (context) {
-            context.globalAlpha = isCheat ? cheatAlphaValue : 1;
-            context.fillStyle = color;
-            for (let i = 0; i < matrix.length; i++) {
-                for (let j = 0; j < matrix[0].length; j++) {
-                    if (matrix[i][j] !== this.emptypixel) {
-                        context.fillRect(j, i, 1, 1);
-                    }
+        if (!context) {
+            return layer;
+        }
+        context.globalAlpha = isCheat ? cheatAlphaValue : 1;
+        context.fillStyle = color;
+        for (let i = 0; i < matrix.length; i++) {
+            for (let j = 0; j < matrix[0].length; j++) {
+                if (matrix[i][j] !== this.emptypixel) {
+                    context.fillRect(j, i, 1, 1);
                 }
             }
         }

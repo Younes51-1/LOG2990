@@ -140,7 +140,7 @@ export class GameCardComponent implements OnInit, OnDestroy {
             return false;
         }
         // TODO: add more WORDS
-        const forbiddenWords = ['foo', 'bar', 'baz'];
+        const forbiddenWords = ['foo', 'bar', 'baz', 'Samuel Pierre'];
         for (const word of forbiddenWords) {
             if (input.toLowerCase() === word.toLowerCase()) {
                 return false;
