@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { DifferenceTry } from '@app/interfaces/difference-try';
-import { GameRoom, UserGame } from '@app/interfaces/game';
+import { GameRoom } from '@app/interfaces/game';
 import { Vec2 } from '@app/interfaces/vec2';
 import { ChatService } from '@app/services/chatService/chat.service';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
@@ -26,9 +26,13 @@ export class ClassicModeService {
     gameCanceled$ = new Subject<boolean>();
     abandoned$ = new Subject<string>();
 
-    constructor(private readonly socketService: CommunicationSocketService, private communicationService: CommunicationService) {}
+    constructor(
+        private readonly socketService: CommunicationSocketService,
+        private communicationService: CommunicationService,
+        private chatService: ChatService,
+    ) {}
 
-    initClassicMode(gameName: string, username: string): void {
+    initClassicMode(gameName: string, username: string, started: boolean): void {
         this.communicationService.getGame(gameName).subscribe((res) => {
             if (res && Object.keys(res).length !== 0) {
                 this.gameRoom = {
@@ -36,13 +40,15 @@ export class ClassicModeService {
                         gameData: res,
                         nbDifferenceFound: 0,
                         timer: 0,
-                        username,
+                        username1: username,
                     },
                     roomId: '',
+                    started,
                 };
                 this.username = username;
                 this.disconnectSocket();
                 this.connect();
+                this.socketService.send('createGame', this.gameRoom);
             } else {
                 alert('Jeu introuvable');
             }
@@ -80,11 +86,20 @@ export class ClassicModeService {
             this.socketService.connect();
             this.handleSocket();
         } else {
-            alert('Un problème est survenu lors de la connexion au serveur');
+            alert('Problème de connexion');
         }
     }
 
     handleSocket(): void {
+        this.socketService.on('gameInfo', (gameRoom: GameRoom) => {
+            if (gameRoom && (!this.gameRoom || this.gameRoom.userGame.gameData.gameForm.name === gameRoom.userGame.gameData.gameForm.name)) {
+                this.gameRoom = gameRoom;
+                this.gameRoom$.next(this.gameRoom);
+            } else if (!gameRoom) {
+                alert('Nous avons eu un problème pour obtenir les informations de jeu du serveur');
+            }
+        });
+
         this.socketService.on('gameCreated', (gameRoom: GameRoom) => {
             if (gameRoom) {
                 this.gameRoom = gameRoom;
@@ -110,7 +125,7 @@ export class ClassicModeService {
                     this.userDifferencesFound$.next(this.userDifferencesFound);
                 }
             }
-            this.serverValidateResponse$.next(differenceTry.validated);
+            this.serverValidateResponse$.next(differenceTry);
         });
 
         this.socketService.on('GameFinished', () => {

@@ -228,14 +228,6 @@ describe('ClassicModeService', () => {
         expect(alertSpy).toHaveBeenCalledWith('Nous avons eu un problème pour obtenir les informations de jeu du serveur');
     });
 
-    it('should handle on waiting message', () => {
-        const spy = spyOn(service, 'startGame').and.callFake(() => {
-            return;
-        });
-        socketHelper.peerSideEmit('waiting');
-        expect(spy).toHaveBeenCalled();
-    });
-
     it('should handle on started message', () => {
         service.gameRoom = gameRoom;
         service.gameRoom.roomId = '';

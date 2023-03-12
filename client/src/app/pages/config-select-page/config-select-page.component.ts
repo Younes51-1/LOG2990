@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { DeleteDialogComponent } from '@app/components/delete-dialog/delete-dialog.component';
 import { GameForm } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
+import { PageKeys } from 'src/assets/variables/game-card-options';
 
 @Component({
     selector: 'app-config-select-page',
@@ -62,9 +63,9 @@ export class ConfigSelectPageComponent implements OnInit {
 
     initializeImgSource(): void {
         if (this.pageType === PageKeys.Config) {
-            this.imgSource = '../../../assets/pictures/config.png';
+            this.imgSource = './assets/pictures/config.png';
         } else if (this.pageType === PageKeys.Selection) {
-            this.imgSource = '../../../assets/pictures/selection.png';
+            this.imgSource = './assets/pictures/selection.png';
         }
     }
 }

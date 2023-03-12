@@ -223,13 +223,13 @@ describe('GameCardComponent', () => {
         const spy = spyOn(component.classicModeService, 'initClassicMode');
         component.page = PageKeys.Selection;
         component.ngOnInit();
-        component.btnOneEmitter();
+        component.startSoloGame();
         expect(spy).toHaveBeenCalled();
     });
 
-    it("shouldn't call 'initClassicMode' by btnOneEmitter if page isn't Selection", () => {
+    it("shouldn't call 'initClassicMode' by startSoloGame if page isn't Selection", () => {
         const spy = spyOn(component.classicModeService, 'initClassicMode');
-        component.btnOneEmitter();
+        component.startSoloGame();
         expect(spy).not.toHaveBeenCalled();
     });
 
@@ -310,7 +310,7 @@ describe('GameCardComponent', () => {
     it('should toggle the border if inputValue1 is incorrect', () => {
         component.inputValue1 = '';
         component.applyBorder = false;
-        component.toggleBorder();
+        component.verifySoloInput();
         expect(component.applyBorder).toBe(true);
     });
 

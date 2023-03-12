@@ -13,7 +13,7 @@ import { options, PageKeys } from 'src/assets/variables/game-card-options';
     templateUrl: './game-card.component.html',
     styleUrls: ['./game-card.component.scss'],
 })
-export class GameCardComponent implements OnInit {
+export class GameCardComponent implements OnInit, OnDestroy {
     @Input() page: PageKeys;
     @Input() slide: GameForm;
 
@@ -72,7 +72,8 @@ export class GameCardComponent implements OnInit {
 
     startSoloGame() {
         if (this.page === PageKeys.Selection) {
-            this.classicModeService.initClassicMode(this.slide.name, this.inputValue1);
+            this.classicModeService.initClassicMode(this.slide.name, this.inputValue1, true);
+            this.router.navigate([this.routeOne]);
         }
         this.notify.emit(this.slide.name);
     }

@@ -47,6 +47,7 @@ import { OpponentSidebarComponent } from './components/opponent-sidebar/opponent
         ModalDialogComponent,
         ConfigSelectPageComponent,
         WaitingRoomComponent,
+        OpponentSidebarComponent,
     ],
     providers: [],
     bootstrap: [AppComponent],

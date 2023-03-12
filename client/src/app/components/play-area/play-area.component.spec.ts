@@ -1,8 +1,9 @@
 /* eslint-disable max-lines */
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, discardPeriodicTasks, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
+import { DifferenceTry } from '@app/interfaces/difference-try';
 import { GameData, UserGame, GameRoom } from '@app/interfaces/game';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
@@ -38,8 +39,8 @@ describe('PlayAreaComponent', () => {
         vsBestTimes: [],
     };
     const gameData: GameData = { gameForm, differenceMatrix };
-    const userGame: UserGame = { username: '', gameData, nbDifferenceFound: 0, timer: 0 };
-    const gameRoom: GameRoom = { userGame, roomId: 'testRoom' };
+    const userGame: UserGame = { username1: '', gameData, nbDifferenceFound: 0, timer: 0 };
+    const gameRoom: GameRoom = { userGame, roomId: 'testRoom', started: false };
 
     let component: PlayAreaComponent;
     let classicModeService: ClassicModeService;
@@ -196,11 +197,11 @@ describe('PlayAreaComponent', () => {
 
     it('should correctly set the differenceFound variable', () => {
         const testingValue = 5;
-        const differenceFoundSpy = spyOn(component.classicModeService.differencesFound$, 'subscribe').and.callThrough();
+        const differenceFoundSpy = spyOn(component.classicModeService.userDifferencesFound$, 'subscribe').and.callThrough();
         component.ngAfterViewInit();
-        classicModeService.differencesFound$.next(testingValue);
+        classicModeService.userDifferencesFound$.next(testingValue);
         expect(differenceFoundSpy).toHaveBeenCalled();
-        expect(component.differencesFound).toEqual(testingValue);
+        expect(component.userDifferencesFound).toEqual(testingValue);
     });
 
     it('should react accordingly on validated response from the server', () => {
@@ -214,7 +215,8 @@ describe('PlayAreaComponent', () => {
         const playSpy = spyOn(component.audioValid, 'play').and.callFake(async () => {
             return;
         });
-        classicModeService.serverValidateResponse$.next(true);
+        const differenceTry: DifferenceTry = { validated: true, differencePos: { x: 0, y: 0 }, username: 'Test' };
+        classicModeService.serverValidateResponse$.next(differenceTry);
         component.ngAfterViewInit();
         expect(serverValidateResponseSpy).toHaveBeenCalled();
         expect(component.playerIsAllowedToClick).toBeFalse();
@@ -243,7 +245,7 @@ describe('PlayAreaComponent', () => {
 
     it('should correctly set the variables if the desired gameRoom exists', () => {
         component.classicModeService.gameRoom = gameRoom;
-        component.userGame = userGame;
+        component.gameRoom = gameRoom;
         component.ngOnChanges();
         expect(component.differenceMatrix).toEqual(differenceMatrix);
         expect(component.original.src).not.toEqual('');

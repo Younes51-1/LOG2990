@@ -3,16 +3,15 @@ import { HttpClientModule, HttpResponse } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
-import { ConfigSelectPageComponent } from './config-select-page.component';
-import { CommunicationService } from '@app/services/communicationService/communication.service';
-import { of } from 'rxjs';
+import { By } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { Location } from '@angular/common';
-import { By } from '@angular/platform-browser';
-import { AppRoutingModule } from '@app/modules/app-routing.module';
-import { PageKeys } from 'src/assets/variables/game-card-options';
 import { ConfigParamsComponent } from '@app/components/config-params/config-params.component';
+import { AppRoutingModule } from '@app/modules/app-routing.module';
+import { CommunicationService } from '@app/services/communicationService/communication.service';
+import { of } from 'rxjs';
+import { PageKeys } from 'src/assets/variables/game-card-options';
+import { ConfigSelectPageComponent } from './config-select-page.component';
 import SpyObj = jasmine.SpyObj;
 
 @NgModule({
@@ -26,7 +25,7 @@ describe('ConfigSelectPageComponent', () => {
     let communicationServiceSpy: SpyObj<CommunicationService>;
 
     beforeEach(async () => {
-        communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getAllGames']);
+        communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getAllGames', 'deleteGame']);
         communicationServiceSpy.getAllGames.and.returnValue(
             of([
                 {
@@ -55,7 +54,7 @@ describe('ConfigSelectPageComponent', () => {
                 },
             ]),
         );
-
+        communicationServiceSpy.deleteGame.and.returnValue(of(new HttpResponse({ status: 200 }) as HttpResponse<string>));
         await TestBed.configureTestingModule({
             declarations: [ConfigSelectPageComponent, ConfigParamsComponent],
             imports: [DynamicTestModule, RouterTestingModule, AppRoutingModule],
@@ -138,7 +137,7 @@ describe('ConfigSelectPageComponent', () => {
         component.pageType = PageKeys.Config;
         fixture.detectChanges();
         component.initializeImgSource();
-        expect(component.imgSource).toEqual('../../../assets/pictures/config.png');
+        expect(component.imgSource).toEqual('./assets/pictures/config.png');
     });
 
     it('should correctly initialize image if pageType is selection', () => {
@@ -148,6 +147,7 @@ describe('ConfigSelectPageComponent', () => {
         expect(component.imgSource).toEqual('./assets/pictures/selection.png');
     });
 
+    // TODO: Fix this test
     // it('deleteNotify should call removeSlide if PageKeys is set to Config', () => {
     //     component.pageType = PageKeys.Config;
     //     component.ngOnInit();

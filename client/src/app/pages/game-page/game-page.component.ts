@@ -2,7 +2,8 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
-import { UserGame } from '@app/interfaces/game';
+import { GameRoom } from '@app/interfaces/game';
+import { ChatService } from '@app/services/chatService/chat.service';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { Subscription } from 'rxjs';
 
@@ -13,7 +14,8 @@ import { Subscription } from 'rxjs';
 })
 export class GamePageComponent implements OnInit, OnDestroy {
     gameName: string;
-    player: string;
+    username: string;
+    opponentUsername: string;
     timer = 0;
     totalDifferencesFound = 0;
     userDifferencesFound = 0;
@@ -25,8 +27,10 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     private timerSubscription: Subscription;
     private differencesFoundSubscription: Subscription;
+    private userDifferencesFoundSubscription: Subscription;
     private gameFinishedSubscription: Subscription;
-    private userGameSubscription: Subscription;
+    private gameRoomSubscription: Subscription;
+    private abandonedGameSubscription: Subscription;
 
     // eslint-disable-next-line max-params
     constructor(public dialog: MatDialog, public classicModeService: ClassicModeService, private chatService: ChatService, public router: Router) {}
@@ -47,14 +51,15 @@ export class GamePageComponent implements OnInit, OnDestroy {
             }
         });
         this.gameFinishedSubscription = this.classicModeService.gameFinished$.subscribe(() => {
+            this.gameFinished = true;
             this.endGame();
         });
         this.gameRoomSubscription = this.classicModeService.gameRoom$.subscribe((gameRoom) => {
             this.gameRoom = gameRoom;
             this.gameName = gameRoom.userGame.gameData.gameForm.name;
-            this.userName = this.classicModeService.username;
+            this.username = this.classicModeService.username;
             if (gameRoom.userGame.username2) {
-                this.opponentUsername = gameRoom.userGame.username1 === this.userName ? gameRoom.userGame.username2 : gameRoom.userGame.username1;
+                this.opponentUsername = gameRoom.userGame.username1 === this.username ? gameRoom.userGame.username2 : gameRoom.userGame.username1;
             } else {
                 this.opponentUsername = '';
             }
@@ -65,7 +70,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             }
         });
         this.abandonedGameSubscription = this.classicModeService.abandoned$.subscribe((userName: string) => {
-            if (userName !== this.userName) {
+            if (userName !== this.username) {
                 this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
             }
             this.unsubscribe();
@@ -111,13 +116,13 @@ export class GamePageComponent implements OnInit, OnDestroy {
     sendEvent(event: string) {
         switch (event) {
             case 'error':
-                this.chatService.sendMessage(`Erreur par ${this.userName}`, 'Système', this.gameRoom.roomId);
+                this.chatService.sendMessage(`Erreur par ${this.username}`, 'Système', this.gameRoom.roomId);
                 break;
             case 'success':
-                this.chatService.sendMessage(`Différence trouvée par ${this.userName}`, 'Système', this.gameRoom.roomId);
+                this.chatService.sendMessage(`Différence trouvée par ${this.username}`, 'Système', this.gameRoom.roomId);
                 break;
             case 'abandon':
-                this.chatService.sendMessage(`${this.userName} a abandonné la partie`, 'Système', this.gameRoom.roomId);
+                this.chatService.sendMessage(`${this.username} a abandonné la partie`, 'Système', this.gameRoom.roomId);
                 break;
         }
         this.classicModeService.endGame();
@@ -126,8 +131,10 @@ export class GamePageComponent implements OnInit, OnDestroy {
     unsubscribe() {
         this.timerSubscription.unsubscribe();
         this.differencesFoundSubscription.unsubscribe();
+        this.userDifferencesFoundSubscription.unsubscribe();
         this.gameFinishedSubscription.unsubscribe();
-        this.userGameSubscription.unsubscribe();
+        this.gameRoomSubscription.unsubscribe();
+        this.abandonedGameSubscription.unsubscribe();
     }
 
     ngOnDestroy() {
