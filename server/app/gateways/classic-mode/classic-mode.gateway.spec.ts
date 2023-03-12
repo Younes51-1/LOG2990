@@ -202,7 +202,7 @@ describe('ClassicModeGateway', () => {
         room.started = true;
         server.to.returns({
             emit: (event: string, gameInfo: GameRoom) => {
-                expect(event).toMatch('player');
+                expect(event).toEqual(ClassicModeEvents.PlayerAccepted);
                 expect(gameInfo).toEqual(room);
             },
         } as BroadcastOperator<unknown, unknown>);
