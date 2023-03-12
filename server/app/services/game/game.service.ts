@@ -54,10 +54,24 @@ export class GameService {
     async saveImage(bufferObj: Buffer, name: string, index: string): Promise<void> {
         const dirName = `./assets/${name}`;
         if (!fs.existsSync(dirName)) fs.mkdirSync(dirName);
-        fs.writeFile(`${dirName}/image${index}.bmp`, bufferObj, async (err) => {
-            if (err) {
-                return Promise.reject(`Failed to save image: ${err}`);
-            }
+        fs.writeFile(`${dirName}/image${index}.bmp`, bufferObj, () => {
+            return; // folder already exists
+        });
+    }
+
+    async getMatrix(name: string): Promise<number[][]> {
+        const dirName = `./assets/${name}`;
+        if (!fs.existsSync(dirName)) return Promise.reject('Could not find game');
+        const data = fs.readFileSync(`${dirName}/differenceMatrix.txt`, 'utf8');
+        return this.convertMatrixStringToMatrix(data);
+    }
+
+    async saveMatrix(newGame: NewGame): Promise<void> {
+        const dirName = `./assets/${newGame.name}`;
+        if (!fs.existsSync(dirName)) await fs.mkdirSync(dirName);
+        const matrixtoString = newGame.differenceMatrix.map((row) => row.join(',')).join(';');
+        fs.writeFile(`${dirName}/differenceMatrix.txt`, matrixtoString, () => {
+            return; // folder already exists
         });
     }
 
@@ -80,28 +94,6 @@ export class GameService {
     private deleteImages(name: string): void {
         const dirName = `./assets/${name}`;
         fs.rmSync(dirName, { recursive: true, force: true });
-    }
-
-    private async saveMatrix(newGame: NewGame): Promise<void> {
-        const dirName = `./assets/${newGame.name}`;
-        if (!fs.existsSync(dirName)) fs.mkdirSync(dirName);
-        const matrixtoString = newGame.differenceMatrix.map((row) => row.join(',')).join(';');
-        fs.writeFile(`${dirName}/differenceMatrix.txt`, matrixtoString, async (err) => {
-            if (err) {
-                return Promise.reject(`Failed to save differenceMatix: ${err}`);
-            }
-        });
-    }
-
-    private async getMatrix(name: string): Promise<number[][]> {
-        const dirName = `./assets/${name}`;
-        if (!fs.existsSync(dirName)) return Promise.reject('Could not find game');
-        try {
-            const data = fs.readFileSync(`${dirName}/differenceMatrix.txt`, 'utf8');
-            return this.convertMatrixStringToMatrix(data);
-        } catch (err) {
-            return Promise.reject(`Failed to get differenceMatix: ${err}`);
-        }
     }
 
     private convertMatrixStringToMatrix(matrixString: string): number[][] {

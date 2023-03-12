@@ -7,6 +7,7 @@ import { BestTime } from '@app/model/schema/best-time.schema';
 import { GameService } from '@app/services/game/game.service';
 import { getConnectionToken, getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
+import * as fs from 'fs';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Model } from 'mongoose';
 import { createStubInstance, SinonStubbedInstance } from 'sinon';
@@ -120,6 +121,24 @@ describe('GameService', () => {
 
     it('getGame() return undefined if game with the specified subject code does not exist', async () => {
         expect(await service.getGame('FakeGame')).toEqual({});
+    });
+
+    it('getMatrix() should reject if file directory does not exist', async () => {
+        await expect(service.getMatrix('WrongPathGame')).rejects.toBeTruthy();
+    });
+
+    it('saveMatrix() should create new directory if directory does not exist', async () => {
+        const game = getFakeGameData();
+        expect(fs.existsSync('./assets/WrongPathGame')).toBeFalsy();
+        service.saveMatrix({
+            name: 'WrongPathGame',
+            nbDifference: game.gameForm.nbDifference,
+            image1: '...',
+            image2: '...',
+            differenceMatrix: game.differenceMatrix,
+        });
+        expect(fs.existsSync('./assets/WrongPathGame')).toBeTruthy();
+        fs.rmSync('./assets/WrongPathGame', { recursive: true });
     });
 
     it('calculateDifficulty should return the correct difficulty', async () => {

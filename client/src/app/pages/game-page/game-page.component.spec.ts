@@ -118,7 +118,7 @@ describe('GamePageComponent', () => {
         expect(spyUserGame).toHaveBeenCalled();
         expect(component.gameRoom).toEqual(gameRoom);
         expect(component.gameName).toEqual(userGame.gameData.gameForm.name);
-        expect(component.userName).toEqual(classicModeServiceSpy.userName);
+        expect(component.userName).toEqual(classicModeServiceSpy.username);
     });
 
     it('should open EndgameDialogComponent with correct data if all differences found in single player mode', () => {

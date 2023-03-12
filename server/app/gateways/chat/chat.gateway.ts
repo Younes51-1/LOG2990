@@ -2,11 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ChatEvents } from './chat.gateway.variables';
-// TODO: remove this
-export interface Message {
-    message: string;
-    username: string;
-}
+
 @WebSocketGateway({ cors: true })
 @Injectable()
 export class ChatGateway {

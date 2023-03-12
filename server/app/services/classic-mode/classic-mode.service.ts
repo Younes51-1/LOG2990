@@ -21,7 +21,7 @@ export class ClassicModeService {
     }
 
     canJoinGame(socket: Socket, gameName: string, userName: string): GameRoom {
-        const gameRoom = this.getGameRooms(gameName);
+        const gameRoom = this.getGameRoom(gameName);
         if (!gameRoom) return undefined;
         if (!gameRoom.userGame.potentielPlayers) {
             gameRoom.userGame.potentielPlayers = [];
@@ -34,7 +34,7 @@ export class ClassicModeService {
     }
 
     joinGame(socket: Socket, gameName: string, userName: string): boolean {
-        const gameRoom = this.getGameRooms(gameName);
+        const gameRoom = this.getGameRoom(gameName);
         if (!gameName) return false;
         gameRoom.userGame.potentielPlayers.push(userName);
         this.gameRooms.delete(gameRoom.roomId);
@@ -68,7 +68,7 @@ export class ClassicModeService {
         this.gameRooms.delete(roomId);
     }
 
-    getGameRooms(gameName: string): GameRoom {
+    getGameRoom(gameName: string): GameRoom {
         for (const gameRoom of this.gameRooms.values()) {
             if (!gameRoom.started && gameRoom.userGame.gameData.gameForm.name.toLocaleLowerCase() === gameName.toLocaleLowerCase()) {
                 return gameRoom;

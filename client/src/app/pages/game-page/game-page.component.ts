@@ -57,7 +57,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.gameRoomSubscription = this.classicModeService.gameRoom$.subscribe((gameRoom) => {
             this.gameRoom = gameRoom;
             this.gameName = gameRoom.userGame.gameData.gameForm.name;
-            this.userName = this.classicModeService.userName;
+            this.userName = this.classicModeService.username;
             if (gameRoom.userGame.username2) {
                 this.opponentUsername = gameRoom.userGame.username1 === this.userName ? gameRoom.userGame.username2 : gameRoom.userGame.username1;
             } else {
@@ -104,7 +104,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
                     this.classicModeService.abandonGame();
                     this.unsubscribe();
                     setTimeout(() => {
-                        this.classicModeService.disconnect();
+                        this.classicModeService.disconnectSocket();
                         this.router.navigate(['/home']);
                         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
                     }, 1000);
