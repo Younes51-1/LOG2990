@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, ElementRef, Inject, ViewChild } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { VerifyInputService } from '@app/services/verifyInput/verify-input.service';
 
 @Component({
     selector: 'app-modal-dialog',
@@ -23,6 +24,7 @@ export class ModalDialogComponent implements AfterViewInit {
     applyBorder = false;
 
     constructor(
+        private verifyInputService: VerifyInputService,
         public dialogRef: MatDialogRef<ModalDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: { imageUrl: string; nbDifferences: number; flipped: boolean },
     ) {
@@ -53,32 +55,10 @@ export class ModalDialogComponent implements AfterViewInit {
     }
 
     toggleBorder() {
-        if (!this.verifyUserInput(this.inputValue)) {
+        if (!this.verifyInputService.verify(this.inputValue)) {
             this.applyBorder = !this.applyBorder;
         } else {
             this.emitNameGame();
         }
-    }
-
-    verifyUserInput(input: string): boolean {
-        if (typeof input !== 'string') {
-            return false;
-        }
-
-        if (/[\u200B-\u200D\uFEFF]/.test(input)) {
-            return false;
-        }
-
-        if (input.trim().length === 0) {
-            return false;
-        }
-        // TODO: add more WORDS
-        const forbiddenWords = ['foo', 'bar', 'baz'];
-        for (const word of forbiddenWords) {
-            if (input.toLowerCase() === word.toLowerCase()) {
-                return false;
-            }
-        }
-        return true;
     }
 }
