@@ -152,6 +152,9 @@ export class ClassicModeService {
             if (gameRoom && (gameRoom.userGame.username1 === this.userName || gameRoom.userGame.username2 === this.userName)) {
                 this.gameRoom = gameRoom;
                 this.accepted$.next(true);
+            } else {
+                this.gameRoom = gameRoom;
+                this.rejected$.next(true);
             }
         });
 

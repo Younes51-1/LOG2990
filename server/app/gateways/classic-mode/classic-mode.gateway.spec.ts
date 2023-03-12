@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { environment } from '@app/environments/environment.prod';
 import { BestTime } from '@app/model/schema/best-times.schema';
 import { GameRoom } from '@app/model/schema/game-room.schema';
@@ -194,7 +195,7 @@ describe('ClassicModeGateway', () => {
         expect(classicModeService.gameRooms.get(getFakeGameRoom().roomId).userGame.potentielPlayers).toEqual([]);
     });
 
-    it('playerAccepted should emit PlayerAccepted and PlayerRejected with the game room', () => {
+    it('playerAccepted should emit PlayerAccepted with the game room', () => {
         const room = getFakeGameRoom();
         room.userGame.potentielPlayers = [];
         room.userGame.username2 = 'fakeUsername2';

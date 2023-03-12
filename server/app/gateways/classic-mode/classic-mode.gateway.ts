@@ -122,7 +122,6 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
             gameRoom.started = true;
             this.classicModeService.gameRooms.set(gameRoom.roomId, gameRoom);
             this.server.to(gameRoom.roomId).emit(ClassicModeEvents.PlayerAccepted, gameRoom);
-            this.server.to(gameRoom.roomId).emit(ClassicModeEvents.PlayerRejected, gameRoom);
         }
     }
 
