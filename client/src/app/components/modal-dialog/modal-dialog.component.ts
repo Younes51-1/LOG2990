@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, ElementRef, Inject, ViewChild } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { VerifyInputService } from '@app/services/verifyInput/verify-input.service';
 
 @Component({
     selector: 'app-modal-dialog',
@@ -23,6 +24,7 @@ export class ModalDialogComponent implements AfterViewInit {
     applyBorder = false;
 
     constructor(
+        private verifyInputService: VerifyInputService,
         public dialogRef: MatDialogRef<ModalDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: { imageUrl: string; nbDifferences: number },
     ) {
@@ -48,7 +50,7 @@ export class ModalDialogComponent implements AfterViewInit {
     }
 
     toggleBorder() {
-        if (!this.inputValue) {
+        if (!this.verifyInputService.verify(this.inputValue)) {
             this.applyBorder = !this.applyBorder;
         } else {
             this.emitNameGame();

@@ -1,4 +1,5 @@
-import { HttpClientModule } from '@angular/common/http';
+import { Location } from '@angular/common';
+import { HttpClientModule, HttpResponse } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -144,6 +145,24 @@ describe('ConfigSelectPageComponent', () => {
         component.pageType = PageKeys.Selection;
         fixture.detectChanges();
         component.initializeImgSource();
-        expect(component.imgSource).toEqual('../../../assets/pictures/selection.png');
+        expect(component.imgSource).toEqual('./assets/pictures/selection.png');
+    });
+
+    // it('deleteNotify should call removeSlide if PageKeys is set to Config', () => {
+    //     component.pageType = PageKeys.Config;
+    //     component.ngOnInit();
+    //     const spy = spyOn(component, 'removeSlide');
+    //     spyOn(matDialog, 'open').and.returnValue(matDialogRef);
+    //     component.deleteNotify('Find the Differences 1');
+    //     expect(matDialog.open).toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true });
+    //     expect(matDialogRef.afterClosed).toHaveBeenCalled();
+    //     expect(spy).toHaveBeenCalled();
+    // });
+
+    it('removeSlide should remove the slide from the carousel and call deleteGame', () => {
+        component.pageType = PageKeys.Config;
+        component.removeSlide('Find the Differences 1');
+        expect(component.slides.length).toEqual(1);
+        expect(communicationServiceSpy.deleteGame).toHaveBeenCalled();
     });
 });

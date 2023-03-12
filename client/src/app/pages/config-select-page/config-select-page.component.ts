@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
-import { PageKeys } from 'src/assets/variables/game-card-options';
+import { DeleteDialogComponent } from '@app/components/delete-dialog/delete-dialog.component';
 import { GameForm } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
 
@@ -13,6 +14,7 @@ export class ConfigSelectPageComponent implements OnInit {
     pageType: PageKeys;
     imgSource: string;
     slides: GameForm[];
+    dialogRef: MatDialogRef<DeleteDialogComponent>;
 
     slideConfig = {
         slidesToShow: 4,
@@ -24,13 +26,31 @@ export class ConfigSelectPageComponent implements OnInit {
         infinite: false,
     };
 
-    constructor(private readonly communicationService: CommunicationService, private route: ActivatedRoute) {
+    constructor(private readonly communicationService: CommunicationService, private route: ActivatedRoute, public dialog: MatDialog) {
         this.getSlidesFromServer();
     }
 
     ngOnInit() {
         this.pageType = this.route.snapshot.data.page;
         this.initializeImgSource();
+    }
+
+    removeSlide(name: string) {
+        this.communicationService.deleteGame(name).subscribe();
+        this.slides = this.slides.filter((slide) => slide.name !== name);
+    }
+
+    deleteNotify(name: string): void {
+        if (this.pageType === PageKeys.Config) {
+            this.dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true });
+            if (this.dialogRef) {
+                this.dialogRef.afterClosed().subscribe((supp) => {
+                    if (supp) {
+                        this.removeSlide(name);
+                    }
+                });
+            }
+        }
     }
 
     getSlidesFromServer(): void {

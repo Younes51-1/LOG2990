@@ -1,15 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
+import { DeleteDialogComponent } from './delete-dialog.component';
 
-describe('EndgameDialogComponent', () => {
-    let component: EndgameDialogComponent;
-    let fixture: ComponentFixture<EndgameDialogComponent>;
+describe('DeleteDialogComponent', () => {
+    let component: DeleteDialogComponent;
+    let fixture: ComponentFixture<DeleteDialogComponent>;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [EndgameDialogComponent],
+            declarations: [DeleteDialogComponent],
             providers: [
                 { provide: MatDialogRef, useValue: {} },
                 { provide: MAT_DIALOG_DATA, useValue: { gameFinished: true, gameWinner: true } },
@@ -17,7 +17,7 @@ describe('EndgameDialogComponent', () => {
             imports: [AppRoutingModule],
         }).compileComponents();
 
-        fixture = TestBed.createComponent(EndgameDialogComponent);
+        fixture = TestBed.createComponent(DeleteDialogComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
@@ -28,17 +28,17 @@ describe('EndgameDialogComponent', () => {
 
     it('should emit true if abandon click', () => {
         // eslint-disable-next-line @typescript-eslint/no-empty-function
-        component.dialogRef = { close: () => {} } as MatDialogRef<EndgameDialogComponent>;
-        const emitAbandonSpy = spyOn(component.dialogRef, 'close').and.callThrough();
-        component.emitAbandon(true);
-        expect(emitAbandonSpy).toHaveBeenCalledWith(true);
+        component.dialogRef = { close: () => {} } as MatDialogRef<DeleteDialogComponent>;
+        const emitSuppSpy = spyOn(component.dialogRef, 'close').and.callThrough();
+        component.emitSupp(true);
+        expect(emitSuppSpy).toHaveBeenCalledWith(true);
     });
 
     it('should emit true if no abandon click', () => {
         // eslint-disable-next-line @typescript-eslint/no-empty-function
-        component.dialogRef = { close: () => {} } as MatDialogRef<EndgameDialogComponent>;
-        const emitAbandonSpy = spyOn(component.dialogRef, 'close').and.callThrough();
-        component.emitAbandon(false);
-        expect(emitAbandonSpy).toHaveBeenCalledWith(false);
+        component.dialogRef = { close: () => {} } as MatDialogRef<DeleteDialogComponent>;
+        const emitSuppSpy = spyOn(component.dialogRef, 'close').and.callThrough();
+        component.emitSupp(false);
+        expect(emitSuppSpy).toHaveBeenCalledWith(false);
     });
 });

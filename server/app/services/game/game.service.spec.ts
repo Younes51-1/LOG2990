@@ -1,21 +1,26 @@
 import { DELAY_BEFORE_CLOSING_CONNECTION } from '@app/constants';
-import { environment } from '@app/environments/environment';
+import { environment } from '@app/environments/environment.prod';
+import { ClassicModeGateway } from '@app/gateways/classic-mode/classic-mode.gateway';
 import { Game, GameDocument, gameSchema } from '@app/model/database/game';
 import { GameData } from '@app/model/dto/game/game-data.dto';
 import { BestTime } from '@app/model/schema/best-time.schema';
+import { GameService } from '@app/services/game/game.service';
 import { getConnectionToken, getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
+import * as fs from 'fs';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Model } from 'mongoose';
-import { GameService } from '@app/services/game/game.service';
+import { createStubInstance, SinonStubbedInstance } from 'sinon';
 
 describe('GameService', () => {
     let service: GameService;
     let gameModel: Model<GameDocument>;
     let mongoServer: MongoMemoryServer;
     let connection: Connection;
+    let classicModeGateway: SinonStubbedInstance<ClassicModeGateway>;
 
     beforeEach(async () => {
+        classicModeGateway = createStubInstance(ClassicModeGateway);
         mongoServer = await MongoMemoryServer.create();
         const module = await Test.createTestingModule({
             imports: [
@@ -27,7 +32,13 @@ describe('GameService', () => {
                 }),
                 MongooseModule.forFeature([{ name: Game.name, schema: gameSchema }]),
             ],
-            providers: [GameService],
+            providers: [
+                GameService,
+                {
+                    provide: ClassicModeGateway,
+                    useValue: classicModeGateway,
+                },
+            ],
         }).compile();
 
         service = module.get<GameService>(GameService);
@@ -112,6 +123,24 @@ describe('GameService', () => {
         expect(await service.getGame('FakeGame')).toEqual({});
     });
 
+    it('getMatrix() should reject if file directory does not exist', async () => {
+        await expect(service.getMatrix('WrongPathGame')).rejects.toBeTruthy();
+    });
+
+    it('saveMatrix() should create new directory if directory does not exist', async () => {
+        const game = getFakeGameData();
+        expect(fs.existsSync('./assets/WrongPathGame')).toBeFalsy();
+        service.saveMatrix({
+            name: 'WrongPathGame',
+            nbDifference: game.gameForm.nbDifference,
+            image1: '...',
+            image2: '...',
+            differenceMatrix: game.differenceMatrix,
+        });
+        expect(fs.existsSync('./assets/WrongPathGame')).toBeTruthy();
+        fs.rmSync('./assets/WrongPathGame', { recursive: true });
+    });
+
     it('calculateDifficulty should return the correct difficulty', async () => {
         await gameModel.deleteMany({});
         const game = getFakeGame2();
@@ -121,11 +150,13 @@ describe('GameService', () => {
     });
 
     it('deleteGame() should delete the game', async () => {
+        jest.spyOn(classicModeGateway, 'cancelDeletedGame').mockImplementation();
         await gameModel.deleteMany({});
         const game = getFakeGame();
         await gameModel.create(game);
         await service.deleteGame(game.name);
         expect(await gameModel.countDocuments()).toEqual(0);
+        expect(classicModeGateway.cancelDeletedGame).toHaveBeenCalledWith(game.name);
     });
 
     it('deleteGame() should fail if the game does not exist', async () => {

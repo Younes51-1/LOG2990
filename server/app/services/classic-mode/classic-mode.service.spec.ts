@@ -3,10 +3,10 @@ import { BestTime } from '@app/model/schema/best-times.schema';
 import { GameRoom } from '@app/model/schema/game-room.schema';
 import { UserGame } from '@app/model/schema/user-game.schema';
 import { Vector2D } from '@app/model/schema/vector2d.schema';
+import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { createStubInstance, SinonStubbedInstance } from 'sinon';
 import { Socket } from 'socket.io';
-import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 
 class TestClassicModeService extends ClassicModeService {
     addElementToMap(key: string, value: GameRoom) {
@@ -45,6 +45,60 @@ describe('ClassicModeService', () => {
         socket.join.returns();
         service.initNewRoom(socket, getFakeUserGame());
         expect(service.gameRooms.get(roomId)).toBeDefined();
+    });
+
+    it('canJoinGame should return undefined if the game doesnt exist', () => {
+        expect(service.canJoinGame(socket, getFakeGameRoom().userGame.gameData.gameForm.name, 'FakeUser')).toBeUndefined();
+    });
+
+    it('canJoinGame should return undefined if the player is already the one waiting', () => {
+        jest.spyOn(service, 'getGameRoom').mockImplementation(() => {
+            return getFakeGameRoom();
+        });
+        expect(service.canJoinGame(socket, getFakeGameRoom().userGame.gameData.gameForm.name, 'FakeUser')).toBeUndefined();
+    });
+
+    it('canJoinGame should return undefined if the player is the user 1', () => {
+        jest.spyOn(service, 'getGameRoom').mockImplementation(() => {
+            const room = getFakeGameRoom();
+            room.userGame.potentielPlayers = undefined;
+            return room;
+        });
+        const newRoom = getFakeGameRoom();
+        testClassicModeService.addElementToMap(newRoom.roomId, newRoom);
+        expect(service.canJoinGame(socket, newRoom.userGame.gameData.gameForm.name, newRoom.userGame.username1)).toBeUndefined();
+    });
+
+    it('canJoinGame should return undefined if the user is already in the potentialPlayer list', () => {
+        jest.spyOn(service, 'getGameRoom').mockImplementation(() => {
+            const newRoom = getFakeGameRoom();
+            newRoom.userGame.potentielPlayers.push('FakeUser2');
+            return newRoom;
+        });
+        expect(service.canJoinGame(socket, getFakeGameRoom().userGame.gameData.gameForm.name, 'FakeUser2')).toBeUndefined();
+    });
+
+    it('canJoinGame should return the gameRoom if the game is joinable', () => {
+        jest.spyOn(service, 'getGameRoom').mockImplementation(() => {
+            return getFakeGameRoom();
+        });
+        const newRoom = getFakeGameRoom();
+        testClassicModeService.addElementToMap(newRoom.roomId, newRoom);
+        expect(service.canJoinGame(socket, newRoom.userGame.gameData.gameForm.name, 'FakeUser2')).toEqual(newRoom);
+    });
+
+    it('JoinGame should return false if the gameName is undefined', () => {
+        expect(service.joinGame(socket, undefined, 'FakeUser2')).toEqual(false);
+    });
+
+    it('JoinGame should add the player to the potentialPlayer list and return true if succeded', () => {
+        jest.spyOn(service, 'getGameRoom').mockImplementation(() => {
+            return getFakeGameRoom();
+        });
+        const newRoom = getFakeGameRoom();
+        testClassicModeService.addElementToMap(newRoom.roomId, newRoom);
+        expect(service.joinGame(socket, newRoom.userGame.gameData.gameForm.name, 'FakeUser2')).toEqual(true);
+        expect(service.gameRooms.get(newRoom.roomId).userGame.potentielPlayers).toContain('FakeUser2');
     });
 
     it('isGameFinished should return true if all differences have been found', () => {
@@ -98,6 +152,23 @@ describe('ClassicModeService', () => {
     it('GameRoom should have be of type GameRoom', () => {
         const newRoom = new GameRoom();
         expect(newRoom).toBeInstanceOf(GameRoom);
+    });
+
+    it('GetGameRoom should return the gameRoom', () => {
+        const newRoom = getFakeGameRoom();
+        testClassicModeService.addElementToMap(newRoom.roomId, newRoom);
+        expect(testClassicModeService.getGameRoom(newRoom.userGame.gameData.gameForm.name)).toEqual(newRoom);
+    });
+
+    it('GetGameRoom should not return the gameRoom if started is true', () => {
+        const newRoom = getFakeGameRoom();
+        newRoom.started = true;
+        testClassicModeService.addElementToMap(newRoom.roomId, newRoom);
+        expect(testClassicModeService.getGameRoom(newRoom.userGame.gameData.gameForm.name)).toEqual(undefined);
+    });
+
+    it('GetGameRoom should not return undefined if no game is found', () => {
+        expect(testClassicModeService.getGameRoom('notaRealGame')).toEqual(undefined);
     });
 });
 

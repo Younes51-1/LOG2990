@@ -1,2 +1,10 @@
-<p>Félicitation, vous avez complété ce jeu !</p>
-<button mat-button routerLink="/home">Terminer</button>
+<div *ngIf="data.gameFinished">
+    <p *ngIf="data.gameWinner">Félicitation, vous avez gagné ce jeu !</p>
+    <p *ngIf="!data.gameWinner">Oh non, vous avez perdu ce jeu !</p>
+    <button mat-button routerLink="/home">Terminer</button>
+</div>
+<div *ngIf="!data.gameFinished">
+    <p>Êtes-vous sûr de vouloir abandonner ?</p>
+    <button mat-button (click)="emitAbandon(true)">Oui</button>
+    <button mat-button (click)="emitAbandon(false)">Non</button>
+</div>

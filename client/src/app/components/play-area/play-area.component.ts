@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges, ViewChild } from '@angular/core';
 import { UserGame } from '@app/interfaces/game';
 import { Vec2 } from '@app/interfaces/vec2';
+import { ChatService } from '@app/services/chatService/chat.service';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
 import { MouseService } from '@app/services/mouseService/mouse.service';
@@ -36,10 +37,12 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     timesFlashDifferences: number;
     private canvasSize = { x: Dimensions.DEFAULT_WIDTH, y: Dimensions.DEFAULT_HEIGHT };
 
+    // eslint-disable-next-line max-params
     constructor(
         private mouseService: MouseService,
         private detectionService: DetectionDifferenceService,
         public classicModeService: ClassicModeService,
+        private chatService: ChatService,
     ) {
         this.emptypixel = -1;
         this.timesFlashDifferences = 5;
@@ -55,6 +58,9 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
 
     @HostListener('keydown', ['$event'])
     buttonDetect(event: KeyboardEvent) {
+        if (this.chatService.getIsTyping()) {
+            return;
+        }
         this.buttonPressed = event.key;
     }
     ngAfterViewInit() {
@@ -71,7 +77,10 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
             } else {
                 this.playerIsAllowedToClick = false;
                 this.audioInvalid.play();
-                this.visualRetroaction(this.canvasClicked);
+                if (difference.username === this.classicModeService.username) {
+                    this.visualRetroaction(this.canvasClicked);
+                }
+                this.userError.emit();
             }
         });
         const context1 = this.canvas1.nativeElement.getContext('2d');

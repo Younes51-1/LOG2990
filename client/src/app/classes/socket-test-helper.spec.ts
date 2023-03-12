@@ -11,11 +11,11 @@ describe('SocketTestHelper', () => {
         expect(socketTestHelper).toBeTruthy();
     });
 
-    it('should return undifined after calling emit', () => {
+    it('should return undefined after calling emit', () => {
         expect(socketTestHelper.emit('hello')).toBeUndefined();
     });
 
-    it('should return undifined after calling disconnect', () => {
+    it('should return undefined after calling disconnect', () => {
         expect(socketTestHelper.disconnect()).toBeUndefined();
     });
 
@@ -32,5 +32,10 @@ describe('SocketTestHelper', () => {
     it('should return undefined on on', () => {
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         expect(socketTestHelper.on('hello', () => ({}))).toBeUndefined();
+    });
+
+    it('should return undefined on off', () => {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        expect(socketTestHelper.off('hello', () => ({}))).toBeUndefined();
     });
 });

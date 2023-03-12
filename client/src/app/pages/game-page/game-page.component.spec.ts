@@ -4,17 +4,22 @@ import { NgModule } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatToolbar } from '@angular/material/toolbar';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { RouterTestingModule } from '@angular/router/testing';
+import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { GameData, UserGame } from '@app/interfaces/game';
+import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
+import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
 import { of } from 'rxjs';
-import { GamePageComponent } from '@app/pages/game-page/game-page.component';
+import { Socket } from 'socket.io-client';
 import SpyObj = jasmine.SpyObj;
 
 @NgModule({
-    imports: [MatDialogModule, HttpClientModule],
+    imports: [MatDialogModule, HttpClientModule, BrowserAnimationsModule],
 })
 export class DynamicTestModule {}
 
@@ -97,14 +102,42 @@ describe('GamePageComponent', () => {
         expect(spyUserGame).toHaveBeenCalled();
         expect(component.userGame).toEqual(userGame);
         expect(component.gameName).toEqual(userGame.gameData.gameForm.name);
-        expect(component.player).toEqual(userGame.username);
+        expect(component.userName).toEqual(classicModeServiceSpy.username);
     });
 
-    it('endGame should call dialog.open', async () => {
-        const spy = spyOn(component.dialog, 'open');
-        await component.endGame();
-        expect(spy).toHaveBeenCalledOnceWith(EndgameDialogComponent, {
-            disableClose: true,
-        });
+    it('should open EndgameDialogComponent with correct data if all differences found in single player mode', () => {
+        component.gameFinished = true;
+        component.totalDifferencesFound = component.gameRoom.userGame.gameData.gameForm.nbDifference;
+        const matDialogSpy = spyOn(component.dialog, 'open').and.callThrough();
+        component.endGame();
+        expect(matDialogSpy).toHaveBeenCalledWith(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
+    });
+
+    it('should open EndgameDialogComponent with correct data if in multiplayer mode and winner', () => {
+        component.gameFinished = true;
+        component.totalDifferencesFound = 0;
+        component.gameRoom.userGame.username2 = 'test';
+        component.userDifferencesFound = component.multiplayerThreshold;
+        const matDialogSpy = spyOn(component.dialog, 'open').and.callThrough();
+        component.endGame();
+        expect(matDialogSpy).toHaveBeenCalledWith(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
+    });
+
+    it('should open EndgameDialogComponent with correct data if in multiplayer mode and looser', () => {
+        component.gameFinished = true;
+        component.totalDifferencesFound = 0;
+        component.gameRoom.userGame.gameData.gameForm.nbDifference = 1;
+        component.gameRoom.userGame.username2 = 'test';
+        component.multiplayerThreshold = 1;
+        component.userDifferencesFound = 0;
+        const matDialogSpy = spyOn(component.dialog, 'open').and.callThrough();
+        component.endGame();
+        expect(matDialogSpy).toHaveBeenCalledWith(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: false } });
+    });
+
+    it('endgame should call abandonConfirmation if game is not finished', () => {
+        const abandonConfirmationSpy = spyOn(component, 'abandonConfirmation');
+        component.endGame();
+        expect(abandonConfirmationSpy).toHaveBeenCalled();
     });
 });

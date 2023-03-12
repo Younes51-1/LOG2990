@@ -77,4 +77,12 @@ describe('CommunicationSocketService', () => {
         expect(service.socket).toBeTruthy();
         expect(typeof service.socket).toBe('object');
     });
+
+    it('should call socket.off with an event', () => {
+        const event = 'helloWorld';
+        const spy = spyOn(service.socket, 'off');
+        service.off(event);
+        expect(spy).toHaveBeenCalled();
+        expect(spy).toHaveBeenCalledWith(event);
+    });
 });

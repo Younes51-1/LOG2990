@@ -24,6 +24,8 @@ import { ColorPickerModule } from 'ngx-color-picker';
 import { SlickCarouselModule } from 'ngx-slick-carousel';
 import { ModalDialogComponent } from './components/modal-dialog/modal-dialog.component';
 import { ConfigSelectPageComponent } from './pages/config-select-page/config-select-page.component';
+import { WaitingRoomComponent } from './components/waiting-room-dialog/waiting-room-dialog.component';
+import { OpponentSidebarComponent } from './components/opponent-sidebar/opponent-sidebar.component';
 
 /**
  * Main module that is used in main.ts.
@@ -44,6 +46,7 @@ import { ConfigSelectPageComponent } from './pages/config-select-page/config-sel
         EndgameDialogComponent,
         ModalDialogComponent,
         ConfigSelectPageComponent,
+        WaitingRoomComponent,
     ],
     providers: [],
     bootstrap: [AppComponent],
