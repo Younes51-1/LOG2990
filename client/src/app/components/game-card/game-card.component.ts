@@ -51,7 +51,7 @@ export class GameCardComponent implements OnInit, OnDestroy {
     }
 
     checkGame() {
-        this.connect();
+        this.classicModeService.connect();
 
         if (!this.gameExists) {
             this.socketService.send('checkGame', this.slide.name);
@@ -97,7 +97,7 @@ export class GameCardComponent implements OnInit, OnDestroy {
         this.socketService.send('canJoinGame', [this.slide.name, this.inputValue2]);
         this.socketService.on('cannotJoinGame', () => {
             this.applyBorder = false;
-            this.disconnect();
+            this.classicModeService.disconnect();
         });
         this.socketService.on('canJoinGame', () => {
             this.joinGame();
@@ -119,25 +119,12 @@ export class GameCardComponent implements OnInit, OnDestroy {
         }
     }
 
-    // TODO: change CSS to show border
     verifyMultiInput() {
         if (!this.verifyService.verify(this.inputValue2)) {
             this.applyBorder = true;
         } else {
-            this.connect();
+            this.classicModeService.connect();
             this.createJoinMultiGame();
-        }
-    }
-
-    connect() {
-        if (!this.socketService.isSocketAlive()) {
-            this.socketService.connect();
-        }
-    }
-
-    disconnect() {
-        if (this.socketService.isSocketAlive() && !this.createJoin) {
-            this.socketService.disconnect();
         }
     }
 
