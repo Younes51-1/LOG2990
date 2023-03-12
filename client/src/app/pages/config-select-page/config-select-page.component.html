@@ -8,7 +8,7 @@
     </header>
     <ngx-slick-carousel class="carousel" [config]="slideConfig">
         <div ngxSlickItem *ngFor="let slide of slides" class="slide">
-            <app-game-card [slide]="slide" [page]="pageType"></app-game-card>
+            <app-game-card [slide]="slide" [page]="pageType" (notify)="deleteNotify($event)"></app-game-card>
         </div>
     </ngx-slick-carousel>
     <div *ngIf="this.pageType === 'config'" class="configElement">
