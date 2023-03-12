@@ -13,7 +13,7 @@ import { Subject } from 'rxjs';
 export class ClassicModeService {
     gameRoom: GameRoom;
     canSendValidate = true;
-    userName: string;
+    username: string;
     userDifferencesFound = 0;
     totalDifferencesFound$ = new Subject<number>();
     userDifferencesFound$ = new Subject<number>();
@@ -45,7 +45,7 @@ export class ClassicModeService {
                     roomId: '',
                     started,
                 };
-                this.userName = username;
+                this.username = username;
                 this.disconnectSocket();
                 this.connect();
                 this.socketService.send('createGame', this.gameRoom);
@@ -57,9 +57,9 @@ export class ClassicModeService {
 
     joinWaitingRoomClassicModeMulti(gameName: string, username: string): void {
         this.communicationService.getGame(gameName).subscribe((res) => {
-            if (Object.keys(res).length !== 0) {
+            if (res && Object.keys(res).length !== 0) {
                 this.gameRoom = undefined as unknown as GameRoom;
-                this.userName = username;
+                this.username = username;
                 this.disconnectSocket();
                 this.connect();
                 this.socketService.send('askingToJoinGame', [gameName, username]);
@@ -111,6 +111,7 @@ export class ClassicModeService {
                 alert('Nous avons eu un problème pour obtenir les informations de jeu du serveur');
             }
         });
+
         this.socketService.on('started', () => {
             this.gameRoom$.next(this.gameRoom);
         });
@@ -119,7 +120,7 @@ export class ClassicModeService {
             if (differenceTry.validated) {
                 this.gameRoom.userGame.nbDifferenceFound++;
                 this.totalDifferencesFound$.next(this.gameRoom.userGame.nbDifferenceFound);
-                if (differenceTry.username === this.userName) {
+                if (differenceTry.username === this.username) {
                     this.userDifferencesFound++;
                     this.userDifferencesFound$.next(this.userDifferencesFound);
                 }
@@ -133,10 +134,10 @@ export class ClassicModeService {
         });
 
         this.socketService.on('playerAccepted', (gameRoom: GameRoom) => {
-            if (gameRoom && (gameRoom.userGame.username1 === this.userName || gameRoom.userGame.username2 === this.userName)) {
+            if (gameRoom && (gameRoom.userGame.username1 === this.username || gameRoom.userGame.username2 === this.username)) {
                 this.gameRoom = gameRoom;
                 this.accepted$.next(true);
-            } else {
+            } else if (gameRoom) {
                 this.gameRoom = gameRoom;
                 this.rejected$.next(true);
             }
@@ -145,9 +146,9 @@ export class ClassicModeService {
         this.socketService.on('playerRejected', (gameRoom: GameRoom) => {
             if (
                 gameRoom &&
-                gameRoom.userGame.username1 !== this.userName &&
-                gameRoom.userGame.username2 !== this.userName &&
-                !gameRoom.userGame.potentielPlayers?.includes(this.userName)
+                gameRoom.userGame.username1 !== this.username &&
+                gameRoom.userGame.username2 !== this.username &&
+                !gameRoom.userGame.potentielPlayers?.includes(this.username)
             ) {
                 this.rejected$.next(true);
             } else if (gameRoom) {
@@ -173,7 +174,7 @@ export class ClassicModeService {
     }
 
     startGame(): void {
-        if (this.gameRoom.userGame.username1 === this.userName) {
+        if (this.gameRoom.userGame.username1 === this.username) {
             this.socketService.send('start', this.gameRoom.roomId);
         }
         this.chatService.handleSocket();
@@ -188,27 +189,27 @@ export class ClassicModeService {
         if (!this.canSendValidate) {
             return;
         }
-        this.socketService.send('validate', [differencePos, this.gameRoom.roomId, this.userName]);
+        this.socketService.send('validate', [differencePos, this.gameRoom.roomId, this.username]);
         this.canSendValidate = false;
     }
 
     endGame(): void {
         if (this.socketService.isSocketAlive()) {
-            this.socketService.send('endGame', [this.gameRoom.roomId, this.userName]);
+            this.socketService.send('endGame', [this.gameRoom.roomId, this.username]);
         }
     }
 
     abandonGame() {
         if (this.socketService.isSocketAlive()) {
-            this.socketService.send('abandoned', [this.gameRoom.roomId, this.userName]);
+            this.socketService.send('abandoned', [this.gameRoom.roomId, this.username]);
         }
     }
 
     abortGame(): void {
-        if (this.socketService.isSocketAlive() && this.gameRoom?.userGame.username1 === this.userName) {
+        if (this.socketService.isSocketAlive() && this.gameRoom?.userGame.username1 === this.username) {
             this.socketService.send('abortGameCreation', this.gameRoom.roomId);
         } else if (this.socketService.isSocketAlive()) {
-            this.socketService.send('leaveGame', [this.gameRoom.roomId, this.userName]);
+            this.socketService.send('leaveGame', [this.gameRoom.roomId, this.username]);
         }
         this.disconnectSocket();
     }
@@ -228,7 +229,7 @@ export class ClassicModeService {
     reset() {
         this.gameRoom = undefined as unknown as GameRoom;
         this.canSendValidate = true;
-        this.userName = '';
+        this.username = '';
         this.userDifferencesFound = 0;
         this.totalDifferencesFound$ = new Subject<number>();
         this.userDifferencesFound$ = new Subject<number>();
