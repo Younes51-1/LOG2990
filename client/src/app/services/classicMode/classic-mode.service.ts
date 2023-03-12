@@ -211,7 +211,7 @@ export class ClassicModeService {
         }
     }
 
-    abondonGame() {
+    abandonGame() {
         if (this.socketService.isSocketAlive()) {
             this.socketService.send('abandoned', [this.gameRoom.roomId, this.userName]);
         }
