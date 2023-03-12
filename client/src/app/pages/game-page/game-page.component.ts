@@ -125,7 +125,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 this.chatService.sendMessage(`${this.username} a abandonné la partie`, 'Système', this.gameRoom.roomId);
                 break;
         }
-        this.classicModeService.endGame();
     }
 
     unsubscribe() {

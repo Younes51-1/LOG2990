@@ -34,7 +34,7 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
         const gameRoom = this.classicModeService.gameRooms.get(data[0]);
         if (!gameRoom) return;
         this.logger.log(`Fin du jeu: ${gameRoom.userGame.gameData.gameForm.name}`);
-        this.server.to(data[0]).emit(ClassicModeEvents.GameFinished, data[1]);
+        this.server.to(data[0]).emit(ClassicModeEvents.GameFinished);
         this.classicModeService.deleteRoom(data[0]);
     }
 
