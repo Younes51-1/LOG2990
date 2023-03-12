@@ -104,7 +104,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
                     this.classicModeService.abandonGame();
                     this.unsubscribe();
                     setTimeout(() => {
-                        this.classicModeService.disconnect();
+                        this.classicModeService.disconnectSocket();
                         this.router.navigate(['/home']);
                         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
                     }, 1000);

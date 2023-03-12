@@ -161,8 +161,8 @@ describe('GameCardComponent', () => {
         expect(spy).toHaveBeenCalled();
     });
 
-    it("should call 'classicModeService.connect' when 'checkGame' is called", () => {
-        const spy = spyOn(component.classicModeService, 'connect');
+    it("should call 'classicModeService.connectSocket' when 'checkGame' is called", () => {
+        const spy = spyOn(component.classicModeService, 'connectSocket');
         component.checkGame();
         expect(spy).toHaveBeenCalled();
     });
@@ -278,8 +278,8 @@ describe('GameCardComponent', () => {
         expect(spy).toHaveBeenCalledWith('canJoinGame', [component.slide.name, 'test']);
     });
 
-    it("should set 'applyBorder' to false and disconnect when cannot join a game", () => {
-        const spy = spyOn(component.classicModeService, 'disconnect');
+    it("should set 'applyBorder' to false and disconnectSocket when cannot join a game", () => {
+        const spy = spyOn(component.classicModeService, 'disconnectSocket');
         component.applyBorder = true;
         component.canJoinGame();
         socketHelper.peerSideEmit('cannotJoinGame');
@@ -330,14 +330,14 @@ describe('GameCardComponent', () => {
         expect(component.applyBorder).toBe(true);
     });
 
-    it('should call createJoinMultiGame and connect if inputValue1 is correct', () => {
+    it('should call createJoinMultiGame and connectSocket if inputValue1 is correct', () => {
         component.page = PageKeys.Selection;
         component.ngOnInit();
-        spyOn(component.classicModeService, 'connect');
+        spyOn(component.classicModeService, 'connectSocket');
         spyOn(component, 'createJoinMultiGame');
         component.inputValue2 = 'test';
         component.verifyMultiInput();
-        expect(component.classicModeService.connect).toHaveBeenCalled();
+        expect(component.classicModeService.connectSocket).toHaveBeenCalled();
         expect(component.createJoinMultiGame).toHaveBeenCalled();
     });
 });

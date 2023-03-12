@@ -51,7 +51,7 @@ export class GameCardComponent implements OnInit, OnDestroy {
     }
 
     checkGame() {
-        this.classicModeService.connect();
+        this.classicModeService.connectSocket();
 
         if (!this.gameExists) {
             this.socketService.send('checkGame', this.slide.name);
@@ -97,7 +97,7 @@ export class GameCardComponent implements OnInit, OnDestroy {
         this.socketService.send('canJoinGame', [this.slide.name, this.inputValue2]);
         this.socketService.on('cannotJoinGame', () => {
             this.applyBorder = false;
-            this.classicModeService.disconnect();
+            this.classicModeService.disconnectSocket();
         });
         this.socketService.on('canJoinGame', () => {
             this.joinGame();
@@ -123,7 +123,7 @@ export class GameCardComponent implements OnInit, OnDestroy {
         if (!this.verifyService.verify(this.inputValue2)) {
             this.applyBorder = true;
         } else {
-            this.classicModeService.connect();
+            this.classicModeService.connectSocket();
             this.createJoinMultiGame();
         }
     }

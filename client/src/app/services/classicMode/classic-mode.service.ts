@@ -46,23 +46,9 @@ export class ClassicModeService {
                     started,
                 };
                 this.userName = username;
-                this.disconnect();
+                this.disconnectSocket();
                 this.connect();
                 this.socketService.send('createGame', this.gameRoom);
-            } else {
-                alert('Jeu introuvable');
-            }
-        });
-    }
-
-    joinGameClassicModeSolo(gameName: string, username: string): void {
-        this.communicationService.getGame(gameName).subscribe((res) => {
-            if (Object.keys(res).length !== 0) {
-                this.gameRoom = undefined as unknown as GameRoom;
-                this.userName = username;
-                this.disconnect();
-                this.connect();
-                this.socketService.send('joinGame', [gameName, username]);
             } else {
                 alert('Jeu introuvable');
             }
@@ -74,7 +60,7 @@ export class ClassicModeService {
             if (Object.keys(res).length !== 0) {
                 this.gameRoom = undefined as unknown as GameRoom;
                 this.userName = username;
-                this.disconnect();
+                this.disconnectSocket();
                 this.connect();
                 this.socketService.send('askingToJoinGame', [gameName, username]);
             } else {
@@ -141,11 +127,9 @@ export class ClassicModeService {
             this.serverValidateResponse$.next(differenceTry);
         });
 
-        // TODO: Remove disable lint and use userName for dialog
-        // eslint-disable-next-line no-unused-vars
-        this.socketService.on('GameFinished', (userName: string) => {
+        this.socketService.on('GameFinished', () => {
             this.gameFinished$.next(true);
-            this.disconnect();
+            this.disconnectSocket();
         });
 
         this.socketService.on('playerAccepted', (gameRoom: GameRoom) => {
@@ -226,12 +210,18 @@ export class ClassicModeService {
         } else if (this.socketService.isSocketAlive()) {
             this.socketService.send('leaveGame', [this.gameRoom.roomId, this.userName]);
         }
-        this.disconnect();
+        this.disconnectSocket();
     }
 
-    disconnect(): void {
+    disconnectSocket(): void {
         if (this.socketService.isSocketAlive()) {
             this.socketService.disconnect();
+        }
+    }
+
+    connectSocket(): void {
+        if (!this.socketService.isSocketAlive()) {
+            this.socketService.connect();
         }
     }
 
