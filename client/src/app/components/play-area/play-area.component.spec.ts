@@ -195,6 +195,15 @@ describe('PlayAreaComponent', () => {
         expect(component.differenceMatrix).toEqual(newDifferenceMatrix);
     });
 
+    it('should correctly set totalDifferencesFound variable', () => {
+        const testingValue = 5;
+        const totalDifferencesFoundSpy = spyOn(component.classicModeService.totalDifferencesFound$, 'subscribe').and.callThrough();
+        component.ngAfterViewInit();
+        classicModeService.totalDifferencesFound$.next(testingValue);
+        expect(totalDifferencesFoundSpy).toHaveBeenCalled();
+        expect(component.totalDifferencesFound).toEqual(testingValue);
+    });
+
     it('should correctly set the differenceFound variable', () => {
         const testingValue = 5;
         const differenceFoundSpy = spyOn(component.classicModeService.userDifferencesFound$, 'subscribe').and.callThrough();

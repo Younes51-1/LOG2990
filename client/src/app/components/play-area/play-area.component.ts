@@ -35,12 +35,12 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     audioInvalid = new Audio('assets/sounds/invalid_sound.mp3');
     differenceMatrix: number[][];
     currentDifferenceMatrix: number[][];
-    emptypixel: number;
+    emptyPixel: number;
     timesFlashDifferences: number;
     isCheatModeOn = false;
     layer: HTMLCanvasElement;
-    differenceIntervalId1: ReturnType<typeof setInterval>;
-    cheatIntervalId2: ReturnType<typeof setInterval>;
+    differenceIntervalId: ReturnType<typeof setInterval>;
+    cheatIntervalId: ReturnType<typeof setInterval>;
     private canvasSize = { x: Dimensions.DEFAULT_WIDTH, y: Dimensions.DEFAULT_HEIGHT };
 
     // eslint-disable-next-line max-params
@@ -50,7 +50,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         public classicModeService: ClassicModeService,
         private chatService: ChatService,
     ) {
-        this.emptypixel = -1;
+        this.emptyPixel = -1;
         this.timesFlashDifferences = 5;
     }
 
@@ -135,7 +135,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     async mouseClickAttempt(event: MouseEvent, canvas: HTMLCanvasElement) {
         if (this.playerIsAllowedToClick) {
             this.mousePosition = this.mouseService.mouseClick(event, this.mousePosition);
-            const isValidated = this.differenceMatrix[this.mousePosition.y][this.mousePosition.x] !== this.emptypixel;
+            const isValidated = this.differenceMatrix[this.mousePosition.y][this.mousePosition.x] !== this.emptyPixel;
             if (isValidated) {
                 this.classicModeService.validateDifference(this.mousePosition);
                 this.canvasClicked = canvas;
@@ -179,7 +179,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         const totalDuration = 1000;
         const layer = this.createAndFillNewLayer(Color.Luigi, false, difference);
         let isFlashing = false;
-        this.differenceIntervalId1 = setInterval(() => {
+        this.differenceIntervalId = setInterval(() => {
             if (isFlashing) {
                 this.context1.drawImage(this.original, 0, 0, this.width, this.height);
                 this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
@@ -193,7 +193,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         setTimeout(() => {
             this.removeDifference(this.currentDifferenceMatrix);
             this.playerIsAllowedToClick = true;
-            clearInterval(this.differenceIntervalId1);
+            clearInterval(this.differenceIntervalId);
             this.context1.drawImage(this.original, 0, 0, this.width, this.height);
             this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
         }, totalDuration);
@@ -206,9 +206,9 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
 
         for (let i = 0; i < differenceMatrix.length; i++) {
             for (let j = 0; j < differenceMatrix[0].length; j++) {
-                if (differenceMatrix[i][j] !== this.emptypixel) {
+                if (differenceMatrix[i][j] !== this.emptyPixel) {
                     differencePositions.push({ x: j, y: i });
-                    this.differenceMatrix[i][j] = this.emptypixel;
+                    this.differenceMatrix[i][j] = this.emptyPixel;
                 }
             }
         }
@@ -238,7 +238,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
             return;
         }
         if (!this.isCheatModeOn) {
-            clearInterval(this.cheatIntervalId2);
+            clearInterval(this.cheatIntervalId);
             this.context1.drawImage(this.original, 0, 0, this.width, this.height);
             this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
             return;
@@ -246,7 +246,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         const flashDuration = 125;
         let isFlashing = true;
         this.verifyDifferenceMatrix();
-        this.cheatIntervalId2 = setInterval(() => {
+        this.cheatIntervalId = setInterval(() => {
             if (isFlashing) {
                 this.context1.drawImage(this.original, 0, 0, this.width, this.height);
                 this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
@@ -272,7 +272,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         context.fillStyle = color;
         for (let i = 0; i < matrix.length; i++) {
             for (let j = 0; j < matrix[0].length; j++) {
-                if (matrix[i][j] !== this.emptypixel) {
+                if (matrix[i][j] !== this.emptyPixel) {
                     context.fillRect(j, i, 1, 1);
                 }
             }
