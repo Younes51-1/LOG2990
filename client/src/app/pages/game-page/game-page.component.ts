@@ -14,7 +14,7 @@ import { Subscription } from 'rxjs';
 })
 export class GamePageComponent implements OnInit, OnDestroy {
     gameName: string;
-    userName: string;
+    username: string;
     opponentUsername: string;
     timer = 0;
     totalDifferencesFound = 0;
@@ -57,9 +57,9 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.gameRoomSubscription = this.classicModeService.gameRoom$.subscribe((gameRoom) => {
             this.gameRoom = gameRoom;
             this.gameName = gameRoom.userGame.gameData.gameForm.name;
-            this.userName = this.classicModeService.username;
+            this.username = this.classicModeService.username;
             if (gameRoom.userGame.username2) {
-                this.opponentUsername = gameRoom.userGame.username1 === this.userName ? gameRoom.userGame.username2 : gameRoom.userGame.username1;
+                this.opponentUsername = gameRoom.userGame.username1 === this.username ? gameRoom.userGame.username2 : gameRoom.userGame.username1;
             } else {
                 this.opponentUsername = '';
             }
@@ -70,7 +70,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             }
         });
         this.abandonedGameSubscription = this.classicModeService.abandoned$.subscribe((userName: string) => {
-            if (userName !== this.userName) {
+            if (userName !== this.username) {
                 this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
             }
             this.unsubscribe();
@@ -116,13 +116,13 @@ export class GamePageComponent implements OnInit, OnDestroy {
     sendEvent(event: string) {
         switch (event) {
             case 'error':
-                this.chatService.sendMessage(`Erreur par ${this.userName}`, 'Système', this.gameRoom.roomId);
+                this.chatService.sendMessage(`Erreur par ${this.username}`, 'Système', this.gameRoom.roomId);
                 break;
             case 'success':
-                this.chatService.sendMessage(`Différence trouvée par ${this.userName}`, 'Système', this.gameRoom.roomId);
+                this.chatService.sendMessage(`Différence trouvée par ${this.username}`, 'Système', this.gameRoom.roomId);
                 break;
             case 'abandon':
-                this.chatService.sendMessage(`${this.userName} a abandonné la partie`, 'Système', this.gameRoom.roomId);
+                this.chatService.sendMessage(`${this.username} a abandonné la partie`, 'Système', this.gameRoom.roomId);
                 break;
         }
     }

@@ -147,6 +147,7 @@ describe('ConfigSelectPageComponent', () => {
         expect(component.imgSource).toEqual('./assets/pictures/selection.png');
     });
 
+    // TODO: Fix this test
     // it('deleteNotify should call removeSlide if PageKeys is set to Config', () => {
     //     component.pageType = PageKeys.Config;
     //     component.ngOnInit();

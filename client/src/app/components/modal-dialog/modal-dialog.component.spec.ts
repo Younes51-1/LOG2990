@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.component';
 
@@ -10,7 +9,6 @@ describe('ModalDialogComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [ModalDialogComponent],
-            imports: [FormsModule],
             providers: [
                 { provide: MatDialogRef, useValue: {} },
                 { provide: MAT_DIALOG_DATA, useValue: {} },
@@ -30,7 +28,6 @@ describe('ModalDialogComponent', () => {
 
     it('should draw canvas', () => {
         component.data.imageUrl = 'https://i.imgur.com/9Z0QZ9A.png';
-        component.data.flipped = false;
         const drawImagespy = spyOn(component.context, 'drawImage').and.callFake(() => {
             return;
         });
@@ -45,25 +42,6 @@ describe('ModalDialogComponent', () => {
         expect(drawImagespy).toHaveBeenCalled();
         expect(translateSpy).not.toHaveBeenCalled();
         expect(scaleSpy).not.toHaveBeenCalled();
-    });
-
-    it('should draw canvas and flipp image', () => {
-        component.data.imageUrl = 'https://i.imgur.com/9Z0QZ9A.png';
-        component.data.flipped = true;
-        const drawImagespy = spyOn(component.context, 'drawImage').and.callFake(() => {
-            return;
-        });
-        const translateSpy = spyOn(component.context, 'translate').and.callFake(() => {
-            return;
-        });
-        const scaleSpy = spyOn(component.context, 'scale').and.callFake(() => {
-            return;
-        });
-
-        component.drawImage(new Image());
-        expect(drawImagespy).toHaveBeenCalled();
-        expect(translateSpy).toHaveBeenCalled();
-        expect(scaleSpy).toHaveBeenCalled();
     });
 
     it('should show the right amount of differences', () => {

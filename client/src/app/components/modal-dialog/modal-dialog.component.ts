@@ -26,7 +26,7 @@ export class ModalDialogComponent implements AfterViewInit {
     constructor(
         private verifyInputService: VerifyInputService,
         public dialogRef: MatDialogRef<ModalDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: { imageUrl: string; nbDifferences: number; flipped: boolean },
+        @Inject(MAT_DIALOG_DATA) public data: { imageUrl: string; nbDifferences: number },
     ) {
         this.width = 640;
         this.height = 480;
@@ -42,11 +42,6 @@ export class ModalDialogComponent implements AfterViewInit {
     }
 
     drawImage(image: HTMLImageElement) {
-        const scale = { x: 1, y: -1 };
-        if (this.data.flipped) {
-            this.context.translate(0, this.canvasDifferences.nativeElement.height);
-            this.context.scale(scale.x, scale.y);
-        }
         this.context.drawImage(image, 0, 0, this.width, this.height);
     }
 

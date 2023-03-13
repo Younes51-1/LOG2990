@@ -4,7 +4,7 @@
         <button class="home-button" routerLink="/home">
             <i class="fa fa-home fa-2x" aria-hidden="true"></i>
         </button>
-        <img src="{{ imgSource }}" />
+        <img src={{imgSource}}>
     </header>
     <ngx-slick-carousel class="carousel" [config]="slideConfig">
         <div ngxSlickItem *ngFor="let slide of slides" class="slide">

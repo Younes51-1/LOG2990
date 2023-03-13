@@ -55,7 +55,8 @@ export class DrawingService {
 
     updateCanvas1Display() {
         if (this.component.urlPath1 === undefined || this.component.urlPath1 === '') {
-            this.component.context1.clearRect(0, 0, this.width, this.height);
+            this.component.context1.fillStyle = 'white';
+            this.component.context1.fillRect(0, 0, this.width, this.height);
             this.component.context1.drawImage(this.component.canvasForeground1, 0, 0, this.width, this.height);
         } else {
             this.component.updateContext(this.component.context1, this.component.canvasForeground1, this.component.urlPath1);
@@ -64,7 +65,8 @@ export class DrawingService {
 
     updateCanvas2Display() {
         if (this.component.urlPath2 === undefined || this.component.urlPath2 === '') {
-            this.component.context2.clearRect(0, 0, this.width, this.height);
+            this.component.context2.fillStyle = 'white';
+            this.component.context2.fillRect(0, 0, this.width, this.height);
             this.component.context2.drawImage(this.component.canvasForeground2, 0, 0, this.width, this.height);
         } else {
             this.component.updateContext(this.component.context2, this.component.canvasForeground2, this.component.urlPath2);
@@ -83,6 +85,7 @@ export class DrawingService {
                     break;
                 }
                 case DrawModes.RECTANGLE: {
+                    this.component.rectangleContext = context;
                     this.component.rectangleState.context.fillStyle = this.component.color;
                     this.component.rectangleState.startPos = this.component.mousePosition;
                     this.component.canvasTemp.context.clearRect(0, 0, this.width, this.height);
@@ -156,7 +159,6 @@ export class DrawingService {
         const y = this.component.rectangleState.startPos.y;
         let width = pos.x - x;
         let height = pos.y - y;
-
         if (this.component.shiftPressed) {
             const length = Math.min(Math.abs(width), Math.abs(height));
             width = width < 0 ? -length : length;
@@ -167,6 +169,13 @@ export class DrawingService {
         context.clearRect(0, 0, this.width, this.height);
         context.drawImage(this.component.canvasTemp.canvas, 0, 0, this.width, this.height);
         context.drawImage(this.component.rectangleState.canvas, 0, 0, this.width, this.height);
+        this.component.mousePosition = pos;
+    }
+
+    updateRectangle() {
+        this.drawRectangle(this.component.rectangleContext, this.component.mousePosition);
+        this.updateCanvas1Display();
+        this.updateCanvas2Display();
     }
 
     drawCircle(context: CanvasRenderingContext2D, position: Vec2) {
