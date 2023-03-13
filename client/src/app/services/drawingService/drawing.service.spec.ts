@@ -172,14 +172,15 @@ describe('DrawingService', () => {
 
     it('should update the display of canvas 1 when there is no background image', () => {
         service.component.urlPath1 = '';
-        const spyClearRect = spyOn(service.component.context1, 'clearRect').and.callFake(() => {
+        const spyFillRect = spyOn(service.component.context1, 'fillRect').and.callFake(() => {
             return;
         });
         const spyDrawImage = spyOn(service.component.context1, 'drawImage').and.callFake(() => {
             return;
         });
         service.updateCanvas1Display();
-        expect(spyClearRect).toHaveBeenCalled();
+        expect(service.component.context1.fillStyle).toEqual('#ffffff');
+        expect(spyFillRect).toHaveBeenCalled();
         expect(spyDrawImage).toHaveBeenCalled();
     });
 
@@ -194,14 +195,15 @@ describe('DrawingService', () => {
 
     it('should update the display of canvas 2', () => {
         service.component.urlPath2 = '';
-        const spyClearRect = spyOn(service.component.context2, 'clearRect').and.callFake(() => {
+        const spyFillRect = spyOn(service.component.context2, 'fillRect').and.callFake(() => {
             return;
         });
         const spyDrawImage = spyOn(service.component.context2, 'drawImage').and.callFake(() => {
             return;
         });
         service.updateCanvas2Display();
-        expect(spyClearRect).toHaveBeenCalled();
+        expect(service.component.context2.fillStyle).toEqual('#ffffff');
+        expect(spyFillRect).toHaveBeenCalled();
         expect(spyDrawImage).toHaveBeenCalled();
     });
 

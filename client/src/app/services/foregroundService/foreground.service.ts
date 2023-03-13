@@ -60,14 +60,14 @@ export class ForegroundService {
             case this.component.inputImage1.nativeElement: {
                 this.component.inputImage1.nativeElement.value = null;
                 this.component.urlPath1 = '';
-                this.component.context1.clearRect(0, 0, this.width, this.height);
+                this.clearRectWithWhite(this.component.context1);
                 this.component.context1.drawImage(this.component.canvasForeground1, 0, 0, this.width, this.height);
                 break;
             }
             case this.component.inputImage2.nativeElement: {
                 this.component.inputImage2.nativeElement.value = null;
                 this.component.urlPath2 = '';
-                this.component.context2.clearRect(0, 0, this.width, this.height);
+                this.clearRectWithWhite(this.component.context2);
                 this.component.context2.drawImage(this.component.canvasForeground2, 0, 0, this.width, this.height);
                 break;
             }
@@ -76,8 +76,8 @@ export class ForegroundService {
                 this.component.inputImage2.nativeElement.value = null;
                 this.component.inputImages1et2.nativeElement.value = null;
                 this.component.urlPath1 = this.component.urlPath2 = '';
-                this.component.context1.clearRect(0, 0, this.width, this.height);
-                this.component.context2.clearRect(0, 0, this.width, this.height);
+                this.clearRectWithWhite(this.component.context1);
+                this.clearRectWithWhite(this.component.context2);
                 this.component.context1.drawImage(this.component.canvasForeground1, 0, 0, this.width, this.height);
                 this.component.context2.drawImage(this.component.canvasForeground2, 0, 0, this.width, this.height);
                 break;
@@ -87,7 +87,7 @@ export class ForegroundService {
                 this.component.pushToUndoStack();
                 this.component.emptyRedoStack();
                 this.component.contextForeground1.clearRect(0, 0, this.width, this.height);
-                this.component.context1.clearRect(0, 0, this.width, this.height);
+                this.clearRectWithWhite(this.component.context1);
                 this.component.updateContext(this.component.context1, this.component.canvasForeground1, this.component.urlPath1);
                 break;
             }
@@ -96,7 +96,7 @@ export class ForegroundService {
                 this.component.pushToUndoStack();
                 this.component.emptyRedoStack();
                 this.component.contextForeground2.clearRect(0, 0, this.width, this.height);
-                this.component.context2.clearRect(0, 0, this.width, this.height);
+                this.clearRectWithWhite(this.component.context2);
                 this.component.updateContext(this.component.context2, this.component.canvasForeground2, this.component.urlPath2);
                 break;
             }
@@ -111,7 +111,7 @@ export class ForegroundService {
                 this.component.currentCanvas = this.component.canvas2.nativeElement;
                 this.component.pushToUndoStack();
                 this.component.contextForeground2.clearRect(0, 0, this.width, this.height);
-                this.component.context2.clearRect(0, 0, this.width, this.height);
+                this.clearRectWithWhite(this.component.context2);
                 this.component.updateContext(this.component.context2, this.component.canvasForeground2, this.component.urlPath2);
                 this.component.contextForeground2.drawImage(this.component.canvasForeground1, 0, 0, this.width, this.height);
                 this.component.context2.drawImage(this.component.canvasForeground1, 0, 0, this.width, this.height);
@@ -121,7 +121,7 @@ export class ForegroundService {
                 this.component.currentCanvas = this.component.canvas1.nativeElement;
                 this.component.pushToUndoStack();
                 this.component.contextForeground1.clearRect(0, 0, this.width, this.height);
-                this.component.context1.clearRect(0, 0, this.width, this.height);
+                this.clearRectWithWhite(this.component.context1);
                 this.component.updateContext(this.component.context1, this.component.canvasForeground1, this.component.urlPath1);
                 this.component.contextForeground1.drawImage(this.component.canvasForeground2, 0, 0, this.width, this.height);
                 this.component.context1.drawImage(this.component.canvasForeground2, 0, 0, this.width, this.height);
@@ -145,15 +145,20 @@ export class ForegroundService {
         contextTemp?.drawImage(this.component.canvasForeground1, 0, 0);
 
         this.component.contextForeground1.clearRect(0, 0, this.width, this.height);
-        this.component.context1.clearRect(0, 0, this.width, this.height);
+        this.clearRectWithWhite(this.component.context1);
         this.component.updateContext(this.component.context1, this.component.canvasForeground1, this.component.urlPath1);
         this.component.contextForeground1.drawImage(this.component.canvasForeground2, 0, 0, this.width, this.height);
         this.component.context1.drawImage(this.component.canvasForeground2, 0, 0, this.width, this.height);
 
         this.component.contextForeground2.clearRect(0, 0, this.width, this.height);
-        this.component.context2.clearRect(0, 0, this.width, this.height);
+        this.clearRectWithWhite(this.component.context2);
         this.component.updateContext(this.component.context2, this.component.canvasForeground2, this.component.urlPath2);
         this.component.contextForeground2.drawImage(canvasTemp, 0, 0, this.width, this.height);
         this.component.context2.drawImage(canvasTemp, 0, 0, this.width, this.height);
+    }
+
+    clearRectWithWhite(ctx: CanvasRenderingContext2D) {
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, this.width, this.height);
     }
 }

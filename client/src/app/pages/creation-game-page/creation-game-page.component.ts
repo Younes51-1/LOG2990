@@ -153,6 +153,9 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         const canvasTmp = this.drawingService.createNewCanvas();
         const canvasTmpCtx = canvasTmp.getContext('2d');
         if (canvasTmpCtx) this.canvasTemp = { canvas: canvasTmp, context: canvasTmpCtx };
+
+        this.foregroundService.clearRectWithWhite(this.context1);
+        this.foregroundService.clearRectWithWhite(this.context2);
     }
 
     verifyImageFormat(e: Event, img: HTMLInputElement): void {

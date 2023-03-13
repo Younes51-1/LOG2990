@@ -55,7 +55,8 @@ export class DrawingService {
 
     updateCanvas1Display() {
         if (this.component.urlPath1 === undefined || this.component.urlPath1 === '') {
-            this.component.context1.clearRect(0, 0, this.width, this.height);
+            this.component.context1.fillStyle = 'white';
+            this.component.context1.fillRect(0, 0, this.width, this.height);
             this.component.context1.drawImage(this.component.canvasForeground1, 0, 0, this.width, this.height);
         } else {
             this.component.updateContext(this.component.context1, this.component.canvasForeground1, this.component.urlPath1);
@@ -64,7 +65,8 @@ export class DrawingService {
 
     updateCanvas2Display() {
         if (this.component.urlPath2 === undefined || this.component.urlPath2 === '') {
-            this.component.context2.clearRect(0, 0, this.width, this.height);
+            this.component.context2.fillStyle = 'white';
+            this.component.context2.fillRect(0, 0, this.width, this.height);
             this.component.context2.drawImage(this.component.canvasForeground2, 0, 0, this.width, this.height);
         } else {
             this.component.updateContext(this.component.context2, this.component.canvasForeground2, this.component.urlPath2);
