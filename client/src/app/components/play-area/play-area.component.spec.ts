@@ -232,7 +232,7 @@ describe('PlayAreaComponent', () => {
         const correctRetroactionSpy = spyOn(component, 'correctRetroaction').and.callFake(() => {
             return;
         });
-        const erreurRetroactionSpy = spyOn(component, 'erreurRetroaction').and.callFake(() => {
+        const errorRetroactionSpy = spyOn(component, 'errorRetroaction').and.callFake(() => {
             return;
         });
         const differenceTry: DifferenceTry = { validated: true, differencePos: { x: 0, y: 0 }, username: 'Test' };
@@ -240,7 +240,7 @@ describe('PlayAreaComponent', () => {
         classicModeService.serverValidateResponse$.next(differenceTry);
         expect(serverValidateResponseSpy).toHaveBeenCalled();
         expect(correctRetroactionSpy).toHaveBeenCalledWith(differenceTry.differencePos);
-        expect(erreurRetroactionSpy).not.toHaveBeenCalled();
+        expect(errorRetroactionSpy).not.toHaveBeenCalled();
     });
 
     it('should react accordingly on invalid response from server', () => {
@@ -248,7 +248,7 @@ describe('PlayAreaComponent', () => {
         const correctRetroactionSpy = spyOn(component, 'correctRetroaction').and.callFake(() => {
             return;
         });
-        const erreurRetroactionSpy = spyOn(component, 'erreurRetroaction').and.callFake(() => {
+        const errorRetroactionSpy = spyOn(component, 'errorRetroaction').and.callFake(() => {
             return;
         });
         const differenceTry: DifferenceTry = { validated: false, differencePos: { x: 0, y: 0 }, username: 'Test' };
@@ -257,7 +257,7 @@ describe('PlayAreaComponent', () => {
         classicModeService.serverValidateResponse$.next(differenceTry);
         expect(serverValidateResponseSpy).toHaveBeenCalled();
         expect(correctRetroactionSpy).not.toHaveBeenCalled();
-        expect(erreurRetroactionSpy).toHaveBeenCalledWith(component.canvasClicked);
+        expect(errorRetroactionSpy).toHaveBeenCalledWith(component.canvasClicked);
     });
 
     it('should correctly set the variables if the desired gameRoom exists', () => {
@@ -337,6 +337,7 @@ describe('PlayAreaComponent', () => {
         const spy = spyOn(component, 'createAndFillNewLayer').and.callFake(() => {
             return null as unknown as HTMLCanvasElement;
         });
+        component.isCheatModeOn = true;
         component.cheatMode();
         const ms = 125;
         tick(ms);
@@ -411,7 +412,7 @@ describe('PlayAreaComponent', () => {
         expect(component.createAndFillNewLayer(Color.Cheat, true, differenceMatrix)).toEqual(result);
     });
 
-    it("should change differenceMartix, original, modified source if gameRoom isn't undefined", () => {
+    it("should change differenceMatrix, original, modified source if gameRoom isn't undefined", () => {
         component.gameRoom = gameRoom;
         component.classicModeService.gameRoom = gameRoom;
         component.ngOnChanges();
@@ -421,7 +422,7 @@ describe('PlayAreaComponent', () => {
         expect(component.modified.src).toContain(gameRoom.userGame.gameData.gameForm.image2url);
     });
 
-    it("shouldn't change differenceMartix, original, modified source if gameRoom is undefined", () => {
+    it("shouldn't change differenceMatrix, original, modified source if gameRoom is undefined", () => {
         component.gameRoom = undefined as unknown as GameRoom;
         component.original.src = 'https://gifdb.com/gif/rickroll-rick-astley-eye-test-secret-image-wipissd9eslga2go.html';
         component.modified.src = 'https://gifdb.com/gif/rickroll-rick-astley-eye-test-secret-image-wipissd9eslga2go.html';

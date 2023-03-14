@@ -86,7 +86,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
             if (difference.validated) {
                 this.correctRetroaction(difference.differencePos);
             } else if (difference.username === this.classicModeService.username) {
-                this.erreurRetroaction(this.canvasClicked);
+                this.errorRetroaction(this.canvasClicked);
             }
         });
 
@@ -126,7 +126,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     }
 
     handleImageLoad(context: CanvasRenderingContext2D, image: HTMLImageElement) {
-        if (context != null) {
+        if (context) {
             context.drawImage(image, 0, 0, this.width, this.height);
         }
     }
@@ -139,7 +139,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
                 this.classicModeService.validateDifference(this.mousePosition);
                 this.canvasClicked = canvas;
             } else {
-                this.erreurRetroaction(canvas);
+                this.errorRetroaction(canvas);
             }
         }
     }
@@ -152,7 +152,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         this.audioValid.play();
     }
 
-    erreurRetroaction(canvas: HTMLCanvasElement) {
+    errorRetroaction(canvas: HTMLCanvasElement) {
         this.playerIsAllowedToClick = false;
         this.audioInvalid.play();
         this.visualRetroaction(canvas);
