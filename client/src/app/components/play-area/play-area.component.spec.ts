@@ -27,13 +27,13 @@ const createAndPopulateMatrix = (value: number): number[][] => {
 
 const invalidPixelValue = -1;
 
-describe('PlayAreaComponent', () => {
+fdescribe('PlayAreaComponent', () => {
     const differenceMatrix: number[][] = [[]];
     const gameForm = {
         name: '',
         nbDifference: 0,
-        image1url: 'original',
-        image2url: 'modified',
+        image1url: 'https://picsum.photos/402',
+        image2url: 'https://picsum.photos/204',
         difficulte: '',
         soloBestTimes: [],
         vsBestTimes: [],
@@ -215,42 +215,36 @@ describe('PlayAreaComponent', () => {
 
     it('should react accordingly on validated response from the server', () => {
         const serverValidateResponseSpy = spyOn(component.classicModeService.serverValidateResponse$, 'subscribe').and.callThrough();
-        const correctAnswerVisualsSpy = spyOn(component, 'correctAnswerVisuals').and.callFake(() => {
+        const correctRetroactionSpy = spyOn(component, 'correctRetroaction').and.callFake(() => {
             return;
         });
-        const pauseSpy = spyOn(component.audioValid, 'pause').and.callFake(() => {
-            return;
-        });
-        const playSpy = spyOn(component.audioValid, 'play').and.callFake(async () => {
+        const erreurRetroactionSpy = spyOn(component, 'erreurRetroaction').and.callFake(() => {
             return;
         });
         const differenceTry: DifferenceTry = { validated: true, differencePos: { x: 0, y: 0 }, username: 'Test' };
-        classicModeService.serverValidateResponse$.next(differenceTry);
         component.ngAfterViewInit();
+        classicModeService.serverValidateResponse$.next(differenceTry);
         expect(serverValidateResponseSpy).toHaveBeenCalled();
-        expect(component.playerIsAllowedToClick).toBeFalse();
-        expect(correctAnswerVisualsSpy).toHaveBeenCalledOnceWith(component.mousePosition);
-        expect(pauseSpy).toHaveBeenCalled();
-        expect(playSpy).toHaveBeenCalled();
+        expect(correctRetroactionSpy).toHaveBeenCalledWith(differenceTry.differencePos);
+        expect(erreurRetroactionSpy).not.toHaveBeenCalled();
     });
 
-    // TODO: fix this test
-    // it('should react accordingly on invalid response from server', () => {
-    //     const serverValidateResponseSpy = spyOn(component.classicModeService.serverValidateResponse$, 'subscribe').and.callThrough();
-    //     const playSpy = spyOn(component.audioInvalid, 'play').and.callFake(async () => {
-    //         return;
-    //     });
-    //     const visualRetroactionSpy = spyOn(component, 'visualRetroaction').and.callFake(() => {
-    //         return;
-    //     });
-    //     const differenceTry: DifferenceTry = { validated: false, differencePos: { x: 0, y: 0 }, username: 'Test' };
-    //     classicModeService.serverValidateResponse$.next(differenceTry);
-    //     component.ngAfterViewInit();
-    //     expect(component.playerIsAllowedToClick).toBeFalse();
-    //     expect(serverValidateResponseSpy).toHaveBeenCalled();
-    //     expect(playSpy).toHaveBeenCalled();
-    //     expect(visualRetroactionSpy).toHaveBeenCalledOnceWith(component.canvasClicked);
-    // });
+    it('should react accordingly on invalid response from server', () => {
+        const serverValidateResponseSpy = spyOn(component.classicModeService.serverValidateResponse$, 'subscribe').and.callThrough();
+        const correctRetroactionSpy = spyOn(component, 'correctRetroaction').and.callFake(() => {
+            return;
+        });
+        const erreurRetroactionSpy = spyOn(component, 'erreurRetroaction').and.callFake(() => {
+            return;
+        });
+        const differenceTry: DifferenceTry = { validated: false, differencePos: { x: 0, y: 0 }, username: 'Test' };
+        component.classicModeService.username = differenceTry.username;
+        component.ngAfterViewInit();
+        classicModeService.serverValidateResponse$.next(differenceTry);
+        expect(serverValidateResponseSpy).toHaveBeenCalled();
+        expect(correctRetroactionSpy).not.toHaveBeenCalled();
+        expect(erreurRetroactionSpy).toHaveBeenCalledWith(component.canvasClicked);
+    });
 
     it('should correctly set the variables if the desired gameRoom exists', () => {
         component.classicModeService.gameRoom = gameRoom;
