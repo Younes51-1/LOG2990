@@ -8,6 +8,7 @@ import { GameData, GameRoom, UserGame } from '@app/interfaces/game';
 import { ChatService } from '@app/services/chatService/chat.service';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
+import { Color } from 'src/assets/variables/color';
 
 @NgModule({
     imports: [HttpClientModule],
@@ -183,6 +184,19 @@ describe('PlayAreaComponent', () => {
         expect(component.playerIsAllowedToClick).toBeTruthy();
     }));
 
+    it("flashDifference shouldn't call removeDifference if context1 or context2 are null", fakeAsync(() => {
+        component.context1 = null as unknown as CanvasRenderingContext2D;
+        component.context2 = null as unknown as CanvasRenderingContext2D;
+        const spy = spyOn(component, 'removeDifference').and.callFake(() => {
+            return;
+        });
+        component.flashDifference(component.differenceMatrix);
+        const timeOut = 1500;
+        tick(timeOut);
+        expect(spy).not.toHaveBeenCalled();
+        expect(component.playerIsAllowedToClick).toBeTruthy();
+    }));
+
     it('removeDifference should update the differenceMatrix', () => {
         component.canvas1.nativeElement = document.createElement('canvas');
         component.canvas2.nativeElement = document.createElement('canvas');
@@ -317,6 +331,19 @@ describe('PlayAreaComponent', () => {
         discardPeriodicTasks();
     }));
 
+    it("shouldn't call createAndFillNewLayer when in cheatMode if context1 or context2 are null", fakeAsync(() => {
+        component.context1 = null as unknown as CanvasRenderingContext2D;
+        component.context2 = null as unknown as CanvasRenderingContext2D;
+        const spy = spyOn(component, 'createAndFillNewLayer').and.callFake(() => {
+            return null as unknown as HTMLCanvasElement;
+        });
+        component.cheatMode();
+        const ms = 125;
+        tick(ms);
+        expect(spy).not.toHaveBeenCalled();
+        discardPeriodicTasks();
+    }));
+
     it('should call drawImage 8 times per second on both contexts when in cheatMode', fakeAsync(() => {
         component.differenceMatrix = differenceMatrix;
         component.isCheatModeOn = true;
@@ -357,5 +384,52 @@ describe('PlayAreaComponent', () => {
         const buttonEvent = { key: cheatModeKey } as KeyboardEvent;
         component.buttonDetect(buttonEvent);
         expect(cheatModeSpy).not.toHaveBeenCalled();
+    });
+
+    // TODO: Coralie should change tests description
+    it('correctRetroaction should call shit ', () => {
+        component.playerIsAllowedToClick = true;
+        spyOn(component, 'correctAnswerVisuals');
+        spyOn(component.audioValid, 'pause');
+        spyOn(component.audioValid, 'play');
+
+        component.correctRetroaction({ x: 1, y: 2 });
+        expect(component.playerIsAllowedToClick).toBeFalsy();
+        expect(component.correctAnswerVisuals).toHaveBeenCalledWith({ x: 1, y: 2 });
+        expect(component.audioValid.pause).toHaveBeenCalled();
+        expect(component.audioValid.currentTime).toEqual(0);
+        expect(component.audioValid.play).toHaveBeenCalled();
+    });
+
+    it('should return an layer when context is null', () => {
+        spyOn(window.HTMLCanvasElement.prototype, 'getContext').and.callFake(() => {
+            return null;
+        });
+        const result = document.createElement('canvas');
+        result.width = component.width;
+        result.height = component.height;
+        expect(component.createAndFillNewLayer(Color.Cheat, true, differenceMatrix)).toEqual(result);
+    });
+
+    it("should change differenceMartix, original, modified source if gameRoom isn't undefined", () => {
+        component.gameRoom = gameRoom;
+        component.classicModeService.gameRoom = gameRoom;
+        component.ngOnChanges();
+
+        expect(component.differenceMatrix).toEqual(gameRoom.userGame.gameData.differenceMatrix);
+        expect(component.original.src).toContain(gameRoom.userGame.gameData.gameForm.image1url);
+        expect(component.modified.src).toContain(gameRoom.userGame.gameData.gameForm.image2url);
+    });
+
+    it("shouldn't change differenceMartix, original, modified source if gameRoom is undefined", () => {
+        component.gameRoom = undefined as unknown as GameRoom;
+        component.original.src = 'https://gifdb.com/gif/rickroll-rick-astley-eye-test-secret-image-wipissd9eslga2go.html';
+        component.modified.src = 'https://gifdb.com/gif/rickroll-rick-astley-eye-test-secret-image-wipissd9eslga2go.html';
+        component.classicModeService.gameRoom = gameRoom;
+        component.ngOnChanges();
+
+        expect(component.differenceMatrix).toEqual(undefined as unknown as number[][]);
+        expect(component.original.src).toContain('https://gifdb.com/gif/rickroll-rick-astley-eye-test-secret-image-wipissd9eslga2go.html');
+        expect(component.modified.src).toContain('https://gifdb.com/gif/rickroll-rick-astley-eye-test-secret-image-wipissd9eslga2go.html');
     });
 });
