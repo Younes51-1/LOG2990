@@ -2,6 +2,7 @@ import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { Message } from '@app/interfaces/chat';
 import { GameRoom } from '@app/interfaces/game';
 import { ChatService } from '@app/services/chatService/chat.service';
+import { VerifyInputService } from '@app/services/verifyInput/verify-input.service';
 
 @Component({
     selector: 'app-chat-box',
@@ -16,7 +17,7 @@ export class ChatBoxComponent implements OnInit {
     message = '';
     messages: Message[] = [];
 
-    constructor(private chatService: ChatService) {}
+    constructor(public chatService: ChatService, public verifyService: VerifyInputService) {}
 
     ngOnInit() {
         this.chatService.message$.subscribe((message: Message) => {
@@ -28,31 +29,13 @@ export class ChatBoxComponent implements OnInit {
     }
 
     sendMessage() {
-        if (!this.verifyUserInput(this.message)) {
+        if (!this.verifyService.verify(this.message)) {
             // TODO: CSS for invalid input
             return;
         } else {
             this.chatService.sendMessage(this.message, this.username, this.gameRoom.roomId);
             this.message = '';
         }
-    }
-
-    verifyUserInput(input: string): boolean {
-        if (typeof input !== 'string') {
-            return false;
-        }
-
-        if (/[\u200B-\u200D\uFEFF]/.test(input)) {
-            return false;
-        }
-
-        if (input.trim().length === 0) {
-            return false;
-        }
-        // TODO: add more WORDS
-        const forbiddenWords = ['foo', 'bar', 'baz'];
-        const regex = new RegExp('\\b(' + forbiddenWords.join('|') + ')\\b', 'i');
-        return !regex.test(input);
     }
 
     chatInputFocus() {

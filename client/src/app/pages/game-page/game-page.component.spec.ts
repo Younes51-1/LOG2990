@@ -8,8 +8,8 @@ import { MatToolbar } from '@angular/material/toolbar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
+import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
-import { OpponentSidebarComponent } from '@app/components/opponent-sidebar/opponent-sidebar.component';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { GameData, GameRoom } from '@app/interfaces/game';
@@ -67,7 +67,7 @@ describe('GamePageComponent', () => {
             return;
         });
         await TestBed.configureTestingModule({
-            declarations: [GamePageComponent, SidebarComponent, MatToolbar, EndgameDialogComponent, OpponentSidebarComponent, PlayAreaComponent],
+            declarations: [GamePageComponent, SidebarComponent, MatToolbar, EndgameDialogComponent, ChatBoxComponent, PlayAreaComponent],
             imports: [DynamicTestModule, RouterTestingModule, MatDialogModule],
             providers: [
                 ChatService,
