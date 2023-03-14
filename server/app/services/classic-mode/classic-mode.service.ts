@@ -37,7 +37,6 @@ export class ClassicModeService {
         const gameRoom = this.getGameRoom(gameName);
         if (!gameName) return false;
         gameRoom.userGame.potentielPlayers.push(userName);
-        this.gameRooms.delete(gameRoom.roomId);
         this.gameRooms.set(gameRoom.roomId, gameRoom);
         socket.join(gameRoom.roomId);
         return true;
