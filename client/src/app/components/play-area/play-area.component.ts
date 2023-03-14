@@ -81,22 +81,19 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         this.classicModeService.userDifferencesFound$.subscribe((differencesFound) => {
             this.userDifferencesFound = differencesFound;
         });
+
         this.classicModeService.serverValidateResponse$.subscribe((difference) => {
             if (difference.validated) {
-                this.playerIsAllowedToClick = false;
-                this.correctAnswerVisuals(difference.differencePos);
-                this.audioValid.pause();
-                this.audioValid.currentTime = 0;
-                this.audioValid.play();
-            } else {
-                this.playerIsAllowedToClick = false;
-                this.audioInvalid.play();
-                if (difference.username === this.classicModeService.username) {
-                    this.visualRetroaction(this.canvasClicked);
-                }
-                this.userError.emit();
+                this.correctRetroaction(difference.differencePos);
+            } else if (difference.username === this.classicModeService.username) {
+                this.erreurRetroaction(this.canvasClicked);
             }
         });
+
+        this.setContexts();
+    }
+
+    setContexts() {
         const context1 = this.canvas1.nativeElement.getContext('2d');
         if (context1) {
             this.context1 = context1;
@@ -115,8 +112,10 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
             this.original.src = this.gameRoom.userGame.gameData.gameForm.image1url;
             this.modified.src = this.gameRoom.userGame.gameData.gameForm.image2url;
         }
+
         this.original.crossOrigin = 'Anonymous'; // needed to get access to images of server
         this.modified.crossOrigin = 'Anonymous';
+
         this.original.onload = () => {
             this.handleImageLoad(this.context1, this.original);
         };
@@ -140,12 +139,24 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
                 this.classicModeService.validateDifference(this.mousePosition);
                 this.canvasClicked = canvas;
             } else {
-                this.playerIsAllowedToClick = false;
-                this.audioInvalid.play();
-                this.visualRetroaction(canvas);
-                this.userError.emit();
+                this.erreurRetroaction(canvas);
             }
         }
+    }
+
+    correctRetroaction(differencePos: Vec2) {
+        this.playerIsAllowedToClick = false;
+        this.correctAnswerVisuals(differencePos);
+        this.audioValid.pause();
+        this.audioValid.currentTime = 0;
+        this.audioValid.play();
+    }
+
+    erreurRetroaction(canvas: HTMLCanvasElement) {
+        this.playerIsAllowedToClick = false;
+        this.audioInvalid.play();
+        this.visualRetroaction(canvas);
+        this.userError.emit();
     }
 
     visualRetroaction(canvas: HTMLCanvasElement) {
@@ -183,12 +194,11 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
             if (isFlashing) {
                 this.context1.drawImage(this.original, 0, 0, this.width, this.height);
                 this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
-                isFlashing = !isFlashing;
             } else {
                 this.context1.drawImage(layer, 0, 0, this.width, this.height);
                 this.context2.drawImage(layer, 0, 0, this.width, this.height);
-                isFlashing = !isFlashing;
             }
+            isFlashing = !isFlashing;
         }, timeOut);
         setTimeout(() => {
             this.removeDifference(this.currentDifferenceMatrix);
