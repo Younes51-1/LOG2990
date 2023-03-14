@@ -22,10 +22,10 @@ import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { SlickCarouselModule } from 'ngx-slick-carousel';
+import { ChatBoxComponent } from './components/chat-box/chat-box.component';
 import { ModalDialogComponent } from './components/modal-dialog/modal-dialog.component';
-import { ConfigSelectPageComponent } from './pages/config-select-page/config-select-page.component';
 import { WaitingRoomComponent } from './components/waiting-room-dialog/waiting-room-dialog.component';
-import { OpponentSidebarComponent } from './components/opponent-sidebar/opponent-sidebar.component';
+import { ConfigSelectPageComponent } from './pages/config-select-page/config-select-page.component';
 
 /**
  * Main module that is used in main.ts.
@@ -40,6 +40,7 @@ import { OpponentSidebarComponent } from './components/opponent-sidebar/opponent
         MainPageComponent,
         PlayAreaComponent,
         SidebarComponent,
+        ChatBoxComponent,
         GameCardComponent,
         CreationGamePageComponent,
         ConfigParamsComponent,
@@ -47,7 +48,6 @@ import { OpponentSidebarComponent } from './components/opponent-sidebar/opponent
         ModalDialogComponent,
         ConfigSelectPageComponent,
         WaitingRoomComponent,
-        OpponentSidebarComponent,
     ],
     providers: [],
     bootstrap: [AppComponent],

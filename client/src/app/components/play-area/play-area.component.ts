@@ -35,11 +35,12 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     audioInvalid = new Audio('assets/sounds/invalid_sound.mp3');
     differenceMatrix: number[][];
     currentDifferenceMatrix: number[][];
-    emptypixel: number;
+    emptyPixel: number;
     timesFlashDifferences: number;
     isCheatModeOn = false;
     layer: HTMLCanvasElement;
-    intervalId: ReturnType<typeof setInterval>;
+    differenceIntervalId: ReturnType<typeof setInterval>;
+    cheatIntervalId: ReturnType<typeof setInterval>;
     private canvasSize = { x: Dimensions.DEFAULT_WIDTH, y: Dimensions.DEFAULT_HEIGHT };
 
     // eslint-disable-next-line max-params
@@ -49,7 +50,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         public classicModeService: ClassicModeService,
         private chatService: ChatService,
     ) {
-        this.emptypixel = -1;
+        this.emptyPixel = -1;
         this.timesFlashDifferences = 5;
     }
 
@@ -83,7 +84,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         this.classicModeService.serverValidateResponse$.subscribe((difference) => {
             if (difference.validated) {
                 this.playerIsAllowedToClick = false;
-                this.correctAnswerVisuals(difference.differencePos.x, difference.differencePos.y);
+                this.correctAnswerVisuals(difference.differencePos);
                 this.audioValid.pause();
                 this.audioValid.currentTime = 0;
                 this.audioValid.play();
@@ -134,7 +135,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     async mouseClickAttempt(event: MouseEvent, canvas: HTMLCanvasElement) {
         if (this.playerIsAllowedToClick) {
             this.mousePosition = this.mouseService.mouseClick(event, this.mousePosition);
-            const isValidated = this.differenceMatrix[this.mousePosition.y][this.mousePosition.x] !== this.emptypixel;
+            const isValidated = this.differenceMatrix[this.mousePosition.y][this.mousePosition.x] !== this.emptyPixel;
             if (isValidated) {
                 this.classicModeService.validateDifference(this.mousePosition);
                 this.canvasClicked = canvas;
@@ -163,30 +164,39 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         }
     }
 
-    correctAnswerVisuals(xCoord: number, yCoord: number) {
+    correctAnswerVisuals(coords: Vec2) {
         if (this.differenceMatrix) {
-            this.currentDifferenceMatrix = this.detectionService.extractDifference(JSON.parse(JSON.stringify(this.differenceMatrix)), xCoord, yCoord);
+            this.currentDifferenceMatrix = this.detectionService.extractDifference(JSON.parse(JSON.stringify(this.differenceMatrix)), coords);
             this.flashDifference(this.currentDifferenceMatrix);
         }
     }
 
     flashDifference(difference: number[][]) {
-        const timeOut = 100;
-        const layer = this.createAndFillNewLayer(Color.Luigi, false, difference);
-        if (this.context1 && this.context2) {
-            for (let i = 1; i <= this.timesFlashDifferences; i++) {
-                setTimeout(() => {
-                    this.context1.drawImage(layer, 0, 0, this.width, this.height);
-                    this.context2.drawImage(layer, 0, 0, this.width, this.height);
-                    setTimeout(() => {
-                        this.context1.drawImage(this.original, 0, 0, this.width, this.height);
-                        this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
-                        if (i === 1) this.removeDifference(this.currentDifferenceMatrix);
-                        if (i === this.timesFlashDifferences) this.playerIsAllowedToClick = true;
-                    }, timeOut);
-                }, 2 * i * timeOut);
-            }
+        if (!this.context1 || !this.context2) {
+            return;
         }
+        const timeOut = 100;
+        const totalDuration = 1000;
+        const layer = this.createAndFillNewLayer(Color.Luigi, false, difference);
+        let isFlashing = false;
+        this.differenceIntervalId = setInterval(() => {
+            if (isFlashing) {
+                this.context1.drawImage(this.original, 0, 0, this.width, this.height);
+                this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
+                isFlashing = !isFlashing;
+            } else {
+                this.context1.drawImage(layer, 0, 0, this.width, this.height);
+                this.context2.drawImage(layer, 0, 0, this.width, this.height);
+                isFlashing = !isFlashing;
+            }
+        }, timeOut);
+        setTimeout(() => {
+            this.removeDifference(this.currentDifferenceMatrix);
+            this.playerIsAllowedToClick = true;
+            clearInterval(this.differenceIntervalId);
+            this.context1.drawImage(this.original, 0, 0, this.width, this.height);
+            this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
+        }, totalDuration);
     }
 
     removeDifference(differenceMatrix: number[][]) {
@@ -196,9 +206,9 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
 
         for (let i = 0; i < differenceMatrix.length; i++) {
             for (let j = 0; j < differenceMatrix[0].length; j++) {
-                if (differenceMatrix[i][j] !== this.emptypixel) {
+                if (differenceMatrix[i][j] !== this.emptyPixel) {
                     differencePositions.push({ x: j, y: i });
-                    this.differenceMatrix[i][j] = this.emptypixel;
+                    this.differenceMatrix[i][j] = this.emptyPixel;
                 }
             }
         }
@@ -224,8 +234,11 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     }
 
     cheatMode() {
+        if (!this.context1 || !this.context2) {
+            return;
+        }
         if (!this.isCheatModeOn) {
-            clearInterval(this.intervalId);
+            clearInterval(this.cheatIntervalId);
             this.context1.drawImage(this.original, 0, 0, this.width, this.height);
             this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
             return;
@@ -233,19 +246,17 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         const flashDuration = 125;
         let isFlashing = true;
         this.verifyDifferenceMatrix();
-        if (this.context1 && this.context2) {
-            this.intervalId = setInterval(() => {
-                if (isFlashing) {
-                    this.context1.drawImage(this.original, 0, 0, this.width, this.height);
-                    this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
-                    isFlashing = !isFlashing;
-                } else {
-                    this.context1.drawImage(this.layer, 0, 0, this.width, this.height);
-                    this.context2.drawImage(this.layer, 0, 0, this.width, this.height);
-                    isFlashing = !isFlashing;
-                }
-            }, flashDuration);
-        }
+        this.cheatIntervalId = setInterval(() => {
+            if (isFlashing) {
+                this.context1.drawImage(this.original, 0, 0, this.width, this.height);
+                this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
+                isFlashing = !isFlashing;
+            } else {
+                this.context1.drawImage(this.layer, 0, 0, this.width, this.height);
+                this.context2.drawImage(this.layer, 0, 0, this.width, this.height);
+                isFlashing = !isFlashing;
+            }
+        }, flashDuration);
     }
 
     createAndFillNewLayer(color: Color, isCheat: boolean, matrix: number[][]): HTMLCanvasElement {
@@ -254,14 +265,15 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         layer.width = this.width;
         layer.height = this.height;
         const context = layer.getContext('2d');
-        if (context) {
-            context.globalAlpha = isCheat ? cheatAlphaValue : 1;
-            context.fillStyle = color;
-            for (let i = 0; i < matrix.length; i++) {
-                for (let j = 0; j < matrix[0].length; j++) {
-                    if (matrix[i][j] !== this.emptypixel) {
-                        context.fillRect(j, i, 1, 1);
-                    }
+        if (!context) {
+            return layer;
+        }
+        context.globalAlpha = isCheat ? cheatAlphaValue : 1;
+        context.fillStyle = color;
+        for (let i = 0; i < matrix.length; i++) {
+            for (let j = 0; j < matrix[0].length; j++) {
+                if (matrix[i][j] !== this.emptyPixel) {
+                    context.fillRect(j, i, 1, 1);
                 }
             }
         }

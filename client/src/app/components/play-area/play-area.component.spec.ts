@@ -137,7 +137,7 @@ describe('PlayAreaComponent', () => {
         const spyExtractDiff = spyOn(detectionDifferenceService, 'extractDifference').and.callFake(() => {
             return component.differenceMatrix;
         });
-        component.correctAnswerVisuals(1, 2);
+        component.correctAnswerVisuals({ x: 1, y: 2 });
         expect(spyFlashDifferent).toHaveBeenCalled();
         expect(spyExtractDiff).toHaveBeenCalled();
     });
@@ -195,6 +195,15 @@ describe('PlayAreaComponent', () => {
         expect(component.differenceMatrix).toEqual(newDifferenceMatrix);
     });
 
+    it('should correctly set totalDifferencesFound variable', () => {
+        const testingValue = 5;
+        const totalDifferencesFoundSpy = spyOn(component.classicModeService.totalDifferencesFound$, 'subscribe').and.callThrough();
+        component.ngAfterViewInit();
+        classicModeService.totalDifferencesFound$.next(testingValue);
+        expect(totalDifferencesFoundSpy).toHaveBeenCalled();
+        expect(component.totalDifferencesFound).toEqual(testingValue);
+    });
+
     it('should correctly set the differenceFound variable', () => {
         const testingValue = 5;
         const differenceFoundSpy = spyOn(component.classicModeService.userDifferencesFound$, 'subscribe').and.callThrough();
@@ -220,7 +229,7 @@ describe('PlayAreaComponent', () => {
         component.ngAfterViewInit();
         expect(serverValidateResponseSpy).toHaveBeenCalled();
         expect(component.playerIsAllowedToClick).toBeFalse();
-        expect(correctAnswerVisualsSpy).toHaveBeenCalledOnceWith(component.mousePosition.x, component.mousePosition.y);
+        expect(correctAnswerVisualsSpy).toHaveBeenCalledOnceWith(component.mousePosition);
         expect(pauseSpy).toHaveBeenCalled();
         expect(playSpy).toHaveBeenCalled();
     });
