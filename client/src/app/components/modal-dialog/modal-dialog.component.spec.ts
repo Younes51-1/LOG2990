@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.component';
 
@@ -73,4 +73,14 @@ describe('ModalDialogComponent', () => {
         component.toggleBorder();
         expect(component.emitNameGame).toHaveBeenCalled();
     });
+
+    it('ngAfterViewInit onload should call drawImage', fakeAsync(() => {
+        const drawImagespy = spyOn(component, 'drawImage').and.callFake(() => {
+            return;
+        });
+        component.ngAfterViewInit();
+        component.image.dispatchEvent(new Event('load'));
+        tick();
+        expect(drawImagespy).toHaveBeenCalled();
+    }));
 });

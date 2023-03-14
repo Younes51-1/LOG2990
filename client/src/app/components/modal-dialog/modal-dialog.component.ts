@@ -19,6 +19,7 @@ export class ModalDialogComponent implements AfterViewInit {
     width: number;
     height: number;
     context: CanvasRenderingContext2D;
+    image: HTMLImageElement;
     scaleNumber: number = 1;
     inputValue: string;
     applyBorder = false;
@@ -34,10 +35,10 @@ export class ModalDialogComponent implements AfterViewInit {
 
     ngAfterViewInit(): void {
         this.context = this.canvasDifferences.nativeElement.getContext('2d') as CanvasRenderingContext2D;
-        const image = new Image();
-        image.src = this.data.imageUrl;
-        image.onload = () => {
-            this.drawImage(image);
+        this.image = new Image();
+        this.image.src = this.data.imageUrl;
+        this.image.onload = () => {
+            this.drawImage(this.image);
         };
     }
 
