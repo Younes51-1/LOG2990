@@ -60,11 +60,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.username = this.classicModeService.username;
             if (gameRoom.userGame.username2) {
                 this.opponentUsername = gameRoom.userGame.username1 === this.username ? gameRoom.userGame.username2 : gameRoom.userGame.username1;
-                if (gameRoom.userGame.gameData.gameForm.nbDifference % 2 === 0) {
-                    this.differenceThreshold = gameRoom.userGame.gameData.gameForm.nbDifference / 2;
-                } else {
-                    this.differenceThreshold = (gameRoom.userGame.gameData.gameForm.nbDifference + 1) / 2;
-                }
+                this.differenceThreshold = Math.ceil(gameRoom.userGame.gameData.gameForm.nbDifference / 2);
             } else {
                 this.opponentUsername = '';
                 this.differenceThreshold = gameRoom.userGame.gameData.gameForm.nbDifference;

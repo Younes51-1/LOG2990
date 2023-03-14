@@ -15,7 +15,7 @@ export class VerifyInputService {
         // TODO: add more WORDS
         const forbiddenWords = ['foo', 'bar', 'baz'];
         for (const word of forbiddenWords) {
-            if (input.toLowerCase() === word.toLowerCase()) {
+            if (input.toLowerCase().includes(word.toLowerCase())) {
                 return false;
             }
         }
