@@ -1,5 +1,5 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { ChildrenOutletContexts, DefaultUrlSerializer, RouterModule, UrlSerializer } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -126,6 +126,15 @@ describe('ForegroundService', () => {
         expect(spyDrawImage2).toHaveBeenCalled();
     });
 
+    it('should return without swapping if contextTemp is null', () => {
+        spyOn(window.HTMLCanvasElement.prototype, 'getContext').and.callFake(() => {
+            return null;
+        });
+        const spyUpdateContext = spyOn(service, 'updateContext').and.callThrough();
+        service.component.swapForegrounds();
+        expect(spyUpdateContext).not.toHaveBeenCalled();
+    });
+
     it('should push and swap foregrounds', () => {
         const spyEmptyRedoStack = spyOn(service.component, 'emptyRedoStack').and.callFake(() => {
             return;
@@ -174,6 +183,16 @@ describe('ForegroundService', () => {
         expect(spy).toHaveBeenCalled();
         expect(updateContextSpy).toHaveBeenCalledTimes(2);
     });
+
+    it('updateContext should draw image and foreground on load', fakeAsync(() => {
+        const drawImagespy = spyOn(service.component.context1, 'drawImage').and.callFake(() => {
+            return;
+        });
+        service.updateContext(component.context1, component.canvasForeground1, component.urlPath1);
+        service.imageToDraw.dispatchEvent(new Event('load'));
+        tick();
+        expect(drawImagespy).toHaveBeenCalledTimes(2);
+    }));
 
     it('should fill context in white', () => {
         const canvas = document.createElement('canvas');
