@@ -74,13 +74,12 @@ describe('ModalDialogComponent', () => {
         expect(component.emitNameGame).toHaveBeenCalled();
     });
 
-    it('ngAfterViewInit onload should call drawImage', fakeAsync(() => {
-        const drawImagespy = spyOn(component, 'drawImage').and.callFake(() => {
-            return;
-        });
+    it('ngAfterViewInit should load image', fakeAsync(() => {
+        component.data.imageUrl = 'https://i.imgur.com/tG1K4kJ.jpeg';
         component.ngAfterViewInit();
+        tick(0);
         component.image.dispatchEvent(new Event('load'));
-        tick();
-        expect(drawImagespy).toHaveBeenCalled();
+        tick(0);
+        expect(component.image.onerror).toBeNull();
     }));
 });

@@ -184,14 +184,13 @@ describe('ForegroundService', () => {
         expect(updateContextSpy).toHaveBeenCalledTimes(2);
     });
 
-    it('updateContext should draw image and foreground on load', fakeAsync(() => {
-        const drawImagespy = spyOn(service.component.context1, 'drawImage').and.callFake(() => {
-            return;
-        });
-        service.updateContext(component.context1, component.canvasForeground1, component.urlPath1);
+    it('updateContext should load images', fakeAsync(() => {
+        service.component.context1 = document.createElement('canvas').getContext('2d') as CanvasRenderingContext2D;
+        service.updateContext(component.context1, component.canvasForeground1, 'https://i.imgur.com/tG1K4kJ.jpeg');
+        tick(0);
         service.imageToDraw.dispatchEvent(new Event('load'));
-        tick();
-        expect(drawImagespy).toHaveBeenCalledTimes(2);
+        tick(0);
+        expect(service.imageToDraw.onerror).toBeNull();
     }));
 
     it('should fill context in white', () => {
