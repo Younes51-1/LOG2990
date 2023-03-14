@@ -4,10 +4,10 @@ import { NgModule } from '@angular/core';
 import { ComponentFixture, discardPeriodicTasks, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
 import { DifferenceTry } from '@app/interfaces/difference-try';
-import { GameData, UserGame, GameRoom } from '@app/interfaces/game';
+import { GameData, GameRoom, UserGame } from '@app/interfaces/game';
+import { ChatService } from '@app/services/chatService/chat.service';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
 import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
-import { ChatService } from '@app/services/chatService/chat.service';
 
 @NgModule({
     imports: [HttpClientModule],
@@ -27,7 +27,7 @@ const createAndPopulateMatrix = (value: number): number[][] => {
 
 const invalidPixelValue = -1;
 
-fdescribe('PlayAreaComponent', () => {
+describe('PlayAreaComponent', () => {
     const differenceMatrix: number[][] = [[]];
     const gameForm = {
         name: '',
