@@ -19,7 +19,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     timer = 0;
     totalDifferencesFound = 0;
     userDifferencesFound = 0;
-    multiplayerThreshold = 0;
+    differenceThreshold = 0;
     gameFinished = false;
     abandon = false;
     gameRoom: GameRoom;
@@ -45,7 +45,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.userDifferencesFoundSubscription = this.classicModeService.userDifferencesFound$.subscribe((count) => {
             this.userDifferencesFound = count;
             this.sendEvent('success');
-            if (this.gameRoom.userGame.username2 && this.userDifferencesFound >= this.multiplayerThreshold) {
+            if (this.userDifferencesFound >= this.differenceThreshold) {
                 this.gameFinished = true;
                 this.endGame();
             }
@@ -60,13 +60,14 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.username = this.classicModeService.username;
             if (gameRoom.userGame.username2) {
                 this.opponentUsername = gameRoom.userGame.username1 === this.username ? gameRoom.userGame.username2 : gameRoom.userGame.username1;
+                if (gameRoom.userGame.gameData.gameForm.nbDifference % 2 === 0) {
+                    this.differenceThreshold = gameRoom.userGame.gameData.gameForm.nbDifference / 2;
+                } else {
+                    this.differenceThreshold = (gameRoom.userGame.gameData.gameForm.nbDifference + 1) / 2;
+                }
             } else {
                 this.opponentUsername = '';
-            }
-            if (gameRoom.userGame.gameData.gameForm.nbDifference % 2 === 0) {
-                this.multiplayerThreshold = gameRoom.userGame.gameData.gameForm.nbDifference / 2;
-            } else {
-                this.multiplayerThreshold = (gameRoom.userGame.gameData.gameForm.nbDifference + 1) / 2;
+                this.differenceThreshold = gameRoom.userGame.gameData.gameForm.nbDifference;
             }
         });
         this.abandonedGameSubscription = this.classicModeService.abandoned$.subscribe((userName: string) => {
@@ -80,11 +81,9 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     endGame() {
         if (this.gameFinished) {
-            if (this.totalDifferencesFound === this.gameRoom.userGame.gameData.gameForm.nbDifference) {
+            if (this.userDifferencesFound === this.differenceThreshold) {
                 this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
-            } else if (this.gameRoom.userGame.username2 && this.userDifferencesFound >= this.multiplayerThreshold) {
-                this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
-            } else if (this.gameRoom.userGame.username2) {
+            } else {
                 this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: false } });
             }
             this.classicModeService.endGame();
