@@ -4,7 +4,15 @@
         <p>Bienvenue au jeu : {{ gameName }}, {{ username }} !</p>
     </header>
     <section>
-        <app-sidebar [gameName]="gameName" [timer]="timer" [differencesFound]="userDifferencesFound"
+        <app-sidebar
+            [gameName]="gameName"
+            [timer]="timer"
+            [differencesFound]="userDifferencesFound"
+            [gameRoom]="gameRoom"
+            (endGameParent)="endGame()"
+        ></app-sidebar>
+        <app-play-area class="play-area" tabindex="0" [gameRoom]="gameRoom" (userError)="sendEvent('error')"></app-play-area>
+        <app-opponent-sidebar
             [opponentDifferencesFound]="totalDifferencesFound - userDifferencesFound"
             [gameRoom]="gameRoom"
             [username]="username"
