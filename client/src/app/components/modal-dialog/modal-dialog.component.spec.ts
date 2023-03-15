@@ -75,11 +75,14 @@ describe('ModalDialogComponent', () => {
     });
 
     it('ngAfterViewInit should load image', (done) => {
+        const drawImageSpy = spyOn(component, 'drawImage').and.callFake(() => {
+            return;
+        });
         component.data.imageUrl = 'https://i.imgur.com/tG1K4kJ.jpeg';
         component.ngAfterViewInit();
         component.image.dispatchEvent(new Event('load'));
         setTimeout(() => {
-            expect(component.image.onerror).toBeNull();
+            expect(drawImageSpy).toHaveBeenCalled();
             done();
         }, 0);
     });

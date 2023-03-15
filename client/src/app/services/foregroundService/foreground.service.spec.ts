@@ -1,5 +1,5 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { ChildrenOutletContexts, DefaultUrlSerializer, RouterModule, UrlSerializer } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -184,14 +184,18 @@ describe('ForegroundService', () => {
         expect(updateContextSpy).toHaveBeenCalledTimes(2);
     });
 
-    it('updateContext should load images', fakeAsync(() => {
+    it('updateContext should load images', (done) => {
         service.component.context1 = document.createElement('canvas').getContext('2d') as CanvasRenderingContext2D;
+        const drawImageSpy = spyOn(service.component.context1, 'drawImage').and.callFake(() => {
+            return;
+        });
         service.updateContext(component.context1, component.canvasForeground1, 'https://i.imgur.com/tG1K4kJ.jpeg');
-        tick(0);
         service.imageToDraw.dispatchEvent(new Event('load'));
-        tick(0);
-        expect(service.imageToDraw.onerror).toBeNull();
-    }));
+        setTimeout(() => {
+            expect(drawImageSpy).toHaveBeenCalledTimes(2);
+            done();
+        }, 0);
+    });
 
     it('should fill context in white', () => {
         const canvas = document.createElement('canvas');
