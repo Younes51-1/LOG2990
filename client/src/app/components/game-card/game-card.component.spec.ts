@@ -1,8 +1,9 @@
+/* eslint-disable max-lines */
 // eslint-disable-next-line max-classes-per-file
 import { OverlayModule } from '@angular/cdk/overlay';
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialog, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -149,6 +150,18 @@ describe('GameCardComponent', () => {
         expect(component.routeTwo).toEqual(options.selection.routeTwo);
         expect(component.btnTwo).toEqual(options.selection.btnTwo);
     });
+
+    it('should focus appropriate input', fakeAsync(() => {
+        const inputElement = document.createElement('input');
+        document.body.appendChild(inputElement);
+        const focusSpy = spyOn(window.HTMLInputElement.prototype, 'focus').and.callFake(() => {
+            return;
+        });
+        component.focusInput();
+        const timeout = 0;
+        tick(timeout);
+        expect(focusSpy).toHaveBeenCalled();
+    }));
 
     it("should call check game when 'Option multijoueur' is clicked", () => {
         component.page = PageKeys.Selection;

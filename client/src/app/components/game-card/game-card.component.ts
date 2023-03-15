@@ -50,6 +50,15 @@ export class GameCardComponent implements OnInit, OnDestroy {
         this.btnTwo = btnTwo;
     }
 
+    focusInput() {
+        setTimeout(() => {
+            const input = document.querySelector('input');
+            if (input) {
+                input.focus();
+            }
+        }, 0);
+    }
+
     checkGame() {
         this.classicModeService.connectSocket();
 
