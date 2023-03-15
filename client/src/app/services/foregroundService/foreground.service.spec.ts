@@ -186,6 +186,7 @@ describe('ForegroundService', () => {
 
     it('updateContext should load images', (done) => {
         service.component.context1 = document.createElement('canvas').getContext('2d') as CanvasRenderingContext2D;
+        service.component.context1.clearRect(0, 0, component.width, component.height);
         const drawImageSpy = spyOn(service.component.context1, 'drawImage').and.callFake(() => {
             return;
         });

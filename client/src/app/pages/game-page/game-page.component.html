@@ -10,6 +10,6 @@
             (endGameParent)="endGame()"></app-sidebar>
         <app-play-area class="play-area" tabindex="0" [gameRoom]="gameRoom"
             (userError)="sendEvent('error')"></app-play-area>
-        <app-chat-box [gameRoom]="gameRoom"></app-chat-box>
+        <app-chat-box [gameRoom]="gameRoom" [username]="username"></app-chat-box>
     </section>
 </div>
