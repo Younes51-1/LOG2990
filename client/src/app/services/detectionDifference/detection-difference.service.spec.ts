@@ -23,22 +23,6 @@ describe('DetectionDifferenceService', () => {
         expect(service).toBeTruthy();
     });
 
-    it('createEmptyMatix should return a new matrix', () => {
-        const serviceMatrix = service.createEmptyMatrix(matrix.length, matrix[0].length, 1);
-        expect(serviceMatrix).toBeTruthy();
-    });
-
-    it('createEmptyMatix should return a new matrix with dimensions equal to parametre', () => {
-        const serviceMatrix = service.createEmptyMatrix(matrix.length, matrix[0].length, 1);
-        expect(serviceMatrix.length).toEqual(matrix.length);
-        expect(serviceMatrix[0].length).toEqual(matrix[0].length);
-    });
-
-    it("createEmptyMatix should return a new matrix equal to 'matrix' dimensions ", () => {
-        const serviceMatrix = service.createEmptyMatrix(matrix.length, matrix[0].length, 1);
-        expect(serviceMatrix).toEqual(matrix);
-    });
-
     it('difference matrix should be filled with emptyPixelValue if there is no difference', () => {
         const canvas1 = document.createElement('canvas');
         const canvas2 = document.createElement('canvas');
@@ -117,6 +101,22 @@ describe('DetectionDifferenceService', () => {
         expect(result2).toBeFalsy();
     });
 
+    it('createEmptyMatix should return a new matrix', () => {
+        const serviceMatrix = service.createEmptyMatrix(matrix.length, matrix[0].length, 1);
+        expect(serviceMatrix).toBeTruthy();
+    });
+
+    it('createEmptyMatix should return a new matrix with dimensions equal to parametre', () => {
+        const serviceMatrix = service.createEmptyMatrix(matrix.length, matrix[0].length, 1);
+        expect(serviceMatrix.length).toEqual(matrix.length);
+        expect(serviceMatrix[0].length).toEqual(matrix[0].length);
+    });
+
+    it("createEmptyMatix should return a new matrix equal to 'matrix' dimensions ", () => {
+        const serviceMatrix = service.createEmptyMatrix(matrix.length, matrix[0].length, 1);
+        expect(serviceMatrix).toEqual(matrix);
+    });
+
     it('should count the number of differences correctly', () => {
         const diffMatrix = service.createEmptyMatrix(height, width, emptyPixelValue);
         diffMatrix[1][1] = 1; // first difference
@@ -177,19 +177,16 @@ describe('DetectionDifferenceService', () => {
         expect(copyMatrix).not.toEqual(matrix1);
     });
 
-    it('should extract the current difference given a valid matrix and coordinates', () => {
-        const differenceMatrix = [
-            [1, emptyPixelValue, 1],
-            [1, emptyPixelValue, 1],
-            [emptyPixelValue, emptyPixelValue, 1],
+    /* eslint-disable @typescript-eslint/no-magic-numbers */
+    it('should create an image of differences', () => {
+        const diffMatrix = [
+            [0, 1, -1],
+            [0, 0, 0],
+            [-1, -1, -1],
         ];
-        const expectedMatrix = [
-            [1, emptyPixelValue, emptyPixelValue],
-            [1, emptyPixelValue, emptyPixelValue],
-            [emptyPixelValue, emptyPixelValue, emptyPixelValue],
-        ];
-        const result = service.extractDifference(differenceMatrix, { x: 0, y: 0 });
-        expect(result).toEqual(expectedMatrix);
+        const canvasUrl = service.createDifferencesImage(diffMatrix);
+        expect(canvasUrl).toBeDefined();
+        expect(canvasUrl).toContain('data:image/png;base64');
     });
 
     it('should return empty matrix from extractDifference given invalid coordinates', () => {
@@ -207,9 +204,29 @@ describe('DetectionDifferenceService', () => {
         expect(result).toEqual(expectedMatrix);
     });
 
+    it('should return an empty string when ctx is null', () => {
+        spyOn(window.HTMLCanvasElement.prototype, 'getContext').and.callFake(() => {
+            return null;
+        });
+        const differenceMatrix = [
+            [1, 0],
+            [0, 1],
+        ];
+        const result = service.createDifferencesImage(differenceMatrix);
+        expect(result).toBe('');
+    });
+
     it('should return easy if differences number lower than 7', () => {
-        const diffuculte = service.computeLevelDifficulty(1, matrix);
-        expect(diffuculte).toEqual('facile');
+        const difficulty = service.computeLevelDifficulty(1, matrix);
+        expect(difficulty).toEqual('facile');
+    });
+
+    it('should return easy if surface covered by differences is bigger than 0,15', () => {
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        const diffMatrix = service.createEmptyMatrix(480, 640, 0);
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        const difficulty = service.computeLevelDifficulty(7, diffMatrix);
+        expect(difficulty).toEqual('facile');
     });
 
     it('should return hard if criteria are met', () => {
@@ -217,19 +234,41 @@ describe('DetectionDifferenceService', () => {
         const diffMatrix = service.createEmptyMatrix(480, 640, emptyPixelValue);
         diffMatrix[0][0] = 1;
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        const diffuculte = service.computeLevelDifficulty(7, diffMatrix);
-        expect(diffuculte).toEqual('difficile');
+        const difficulty = service.computeLevelDifficulty(7, diffMatrix);
+        expect(difficulty).toEqual('difficile');
     });
 
-    /* eslint-disable @typescript-eslint/no-magic-numbers */
-    it('should create an image of differences', () => {
-        const diffMatrix = [
-            [0, 1, -1],
-            [0, 0, 0],
-            [-1, -1, -1],
+    it('should extract the current difference given a valid matrix and coordinates', () => {
+        const differenceMatrix = [
+            [1, emptyPixelValue, 1],
+            [1, emptyPixelValue, 1],
+            [emptyPixelValue, emptyPixelValue, 1],
         ];
-        const canvasUrl = service.createDifferencesImage(diffMatrix);
-        expect(canvasUrl).toBeDefined();
-        expect(canvasUrl).toContain('data:image/png;base64');
+        const expectedMatrix = [
+            [1, emptyPixelValue, emptyPixelValue],
+            [1, emptyPixelValue, emptyPixelValue],
+            [emptyPixelValue, emptyPixelValue, emptyPixelValue],
+        ];
+        const result = service.extractDifference(differenceMatrix, { x: 0, y: 0 });
+        expect(result).toEqual(expectedMatrix);
+    });
+
+    it('should not call addCoordOnValidValue if shift() return null', () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        spyOn(window.Array.prototype, 'shift').and.callFake(function (this: any[]) {
+            // eslint-disable-next-line no-invalid-this
+            if (!this) return null;
+            // eslint-disable-next-line no-invalid-this
+            if (this.length > 0) {
+                // eslint-disable-next-line no-invalid-this
+                this.splice(0, 1);
+            }
+            return null;
+        });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const addCoordOnValidValueSpy = spyOn<any>(service, 'addCoordOnValidValue');
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (service as any).findDifference(matrix, { x: 1, y: 1 });
+        expect(addCoordOnValidValueSpy).not.toHaveBeenCalled();
     });
 });

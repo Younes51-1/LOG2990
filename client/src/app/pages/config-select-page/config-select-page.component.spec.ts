@@ -2,11 +2,12 @@ import { Location } from '@angular/common';
 import { HttpClientModule, HttpResponse } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { By } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ConfigParamsComponent } from '@app/components/config-params/config-params.component';
+import { DeleteDialogComponent } from '@app/components/delete-dialog/delete-dialog.component';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
 import { of } from 'rxjs';
@@ -23,6 +24,7 @@ describe('ConfigSelectPageComponent', () => {
     let component: ConfigSelectPageComponent;
     let fixture: ComponentFixture<ConfigSelectPageComponent>;
     let communicationServiceSpy: SpyObj<CommunicationService>;
+    let dialog: MatDialog;
 
     beforeEach(async () => {
         communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getAllGames', 'deleteGame']);
@@ -55,10 +57,14 @@ describe('ConfigSelectPageComponent', () => {
             ]),
         );
         communicationServiceSpy.deleteGame.and.returnValue(of(new HttpResponse({ status: 200 }) as HttpResponse<string>));
-        await TestBed.configureTestingModule({
+        dialog = jasmine.createSpyObj('MatDialog', ['open']);
+        TestBed.configureTestingModule({
             declarations: [ConfigSelectPageComponent, ConfigParamsComponent],
             imports: [DynamicTestModule, RouterTestingModule, AppRoutingModule],
-            providers: [{ provide: CommunicationService, useValue: communicationServiceSpy }],
+            providers: [
+                { provide: CommunicationService, useValue: communicationServiceSpy },
+                { provide: MatDialog, useValue: dialog },
+            ],
         }).compileComponents();
     });
 
@@ -147,17 +153,47 @@ describe('ConfigSelectPageComponent', () => {
         expect(component.imgSource).toEqual('./assets/pictures/selection.png');
     });
 
-    // TODO: Fix this test
-    // it('deleteNotify should call removeSlide if PageKeys is set to Config', () => {
-    //     component.pageType = PageKeys.Config;
-    //     component.ngOnInit();
-    //     const spy = spyOn(component, 'removeSlide');
-    //     spyOn(matDialog, 'open').and.returnValue(matDialogRef);
-    //     component.deleteNotify('Find the Differences 1');
-    //     expect(matDialog.open).toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true });
-    //     expect(matDialogRef.afterClosed).toHaveBeenCalled();
-    //     expect(spy).toHaveBeenCalled();
-    // });
+    it('deleteNotify should call removeSlide if PageKeys is set to Config and user responded yes', () => {
+        const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
+        (dialog.open as jasmine.Spy).and.returnValue(dialogRefSpy);
+        dialogRefSpy.afterClosed.and.returnValue(of(true));
+        spyOn(component, 'removeSlide').and.callFake(() => {
+            return;
+        });
+        component.pageType = PageKeys.Config;
+        component.deleteNotify('Find the Differences 1');
+        expect(dialog.open).toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true });
+        expect(dialogRefSpy.afterClosed).toHaveBeenCalled();
+        expect(component.removeSlide).toHaveBeenCalledWith('Find the Differences 1');
+    });
+
+    it("deleteNotify shouldn't call removeSlide if PageKeys is set to Config and user responded no", () => {
+        const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
+        (dialog.open as jasmine.Spy).and.returnValue(dialogRefSpy);
+        dialogRefSpy.afterClosed.and.returnValue(of(false));
+        spyOn(component, 'removeSlide').and.callFake(() => {
+            return;
+        });
+        component.pageType = PageKeys.Config;
+        component.deleteNotify('Find the Differences 1');
+        expect(dialog.open).toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true });
+        expect(dialogRefSpy.afterClosed).toHaveBeenCalled();
+        expect(component.removeSlide).not.toHaveBeenCalledWith('Find the Differences 1');
+    });
+
+    it("deleteNotify shouldn't call removeSlide if PageKeys isn't set to Config", () => {
+        const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
+        (dialog.open as jasmine.Spy).and.returnValue(dialogRefSpy);
+        dialogRefSpy.afterClosed.and.returnValue(of(false));
+        spyOn(component, 'removeSlide').and.callFake(() => {
+            return;
+        });
+        component.pageType = PageKeys.Selection;
+        component.deleteNotify('Find the Differences 1');
+        expect(dialog.open).not.toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true });
+        expect(dialogRefSpy.afterClosed).not.toHaveBeenCalled();
+        expect(component.removeSlide).not.toHaveBeenCalledWith('Find the Differences 1');
+    });
 
     it('removeSlide should remove the slide from the carousel and call deleteGame', () => {
         component.pageType = PageKeys.Config;

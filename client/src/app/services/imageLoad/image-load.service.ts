@@ -18,7 +18,7 @@ export class ImageLoadService {
         this.height = this.component.height;
     }
 
-    async openDifferencesDialog() {
+    openDifferencesDialog() {
         this.component.dialogRef = this.component.dialog.open(ModalDialogComponent, {
             data: {
                 imageUrl: this.component.imageDifferencesUrl,
@@ -73,7 +73,7 @@ export class ImageLoadService {
         }
     }
 
-    async runDetectionSystem() {
+    runDetectionSystem() {
         const img1HasContent: boolean = this.component.image1?.value !== undefined;
         const img2HasContent: boolean = this.component.image2?.value !== undefined;
 

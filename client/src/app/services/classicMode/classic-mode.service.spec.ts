@@ -426,6 +426,24 @@ describe('ClassicModeService', () => {
         expect(service.disconnectSocket).toHaveBeenCalled();
     });
 
+    it('should leave game if gameRoom is undefined', () => {
+        communicationSocketService = TestBed.inject(CommunicationSocketService);
+        const sendSpy = spyOn(communicationSocketService, 'send').and.callFake(() => {
+            return;
+        });
+        spyOn(communicationSocketService, 'isSocketAlive').and.callFake(() => {
+            return true;
+        });
+        spyOn(service, 'disconnectSocket').and.callFake(() => {
+            return;
+        });
+        service.gameRoom = undefined as unknown as GameRoom;
+        service.username = 'differentUsername';
+        service.abortGame();
+        expect(sendSpy).not.toHaveBeenCalled();
+        expect(service.disconnectSocket).toHaveBeenCalled();
+    });
+
     it('should disconnect socket', () => {
         communicationSocketService = TestBed.inject(CommunicationSocketService);
         const spy = spyOn(communicationSocketService, 'disconnect').and.callFake(() => {

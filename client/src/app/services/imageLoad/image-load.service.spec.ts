@@ -1,16 +1,17 @@
-import { HttpClientModule } from '@angular/common/http';
+/* eslint-disable max-lines */
+import { HttpClientModule, HttpResponse } from '@angular/common/http';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialog, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.component';
-import { GameData } from '@app/interfaces/game';
+import { GameData, GameForm, NewGame } from '@app/interfaces/game';
 import { CreationGamePageComponent } from '@app/pages/creation-game-page/creation-game-page.component';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
 import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
 import { ForegroundService } from '@app/services/foregroundService/foreground.service';
 import { ImageLoadService } from '@app/services/imageLoad/image-load.service';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import SpyObj = jasmine.SpyObj;
 
 describe('ImageLoadService', () => {
@@ -20,23 +21,26 @@ describe('ImageLoadService', () => {
     let communicationServiceSpy: SpyObj<CommunicationService>;
     let foregroundService: ForegroundService;
 
-    const differenceMatrix: number[][] = [[]];
-    const gameForm = {
-        name: 'Find the Differences 1',
-        nbDifference: 10,
-        image1url: 'https://example.com/image1.jpg',
-        image2url: 'https://example.com/image2.jpg',
-        difficulte: 'easy',
-        soloBestTimes: [
-            { name: 'player1', time: 200 },
-            { name: 'player2', time: 150 },
-        ],
-        vsBestTimes: [{ name: 'player1', time: 200 }],
-    };
-    const gameData: GameData = { gameForm, differenceMatrix };
+    let differenceMatrix: number[][];
+    let gameForm: GameForm;
+    let gameData: GameData;
 
     beforeEach(async () => {
-        communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getAllGames', 'getGame']);
+        differenceMatrix = [[]];
+        gameForm = {
+            name: 'Find the Differences 1',
+            nbDifference: 10,
+            image1url: 'https://example.com/image1.jpg',
+            image2url: 'https://example.com/image2.jpg',
+            difficulte: 'easy',
+            soloBestTimes: [
+                { name: 'player1', time: 200 },
+                { name: 'player2', time: 150 },
+            ],
+            vsBestTimes: [{ name: 'player1', time: 200 }],
+        };
+        gameData = { gameForm, differenceMatrix };
+        communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getAllGames', 'getGame', 'createNewGame']);
         communicationServiceSpy.getAllGames.and.returnValue(
             of([
                 {
@@ -65,6 +69,7 @@ describe('ImageLoadService', () => {
                 },
             ]),
         );
+        communicationServiceSpy.createNewGame.and.returnValue(of());
         communicationServiceSpy.getGame.and.returnValue(of(gameData));
         await TestBed.configureTestingModule({
             imports: [MatDialogModule, RouterTestingModule, HttpClientModule, BrowserAnimationsModule],
@@ -92,9 +97,9 @@ describe('ImageLoadService', () => {
         service = TestBed.inject(ImageLoadService);
         fixture = TestBed.createComponent(CreationGamePageComponent);
         component = fixture.componentInstance;
-        fixture.detectChanges();
         service.component = component;
         foregroundService = TestBed.inject(ForegroundService);
+        fixture.detectChanges();
     });
 
     it('should be created', () => {
@@ -111,7 +116,7 @@ describe('ImageLoadService', () => {
 
     it('openDifferencesDialog should open dialog', async () => {
         const spy = spyOn(component.dialog, 'open');
-        await service.openDifferencesDialog();
+        service.openDifferencesDialog();
         expect(spy).toHaveBeenCalledOnceWith(ModalDialogComponent, {
             data: {
                 imageUrl: component.imageDifferencesUrl,
@@ -122,8 +127,8 @@ describe('ImageLoadService', () => {
 
     it('should open Differences Dialog when image 1 and 2 has content', fakeAsync(() => {
         const spy = spyOn(service, 'openDifferencesDialog');
-        component.image1 = { value: 'image_2_diff.bmp' } as HTMLInputElement;
-        component.image2 = { value: 'image_2_diff.bmp' } as HTMLInputElement;
+        component.image1 = { value: 'https://example.com/image3.jpg' } as HTMLInputElement;
+        component.image2 = { value: 'https://example.com/image3.jpg' } as HTMLInputElement;
         component.runDetectionSystem();
         tick();
         expect(spy).toHaveBeenCalled();
@@ -131,7 +136,7 @@ describe('ImageLoadService', () => {
 
     it('should not open Differences Dialog if image2 has no content', fakeAsync(() => {
         const spy = spyOn(service, 'openDifferencesDialog');
-        component.image1 = { value: 'image_2_diff.bmp' } as HTMLInputElement;
+        component.image1 = { value: 'https://example.com/image3.jpg' } as HTMLInputElement;
         component.image2 = { value: undefined } as unknown as HTMLInputElement;
         component.runDetectionSystem();
         tick();
@@ -140,7 +145,7 @@ describe('ImageLoadService', () => {
 
     it('should not open Differences Dialog if image1 has no content', fakeAsync(() => {
         const spy = spyOn(service, 'openDifferencesDialog');
-        component.image2 = { value: 'image_2_diff.bmp' } as HTMLInputElement;
+        component.image2 = { value: 'https://example.com/image3.jpg' } as HTMLInputElement;
         component.image1 = { value: undefined } as unknown as HTMLInputElement;
         component.runDetectionSystem();
         tick();
@@ -148,6 +153,9 @@ describe('ImageLoadService', () => {
     }));
 
     it('save name game should set nameGame', () => {
+        spyOn(window, 'alert').and.callFake(() => {
+            return;
+        });
         const newGameName = 'newGameName';
         service.saveNameGame(newGameName);
         expect(component.nameGame).toEqual(newGameName);
@@ -255,22 +263,130 @@ describe('ImageLoadService', () => {
     it("shouldn't call saveNameGame after closing Matdialog if result is undefined", () => {
         const saveNameGameSpy = spyOn(service, 'saveNameGame');
         const dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
-        service.openDifferencesDialog();
-        const dialogRefSpy = spyOn(component.dialogRef, 'afterClosed').and.callThrough();
-        dialogRefSpy.and.returnValue(of(undefined));
+        const dialogRefSpy = jasmine.createSpyObj('MatDialog', ['afterClosed', 'close']);
         dialogSpy.open.and.returnValue(dialogRefSpy);
+        dialogRefSpy.afterClosed.and.returnValue(of('test'));
+        dialogRefSpy.close.and.returnValue(of('test'));
+        service.openDifferencesDialog();
         component.dialogRef.close();
         expect(component.dialogRef).toBeDefined();
         expect(saveNameGameSpy).not.toHaveBeenCalled();
     });
 
+    it("should call saveNameGame after closing Matdialog if result isn't undefined", () => {
+        const saveNameGameSpy = spyOn(service, 'saveNameGame');
+        const dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
+        service.component.dialog = dialogSpy;
+        const dialogRefSpy = jasmine.createSpyObj('MatDialog', ['afterClosed', 'close']);
+        dialogSpy.open.and.returnValue(dialogRefSpy);
+        dialogRefSpy.afterClosed.and.returnValue(of('test'));
+        dialogRefSpy.close.and.returnValue(of('test'));
+        service.openDifferencesDialog();
+        component.dialogRef.close();
+        expect(component.dialogRef).toBeDefined();
+        expect(saveNameGameSpy).toHaveBeenCalledWith('test');
+    });
+
     it('should reset input value if file format is invalid', fakeAsync(() => {
         const readerAsArrayBufferSpy = spyOn(FileReader.prototype, 'readAsArrayBuffer');
-        component.image2 = { value: 'image_empty.bmp' } as HTMLInputElement;
-        const file = new File(['image_empty.bmp'], 'image_empty.bmp', { type: 'image/bmp' });
+        component.image2 = { value: 'https://example.com/image3.jpg' } as HTMLInputElement;
+        const file = new File(['https://example.com/image3.jpg'], 'https://example.com/image3.jpg', { type: 'image/bmp' });
         const event = { target: { files: [file] } } as unknown as Event;
         component.verifyImageFormat(event, component.image2);
         tick();
         expect(readerAsArrayBufferSpy).toHaveBeenCalled();
     }));
+
+    it("shouldn't call saveNameGame only if getGame return undefined or null", () => {
+        spyOn(service, 'convertImageToB64Url').and.returnValue('https://example.com/image3.jpg');
+        service.component.differenceCount = 0;
+        service.component.difficulty = 'facile';
+        service.component.differenceMatrix = [[]];
+        const newGame: NewGame = {
+            name: 'test',
+            image1: 'https://example.com/image3.jpg',
+            image2: 'https://example.com/image3.jpg',
+            nbDifference: 0,
+            difficulty: 'facile',
+            differenceMatrix: [[]],
+        };
+        gameData.gameForm = null as unknown as GameForm;
+        service.saveNameGame('test');
+        expect(communicationServiceSpy.getGame).toHaveBeenCalledWith('test');
+        expect(communicationServiceSpy.createNewGame).toHaveBeenCalledWith(newGame);
+    });
+
+    it("should call saveNameGame if getGame doesn't return undefined or null", () => {
+        spyOn(service, 'convertImageToB64Url').and.returnValue('https://example.com/image3.jpg');
+        service.component.differenceCount = 0;
+        service.component.difficulty = 'facile';
+        service.component.differenceMatrix = [[]];
+        spyOn(window, 'alert');
+        service.saveNameGame('test');
+        expect(communicationServiceSpy.getGame).toHaveBeenCalledWith('test');
+        expect(communicationServiceSpy.createNewGame).not.toHaveBeenCalled();
+        expect(window.alert).toHaveBeenCalledWith('Nom de jeu déjà utilisé');
+    });
+
+    it('should navigate to config in case createNewGame was successful', () => {
+        spyOn(service, 'convertImageToB64Url').and.returnValue('https://example.com/image3.jpg');
+        service.component.differenceCount = 0;
+        service.component.difficulty = 'facile';
+        service.component.differenceMatrix = [[]];
+        gameData.gameForm = null as unknown as GameForm;
+        communicationServiceSpy.createNewGame.and.returnValue(of(null as unknown as HttpResponse<string>));
+        spyOn(service.component.getRouter, 'navigate').and.returnValue(Promise.resolve(true));
+        service.saveNameGame('test');
+        expect(communicationServiceSpy.getGame).toHaveBeenCalledWith('test');
+        expect(communicationServiceSpy.createNewGame).toHaveBeenCalled();
+        expect(service.component.getRouter.navigate).toHaveBeenCalledWith(['/config']);
+    });
+
+    it('should alert in case createNewGame return null', () => {
+        spyOn(service, 'convertImageToB64Url').and.returnValue('https://example.com/image3.jpg');
+        service.component.differenceCount = 0;
+        service.component.difficulty = 'facile';
+        service.component.differenceMatrix = [[]];
+        spyOn(window, 'alert');
+        gameData.gameForm = null as unknown as GameForm;
+        communicationServiceSpy.createNewGame.and.returnValue(
+            throwError(() => {
+                new Error('bad request');
+            }),
+        );
+        service.saveNameGame('test');
+        expect(communicationServiceSpy.getGame).toHaveBeenCalledWith('test');
+        expect(communicationServiceSpy.createNewGame).toHaveBeenCalled();
+        expect(window.alert).toHaveBeenCalledWith('Erreur lors de la création du jeu');
+    });
+
+    it("shouldn't runDetectionSystem if image1 or image2 is undefined", () => {
+        service.component.image1 = undefined as unknown as HTMLInputElement;
+        service.component.image2 = undefined as unknown as HTMLInputElement;
+        service.component.differenceMatrix = [];
+        service.component.differenceCount = 0;
+        service.component.difficulty = 'facile';
+        const countDifferencesSpy = spyOn(service.component.detectionService, 'countDifferences');
+        const createDifferencesImageSpy = spyOn(service.component.detectionService, 'createDifferencesImage');
+        const computeLevelDifficultySpy = spyOn(service.component.detectionService, 'computeLevelDifficulty');
+        service.component.runDetectionSystem();
+        expect(countDifferencesSpy).not.toHaveBeenCalled();
+        expect(createDifferencesImageSpy).not.toHaveBeenCalled();
+        expect(computeLevelDifficultySpy).not.toHaveBeenCalled();
+    });
+
+    it('should call handleReaderOnload on FileReader load', (done) => {
+        const handleReaderOnloadSpy = spyOn(service, 'handleReaderOnload').and.callFake(() => {
+            return;
+        });
+        const file = new File(['https://example.com/image3.jpg'], 'testFile', { type: 'image/bmp' });
+        const event = { target: { files: [file] } } as unknown as Event;
+        const inputElement = document.createElement('input');
+        service.verifyImageFormat(event, inputElement);
+        setTimeout(() => {
+            expect(handleReaderOnloadSpy).toHaveBeenCalled();
+            done();
+            // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        }, 1000);
+    });
 });

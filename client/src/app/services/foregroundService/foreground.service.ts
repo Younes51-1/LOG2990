@@ -8,6 +8,7 @@ export class ForegroundService {
     component: CreationGamePageComponent;
     width: number;
     height: number;
+    imageToDraw: HTMLImageElement;
 
     setComponent(component: CreationGamePageComponent) {
         this.component = component;
@@ -47,10 +48,10 @@ export class ForegroundService {
     }
 
     updateContext(context: CanvasRenderingContext2D, canvasForeground: HTMLCanvasElement, background: string): void {
-        const image = new Image();
-        image.src = background;
-        image.onload = () => {
-            context.drawImage(image, 0, 0, this.width, this.height);
+        this.imageToDraw = new Image();
+        this.imageToDraw.src = background;
+        this.imageToDraw.onload = () => {
+            context.drawImage(this.imageToDraw, 0, 0, this.width, this.height);
             context.drawImage(canvasForeground, 0, 0, this.width, this.height);
         };
     }
@@ -142,7 +143,8 @@ export class ForegroundService {
         canvasTemp.width = this.width;
         canvasTemp.height = this.height;
         const contextTemp = canvasTemp.getContext('2d');
-        contextTemp?.drawImage(this.component.canvasForeground1, 0, 0);
+        if (contextTemp === null) return;
+        contextTemp.drawImage(this.component.canvasForeground1, 0, 0);
 
         this.component.contextForeground1.clearRect(0, 0, this.width, this.height);
         this.clearRectWithWhite(this.component.context1);

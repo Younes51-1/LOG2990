@@ -126,6 +126,15 @@ describe('ForegroundService', () => {
         expect(spyDrawImage2).toHaveBeenCalled();
     });
 
+    it('should return without swapping if contextTemp is null', () => {
+        spyOn(window.HTMLCanvasElement.prototype, 'getContext').and.callFake(() => {
+            return null;
+        });
+        const spyUpdateContext = spyOn(service, 'updateContext').and.callThrough();
+        service.component.swapForegrounds();
+        expect(spyUpdateContext).not.toHaveBeenCalled();
+    });
+
     it('should push and swap foregrounds', () => {
         const spyEmptyRedoStack = spyOn(service.component, 'emptyRedoStack').and.callFake(() => {
             return;
@@ -173,6 +182,19 @@ describe('ForegroundService', () => {
         expect(component.image2).toEqual(image1et2);
         expect(spy).toHaveBeenCalled();
         expect(updateContextSpy).toHaveBeenCalledTimes(2);
+    });
+
+    it('updateContext should load images', (done) => {
+        service.component.context1 = document.createElement('canvas').getContext('2d') as CanvasRenderingContext2D;
+        const drawImageSpy = spyOn(service.component.context1, 'drawImage').and.callFake(() => {
+            return;
+        });
+        service.updateContext(component.context1, component.canvasForeground1, 'https://i.imgur.com/tG1K4kJ.jpeg');
+        service.imageToDraw.dispatchEvent(new Event('load'));
+        setTimeout(() => {
+            expect(drawImageSpy).toHaveBeenCalledTimes(2);
+            done();
+        }, 0);
     });
 
     it('should fill context in white', () => {
