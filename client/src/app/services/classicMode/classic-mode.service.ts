@@ -208,7 +208,7 @@ export class ClassicModeService {
     abortGame(): void {
         if (this.socketService.isSocketAlive() && this.gameRoom?.userGame.username1 === this.username) {
             this.socketService.send('abortGameCreation', this.gameRoom.roomId);
-        } else if (this.socketService.isSocketAlive()) {
+        } else if (this.socketService.isSocketAlive() && this.gameRoom) {
             this.socketService.send('leaveGame', [this.gameRoom.roomId, this.username]);
         }
         this.disconnectSocket();

@@ -1,4 +1,4 @@
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.component';
 
@@ -74,12 +74,13 @@ describe('ModalDialogComponent', () => {
         expect(component.emitNameGame).toHaveBeenCalled();
     });
 
-    it('ngAfterViewInit should load image', fakeAsync(() => {
+    it('ngAfterViewInit should load image', (done) => {
         component.data.imageUrl = 'https://i.imgur.com/tG1K4kJ.jpeg';
         component.ngAfterViewInit();
-        tick(0);
         component.image.dispatchEvent(new Event('load'));
-        tick(0);
-        expect(component.image.onerror).toBeNull();
-    }));
+        setTimeout(() => {
+            expect(component.image.onerror).toBeNull();
+            done();
+        }, 0);
+    });
 });

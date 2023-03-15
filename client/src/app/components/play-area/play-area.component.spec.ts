@@ -48,8 +48,6 @@ describe('PlayAreaComponent', () => {
     let fixture: ComponentFixture<PlayAreaComponent>;
     let detectionDifferenceService: DetectionDifferenceService;
     let chatService: ChatService;
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    let imageOnload: Function | null = null;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
@@ -283,31 +281,6 @@ describe('PlayAreaComponent', () => {
         expect(component.context2.drawImage).toHaveBeenCalled();
     });
 
-    it('should call handleImageLoad on changes', () => {
-        const spy = spyOn(component, 'handleImageLoad').and.callFake(() => {
-            return;
-        });
-
-        Object.defineProperty(Image.prototype, 'onload', {
-            get() {
-                // eslint-disable-next-line no-underscore-dangle
-                return this._onload;
-            },
-            // eslint-disable-next-line @typescript-eslint/ban-types
-            set(onload: Function) {
-                imageOnload = onload;
-                // eslint-disable-next-line no-underscore-dangle
-                this._onload = onload;
-            },
-        });
-
-        component.ngOnChanges();
-        if (imageOnload !== null) {
-            imageOnload();
-        }
-        expect(spy).toHaveBeenCalled();
-    });
-
     it('should set variables and call cheatMode on press of T', () => {
         const cheatModeSpy = spyOn(component, 'cheatMode');
         const cheatModeKey = 't';
@@ -423,13 +396,38 @@ describe('PlayAreaComponent', () => {
 
     it("shouldn't change differenceMartix, original, modified source if gameRoom is undefined", () => {
         component.gameRoom = undefined as unknown as GameRoom;
-        component.original.src = 'https://gifdb.com/gif/rickroll-rick-astley-eye-test-secret-image-wipissd9eslga2go.html';
-        component.modified.src = 'https://gifdb.com/gif/rickroll-rick-astley-eye-test-secret-image-wipissd9eslga2go.html';
+        component.original.src = 'https://picsum.photos/id/88/200/300';
+        component.modified.src = 'https://picsum.photos/id/88/200/300';
         component.classicModeService.gameRoom = gameRoom;
         component.ngOnChanges();
-
         expect(component.differenceMatrix).toEqual(undefined as unknown as number[][]);
-        expect(component.original.src).toContain('https://gifdb.com/gif/rickroll-rick-astley-eye-test-secret-image-wipissd9eslga2go.html');
-        expect(component.modified.src).toContain('https://gifdb.com/gif/rickroll-rick-astley-eye-test-secret-image-wipissd9eslga2go.html');
+        expect(component.original.src).toContain('https://picsum.photos/id/88/200/300');
+        expect(component.modified.src).toContain('https://picsum.photos/id/88/200/300');
+    });
+
+    it('should call handleImageLoad when original image is loaded', (done) => {
+        const handleImageLoadSpy = spyOn(component, 'handleImageLoad').and.callFake(() => {
+            return;
+        });
+        component.original.src = 'https://picsum.photos/id/88/200/300';
+        component.ngOnChanges();
+        component.original.dispatchEvent(new Event('load'));
+        setTimeout(() => {
+            expect(handleImageLoadSpy).toHaveBeenCalledWith(component.context1, component.original);
+            done();
+        }, 0);
+    });
+
+    it('should call handleImageLoad when modified image is loaded', (done) => {
+        const handleImageLoadSpy = spyOn(component, 'handleImageLoad').and.callFake(() => {
+            return;
+        });
+        component.modified.src = 'https://picsum.photos/id/88/200/300';
+        component.ngOnChanges();
+        component.modified.dispatchEvent(new Event('load'));
+        setTimeout(() => {
+            expect(handleImageLoadSpy).toHaveBeenCalledWith(component.context2, component.modified);
+            done();
+        }, 0);
     });
 });

@@ -106,7 +106,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         }
     }
 
-    async ngOnChanges() {
+    ngOnChanges() {
         if (this.classicModeService.gameRoom && this.gameRoom?.userGame?.gameData) {
             this.differenceMatrix = this.gameRoom.userGame.gameData.differenceMatrix;
             this.original.src = this.gameRoom.userGame.gameData.gameForm.image1url;

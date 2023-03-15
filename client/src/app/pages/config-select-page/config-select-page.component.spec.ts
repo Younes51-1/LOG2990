@@ -25,6 +25,7 @@ describe('ConfigSelectPageComponent', () => {
     let fixture: ComponentFixture<ConfigSelectPageComponent>;
     let communicationServiceSpy: SpyObj<CommunicationService>;
     let dialog: MatDialog;
+
     beforeEach(async () => {
         communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getAllGames', 'deleteGame']);
         communicationServiceSpy.getAllGames.and.returnValue(

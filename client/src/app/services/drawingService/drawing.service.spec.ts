@@ -1,7 +1,9 @@
 /* eslint-disable max-lines */
+import { CommonModule } from '@angular/common';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
+import { BrowserModule } from '@angular/platform-browser';
 import { ChildrenOutletContexts, DefaultUrlSerializer, RouterModule, UrlSerializer } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { DrawModes } from '@app/interfaces/creation-game';
@@ -16,7 +18,8 @@ describe('DrawingService', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            imports: [HttpClientTestingModule, MatDialogModule, RouterModule, RouterTestingModule],
+            declarations: [CreationGamePageComponent],
+            imports: [BrowserModule, CommonModule, HttpClientTestingModule, MatDialogModule, RouterModule, RouterTestingModule],
             providers: [CommunicationService, { provide: UrlSerializer, useClass: DefaultUrlSerializer }, ChildrenOutletContexts],
         });
         service = TestBed.inject(DrawingService);
@@ -498,5 +501,89 @@ describe('DrawingService', () => {
         expect(spyDrawCircle).toHaveBeenCalledTimes(1);
         expect(spyEraseSquare).toHaveBeenCalledTimes(1);
         expect(spyDrawImage).toHaveBeenCalledTimes(2);
+    });
+
+    it("ctrlZ shouldn't call swapForegrounds if pop return undefined", () => {
+        const spySwap = spyOn(service.component, 'swapForegrounds').and.callFake(() => {
+            return;
+        });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        spyOn(window.Array.prototype, 'pop').and.callFake(function (this: any[]) {
+            // eslint-disable-next-line no-invalid-this
+            if (!this) return null;
+            // eslint-disable-next-line no-invalid-this
+            if (this.length > 0) {
+                // eslint-disable-next-line no-invalid-this
+                this.splice(0, 1);
+            }
+            return null;
+        });
+        // esl
+        const canvas = document.createElement('canvas');
+        service.component.undo = [{ layer: canvas, belonging: true, swap: false }];
+        service.ctrlZ();
+        expect(spySwap).not.toHaveBeenCalled();
+    });
+
+    it("ctrlShiftZ shouldn't call swapForegrounds if pop return undefined", () => {
+        const spySwap = spyOn(service.component, 'swapForegrounds').and.callFake(() => {
+            return;
+        });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        spyOn(window.Array.prototype, 'pop').and.callFake(function (this: any[]) {
+            // eslint-disable-next-line no-invalid-this
+            if (!this) return null;
+            // eslint-disable-next-line no-invalid-this
+            if (this.length > 0) {
+                // eslint-disable-next-line no-invalid-this
+                this.splice(0, 1);
+            }
+            return null;
+        });
+        // esl
+        const canvas = document.createElement('canvas');
+        service.component.redo = [{ layer: canvas, belonging: true, swap: false }];
+        service.ctrlShiftZ();
+        expect(spySwap).not.toHaveBeenCalled();
+    });
+
+    it("shouldn't call drawImage if context is undefined and belonging is true", () => {
+        const state = { layer: service.component.canvas2.nativeElement, belonging: true, swap: true };
+        const spyDrawImage = spyOn(service.component.canvasTemp.context, 'drawImage').and.callFake(() => {
+            return;
+        });
+        spyOn(HTMLCanvasElement.prototype, 'getContext').and.returnValue(undefined as unknown as CanvasRenderingContext2D);
+        service.getCanvasAndUpdate(state);
+        expect(spyDrawImage).not.toHaveBeenCalled();
+    });
+
+    it("shouldn't call drawImage if context is undefined and belonging is false", () => {
+        const state = { layer: service.component.canvas2.nativeElement, belonging: false, swap: true };
+        const spyDrawImage = spyOn(service.component.canvasTemp.context, 'drawImage').and.callFake(() => {
+            return;
+        });
+        spyOn(HTMLCanvasElement.prototype, 'getContext').and.returnValue(undefined as unknown as CanvasRenderingContext2D);
+        service.getCanvasAndUpdate(state);
+        expect(spyDrawImage).not.toHaveBeenCalled();
+    });
+
+    it("shouldn't call drawImage if context is undefined for canvas1", () => {
+        const spyDrawImage = spyOn(service.component.canvasTemp.context, 'drawImage').and.callFake(() => {
+            return;
+        });
+        service.component.currentCanvas = service.component.canvas1.nativeElement;
+        spyOn(HTMLCanvasElement.prototype, 'getContext').and.returnValue(undefined as unknown as CanvasRenderingContext2D);
+        service.pushToUndoStack();
+        expect(spyDrawImage).not.toHaveBeenCalled();
+    });
+
+    it("shouldn't call drawImage if context is undefined for canvas2", () => {
+        const spyDrawImage = spyOn(service.component.canvasTemp.context, 'drawImage').and.callFake(() => {
+            return;
+        });
+        service.component.currentCanvas = service.component.canvas2.nativeElement;
+        spyOn(HTMLCanvasElement.prototype, 'getContext').and.returnValue(undefined as unknown as CanvasRenderingContext2D);
+        service.pushToUndoStack();
+        expect(spyDrawImage).not.toHaveBeenCalled();
     });
 });

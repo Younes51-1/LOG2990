@@ -282,21 +282,18 @@ describe('GamePageComponent', () => {
     }));
 
     it('should send error message in case of error', () => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         component.username = gameRoom.userGame.username1;
         component.sendEvent('error');
         expect(chatServiceSpy.sendMessage).toHaveBeenCalledWith(`Erreur par ${component.username}`, 'Système', component.gameRoom.roomId);
     });
 
     it('should send success message in case of success', () => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         component.username = gameRoom.userGame.username1;
         component.sendEvent('success');
         expect(chatServiceSpy.sendMessage).toHaveBeenCalledWith(`Différence trouvée par ${component.username}`, 'Système', component.gameRoom.roomId);
     });
 
     it('should send abandon message in case of abandon', () => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         component.username = gameRoom.userGame.username1;
         component.sendEvent('abandon');
         expect(chatServiceSpy.sendMessage).toHaveBeenCalledWith(`${component.username} a abandonné la partie`, 'Système', component.gameRoom.roomId);
