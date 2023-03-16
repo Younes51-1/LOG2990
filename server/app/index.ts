@@ -12,7 +12,7 @@ const bootstrap = async () => {
     app.useGlobalPipes(new ValidationPipe());
     app.enableCors();
     app.use(json({ limit: '50mb' }));
-    app.useStaticAssets(join(__dirname, '../../..', 'assets'));
+    app.useStaticAssets(join(__dirname, '../', 'assets'));
     app.use(urlencoded({ extended: true, limit: '50mb' }));
     const config = new DocumentBuilder()
         .setTitle('Server - Jeu des différences')
