@@ -163,6 +163,12 @@ describe('GameCardComponent', () => {
         expect(focusSpy).toHaveBeenCalled();
     }));
 
+    it('should emit the slide name when onCardSelect is called', () => {
+        const emitSpy = spyOn(component.notifySelected, 'emit');
+        component.onCardSelect();
+        expect(emitSpy).toHaveBeenCalled();
+    });
+
     it("should call check game when 'Option multijoueur' is clicked", () => {
         component.page = PageKeys.Selection;
         component.ngOnInit();
