@@ -18,14 +18,14 @@
     <p>{{slide.name}}</p>
     <button *ngIf="this.page === 'config'" routerLink="{{ routeOne }}" (click)="startSoloGame()">{{ btnOne }}</button>
     <button *ngIf="this.page === 'config'" routerLink="{{ routeTwo }}" (click)="createJoinMultiGame()">{{ btnTwo }}</button>
-    <button *ngIf="this.page === 'selection'" (click)="showInput1 = true; showInput2 = false; focusInput()">Jouer en solo</button>
-    <button *ngIf="this.page === 'selection'" (click)="showInput1 = false; showInput2 = true; checkGame(); focusInput()">Option
+    <button *ngIf="this.page === 'selection'" (click)="showInput1 = true; showInput2 = false; focusInput(); onCardSelect()">Jouer en solo</button>
+    <button *ngIf="this.page === 'selection'" (click)="showInput1 = false; showInput2 = true; checkGame(); focusInput(); onCardSelect()">Option
         multijoueur</button>
-    <div class="player-name" *ngIf="showInput1">
+    <div class="player-name" *ngIf="showInput1 && slide.isSelected">
         <input type="text" [(ngModel)]="inputValue1" placeholder="Entrez votre nom" [ngClass]="{'error-border': applyBorder}" (keyup.enter)="soloButton.click()">
         <button #soloButton (click)="verifySoloInput()">{{ btnOne }}</button>
     </div>
-    <div class="player-name" *ngIf="showInput2">
+    <div class="player-name" *ngIf="showInput2 && slide.isSelected">
         <input type="text" [(ngModel)]="inputValue2" placeholder="Entrez votre nom" [ngClass]="{'error-border': applyBorder}" (keyup.enter)="multiButton.click()">
         <button #multiButton (click)="verifyMultiInput()">{{ this.gameExists ? "Joindre" : "Créer" }}</button>
     </div>

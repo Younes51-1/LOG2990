@@ -18,6 +18,7 @@ export class GameCardComponent implements OnInit, OnDestroy {
     @Input() slide: GameForm;
 
     @Output() notify = new EventEmitter();
+    @Output() notifySelected = new EventEmitter<string>();
 
     routeOne: string;
     btnOne: string;
@@ -57,6 +58,10 @@ export class GameCardComponent implements OnInit, OnDestroy {
                 input.focus();
             }
         }, 0);
+    }
+
+    onCardSelect() {
+        this.notifySelected.emit(this.slide.name);
     }
 
     checkGame() {

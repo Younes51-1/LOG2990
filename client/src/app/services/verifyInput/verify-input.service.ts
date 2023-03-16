@@ -13,7 +13,25 @@ export class VerifyInputService {
             return false;
         }
         // TODO: add more WORDS
-        const forbiddenWords = ['foo', 'bar', 'baz'];
+        const forbiddenWords = [
+            'fuck',
+            'tabarnak',
+            'shit',
+            'merde',
+            'criss',
+            'calisse',
+            'caliss',
+            'esti',
+            'osti',
+            'putain',
+            'marde',
+            'nique',
+            'ta gueule',
+            'vas te faire foutre',
+            'connard',
+            'trou de cul',
+            'enfoiré',
+        ];
         for (const word of forbiddenWords) {
             if (input.toLowerCase().includes(word.toLowerCase())) {
                 return false;
