@@ -41,6 +41,7 @@ describe('ConfigSelectPageComponent', () => {
                         { name: 'player2', time: 150 },
                     ],
                     vsBestTimes: [{ name: 'player1', time: 200 }],
+                    isSelected: false,
                 },
                 {
                     name: 'Find the Differences 2',
@@ -53,6 +54,7 @@ describe('ConfigSelectPageComponent', () => {
                         { name: 'player4', time: 250 },
                     ],
                     vsBestTimes: [{ name: 'player3', time: 200 }],
+                    isSelected: false,
                 },
             ]),
         );
@@ -193,6 +195,13 @@ describe('ConfigSelectPageComponent', () => {
         expect(dialog.open).not.toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true });
         expect(dialogRefSpy.afterClosed).not.toHaveBeenCalled();
         expect(component.removeSlide).not.toHaveBeenCalledWith('Find the Differences 1');
+    });
+
+    it('should set the selected slide', () => {
+        const name = 'Find the Differences 1';
+        expect(component.slides[0].isSelected).toBeFalse();
+        component.setSelected(name);
+        expect(component.slides[0].isSelected).toBeTrue();
     });
 
     it('removeSlide should remove the slide from the carousel and call deleteGame', () => {
