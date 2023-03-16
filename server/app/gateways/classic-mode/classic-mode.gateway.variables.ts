@@ -25,7 +25,7 @@ export enum ClassicModeEvents {
     Abandoned = 'abandoned',
 }
 
-export enum DelayBeforeEmmitingTime {
+export enum DelayBeforeEmittingTime {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     DELAY_BEFORE_EMITTING_TIME = 1000,
 }
