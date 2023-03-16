@@ -3,7 +3,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { DeleteDialogComponent } from '@app/components/delete-dialog/delete-dialog.component';
 import { GameForm } from '@app/interfaces/game';
-import { CommunicationService } from '@app/services/communicationService/communication.service';
+import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 import { PageKeys } from 'src/assets/variables/game-card-options';
 
 @Component({
@@ -27,7 +27,7 @@ export class ConfigSelectPageComponent implements OnInit {
         infinite: false,
     };
 
-    constructor(private readonly communicationService: CommunicationService, private route: ActivatedRoute, public dialog: MatDialog) {
+    constructor(private readonly communicationService: CommunicationHttpService, private route: ActivatedRoute, public dialog: MatDialog) {
         this.getSlidesFromServer();
     }
 

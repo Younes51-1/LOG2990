@@ -7,10 +7,10 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { CreationDialogComponent } from '@app/components/creation-dialog/creation-dialog.component';
 import { GameData, GameForm, NewGame } from '@app/interfaces/game';
 import { CreationGamePageComponent } from '@app/pages/creation-game-page/creation-game-page.component';
-import { CommunicationService } from '@app/services/communicationService/communication.service';
-import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
-import { ForegroundService } from '@app/services/foregroundService/foreground.service';
-import { ImageLoadService } from '@app/services/imageLoad/image-load.service';
+import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
+import { DetectionDifferenceService } from '@app/services/detection-difference/detection-difference.service';
+import { ForegroundService } from '@app/services/foreground/foreground.service';
+import { ImageLoadService } from '@app/services/image-load/image-load.service';
 import { of, throwError } from 'rxjs';
 import SpyObj = jasmine.SpyObj;
 
@@ -18,7 +18,7 @@ describe('ImageLoadService', () => {
     let service: ImageLoadService;
     let fixture: ComponentFixture<CreationGamePageComponent>;
     let component: CreationGamePageComponent;
-    let communicationServiceSpy: SpyObj<CommunicationService>;
+    let communicationServiceSpy: SpyObj<CommunicationHttpService>;
     let foregroundService: ForegroundService;
 
     let differenceMatrix: number[][];
@@ -85,7 +85,7 @@ describe('ImageLoadService', () => {
                 },
                 DetectionDifferenceService,
                 {
-                    provide: CommunicationService,
+                    provide: CommunicationHttpService,
                     useValue: communicationServiceSpy,
                 },
             ],

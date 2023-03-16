@@ -8,8 +8,8 @@ import { ChildrenOutletContexts, DefaultUrlSerializer, RouterModule, UrlSerializ
 import { RouterTestingModule } from '@angular/router/testing';
 import { DrawModes } from '@app/interfaces/creation-game';
 import { CreationGamePageComponent } from '@app/pages/creation-game-page/creation-game-page.component';
-import { CommunicationService } from '@app/services/communicationService/communication.service';
-import { DrawingService } from '@app/services/drawingService/drawing.service';
+import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
+import { DrawingService } from '@app/services/drawing/drawing.service';
 
 describe('DrawingService', () => {
     let service: DrawingService;
@@ -20,7 +20,7 @@ describe('DrawingService', () => {
         TestBed.configureTestingModule({
             declarations: [CreationGamePageComponent],
             imports: [BrowserModule, CommonModule, HttpClientTestingModule, MatDialogModule, RouterModule, RouterTestingModule],
-            providers: [CommunicationService, { provide: UrlSerializer, useClass: DefaultUrlSerializer }, ChildrenOutletContexts],
+            providers: [CommunicationHttpService, { provide: UrlSerializer, useClass: DefaultUrlSerializer }, ChildrenOutletContexts],
         });
         service = TestBed.inject(DrawingService);
         fixture = TestBed.createComponent(CreationGamePageComponent);

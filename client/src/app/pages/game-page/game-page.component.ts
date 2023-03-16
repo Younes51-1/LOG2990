@@ -3,8 +3,8 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
 import { GameRoom } from '@app/interfaces/game';
-import { ChatService } from '@app/services/chatService/chat.service';
-import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
+import { ChatService } from '@app/services/chat/chat.service';
+import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
 import { Subscription } from 'rxjs';
 
 @Component({

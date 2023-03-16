@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Message } from '@app/interfaces/chat';
-import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
+import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
 import { Subject } from 'rxjs';
 
 @Injectable({

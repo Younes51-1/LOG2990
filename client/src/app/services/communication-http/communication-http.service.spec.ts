@@ -1,18 +1,18 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { CommunicationService } from '@app/services/communicationService/communication.service';
+import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 import { GameForm, GameData, NewGame } from '@app/interfaces/game';
 
-describe('CommunicationService', () => {
+describe('CommunicationHttpService', () => {
     let httpMock: HttpTestingController;
-    let service: CommunicationService;
+    let service: CommunicationHttpService;
     let baseUrl: string;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule],
         });
-        service = TestBed.inject(CommunicationService);
+        service = TestBed.inject(CommunicationHttpService);
         httpMock = TestBed.inject(HttpTestingController);
         // eslint-disable-next-line dot-notation -- baseUrl is private and we need access for the test
         baseUrl = service['baseUrl'];

@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { DifferenceTry } from '@app/interfaces/difference-try';
 import { GameRoom } from '@app/interfaces/game';
 import { Vec2 } from '@app/interfaces/vec2';
-import { ChatService } from '@app/services/chatService/chat.service';
-import { CommunicationService } from '@app/services/communicationService/communication.service';
-import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
+import { ChatService } from '@app/services/chat/chat.service';
+import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
+import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
 import { Subject } from 'rxjs';
 
 @Injectable({
@@ -28,7 +28,7 @@ export class ClassicModeService {
 
     constructor(
         private readonly socketService: CommunicationSocketService,
-        private communicationService: CommunicationService,
+        private communicationService: CommunicationHttpService,
         private chatService: ChatService,
     ) {}
 

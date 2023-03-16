@@ -4,8 +4,8 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { ChildrenOutletContexts, DefaultUrlSerializer, RouterModule, UrlSerializer } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { CreationGamePageComponent } from '@app/pages/creation-game-page/creation-game-page.component';
-import { CommunicationService } from '@app/services/communicationService/communication.service';
-import { ForegroundService } from '@app/services/foregroundService/foreground.service';
+import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
+import { ForegroundService } from '@app/services/foreground/foreground.service';
 
 describe('ForegroundService', () => {
     let service: ForegroundService;
@@ -15,7 +15,7 @@ describe('ForegroundService', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule, MatDialogModule, RouterModule, RouterTestingModule],
-            providers: [CommunicationService, { provide: UrlSerializer, useClass: DefaultUrlSerializer }, ChildrenOutletContexts],
+            providers: [CommunicationHttpService, { provide: UrlSerializer, useClass: DefaultUrlSerializer }, ChildrenOutletContexts],
         });
         service = TestBed.inject(ForegroundService);
         fixture = TestBed.createComponent(CreationGamePageComponent);

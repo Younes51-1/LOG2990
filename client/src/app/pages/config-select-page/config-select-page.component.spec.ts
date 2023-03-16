@@ -9,7 +9,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { ConfigParamsComponent } from '@app/components/config-params/config-params.component';
 import { DeleteDialogComponent } from '@app/components/delete-dialog/delete-dialog.component';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
-import { CommunicationService } from '@app/services/communicationService/communication.service';
+import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 import { of } from 'rxjs';
 import { PageKeys } from 'src/assets/variables/game-card-options';
 import { ConfigSelectPageComponent } from './config-select-page.component';
@@ -23,7 +23,7 @@ export class DynamicTestModule {}
 describe('ConfigSelectPageComponent', () => {
     let component: ConfigSelectPageComponent;
     let fixture: ComponentFixture<ConfigSelectPageComponent>;
-    let communicationServiceSpy: SpyObj<CommunicationService>;
+    let communicationServiceSpy: SpyObj<CommunicationHttpService>;
     let dialog: MatDialog;
 
     beforeEach(async () => {
@@ -62,7 +62,7 @@ describe('ConfigSelectPageComponent', () => {
             declarations: [ConfigSelectPageComponent, ConfigParamsComponent],
             imports: [DynamicTestModule, RouterTestingModule, AppRoutingModule],
             providers: [
-                { provide: CommunicationService, useValue: communicationServiceSpy },
+                { provide: CommunicationHttpService, useValue: communicationServiceSpy },
                 { provide: MatDialog, useValue: dialog },
             ],
         }).compileComponents();

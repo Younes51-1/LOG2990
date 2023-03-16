@@ -5,10 +5,10 @@ import { TestBed } from '@angular/core/testing';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { DifferenceTry } from '@app/interfaces/difference-try';
 import { GameData, GameRoom } from '@app/interfaces/game';
-import { ChatService } from '@app/services/chatService/chat.service';
-import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
-import { CommunicationService } from '@app/services/communicationService/communication.service';
-import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
+import { ChatService } from '@app/services/chat/chat.service';
+import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
+import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
+import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
 import { of } from 'rxjs';
 import { Socket } from 'socket.io-client';
 
@@ -33,7 +33,7 @@ describe('ClassicModeService', () => {
 
     let service: ClassicModeService;
     let communicationSocketService: CommunicationSocketService;
-    let communicationService: CommunicationService;
+    let communicationService: CommunicationHttpService;
     let socketServiceMock: SocketClientServiceMock;
     let socketHelper: SocketTestHelper;
     let chatServiceMock: ChatServiceMock;
@@ -53,7 +53,7 @@ describe('ClassicModeService', () => {
             providers: [
                 ChatService,
                 CommunicationSocketService,
-                CommunicationService,
+                CommunicationHttpService,
                 { provide: CommunicationSocketService, useValue: socketServiceMock },
                 { provide: ChatService, useValue: chatServiceMock },
             ],
@@ -67,7 +67,7 @@ describe('ClassicModeService', () => {
     });
 
     it('should init classic mode', () => {
-        communicationService = TestBed.inject(CommunicationService);
+        communicationService = TestBed.inject(CommunicationHttpService);
         const getGameSpy = spyOn(communicationService, 'getGame').and.returnValue(of(gameData));
         const disconnectSpy = spyOn(service, 'disconnectSocket');
         const connectSpy = spyOn(service, 'connect');
@@ -83,7 +83,7 @@ describe('ClassicModeService', () => {
     });
 
     it("should alert game is not found after calling 'initClassicMode'", () => {
-        communicationService = TestBed.inject(CommunicationService);
+        communicationService = TestBed.inject(CommunicationHttpService);
         const getGameSpy = spyOn(communicationService, 'getGame').and.returnValue(of(undefined as unknown as GameData));
         const alertSpy = spyOn(window, 'alert').and.callFake(() => {
             return;
@@ -94,7 +94,7 @@ describe('ClassicModeService', () => {
     });
 
     it('should join classic mode', () => {
-        communicationService = TestBed.inject(CommunicationService);
+        communicationService = TestBed.inject(CommunicationHttpService);
         const getGameSpy = spyOn(communicationService, 'getGame').and.returnValue(of(gameData));
         const disconnectSpy = spyOn(service, 'disconnectSocket');
         const connectSpy = spyOn(service, 'connect');
@@ -110,7 +110,7 @@ describe('ClassicModeService', () => {
     });
 
     it("should alert game is not found after calling 'initClassicMode'", () => {
-        communicationService = TestBed.inject(CommunicationService);
+        communicationService = TestBed.inject(CommunicationHttpService);
         const getGameSpy = spyOn(communicationService, 'getGame').and.returnValue(of(undefined as unknown as GameData));
         const alertSpy = spyOn(window, 'alert').and.callFake(() => {
             return;

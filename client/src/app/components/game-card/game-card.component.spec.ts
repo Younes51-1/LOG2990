@@ -11,9 +11,9 @@ import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { GameCardComponent } from '@app/components/game-card/game-card.component';
 import { GameData } from '@app/interfaces/game';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
-import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
-import { CommunicationService } from '@app/services/communicationService/communication.service';
-import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
+import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
+import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
+import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
 import { of } from 'rxjs';
 import { Socket } from 'socket.io-client';
 import { options, PageKeys } from 'src/assets/variables/game-card-options';
@@ -38,7 +38,7 @@ describe('GameCardComponent', () => {
     let fixture: ComponentFixture<GameCardComponent>;
     let socketServiceMock: SocketClientServiceMock;
     let socketHelper: SocketTestHelper;
-    let communicationServiceSpy: SpyObj<CommunicationService>;
+    let communicationServiceSpy: SpyObj<CommunicationHttpService>;
     let communicationSocketService: CommunicationSocketService;
 
     beforeEach(async () => {
@@ -67,10 +67,10 @@ describe('GameCardComponent', () => {
                 ClassicModeService,
                 CommunicationSocketService,
                 { provide: CommunicationSocketService, useValue: socketServiceMock },
-                { provide: CommunicationService, useValue: communicationServiceSpy },
+                { provide: CommunicationHttpService, useValue: communicationServiceSpy },
                 { provide: MatDialog },
                 { provide: MAT_DIALOG_DATA, useValue: {} },
-                CommunicationService,
+                CommunicationHttpService,
             ],
         }).compileComponents();
     });

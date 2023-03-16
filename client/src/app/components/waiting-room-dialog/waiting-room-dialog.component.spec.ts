@@ -2,7 +2,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material/dialog';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
-import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
+import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
 import { of } from 'rxjs';
 import { WaitingRoomComponent } from './waiting-room-dialog.component';
 

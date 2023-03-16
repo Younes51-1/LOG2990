@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, Inject, ViewChild } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { VerifyInputService } from '@app/services/verifyInput/verify-input.service';
+import { VerifyInputService } from '@app/services/verify-input/verify-input.service';
 
 @Component({
     selector: 'app-creation-modal-dialog',

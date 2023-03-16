@@ -11,13 +11,13 @@ import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
-import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
+import { GameScoreboardComponent } from '@app/components/game-scoreboard/game-scoreboard.component';
 import { GameData, GameRoom } from '@app/interfaces/game';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
-import { ChatService } from '@app/services/chatService/chat.service';
-import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
-import { CommunicationService } from '@app/services/communicationService/communication.service';
-import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
+import { ChatService } from '@app/services/chat/chat.service';
+import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
+import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
+import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
 import { of } from 'rxjs';
 import { Socket } from 'socket.io-client';
 import SpyObj = jasmine.SpyObj;
@@ -40,7 +40,7 @@ describe('GamePageComponent', () => {
 
     let component: GamePageComponent;
     let fixture: ComponentFixture<GamePageComponent>;
-    let communicationServiceSpy: SpyObj<CommunicationService>;
+    let communicationServiceSpy: SpyObj<CommunicationHttpService>;
     let classicModeServiceSpy: ClassicModeService;
     let socketServiceMock: SocketClientServiceMock;
     let socketHelper: SocketTestHelper;
@@ -67,13 +67,13 @@ describe('GamePageComponent', () => {
             return;
         });
         await TestBed.configureTestingModule({
-            declarations: [GamePageComponent, SidebarComponent, MatToolbar, EndgameDialogComponent, ChatBoxComponent, PlayAreaComponent],
+            declarations: [GamePageComponent, GameScoreboardComponent, MatToolbar, EndgameDialogComponent, ChatBoxComponent, PlayAreaComponent],
             imports: [DynamicTestModule, RouterTestingModule, MatDialogModule],
             providers: [
                 ChatService,
                 ClassicModeService,
                 CommunicationSocketService,
-                CommunicationService,
+                CommunicationHttpService,
                 { provide: CommunicationSocketService, useValue: socketServiceMock },
                 { provide: ChatService, useValue: chatServiceSpy },
             ],
@@ -93,7 +93,7 @@ describe('GamePageComponent', () => {
 
     it('should contain a sidebar', () => {
         fixture.detectChanges();
-        const sidebar = fixture.debugElement.nativeElement.querySelector('app-sidebar');
+        const sidebar = fixture.debugElement.nativeElement.querySelector('app-game-scoreboard');
         expect(sidebar).not.toBeNull();
     });
 

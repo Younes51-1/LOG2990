@@ -3,9 +3,9 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { WaitingRoomComponent } from '@app/components/waiting-room-dialog/waiting-room-dialog.component';
 import { GameForm } from '@app/interfaces/game';
-import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
-import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
-import { VerifyInputService } from '@app/services/verifyInput/verify-input.service';
+import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
+import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
+import { VerifyInputService } from '@app/services/verify-input/verify-input.service';
 import { options, PageKeys } from 'src/assets/variables/game-card-options';
 
 @Component({

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { Vec2 } from '@app/interfaces/vec2';
-import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
+import { DetectionDifferenceService } from '@app/services/detection-difference/detection-difference.service';
 
 describe('DetectionDifferenceService', () => {
     let service: DetectionDifferenceService;

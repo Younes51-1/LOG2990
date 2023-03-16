@@ -18,7 +18,7 @@ describe('VerifyInputService', () => {
     });
 
     it('should return false if input contains forbidden words', () => {
-        const input = 'foo';
+        const input = 'hello connard';
         expect(service.verify(input)).toBeFalse();
     });
 

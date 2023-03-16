@@ -5,9 +5,9 @@ import { ComponentFixture, discardPeriodicTasks, fakeAsync, TestBed, tick } from
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
 import { DifferenceTry } from '@app/interfaces/difference-try';
 import { GameData, GameRoom, UserGame } from '@app/interfaces/game';
-import { ChatService } from '@app/services/chatService/chat.service';
-import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
-import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
+import { ChatService } from '@app/services/chat/chat.service';
+import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
+import { DetectionDifferenceService } from '@app/services/detection-difference/detection-difference.service';
 import { Color } from 'src/assets/variables/color';
 
 @NgModule({

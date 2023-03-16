@@ -1,8 +1,8 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { Message } from '@app/interfaces/chat';
 import { GameRoom } from '@app/interfaces/game';
-import { ChatService } from '@app/services/chatService/chat.service';
-import { VerifyInputService } from '@app/services/verifyInput/verify-input.service';
+import { ChatService } from '@app/services/chat/chat.service';
+import { VerifyInputService } from '@app/services/verify-input/verify-input.service';
 
 @Component({
     selector: 'app-chat-box',

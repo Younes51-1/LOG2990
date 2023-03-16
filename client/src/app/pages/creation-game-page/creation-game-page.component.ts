@@ -3,11 +3,11 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { CreationDialogComponent } from '@app/components/creation-dialog/creation-dialog.component';
 import { Canvas, DrawModes, ForegroundState, Rectangle } from '@app/interfaces/creation-game';
-import { CommunicationService } from '@app/services/communicationService/communication.service';
-import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
-import { DrawingService } from '@app/services/drawingService/drawing.service';
-import { ForegroundService } from '@app/services/foregroundService/foreground.service';
-import { ImageLoadService } from '@app/services/imageLoad/image-load.service';
+import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
+import { DetectionDifferenceService } from '@app/services/detection-difference/detection-difference.service';
+import { DrawingService } from '@app/services/drawing/drawing.service';
+import { ForegroundService } from '@app/services/foreground/foreground.service';
+import { ImageLoadService } from '@app/services/image-load/image-load.service';
 import { Vec2 } from 'src/app/interfaces/vec2';
 import { Color } from 'src/assets/variables/color';
 import { DefaultSize } from 'src/assets/variables/default-size';
@@ -68,7 +68,7 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
 
     // eslint-disable-next-line max-params -- needed for constructor
     constructor(
-        private communicationService: CommunicationService,
+        private communicationService: CommunicationHttpService,
         public dialog: MatDialog,
         public detectionService: DetectionDifferenceService,
         private foregroundService: ForegroundService,
@@ -98,7 +98,7 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         return this.foregroundService;
     }
 
-    get getCommunicationService(): CommunicationService {
+    get getCommunicationService(): CommunicationHttpService {
         return this.communicationService;
     }
 
