@@ -1,14 +1,16 @@
-<header>
-    <img src="./assets/pictures/jeu.png" />
-</header>
-<section class="infos">
-    <app-sidebar [gameName]="gameName" [username]="username" [opponentUsername]="opponentUsername" [timer]="timer"
-        [differencesFound]="userDifferencesFound"
-        [opponentDifferencesFound]="totalDifferencesFound - userDifferencesFound" [gameRoom]="gameRoom"
-        (endGameParent)="endGame()"></app-sidebar>
-</section>
-<section class="gameplay">
-    <app-play-area class="play-area" tabindex="0" [gameRoom]="gameRoom"
-        (userError)="sendEvent('error')"></app-play-area>
-    <app-chat-box [gameRoom]="gameRoom" [username]="username"></app-chat-box>
-</section>
+<div class="container">
+    <header>
+        <img src="./assets/pictures/jeu.png" />
+        <p>Bienvenue au jeu : {{ gameName }}, {{ username }} !</p>
+    </header>
+    <section class="infos">
+        <app-game-scoreboard [gameName]="gameName" [username]="username" [timer]="timer"
+            [differencesFound]="userDifferencesFound" [gameRoom]="gameRoom"
+            (endGameParent)="endGame()"></app-game-scoreboard>
+    </section>
+    <section class="gameplay">
+        <app-play-area class="play-area" tabindex="0" [gameRoom]="gameRoom"
+            (userError)="sendEvent('error')"></app-play-area>
+        <app-chat-box [gameRoom]="gameRoom" [username]="username"></app-chat-box>
+    </section>
+</div>

@@ -4,7 +4,7 @@ import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testin
 import { MatDialog, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
-import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.component';
+import { CreationDialogComponent } from '@app/components/creation-dialog/creation-dialog.component';
 import { GameData, GameForm, NewGame } from '@app/interfaces/game';
 import { CreationGamePageComponent } from '@app/pages/creation-game-page/creation-game-page.component';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
@@ -117,7 +117,7 @@ describe('ImageLoadService', () => {
     it('openDifferencesDialog should open dialog', async () => {
         const spy = spyOn(component.dialog, 'open');
         service.openDifferencesDialog();
-        expect(spy).toHaveBeenCalledOnceWith(ModalDialogComponent, {
+        expect(spy).toHaveBeenCalledOnceWith(CreationDialogComponent, {
             data: {
                 imageUrl: component.imageDifferencesUrl,
                 nbDifferences: component.differenceCount,

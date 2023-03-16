@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.component';
+import { CreationDialogComponent } from '@app/components/creation-dialog/creation-dialog.component';
 import { NewGame } from '@app/interfaces/game';
 import { CreationGamePageComponent } from '@app/pages/creation-game-page/creation-game-page.component';
 import { AsciiLetterValue, BIT_PER_PIXEL, OffsetValues } from 'src/assets/variables/images-values';
@@ -19,7 +19,7 @@ export class ImageLoadService {
     }
 
     openDifferencesDialog() {
-        this.component.dialogRef = this.component.dialog.open(ModalDialogComponent, {
+        this.component.dialogRef = this.component.dialog.open(CreationDialogComponent, {
             data: {
                 imageUrl: this.component.imageDifferencesUrl,
                 nbDifferences: this.component.differenceCount,
