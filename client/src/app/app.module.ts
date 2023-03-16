@@ -9,23 +9,23 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSliderModule } from '@angular/material/slider';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { ConfigParamsComponent } from '@app/components/config-params/config-params.component';
+import { CreationDialogComponent } from '@app/components/creation-dialog/creation-dialog.component';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
 import { GameCardComponent } from '@app/components/game-card/game-card.component';
 import { GameScoreboardComponent } from '@app/components/game-scoreboard/game-scoreboard.component';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
+import { WaitingRoomComponent } from '@app/components/waiting-room-dialog/waiting-room-dialog.component';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { AppMaterialModule } from '@app/modules/material.module';
 import { AppComponent } from '@app/pages/app/app.component';
+import { ConfigSelectPageComponent } from '@app/pages/config-select-page/config-select-page.component';
 import { CreationGamePageComponent } from '@app/pages/creation-game-page/creation-game-page.component';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { SlickCarouselModule } from 'ngx-slick-carousel';
-import { ChatBoxComponent } from './components/chat-box/chat-box.component';
-import { CreationDialogComponent } from './components/creation-dialog/creation-dialog.component';
-import { WaitingRoomComponent } from './components/waiting-room-dialog/waiting-room-dialog.component';
-import { ConfigSelectPageComponent } from './pages/config-select-page/config-select-page.component';
 
 /**
  * Main module that is used in main.ts.

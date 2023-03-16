@@ -1,5 +1,5 @@
-import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
-import { ChatService } from './chat.service';
+import { ChatService } from '@app/services/chat/chat.service';
+import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
 
 describe('ChatService', () => {
     let chatService: ChatService;
