@@ -3,7 +3,7 @@ import { NgModule } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { By } from '@angular/platform-browser';
-import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
+import { GameScoreboardComponent } from '@app/components/game-scoreboard/game-scoreboard.component';
 import { GameData } from '@app/interfaces/game';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 
@@ -12,13 +12,13 @@ import { AppRoutingModule } from '@app/modules/app-routing.module';
 })
 export class DynamicTestModule {}
 
-describe('SidebarComponent', () => {
-    let component: SidebarComponent;
-    let fixture: ComponentFixture<SidebarComponent>;
+describe('GameScoreboardComponent', () => {
+    let component: GameScoreboardComponent;
+    let fixture: ComponentFixture<GameScoreboardComponent>;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [SidebarComponent],
+            declarations: [GameScoreboardComponent],
             imports: [DynamicTestModule, AppRoutingModule],
         }).compileComponents();
     });
@@ -29,7 +29,7 @@ describe('SidebarComponent', () => {
         const gameData: GameData = { gameForm, differenceMatrix };
         const gameRoom = { userGame: { gameData, nbDifferenceFound: 0, timer: 0, username1: 'Test' }, roomId: 'fakeId', started: false };
 
-        fixture = TestBed.createComponent(SidebarComponent);
+        fixture = TestBed.createComponent(GameScoreboardComponent);
         component = fixture.componentInstance;
         component.gameRoom = gameRoom;
         fixture.detectChanges();

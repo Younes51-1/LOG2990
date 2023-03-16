@@ -1,14 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.component';
+import { CreationDialogComponent } from '@app/components/creation-dialog/creation-dialog.component';
 
-describe('ModalDialogComponent', () => {
-    let component: ModalDialogComponent;
-    let fixture: ComponentFixture<ModalDialogComponent>;
+describe('CreationDialogComponent', () => {
+    let component: CreationDialogComponent;
+    let fixture: ComponentFixture<CreationDialogComponent>;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [ModalDialogComponent],
+            declarations: [CreationDialogComponent],
             providers: [
                 { provide: MatDialogRef, useValue: {} },
                 { provide: MAT_DIALOG_DATA, useValue: {} },
@@ -17,7 +17,7 @@ describe('ModalDialogComponent', () => {
     });
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(ModalDialogComponent);
+        fixture = TestBed.createComponent(CreationDialogComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
@@ -53,7 +53,7 @@ describe('ModalDialogComponent', () => {
 
     it('should emit the name of the game', () => {
         // eslint-disable-next-line @typescript-eslint/no-empty-function
-        component.dialogRef = { close: () => {} } as MatDialogRef<ModalDialogComponent>;
+        component.dialogRef = { close: () => {} } as MatDialogRef<CreationDialogComponent>;
         const emitNameGameSpy = spyOn(component.dialogRef, 'close').and.callThrough();
         component.inputValue = 'test';
         component.emitNameGame();

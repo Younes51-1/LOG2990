@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { ModalDialogComponent } from '@app/components/modal-dialog/modal-dialog.component';
+import { CreationDialogComponent } from '@app/components/creation-dialog/creation-dialog.component';
 import { Canvas, DrawModes, ForegroundState, Rectangle } from '@app/interfaces/creation-game';
 import { CommunicationService } from '@app/services/communicationService/communication.service';
 import { DetectionDifferenceService } from '@app/services/detectionDifference/detection-difference.service';
@@ -64,7 +64,7 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     differenceMatrix: number[][];
     nameGame: string;
     difficulty: string;
-    dialogRef: MatDialogRef<ModalDialogComponent>;
+    dialogRef: MatDialogRef<CreationDialogComponent>;
 
     // eslint-disable-next-line max-params -- needed for constructor
     constructor(

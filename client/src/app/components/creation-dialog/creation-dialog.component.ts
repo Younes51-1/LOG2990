@@ -3,9 +3,9 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { VerifyInputService } from '@app/services/verifyInput/verify-input.service';
 
 @Component({
-    selector: 'app-modal-dialog',
-    templateUrl: './modal-dialog.component.html',
-    styleUrls: ['./modal-dialog.component.scss'],
+    selector: 'app-creation-modal-dialog',
+    templateUrl: './creation-dialog.component.html',
+    styleUrls: ['./creation-dialog.component.scss'],
     styles: [
         `
             .md-dialog-container {
@@ -14,7 +14,7 @@ import { VerifyInputService } from '@app/services/verifyInput/verify-input.servi
         `,
     ],
 })
-export class ModalDialogComponent implements AfterViewInit {
+export class CreationDialogComponent implements AfterViewInit {
     @ViewChild('canvasDifferences') canvasDifferences: ElementRef<HTMLCanvasElement>;
     width: number;
     height: number;
@@ -26,7 +26,7 @@ export class ModalDialogComponent implements AfterViewInit {
 
     constructor(
         private verifyInputService: VerifyInputService,
-        public dialogRef: MatDialogRef<ModalDialogComponent>,
+        public dialogRef: MatDialogRef<CreationDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: { imageUrl: string; nbDifferences: number },
     ) {
         this.width = 640;

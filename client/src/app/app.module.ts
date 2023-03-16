@@ -12,8 +12,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ConfigParamsComponent } from '@app/components/config-params/config-params.component';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
 import { GameCardComponent } from '@app/components/game-card/game-card.component';
+import { GameScoreboardComponent } from '@app/components/game-scoreboard/game-scoreboard.component';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
-import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { AppMaterialModule } from '@app/modules/material.module';
 import { AppComponent } from '@app/pages/app/app.component';
@@ -23,7 +23,7 @@ import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { SlickCarouselModule } from 'ngx-slick-carousel';
 import { ChatBoxComponent } from './components/chat-box/chat-box.component';
-import { ModalDialogComponent } from './components/modal-dialog/modal-dialog.component';
+import { CreationDialogComponent } from './components/creation-dialog/creation-dialog.component';
 import { WaitingRoomComponent } from './components/waiting-room-dialog/waiting-room-dialog.component';
 import { ConfigSelectPageComponent } from './pages/config-select-page/config-select-page.component';
 
@@ -39,13 +39,13 @@ import { ConfigSelectPageComponent } from './pages/config-select-page/config-sel
         GamePageComponent,
         MainPageComponent,
         PlayAreaComponent,
-        SidebarComponent,
+        GameScoreboardComponent,
         ChatBoxComponent,
         GameCardComponent,
         CreationGamePageComponent,
         ConfigParamsComponent,
         EndgameDialogComponent,
-        ModalDialogComponent,
+        CreationDialogComponent,
         ConfigSelectPageComponent,
         WaitingRoomComponent,
     ],

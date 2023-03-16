@@ -8,11 +8,11 @@ enum Times {
 }
 
 @Component({
-    selector: 'app-sidebar',
-    templateUrl: './sidebar.component.html',
-    styleUrls: ['./sidebar.component.scss'],
+    selector: 'app-game-scoreboard',
+    templateUrl: './game-scoreboard.component.html',
+    styleUrls: ['./game-scoreboard.component.scss'],
 })
-export class SidebarComponent implements OnChanges {
+export class GameScoreboardComponent implements OnChanges {
     @Input() gameName: string;
     @Input() timer: number;
     @Input() differencesFound: number;
