@@ -54,10 +54,19 @@ export class ConfigSelectPageComponent implements OnInit {
         }
     }
 
+    setSelected(name: string): void {
+        for (const slide of this.slides) {
+            slide.isSelected = slide.name === name ? true : false;
+        }
+    }
+
     getSlidesFromServer(): void {
         const component = this;
         this.communicationService.getAllGames().subscribe((res) => {
             component.slides = res;
+            for (const slide of component.slides) {
+                slide.isSelected = false;
+            }
         });
     }
 
