@@ -1,18 +1,32 @@
 <div class="container">
-    <div class="countdown">
-        <svg viewBox="-50 -50 100 100">
-            <circle r="45"></circle>
-        </svg>
-        <p class="timer1">{{ minutes | number:'2.0-0' }}:{{
-            seconds
-            | number:'2.0-0' }}</p>
-    </div>
-    <section>
-        <p>Mode {{gameMode}}</p>
+    <div class="title">
+        <p>Bienvenue au jeu {{gameName}} en {{gameMode}}</p>
         <p>Niveau {{difficulty}}</p>
-        <p>Vous devez trouver un total de {{totalNumber}} différences</p>
-        <p>Vous avez trouvé {{differencesFound}} différences</p>
-        <p *ngIf="opponentUsername">{{opponentUsername}} a trouvé {{opponentDifferencesFound}} différences</p>
-    </section>
+        <p>{{totalNumber}} différences à trouver</p>
+    </div>
+    <div class="scoreboard">
+        <div class="main-user flexbox-items">
+            <div class="main-user username" *ngIf="opponentUsername">{{username}}</div>
+        </div>
+        <div class="flexbox-items">
+            <div class="timer">{{ minutes | number:'2.0-0' }}:{{seconds|number:'2.0-0' }}</div>
+            <div class="vs">
+                <div class="circle"></div>
+                <hr class="vs-line" />
+                <div class="circle"></div>
+            </div>
+        </div>
+        <div class="opponent-user flexbox-items">
+            <div class="opponent-user username" *ngIf="opponentUsername">{{opponentUsername}}</div>
+        </div>
+    </div>
+    <div class="score-container solo" *ngIf="!opponentUsername">
+        <div class="main-user score">{{differencesFound}}</div>
+    </div>
+    <div class="score-container" *ngIf="opponentUsername">
+        <div class="main-user score">{{differencesFound}}</div>
+        <div class="opponent-user score">{{opponentDifferencesFound}}</div>
+    </div>
+    <hr class="footer" />
     <button (click)="endGameParent.emit()">Abandonner la partie</button>
 </div>

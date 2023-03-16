@@ -1,10 +1,121 @@
 .container {
+    position: relative;
+    color: black;
+    padding: 1.5em 2em;
+    border-radius: 10px;
+    box-shadow: 0px 0px 17px 3px rgba(0, 0, 0, 0.25);
+}
+
+.title {
+    display: block;
+    position: relative;
+    font-size: 200%;
+    text-align: center;
+    margin-bottom: 1.5em;
+}
+
+.title::before,
+.title::after {
+    content: '';
+    display: block;
+    width: 80%;
+    border-bottom: 3px solid #8200FF;
+    margin: 0 auto;
+    margin-top: 0.2em;
+}
+
+.title::before {
+    margin-bottom: 0.2em;
+}
+
+.title p {
+    margin-top: 3%;
+    margin-bottom: 3%;
+}
+
+.scoreboard {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.flexbox-items {
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
     align-items: center;
-    height: 95%;
-    background: #fff;
+    width: 33.33%;
+}
+
+.timer {
+    width: 100%;
+    text-align: center;
+    font-size: 200%;
+    margin-bottom: 10%;
+    margin-top: -0.6em;
+}
+
+.vs {
+    width: 100%;
+    position: relative;
+    margin-left: 5px;
+}
+
+.vs-line {
+    width: 80%;
+    float: left;
+    margin-top: 6px;
+    border: 0;
+    border-bottom: 2px dashed black;
+}
+
+.circle {
+    display: block;
+    float: left;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid black;
+    transform: rotate(360deg);
+    -ms-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -webkit-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+}
+
+.username {
+    font-size: 200%;
+}
+
+.score-container {
+    display: block;
+    width: 30%;
+    height: 60px;
+    margin: 0 auto;
+}
+
+.score-container.solo {
+    margin-left: 42%;
+}
+
+.score {
+    position: relative;
+    width: calc(45% - 3px);
+    height: 60px;
+    float: left;
+    text-align: center;
+    line-height: 60px;
+    border: 2px solid black;
+    font-size: 2em;
+}
+
+.opponent-user.score {
+    float: right;
+}
+
+.footer {
+    margin-top: 3%;
+    width: 50%;
+    border-bottom: 3px solid #8200FF;
 }
 
 button {
@@ -49,25 +160,4 @@ button:focus:before {
 
 button:active {
     transform: scale(0.9);
-}
-
-.countdown {
-    display: grid;
-    width: 50%;
-}
-
-svg {
-    stroke-width: 5;
-    fill: none;
-    stroke: #8200FF;
-}
-
-.timer {
-    font-size: 100%;
-    margin-top: -120%;
-}
-
-.timer1 {
-    font-size: 100%;
-    margin-top: -60%;
 }
