@@ -1,17 +1,14 @@
 * {
     font-family: 'Verdana', sans-serif, monospace;
     text-align: center;
-    font-size: 110%;
     user-select: none;
     display: flex;
-    flex-direction: column;
-    justify-content: space-around;
+    justify-content: center;
     align-items: center;
 }
 
 header {
     justify-items: center;
-    width: 100%;
 }
 
 img {
@@ -19,7 +16,7 @@ img {
     width: 70%;
 }
 
-section {
-    display: flex;
-    flex-direction: row;
+.gameplay {
+    margin-top: 1%;
+    margin-left: 15%;
 }

@@ -1,13 +1,13 @@
 <header>
     <img src="./assets/pictures/jeu.png" />
 </header>
-<section>
+<section class="infos">
     <app-sidebar [gameName]="gameName" [username]="username" [opponentUsername]="opponentUsername" [timer]="timer"
         [differencesFound]="userDifferencesFound"
         [opponentDifferencesFound]="totalDifferencesFound - userDifferencesFound" [gameRoom]="gameRoom"
         (endGameParent)="endGame()"></app-sidebar>
 </section>
-<section>
+<section class="gameplay">
     <app-play-area class="play-area" tabindex="0" [gameRoom]="gameRoom"
         (userError)="sendEvent('error')"></app-play-area>
     <app-chat-box [gameRoom]="gameRoom" [username]="username"></app-chat-box>
