@@ -60,7 +60,7 @@ describe('GameScoreboardComponent', () => {
     });
 
     it('should show the total number of differences', () => {
-        const totalNumber = fixture.debugElement.nativeElement.querySelector('div:first-of-type').querySelector('p:nth-of-type(3)');
+        const totalNumber = fixture.debugElement.nativeElement.querySelector('div:first-of-type').querySelector('p:nth-of-type(2)');
         expect(totalNumber.length).not.toEqual(0);
     });
 

@@ -41,7 +41,8 @@ section {
     flex-direction: row;
     gap: 5%;
     justify-content: center;
-    margin-bottom: 1%;
+    margin-top: 2%;
+    margin-bottom: 2%;
 }
 
 canvas {
@@ -95,4 +96,75 @@ btn:focus:before {
 
 fieldset {
     display: flex;
+    border: 1px solid #000000;
+}
+
+.tools {
+    display: flex;
+    width: 30%;
+    height: 40%;
+    gap: 5%;
+}
+
+.tools button {
+    flex: 1;
+    border: 3px solid #8200FF;
+    overflow: hidden;
+    transition: all 0.3s;
+}
+
+.tools button:hover {
+    flex: 10;
+    transform-origin: bottom;
+    transform: scaleY(1.5);
+}
+
+
+.tools button {
+    background-color: transparent;
+    width: 100%;
+    height: 100%;
+    transition: all 3s;
+    font-size: 90%;
+}
+
+.tools button:hover {
+    transition: all 0.3s;
+}
+
+.paint-picker-container {
+    display: none;
+}
+
+.button:hover .paint-picker-container {
+    display: block;
+}
+
+.swap {
+    height: 20%;
+    gap: 5%;
+    display: grid;
+    align-items: center;
+    margin: auto;
+    margin-top: 10%;
+}
+
+.custom-file-upload {
+    cursor: pointer;
+    width: 20%;
+    margin-bottom: 0.5%;
+}
+
+.custom-button {
+    cursor: pointer;
+    border: none;
+    width: 40%;
+}
+
+i {
+    margin-right: 1%;
+}
+
+.mat-slider-horizontal {
+    width: 10%;
 }

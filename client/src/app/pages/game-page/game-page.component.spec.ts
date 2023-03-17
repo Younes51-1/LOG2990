@@ -10,8 +10,8 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
+import { GameScoreboardComponent } from '@app/components/game-scoreboard/game-scoreboard.component';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
-import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { GameData, GameRoom } from '@app/interfaces/game';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { ChatService } from '@app/services/chatService/chat.service';
@@ -67,7 +67,7 @@ describe('GamePageComponent', () => {
             return;
         });
         await TestBed.configureTestingModule({
-            declarations: [GamePageComponent, SidebarComponent, MatToolbar, EndgameDialogComponent, ChatBoxComponent, PlayAreaComponent],
+            declarations: [GamePageComponent, GameScoreboardComponent, MatToolbar, EndgameDialogComponent, ChatBoxComponent, PlayAreaComponent],
             imports: [DynamicTestModule, RouterTestingModule, MatDialogModule],
             providers: [
                 ChatService,
@@ -91,10 +91,10 @@ describe('GamePageComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should contain a sidebar', () => {
+    it('should contain a scoreboard', () => {
         fixture.detectChanges();
-        const sidebar = fixture.debugElement.nativeElement.querySelector('app-sidebar');
-        expect(sidebar).not.toBeNull();
+        const scoreboard = fixture.debugElement.nativeElement.querySelector('app-game-scoreboard');
+        expect(scoreboard).not.toBeNull();
     });
 
     it('should subscribe to timer$ observable', () => {
