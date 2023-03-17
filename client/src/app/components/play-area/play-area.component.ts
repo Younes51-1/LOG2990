@@ -211,8 +211,17 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
 
     removeDifference(differenceMatrix: number[][]) {
         const differencePositions: Vec2[] = [];
-        const image1 = this.context1.getImageData(0, 0, this.width, this.height);
-        const image2 = this.context2.getImageData(0, 0, this.width, this.height);
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        if (!context) {
+            return;
+        }
+        canvas.width = this.width;
+        canvas.height = this.height;
+        context.drawImage(this.original, 0, 0, this.width, this.height);
+        const image1 = context.getImageData(0, 0, this.width, this.height);
+        context.drawImage(this.modified, 0, 0, this.width, this.height);
+        const image2 = context.getImageData(0, 0, this.width, this.height);
 
         for (let i = 0; i < differenceMatrix.length; i++) {
             for (let j = 0; j < differenceMatrix[0].length; j++) {
@@ -233,10 +242,11 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
             image2.data[index + 2] = image1.data[index + 2];
             image2.data[index + 3] = image1.data[index + 3];
         }
-        this.context2.clearRect(0, 0, this.width, this.height);
-        this.context2.putImageData(image2, 0, 0);
-        this.modified.src = this.canvas2.nativeElement.toDataURL();
-        this.verifyDifferenceMatrix();
+        context.putImageData(image2, 0, 0);
+        this.modified.src = canvas.toDataURL();
+        if (this.isCheatModeOn) {
+            this.verifyDifferenceMatrix();
+        }
     }
 
     verifyDifferenceMatrix() {
@@ -260,12 +270,11 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
             if (isFlashing) {
                 this.context1.drawImage(this.original, 0, 0, this.width, this.height);
                 this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
-                isFlashing = !isFlashing;
             } else {
                 this.context1.drawImage(this.layer, 0, 0, this.width, this.height);
                 this.context2.drawImage(this.layer, 0, 0, this.width, this.height);
-                isFlashing = !isFlashing;
             }
+            isFlashing = !isFlashing;
         }, flashDuration);
     }
 

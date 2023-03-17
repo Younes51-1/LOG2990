@@ -151,6 +151,17 @@ describe('GameCardComponent', () => {
         expect(component.btnTwo).toEqual(options.selection.btnTwo);
     });
 
+    it("should call check game when 'Option multijoueur' is clicked", () => {
+        component.page = PageKeys.Selection;
+        component.ngOnInit();
+        fixture.detectChanges();
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        const spy = spyOn(component, 'checkGame');
+        const btn = fixture.debugElement.nativeElement.getElementsByTagName('button')[1];
+        btn.click();
+        expect(spy).toHaveBeenCalled();
+    });
+
     it('should focus appropriate input', fakeAsync(() => {
         const inputElement = document.createElement('input');
         document.body.appendChild(inputElement);
@@ -162,17 +173,6 @@ describe('GameCardComponent', () => {
         tick(timeout);
         expect(focusSpy).toHaveBeenCalled();
     }));
-
-    it("should call check game when 'Option multijoueur' is clicked", () => {
-        component.page = PageKeys.Selection;
-        component.ngOnInit();
-        fixture.detectChanges();
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        const spy = spyOn(component, 'checkGame');
-        const btn = fixture.debugElement.nativeElement.getElementsByTagName('button')[1];
-        btn.click();
-        expect(spy).toHaveBeenCalled();
-    });
 
     it("should call 'classicModeService.connectSocket' when 'checkGame' is called", () => {
         const spy = spyOn(component.classicModeService, 'connectSocket');

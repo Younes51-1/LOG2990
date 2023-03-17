@@ -26,6 +26,19 @@ describe('CreationDialogComponent', () => {
         expect(component).toBeTruthy();
     });
 
+    it('ngAfterViewInit should load image', (done) => {
+        const drawImageSpy = spyOn(component, 'drawImage').and.callFake(() => {
+            return;
+        });
+        component.data.imageUrl = 'https://i.imgur.com/tG1K4kJ.jpeg';
+        component.ngAfterViewInit();
+        component.image.dispatchEvent(new Event('load'));
+        setTimeout(() => {
+            expect(drawImageSpy).toHaveBeenCalled();
+            done();
+        }, 0);
+    });
+
     it('should draw canvas', () => {
         component.data.imageUrl = 'https://i.imgur.com/9Z0QZ9A.png';
         const drawImagespy = spyOn(component.context, 'drawImage').and.callFake(() => {
@@ -72,18 +85,5 @@ describe('CreationDialogComponent', () => {
         component.inputValue = 'test';
         component.toggleBorder();
         expect(component.emitNameGame).toHaveBeenCalled();
-    });
-
-    it('ngAfterViewInit should load image', (done) => {
-        const drawImageSpy = spyOn(component, 'drawImage').and.callFake(() => {
-            return;
-        });
-        component.data.imageUrl = 'https://i.imgur.com/tG1K4kJ.jpeg';
-        component.ngAfterViewInit();
-        component.image.dispatchEvent(new Event('load'));
-        setTimeout(() => {
-            expect(drawImageSpy).toHaveBeenCalled();
-            done();
-        }, 0);
     });
 });
