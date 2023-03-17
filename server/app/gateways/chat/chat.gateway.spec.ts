@@ -57,7 +57,7 @@ const getFakeUserGame1 = (): UserGame => ({
     username1: 'FakeUser',
     nbDifferenceFound: 0,
     timer: 0,
-    potentielPlayers: [],
+    potentialPlayers: [],
     gameData: {
         differenceMatrix: [
             [-1, -1, -1],
@@ -69,7 +69,7 @@ const getFakeUserGame1 = (): UserGame => ({
             nbDifference: 2,
             image1url: `${environment.serverUrl}/FakeGame/image1.bmp`,
             image2url: `${environment.serverUrl}/FakeGame/image2.bmp`,
-            difficulte: 'Facile',
+            difficulty: 'Facile',
             soloBestTimes: [new BestTime(), new BestTime(), new BestTime()],
             vsBestTimes: [new BestTime(), new BestTime(), new BestTime()],
         },
@@ -79,6 +79,6 @@ const getFakeUserGame1 = (): UserGame => ({
 
 const getFakeGameRoom = (): GameRoom => ({
     userGame: getFakeUserGame1(),
-    roomId: 'socketid',
+    roomId: 'socketId',
     started: true,
 });

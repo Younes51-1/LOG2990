@@ -21,7 +21,7 @@ export class GameForm {
 
     @ApiProperty()
     @IsString()
-    difficulte: string;
+    difficulty: string;
 
     @ApiProperty()
     @IsString()
