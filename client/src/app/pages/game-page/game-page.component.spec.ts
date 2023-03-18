@@ -2,7 +2,7 @@
 // eslint-disable-next-line max-classes-per-file
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
-import { ComponentFixture, fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, discardPeriodicTasks, fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatToolbar } from '@angular/material/toolbar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -255,10 +255,9 @@ describe('GamePageComponent', () => {
         component.userDifferencesFound = component.differenceThreshold;
         const mockConfetti = spyOn(component, 'startConfetti').and.callThrough();
         component.endGame();
-        tick(2000);
-        fixture.whenStable().then(() => {
-            expect(mockConfetti).toHaveBeenCalled();
-        });
+        tick(1001);
+        expect(mockConfetti).toHaveBeenCalled();
+        discardPeriodicTasks();
     }));
 
     it('should open EndgameDialogComponent with correct data if in multiplayer mode and looser', () => {

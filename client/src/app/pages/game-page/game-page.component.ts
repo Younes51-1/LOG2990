@@ -93,7 +93,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     startConfetti() {
-        this.intervalId = setTimeout(() => {
+        this.intervalId = setInterval(() => {
             confetti({
                 particleCount: 300,
                 spread: 100,
