@@ -5,6 +5,7 @@ import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-d
 import { GameRoom } from '@app/interfaces/game';
 import { ChatService } from '@app/services/chatService/chat.service';
 import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
+import confetti from 'canvas-confetti';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -79,6 +80,12 @@ export class GamePageComponent implements OnInit, OnDestroy {
         if (this.gameFinished) {
             if (this.userDifferencesFound === this.differenceThreshold) {
                 this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
+                confetti({
+                    particleCount: 300,
+                    spread: 100,
+                    origin: { y: 0.6 },
+                    colors: ['#29cdff', '#78ff44', '#ff718d', '#fdff6a'],
+                });
             } else {
                 this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: false } });
             }
