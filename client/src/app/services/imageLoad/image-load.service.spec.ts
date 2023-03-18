@@ -109,7 +109,7 @@ describe('ImageLoadService', () => {
     it('changing image should call verifyImageFormat', () => {
         const spy = spyOn(component, 'verifyImageFormat');
         expect(spy).not.toHaveBeenCalled();
-        const image = fixture.debugElement.nativeElement.querySelector('div > p > input');
+        const image = fixture.debugElement.nativeElement.querySelector('div > label > input');
         image.dispatchEvent(new Event('change'));
         expect(spy).toHaveBeenCalled();
     });

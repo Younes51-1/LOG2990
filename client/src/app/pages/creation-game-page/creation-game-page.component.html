@@ -8,31 +8,37 @@
         <img src="./assets/pictures/creation.png" />
     </header>
     <p>* Les images doivent posséder le format 24-bit bitmap (BPM) avec une taille de 640x480 px *</p>
-    <label class="custom-file-upload">
-        <i class="fas fa-upload"></i>Téléverser deux images simultanément <input #images1et2 type="file"
-            accept="image/bmp" (change)="verifyImageFormat($event, images1et2)" data-input="false"
-            style="display:none" />
-    </label>
-    <button class="custom-button" (click)="reset(images1et2)">
-        <i class="fas fa-trash-alt"></i>Réinitialiser deux images simultanément
-    </button>
+    <div class="both">
+        <label class="custom-file-upload button">
+            <i class="fas fa-upload"></i>
+            <input #images1et2 type="file" accept="image/bmp" (change)="verifyImageFormat($event, images1et2)"
+                data-input="false" style="display:none" />
+        </label>
+        Images originale et modifiée
+        <button class="custom-button button" (click)="reset(images1et2)">
+            <i class="fas fa-trash-alt"></i>
+        </button>
+    </div>
     <section class="canvas">
         <div class="canvas1">
-            <label class="custom-file-upload">
-                <i class="fas fa-upload"></i>Téléverser l'image originale
-                <input #image1 type="file" accept="image/bmp" (change)="verifyImageFormat($event, image1)"
-                    data-input="false" style="display:none">
-            </label>
-            <button class="custom-button" (click)="reset(image1)">
-                <i class="fas fa-trash-alt"></i>Réinitialiser l'image originale
-            </button>
+            <div class="both">
+                <label class="custom-file-upload button">
+                    <i class="fas fa-upload"></i>
+                    <input #image1 type="file" accept="image/bmp" (change)="verifyImageFormat($event, image1)"
+                        data-input="false" style="display:none">
+                </label>
+                Image originale
+                <button class="custom-button button" (click)="reset(image1)">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
             <canvas #canvas1 (mousedown)="handleCanvasEvent('mousedown', $event, canvas1)"
                 (mousemove)="handleCanvasEvent('mousemove', $event, canvas1)"
                 (mouseup)="handleCanvasEvent('mouseup', $event, canvas1)"
                 (mouseleave)="handleCanvasEvent('mouseleave', $event, canvas1)"
                 (mouseenter)="handleCanvasEvent('mouseenter', $event, canvas1)" [attr.width]="width"
                 [attr.height]="height"></canvas>
-            <button class="button" (click)="reset(canvas1)">Réinitialiser l'avant-plan</button>
+            <p><button class="button" (click)="reset(canvas1)">Réinitialiser l'avant-plan</button></p>
         </div>
         <div class="swap">
             <button class="button" (click)="duplicateForeground(canvas1)"><i class="fa fa-arrow-right"></i></button>
@@ -40,52 +46,64 @@
             <button class="button" (click)="duplicateForeground(canvas2)"><i class="fa fa-arrow-left"></i></button>
         </div>
         <div class="canvas2">
-            <label class="custom-file-upload">
-                <i class="fas fa-upload"></i>Téléverser l'image modifiée<input #image2 type="file" accept="image/bmp"
-                    (change)="verifyImageFormat($event, image2)" data-input=" false" style="display:none" /></label>
-            <button class="custom-button" (click)="reset(image2)">
-                <i class="fas fa-trash-alt"></i>Réinitialiser l'image modifiée
-            </button>
+            <div class="both">
+                <label class="custom-file-upload button">
+                    <i class="fas fa-upload"></i>
+                    <input #image2 type="file" accept="image/bmp" (change)="verifyImageFormat($event, image2)"
+                        data-input=" false" style="display:none" /></label>
+                Image modifiée
+                <button class="custom-button button" (click)="reset(image2)">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
             <canvas #canvas2 (mousedown)="handleCanvasEvent('mousedown', $event, canvas2)"
                 (mousemove)="handleCanvasEvent('mousemove', $event, canvas2)"
                 (mouseup)="handleCanvasEvent('mouseup', $event, canvas2)"
                 (mouseleave)="handleCanvasEvent('mouseleave', $event, canvas2)"
                 (mouseenter)="handleCanvasEvent('mouseenter', $event, canvas2)" [attr.width]="width"
                 [attr.height]="height"></canvas>
-            <button class="button" (click)="reset(canvas2)">Réinitialiser l'avant-plan</button>
+            <p><button class="button" (click)="reset(canvas2)">Réinitialiser l'avant-plan</button></p>
         </div>
     </section>
-    <div class="tools">
-        <button class="button action" (mouseenter)="enableMode('pencil')">
-            <div class="paint-picker-container">
-                <label for="colorpicker">Couleur</label>
-                <input id="colorpicker" [(colorPicker)]="color" [style.background]="color" />
-                <label for="pencilSize">Épaisseur du trait ({{ pencilSize }} px) </label>
-                <mat-slider id="pencilSize" min="1" max="100" step="1" [(ngModel)]="pencilSize"
-                    class="paint-picker-container">
+    <div class="actions">
+        <div class="pickers">
+            <div *ngIf="showColorPicker" class="color">
+                <p><label for="colorpicker">Couleur</label></p>
+                <p><input class="button" id="colorpicker" [(colorPicker)]="color" [style.background]="color" /></p>
+            </div>
+            <div *ngIf="showPencilThicknessPicker">
+                <p><label for="pencilSize">Largeur - {{ pencilSize }} px</label></p>
+                <mat-slider id="pencilSize" min="1" max="100" step="1" [(ngModel)]="pencilSize">
                     <input matSliderThumb />
                 </mat-slider>
             </div>
-            <i class="fas fa-pencil-alt"></i>
-        </button>
-        <button class="button action" (mouseenter)="enableMode('rectangle')">
-            <div class="paint-picker-container">
-                <label for="colorpicker">Couleur</label>
-                <input id="colorpicker" [(colorPicker)]="color" [style.background]="color" />
-            </div>
-            <i class="fas fa-vector-square"></i>
-        </button>
-        <button class="button action" (mouseenter)="enableMode('eraser')">
-            <div class="paint-picker-container">
-                <label for="eraserSize">Taille de l'efface ({{ eraserSize }} px)</label>
+            <div *ngIf="showEraserThicknessPicker" class="eraser">
+                <p><label for="eraserSize">Largeur - {{ eraserSize }} px</label></p>
                 <mat-slider id="eraserSize" min="1" max="100" step="1" [(ngModel)]="eraserSize">
                     <input matSliderThumb />
                 </mat-slider>
             </div>
-            <i class="fa fa-eraser"></i>
-        </button>
-        <button class="button" (click)="ctrlZ()"><i class="fas fa-undo"></i></button>
-        <button class="button" (click)="ctrlShiftZ()"><i class="fas fa-redo"></i></button>
+        </div>
+        <div class="tools">
+            <button class="button action" (mouseenter)="enableMode('pencil')"
+                (click)="showColorPicker = true; showPencilThicknessPicker = true; showEraserThicknessPicker = false">
+                <i class="fas fa-pencil-alt"></i>
+            </button>
+            <button class="button action" (mouseenter)="enableMode('rectangle')"
+                (click)="showColorPicker = true; showPencilThicknessPicker = false; showEraserThicknessPicker = false">
+                <i class="fas fa-vector-square"></i>
+            </button>
+            <button class="button action" (mouseenter)="enableMode('eraser')"
+                (click)="showColorPicker = false; showPencilThicknessPicker = false; showEraserThicknessPicker = true">
+                <i class="fa fa-eraser"></i>
+            </button>
+            <button class="button"
+                (click)="ctrlZ(); showColorPicker = false; showPencilThicknessPicker = false; showEraserThicknessPicker = false"><i
+                    class="fas fa-undo"></i></button>
+            <button class="button"
+                (click)="ctrlShiftZ(); showColorPicker = false; showPencilThicknessPicker = false; showEraserThicknessPicker = false"><i
+                    class="fas fa-redo"></i></button>
+        </div>
     </div>
     <section class="footer">
         <fieldset>

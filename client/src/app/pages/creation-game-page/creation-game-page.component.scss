@@ -1,6 +1,9 @@
 * {
     font-family: 'Verdana', sans-serif, monospace;
     text-align: center;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
 }
 
 .container {
@@ -12,14 +15,14 @@
 }
 
 header {
-    margin-top: 2.1%;
+    margin-top: 2%;
     display: grid;
     justify-items: center;
     width: 100%;
 }
 
 img {
-    margin-top: -2%;
+    margin-top: -4%;
     width: 60%;
 }
 
@@ -39,14 +42,21 @@ img {
 section {
     display: flex;
     flex-direction: row;
-    gap: 5%;
     justify-content: center;
-    margin-top: 2%;
-    margin-bottom: 2%;
+    align-items: center;
+    gap: 5%;
 }
 
 canvas {
     border: 1px solid #000000;
+}
+
+.canvas1 {
+    display: grid;
+}
+
+.canvas2 {
+    display: grid;
 }
 
 .button {
@@ -63,6 +73,7 @@ canvas {
     transition: 0.3s ease all;
     z-index: 1;
     margin-bottom: 1%;
+    margin-top: 1%;
 }
 
 .button:before {
@@ -101,70 +112,59 @@ fieldset {
 
 .tools {
     display: flex;
-    width: 30%;
-    height: 40%;
     gap: 5%;
 }
 
-.tools button {
-    flex: 1;
-    border: 3px solid #8200FF;
-    overflow: hidden;
-    transition: all 0.3s;
+.pickers {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    margin-top: -20%;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    gap: 15%;
+    z-index: 5;
 }
 
-.tools button:hover {
-    flex: 10;
-    transform-origin: bottom;
-    transform: scaleY(1.5);
+#colorpicker {
+    width: 3%;
+    border: none;
 }
 
-
-.tools button {
-    background-color: transparent;
-    width: 100%;
-    height: 100%;
-    transition: all 3s;
-    font-size: 90%;
+#pencilSize {
+    width: 5%;
 }
 
-.tools button:hover {
-    transition: all 0.3s;
-}
-
-.paint-picker-container {
-    display: none;
-}
-
-.button:hover .paint-picker-container {
-    display: block;
+#eraserSize {
+    width: 5%;
 }
 
 .swap {
-    height: 20%;
+    height: 30%;
     gap: 5%;
     display: grid;
     align-items: center;
     margin: auto;
-    margin-top: 10%;
+    margin-top: 15%;
 }
 
-.custom-file-upload {
-    cursor: pointer;
-    width: 20%;
-    margin-bottom: 0.5%;
-}
-
-.custom-button {
-    cursor: pointer;
-    border: none;
-    width: 40%;
+.both {
+    display: flex;
+    justify-content: center;
+    gap: 3%;
 }
 
 i {
     margin-right: 1%;
 }
 
-.mat-slider-horizontal {
-    width: 10%;
+.footer {
+    margin-top: 1%;
+}
+
+.actions {
+    position: relative;
+    margin-top: 2%;
 }
