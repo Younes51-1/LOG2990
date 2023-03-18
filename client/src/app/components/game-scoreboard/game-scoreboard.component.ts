@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { GameRoom } from '@app/interfaces/game';
 
 enum Times {
@@ -20,7 +20,6 @@ export class GameScoreboardComponent implements OnChanges {
     @Input() username: string;
     @Input() opponentUsername: string;
     @Input() gameRoom: GameRoom;
-    @Output() endGameParent: EventEmitter<unknown> = new EventEmitter();
 
     gameMode: string = 'mode classique';
     difficulty: string;

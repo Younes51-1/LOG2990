@@ -1,6 +1,6 @@
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { By } from '@angular/platform-browser';
 import { GameScoreboardComponent } from '@app/components/game-scoreboard/game-scoreboard.component';
@@ -63,14 +63,6 @@ describe('GameScoreboardComponent', () => {
         const totalNumber = fixture.debugElement.nativeElement.querySelector('div:first-of-type').querySelector('p:nth-of-type(2)');
         expect(totalNumber.length).not.toEqual(0);
     });
-
-    it('should have a button to quit the game', fakeAsync(() => {
-        const quitBtn = fixture.debugElement.nativeElement.querySelector('button');
-        const endGameSpy = spyOn(component.endGameParent, 'emit');
-        quitBtn.click();
-        tick();
-        expect(endGameSpy).toHaveBeenCalled();
-    }));
 
     it('should show the timer in the right format (minutes:seconds)', () => {
         component.minutes = 10;

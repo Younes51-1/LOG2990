@@ -298,4 +298,12 @@ describe('GamePageComponent', () => {
         component.sendEvent('abandon');
         expect(chatServiceSpy.sendMessage).toHaveBeenCalledWith(`${component.username} a abandonné la partie`, 'Système', component.gameRoom.roomId);
     });
+
+    it('should have a button to quit the game', fakeAsync(() => {
+        const quitBtn = fixture.debugElement.nativeElement.querySelector('button');
+        const endGameSpy = spyOn(component, 'endGame');
+        quitBtn.click();
+        tick();
+        expect(endGameSpy).toHaveBeenCalled();
+    }));
 });
