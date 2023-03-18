@@ -250,6 +250,17 @@ describe('GamePageComponent', () => {
         expect(matDialogSpy).toHaveBeenCalledWith(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
     });
 
+    it('should call startConfetti() if the game is won', fakeAsync(() => {
+        component.gameFinished = true;
+        component.userDifferencesFound = component.differenceThreshold;
+        const mockConfetti = spyOn(component, 'startConfetti').and.callThrough();
+        component.endGame();
+        tick(2000);
+        fixture.whenStable().then(() => {
+            expect(mockConfetti).toHaveBeenCalled();
+        });
+    }));
+
     it('should open EndgameDialogComponent with correct data if in multiplayer mode and looser', () => {
         component.gameFinished = true;
         component.totalDifferencesFound = 0;
