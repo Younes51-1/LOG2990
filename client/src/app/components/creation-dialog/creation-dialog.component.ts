@@ -52,9 +52,10 @@ export class CreationDialogComponent implements AfterViewInit {
 
     toggleBorder() {
         if (!this.verifyInputService.verify(this.inputValue)) {
-            this.applyBorder = !this.applyBorder;
+            this.applyBorder = true;
         } else {
             this.emitNameGame();
+            this.applyBorder = false;
         }
     }
 }

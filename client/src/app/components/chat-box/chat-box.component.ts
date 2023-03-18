@@ -13,6 +13,7 @@ export class ChatBoxComponent implements OnInit {
     @ViewChild('chatbox', { static: true }) chatbox: ElementRef;
     @Input() gameRoom: GameRoom;
     @Input() username: string;
+    applyBorder = false;
 
     message = '';
     messages: Message[] = [];
@@ -30,11 +31,11 @@ export class ChatBoxComponent implements OnInit {
 
     sendMessage() {
         if (!this.verifyService.verify(this.message)) {
-            // TODO: CSS for invalid input
-            return;
+            this.applyBorder = true;
         } else {
             this.chatService.sendMessage(this.message, this.username, this.gameRoom.roomId);
             this.message = '';
+            this.applyBorder = false;
         }
     }
 
