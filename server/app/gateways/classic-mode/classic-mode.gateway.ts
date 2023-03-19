@@ -23,7 +23,9 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
     @SubscribeMessage(ClassicModeEvents.ValidateDifference)
     validateDifference(socket: Socket, data: { differencePos: Vector2D; roomId: string; username: string }): void {
         const validated = this.classicModeService.validateDifference(data.roomId, data.differencePos);
-        this.server.to(data.roomId).emit(ClassicModeEvents.DifferenceValidated, { validated, differencePos: data[0], username: data[2] });
+        this.server
+            .to(data.roomId)
+            .emit(ClassicModeEvents.DifferenceValidated, { validated, differencePos: data.differencePos, username: data.username });
         if (this.classicModeService.isGameFinished(data.roomId)) {
             this.endGame(socket, { roomId: data.roomId, username: data.username });
         }
@@ -105,7 +107,7 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
     playerRejected(socket: Socket, playerInfo: { roomId: string; username: string }): void {
         const gameRoom = this.classicModeService.getRoom(playerInfo.roomId);
         if (gameRoom) {
-            this.logger.log(`${playerInfo[1]} rejected from game: ${gameRoom.userGame.gameData.gameForm.name}`);
+            this.logger.log(`${playerInfo.roomId} rejected from game: ${gameRoom.userGame.gameData.gameForm.name}`);
             gameRoom.userGame.potentialPlayers = gameRoom.userGame.potentialPlayers.filter((player) => player !== playerInfo.username);
             this.classicModeService.setRoom(gameRoom);
             this.server.to(gameRoom.roomId).emit(ClassicModeEvents.PlayerRejected, gameRoom);
