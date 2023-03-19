@@ -15,7 +15,6 @@ export class ConfigSelectPageComponent implements OnInit {
     pageType: PageKeys;
     imgSource: string;
     slides: GameForm[];
-    dialogRef: MatDialogRef<DeleteDialogComponent>;
 
     slideConfig = {
         slidesToShow: 4,
@@ -27,18 +26,15 @@ export class ConfigSelectPageComponent implements OnInit {
         infinite: false,
     };
 
-    constructor(private readonly communicationService: CommunicationHttpService, private route: ActivatedRoute, public dialog: MatDialog) {
+    private dialogRef: MatDialogRef<DeleteDialogComponent>;
+
+    constructor(private readonly communicationService: CommunicationHttpService, private route: ActivatedRoute, private dialog: MatDialog) {
         this.getSlidesFromServer();
     }
 
     ngOnInit() {
         this.pageType = this.route.snapshot.data.page;
         this.initializeImgSource();
-    }
-
-    removeSlide(name: string) {
-        this.communicationService.deleteGame(name).subscribe();
-        this.slides = this.slides.filter((slide) => slide.name !== name);
     }
 
     deleteNotify(name: string): void {
@@ -60,7 +56,7 @@ export class ConfigSelectPageComponent implements OnInit {
         }
     }
 
-    getSlidesFromServer(): void {
+    private getSlidesFromServer(): void {
         const component = this;
         this.communicationService.getAllGames().subscribe((res) => {
             component.slides = res;
@@ -70,11 +66,16 @@ export class ConfigSelectPageComponent implements OnInit {
         });
     }
 
-    initializeImgSource(): void {
+    private initializeImgSource(): void {
         if (this.pageType === PageKeys.Config) {
             this.imgSource = './assets/pictures/config.png';
         } else if (this.pageType === PageKeys.Selection) {
             this.imgSource = './assets/pictures/selection.png';
         }
+    }
+
+    private removeSlide(name: string) {
+        this.communicationService.deleteGame(name).subscribe();
+        this.slides = this.slides.filter((slide) => slide.name !== name);
     }
 }

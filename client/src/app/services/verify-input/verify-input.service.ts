@@ -14,7 +14,7 @@ export class VerifyInputService {
         if (input.trim().length === 0) {
             return false;
         }
-        // TODO: add more WORDS
+
         const forbiddenWords = [
             'fuck',
             'tabarnak',

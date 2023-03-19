@@ -12,6 +12,7 @@ import { Vec2 } from 'src/app/interfaces/vec2';
 import { Color } from 'src/assets/variables/color';
 import { DefaultSize } from 'src/assets/variables/default-size';
 import { PossibleRadius } from 'src/assets/variables/images-values';
+import { Dimensions } from 'src/assets/variables/picture-dimension';
 
 @Component({
     selector: 'app-creation-game-page',
@@ -24,73 +25,55 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     @ViewChild('images1et2', { static: false }) inputImages1et2: ElementRef;
     @ViewChild('canvas1', { static: false }) canvas1: ElementRef<HTMLCanvasElement>;
     @ViewChild('canvas2', { static: false }) canvas2: ElementRef<HTMLCanvasElement>;
-    context1: CanvasRenderingContext2D;
-    context2: CanvasRenderingContext2D;
-    canvasForeground1: HTMLCanvasElement;
-    canvasForeground2: HTMLCanvasElement;
-    contextForeground1: CanvasRenderingContext2D;
-    contextForeground2: CanvasRenderingContext2D;
-    rectangleContext: CanvasRenderingContext2D;
-    currentCanvas: HTMLCanvasElement;
-    width: number;
-    height: number;
-
-    mousePosition: Vec2;
-    rectangleState: Rectangle;
-    canvasTemp: Canvas;
-    drawMode: string;
-    mousePressed: boolean;
-    mouseInCanvas: boolean;
-    shiftPressed: boolean;
-    belongsToCanvas1: boolean;
-
-    undo: ForegroundState[] = [];
-    redo: ForegroundState[] = [];
-
-    image1: HTMLInputElement;
-    image2: HTMLInputElement;
-    imageDifferencesUrl: string;
-    urlPath1: string;
-    urlPath2: string;
     showColorPicker = false;
     showPencilThicknessPicker = false;
     showEraserThicknessPicker = false;
-    color: string;
-    pencilSize: number;
-    eraserSize: number;
-
-    radius: number;
-    possibleRadius: number[];
-
-    differenceCount: number;
-    differenceMatrix: number[][];
+    mousePressed = false;
+    mouseInCanvas = true;
+    shiftPressed = false;
+    belongsToCanvas1 = true;
+    pencilSize = DefaultSize.Pencil;
+    eraserSize = DefaultSize.Eraser;
+    undo: ForegroundState[] = [];
+    redo: ForegroundState[] = [];
+    context1: CanvasRenderingContext2D;
+    context2: CanvasRenderingContext2D;
+    contextForeground1: CanvasRenderingContext2D;
+    contextForeground2: CanvasRenderingContext2D;
+    rectangleContext: CanvasRenderingContext2D;
+    canvasForeground1: HTMLCanvasElement;
+    canvasForeground2: HTMLCanvasElement;
+    currentCanvas: HTMLCanvasElement;
+    mousePosition: Vec2;
+    rectangleState: Rectangle;
+    canvasTemp: Canvas;
+    image1: HTMLInputElement;
+    image2: HTMLInputElement;
+    drawMode = DrawModes.NOTHING;
+    color = Color.Luigi as unknown as string;
+    imageDifferencesUrl: string;
+    urlPath1: string;
+    urlPath2: string;
     nameGame: string;
     difficulty: string;
+    differenceCount: number;
+    width = Dimensions.DEFAULT_WIDTH;
+    height = Dimensions.DEFAULT_HEIGHT;
+    radius = PossibleRadius.THREE;
+    differenceMatrix: number[][];
+    possibleRadius = [PossibleRadius.ZERO, PossibleRadius.THREE, PossibleRadius.NINE, PossibleRadius.FIFTEEN];
     dialogRef: MatDialogRef<CreationDialogComponent>;
 
     // eslint-disable-next-line max-params -- needed for constructor
     constructor(
-        private communicationService: CommunicationHttpService,
-        public dialog: MatDialog,
         public detectionService: DetectionDifferenceService,
+        public dialog: MatDialog,
+        private communicationService: CommunicationHttpService,
         private foregroundService: ForegroundService,
         private drawingService: DrawingService,
         private imageLoadService: ImageLoadService,
         private router: Router,
-    ) {
-        this.width = 640;
-        this.height = 480;
-        this.mousePressed = false;
-        this.mouseInCanvas = true;
-        this.shiftPressed = false;
-        this.belongsToCanvas1 = true;
-        this.drawMode = DrawModes.NOTHING;
-        this.possibleRadius = [PossibleRadius.ZERO, PossibleRadius.THREE, PossibleRadius.NINE, PossibleRadius.FIFTEEN];
-        this.radius = 3;
-        this.color = Color.Luigi;
-        this.pencilSize = DefaultSize.Pencil;
-        this.eraserSize = DefaultSize.Eraser;
-    }
+    ) {}
 
     get getRouter(): Router {
         return this.router;
@@ -173,7 +156,7 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     }
 
     enableMode(mode: string) {
-        this.drawMode = mode;
+        this.drawMode = mode as DrawModes;
         this.mousePressed = false;
     }
 

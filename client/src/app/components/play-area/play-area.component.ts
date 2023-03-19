@@ -194,7 +194,6 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         }, totalDuration);
     }
 
-    // TODO: Test if it works
     private removeDifference(differenceMatrix: number[][]) {
         const differencePositions: Vec2[] = [];
         this.context1.drawImage(this.original, 0, 0, this.width, this.height);
