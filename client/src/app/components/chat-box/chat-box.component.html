@@ -1,22 +1,26 @@
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 <div class="container">
-    <p>Section messages</p>
-    <div class="chatbox" #chatbox>
-        <ul class="chat">
+    <div class="header clearfix">
+        <span class="title">Section messages</span>
+    </div>
+    <div class="chatbox clearfix" #chatbox>
+        <ul>
             <li [ngClass]="message.username === 'Système' ? 'system' : message.username === this.username ? 'player': 'opponent'"
                 *ngFor="let message of messages">
                 <strong>{{message.username}}</strong>
-                <span class="glyphicon glyphicon-time"> {{ message.time | date: 'HH:mm:ss' }}</span>
+                <span class="time"> {{ message.time | date: 'HH:mm:ss'
+                    }}</span>
                 <p>
                     {{ message.message }}
                 </p>
             </li>
         </ul>
     </div>
-    <form *ngIf="this.gameRoom?.userGame?.username2" (submit)="sendMessage()">
-        <input type="text" [(ngModel)]="message" placeholder="Tapez un message" maxlength="200"
+    <form class="msg-box" *ngIf="this.gameRoom?.userGame?.username2" (submit)="sendMessage()">
+        <input class="ip-msg" type="text" [(ngModel)]="message" placeholder="Tapez un message" maxlength="200"
             (focus)="chatInputFocus()" (blur)="chatInputBlur()" />
-        <button type="submit">Envoyer</button>
+        <span class="btn">
+            <button type="submit"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
+        </span>
     </form>
 </div>

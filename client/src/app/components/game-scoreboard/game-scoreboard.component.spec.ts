@@ -76,7 +76,7 @@ describe('GameScoreboardComponent', () => {
         component.minutes = 10;
         component.seconds = 20;
         fixture.detectChanges();
-        const timer = fixture.debugElement.query(By.css('.timer1')).nativeElement;
+        const timer = fixture.debugElement.query(By.css('.timer')).nativeElement;
         expect(timer.textContent).toEqual('10:20');
     });
 

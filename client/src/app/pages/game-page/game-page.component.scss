@@ -1,27 +1,14 @@
 * {
     font-family: 'Verdana', sans-serif, monospace;
     text-align: center;
-    font-size: 110%;
     user-select: none;
-}
-
-.container {
     display: flex;
-    flex-direction: column;
-    justify-content: space-around;
+    justify-content: center;
     align-items: center;
-    height: 95%;
-    background: #fff;
 }
 
 header {
-    display: grid;
     justify-items: center;
-    width: 100%;
-}
-
-header > p {
-    margin-top: 5%;
 }
 
 img {
@@ -29,6 +16,7 @@ img {
     width: 70%;
 }
 
-section {
-    display: flex;
+.gameplay {
+    margin-top: 1%;
+    margin-left: 15%;
 }

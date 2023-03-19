@@ -21,6 +21,7 @@ export interface GameForm {
     difficulte: string;
     soloBestTimes: BestTime[];
     vsBestTimes: BestTime[];
+    isSelected?: boolean;
 }
 
 export interface BestTime {

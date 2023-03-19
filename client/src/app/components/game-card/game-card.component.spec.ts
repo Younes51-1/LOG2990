@@ -174,6 +174,23 @@ describe('GameCardComponent', () => {
         expect(focusSpy).toHaveBeenCalled();
     }));
 
+    it('should emit the slide name when onCardSelect is called', () => {
+        const emitSpy = spyOn(component.notifySelected, 'emit');
+        component.onCardSelect();
+        expect(emitSpy).toHaveBeenCalled();
+    });
+
+    it("should call check game when 'Option multijoueur' is clicked", () => {
+        component.page = PageKeys.Selection;
+        component.ngOnInit();
+        fixture.detectChanges();
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        const spy = spyOn(component, 'checkGame');
+        const btn = fixture.debugElement.nativeElement.getElementsByTagName('button')[1];
+        btn.click();
+        expect(spy).toHaveBeenCalled();
+    });
+
     it("should call 'classicModeService.connectSocket' when 'checkGame' is called", () => {
         const spy = spyOn(component.classicModeService, 'connectSocket');
         component.checkGame();

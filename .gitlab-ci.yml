@@ -229,5 +229,5 @@ deploy:server:
                 npm run build
 
                 # Launch the server in background and append output to /var/log/messages for CloudWatch
-                PORT=${SERVER_PORT} forever start -a -l /var/log/messages out/server/app/index.js
+                PORT=${SERVER_PORT} forever start -a -l /var/log/messages out/index.js
             "

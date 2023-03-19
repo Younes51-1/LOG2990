@@ -17,11 +17,12 @@ export class GameScoreboardComponent implements OnChanges {
     @Input() timer: number;
     @Input() differencesFound: number;
     @Input() opponentDifferencesFound: number;
+    @Input() username: string;
     @Input() opponentUsername: string;
     @Input() gameRoom: GameRoom;
     @Output() endGameParent: EventEmitter<unknown> = new EventEmitter();
 
-    gameMode: string = 'classique solo';
+    gameMode: string = 'mode classique';
     difficulty: string;
     totalNumber: number;
 
