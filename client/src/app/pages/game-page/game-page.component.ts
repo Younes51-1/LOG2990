@@ -5,6 +5,7 @@ import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-d
 import { GameRoom } from '@app/interfaces/game';
 import { ChatService } from '@app/services/chat/chat.service';
 import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
+import confetti from 'canvas-confetti';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -24,6 +25,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     abandon = false;
     gameRoom: GameRoom;
     dialogRef: MatDialogRef<EndgameDialogComponent>;
+    intervalId: ReturnType<typeof setInterval>;
 
     private timerSubscription: Subscription;
     private differencesFoundSubscription: Subscription;
@@ -79,6 +81,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         if (this.gameFinished) {
             if (this.userDifferencesFound === this.differenceThreshold) {
                 this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
+                this.startConfetti();
             } else {
                 this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: false } });
             }
@@ -87,6 +90,18 @@ export class GamePageComponent implements OnInit, OnDestroy {
         } else {
             this.abandonConfirmation();
         }
+    }
+
+    startConfetti() {
+        this.intervalId = setInterval(() => {
+            confetti({
+                particleCount: 300,
+                spread: 100,
+                origin: { y: 0.6 },
+                colors: ['#29cdff', '#78ff44', '#ff718d', '#fdff6a'],
+            });
+            // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        }, 1000);
     }
 
     abandonConfirmation() {
@@ -134,5 +149,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.classicModeService.reset();
         this.dialog.closeAll();
+        clearInterval(this.intervalId);
     }
 }

@@ -7,6 +7,11 @@ describe('VerifyInputService', () => {
         service = new VerifyInputService();
     });
 
+    it('should return false when input is undefined', () => {
+        const input = service.verify(undefined);
+        expect(input).toBe(false);
+    });
+
     it('should return false when input contains zero-width characters', () => {
         const input = service.verify('hello​world');
         expect(input).toBe(false);

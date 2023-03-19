@@ -17,10 +17,10 @@
         </ul>
     </div>
     <form class="msg-box" *ngIf="this.gameRoom?.userGame?.username2" (submit)="sendMessage()">
-        <input class="ip-msg" type="text" [(ngModel)]="message" placeholder="Tapez un message" maxlength="200"
-            (focus)="chatInputFocus()" (blur)="chatInputBlur()" />
+        <input class="ip-msg" type="text" [(ngModel)]="message" [ngClass]="{'error-border': applyBorder}"
+            placeholder="Tapez un message" maxlength="200" (focus)="chatInputFocus()" (blur)="chatInputBlur()" />
         <span class="btn">
-            <button type="submit"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
+            <button class="plane" type="submit"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
         </span>
     </form>
 </div>

@@ -4,11 +4,12 @@
 <section class="infos">
     <app-game-scoreboard [gameName]="gameName" [username]="username" [opponentUsername]="opponentUsername"
         [timer]="timer" [differencesFound]="userDifferencesFound"
-        [opponentDifferencesFound]="totalDifferencesFound - userDifferencesFound" [gameRoom]="gameRoom"
-        (endGameParent)="endGame()"></app-game-scoreboard>
+        [opponentDifferencesFound]="totalDifferencesFound - userDifferencesFound"
+        [gameRoom]="gameRoom"></app-game-scoreboard>
 </section>
 <section class="gameplay">
     <app-play-area class="play-area" tabindex="0" [gameRoom]="gameRoom"
         (userError)="sendEvent('error')"></app-play-area>
     <app-chat-box [gameRoom]="gameRoom" [username]="username"></app-chat-box>
 </section>
+<button (click)="endGame()">Abandonner la partie</button>

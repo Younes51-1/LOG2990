@@ -1,6 +1,9 @@
 * {
     font-family: 'Verdana', sans-serif, monospace;
     text-align: center;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
 }
 
 .container {
@@ -12,14 +15,14 @@
 }
 
 header {
-    margin-top: 2.1%;
+    margin-top: 2%;
     display: grid;
     justify-items: center;
     width: 100%;
 }
 
 img {
-    margin-top: -2%;
+    margin-top: -4%;
     width: 60%;
 }
 
@@ -39,13 +42,21 @@ img {
 section {
     display: flex;
     flex-direction: row;
-    gap: 5%;
     justify-content: center;
-    margin-bottom: 1%;
+    align-items: center;
+    gap: 5%;
 }
 
 canvas {
     border: 1px solid #000000;
+}
+
+.canvas1 {
+    display: grid;
+}
+
+.canvas2 {
+    display: grid;
 }
 
 .button {
@@ -62,6 +73,7 @@ canvas {
     transition: 0.3s ease all;
     z-index: 1;
     margin-bottom: 1%;
+    margin-top: 1%;
 }
 
 .button:before {
@@ -95,4 +107,64 @@ btn:focus:before {
 
 fieldset {
     display: flex;
+    border: 1px solid #000000;
+}
+
+.tools {
+    display: flex;
+    gap: 5%;
+}
+
+.pickers {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    margin-top: -20%;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    gap: 15%;
+    z-index: 5;
+}
+
+#colorpicker {
+    width: 3%;
+    border: none;
+}
+
+#pencilSize {
+    width: 5%;
+}
+
+#eraserSize {
+    width: 5%;
+}
+
+.swap {
+    height: 30%;
+    gap: 5%;
+    display: grid;
+    align-items: center;
+    margin: auto;
+    margin-top: 15%;
+}
+
+.both {
+    display: flex;
+    justify-content: center;
+    gap: 3%;
+}
+
+i {
+    margin-right: 1%;
+}
+
+.footer {
+    margin-top: 1%;
+}
+
+.actions {
+    position: relative;
+    margin-top: 2%;
 }

@@ -4,7 +4,9 @@ import { Injectable } from '@angular/core';
     providedIn: 'root',
 })
 export class VerifyInputService {
-    verify(input: string): boolean {
+    verify(input: string | undefined): boolean {
+        if (input === undefined || input === null) return false;
+
         if (/[\u200B-\u200D\uFEFF]/.test(input)) {
             return false;
         }

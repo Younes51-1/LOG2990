@@ -52,7 +52,9 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     imageDifferencesUrl: string;
     urlPath1: string;
     urlPath2: string;
-
+    showColorPicker = false;
+    showPencilThicknessPicker = false;
+    showEraserThicknessPicker = false;
     color: string;
     pencilSize: number;
     eraserSize: number;

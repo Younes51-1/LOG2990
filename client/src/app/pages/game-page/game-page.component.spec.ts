@@ -2,7 +2,7 @@
 // eslint-disable-next-line max-classes-per-file
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
-import { ComponentFixture, fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, discardPeriodicTasks, fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatToolbar } from '@angular/material/toolbar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -10,8 +10,8 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
-import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
 import { GameScoreboardComponent } from '@app/components/game-scoreboard/game-scoreboard.component';
+import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
 import { GameData, GameRoom } from '@app/interfaces/game';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { ChatService } from '@app/services/chat/chat.service';
@@ -91,7 +91,7 @@ describe('GamePageComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should contain a sidebar', () => {
+    it('should contain a scoreboard', () => {
         fixture.detectChanges();
         const sidebar = fixture.debugElement.nativeElement.querySelector('app-game-scoreboard');
         expect(sidebar).not.toBeNull();
@@ -250,6 +250,16 @@ describe('GamePageComponent', () => {
         expect(matDialogSpy).toHaveBeenCalledWith(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
     });
 
+    it('should call startConfetti() if the game is won', fakeAsync(() => {
+        component.gameFinished = true;
+        component.userDifferencesFound = component.differenceThreshold;
+        const mockConfetti = spyOn(component, 'startConfetti').and.callThrough();
+        component.endGame();
+        tick(1001);
+        expect(mockConfetti).toHaveBeenCalled();
+        discardPeriodicTasks();
+    }));
+
     it('should open EndgameDialogComponent with correct data if in multiplayer mode and looser', () => {
         component.gameFinished = true;
         component.totalDifferencesFound = 0;
@@ -298,4 +308,12 @@ describe('GamePageComponent', () => {
         component.sendEvent('abandon');
         expect(chatServiceSpy.sendMessage).toHaveBeenCalledWith(`${component.username} a abandonné la partie`, 'Système', component.gameRoom.roomId);
     });
+
+    it('should have a button to quit the game', fakeAsync(() => {
+        const quitBtn = fixture.debugElement.nativeElement.querySelector('button');
+        const endGameSpy = spyOn(component, 'endGame');
+        quitBtn.click();
+        tick();
+        expect(endGameSpy).toHaveBeenCalled();
+    }));
 });
