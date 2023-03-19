@@ -1,40 +1,32 @@
 import { Injectable } from '@angular/core';
 import { Rgba } from '@app/interfaces/creation-game';
 import { Vec2 } from '@app/interfaces/vec2';
+import { PixelSize, PossibleColor } from 'src/assets/variables/images-values';
+import { Dimensions } from 'src/assets/variables/picture-dimension';
 
 @Injectable({
     providedIn: 'root',
 })
 export class DetectionDifferenceService {
-    pictureDimensions = { width: 640, height: 480 };
-    differencesImage: HTMLImageElement;
-    emptyPixelValue: number;
-    pixelDataSize: number;
-    negativeDifferenceCoord: number;
-    positiveDifferenceCoord: number;
-
-    constructor() {
-        this.emptyPixelValue = -1;
-        this.negativeDifferenceCoord = -1;
-        this.positiveDifferenceCoord = 1;
-        this.pixelDataSize = 4;
-    }
+    private width = Dimensions.DEFAULT_WIDTH;
+    private height = Dimensions.DEFAULT_HEIGHT;
+    private positiveDifferenceCoord = 1;
+    private negativeDifferenceCoord = -this.positiveDifferenceCoord;
 
     generateDifferencesMatrix(ctx1: CanvasRenderingContext2D, ctx2: CanvasRenderingContext2D, radius: number): number[][] {
-        const matrix: number[][] = this.createEmptyMatrix(this.pictureDimensions.height, this.pictureDimensions.width, this.emptyPixelValue);
-        const data1 = ctx1.getImageData(0, 0, this.pictureDimensions.width, this.pictureDimensions.height).data;
-        const data2 = ctx2.getImageData(0, 0, this.pictureDimensions.width, this.pictureDimensions.height).data;
-        const rgbaOffset = 4;
+        const matrix: number[][] = this.createEmptyMatrix(this.height, this.width, PossibleColor.EMPTYPIXEL);
+        const data1 = ctx1.getImageData(0, 0, this.width, this.height).data;
+        const data2 = ctx2.getImageData(0, 0, this.width, this.height).data;
         const differencesCoordinates = [];
 
-        for (let i = 0; i < data1.length; i += rgbaOffset) {
+        for (let i = 0; i < data1.length; i += PixelSize) {
             const pixelImg1: Rgba = { r: data1[i], g: data1[i + 1], b: data1[i + 2], a: data1[i + 3] };
             const pixelImg2: Rgba = { r: data2[i], g: data2[i + 1], b: data2[i + 2], a: data2[i + 3] };
 
-            const row = Math.floor(i / rgbaOffset / this.pictureDimensions.width);
-            const column = i / rgbaOffset - row * this.pictureDimensions.width;
+            const row = Math.floor(i / PixelSize / this.width);
+            const column = i / PixelSize - row * this.width;
             if (this.areEqual(pixelImg1, pixelImg2)) {
-                matrix[row][column] = this.emptyPixelValue;
+                matrix[row][column] = PossibleColor.EMPTYPIXEL;
             } else {
                 matrix[row][column] = 1;
                 differencesCoordinates[differencesCoordinates.length] = row;
@@ -47,105 +39,17 @@ export class DetectionDifferenceService {
         return matrix;
     }
 
-    applyRadius(matrix: number[][], radius: number, diffCoordinates: number[]) {
-        const radiusCoordinates = this.computeRadiusRelativeCoordinates(radius);
-
-        for (let i = 0; i < diffCoordinates.length; i += 2) {
-            for (let k = 0; k < radiusCoordinates.length; k += 2) {
-                const coordX = diffCoordinates[i] + radiusCoordinates[k];
-                const coordY = diffCoordinates[i + 1] + radiusCoordinates[k + 1];
-                if (coordX >= 0 && coordY >= 0 && coordX < this.pictureDimensions.height && coordY < this.pictureDimensions.width) {
-                    if (matrix[coordX][coordY] === this.emptyPixelValue) {
-                        matrix[coordX][coordY] = 1;
-                    }
-                }
-            }
-        }
-        return matrix;
-    }
-
-    computeRadiusRelativeCoordinates(radius: number): number[] {
-        const radiusCoordinates = [];
-        for (let i = -radius; i <= radius; i++) {
-            for (let j = -radius; j <= radius; j++) {
-                if (Math.sqrt(i ** 2 + j ** 2) <= radius) {
-                    radiusCoordinates[radiusCoordinates.length] = i;
-                    radiusCoordinates[radiusCoordinates.length] = j;
-                }
-            }
-        }
-        return radiusCoordinates;
-    }
-
-    areEqual(val1: Rgba, val2: Rgba): boolean {
-        if (val1.r === val2.r && val1.g === val2.g && val1.b === val2.b && val1.a === val2.a) {
-            return true;
-        }
-        return false;
-    }
-
-    createEmptyMatrix(height: number, width: number, filler: number | boolean) {
-        const matrix = [];
-        for (let i = 0; i < height; i++) {
-            matrix[i] = new Array(width).fill(filler);
-        }
-        return matrix;
-    }
-
     countDifferences(diffMatrix: number[][]): number {
         let differenceCount = 0;
-        const matrix = this.copyMatrix(diffMatrix);
-        for (let i = 0; i < this.pictureDimensions.height; i++) {
-            for (let j = 0; j < this.pictureDimensions.width; j++) {
-                if (matrix[i][j] !== this.emptyPixelValue) {
+        for (let i = 0; i < this.height; i++) {
+            for (let j = 0; j < this.width; j++) {
+                if (diffMatrix[i][j] !== PossibleColor.EMPTYPIXEL) {
                     differenceCount++;
-                    this.deleteDifference(matrix, { x: i, y: j });
+                    this.deleteDifference(diffMatrix, { x: i, y: j });
                 }
             }
         }
         return differenceCount;
-    }
-
-    deleteDifference(matrix: number[][], pos: Vec2) {
-        const stack: Vec2[] = [];
-        this.pushNeighborsToStack(stack, pos);
-        matrix[pos.x][pos.y] = this.emptyPixelValue;
-        while (stack.length > 0) {
-            const newPos = stack.pop();
-            if (newPos) {
-                if (matrix[newPos.x][newPos.y] !== this.emptyPixelValue) {
-                    matrix[newPos.x][newPos.y] = this.emptyPixelValue;
-                    this.pushNeighborsToStack(stack, newPos);
-                }
-            }
-        }
-    }
-
-    pushNeighborsToStack(stack: Vec2[], pos: Vec2) {
-        this.pushToStack(stack, { x: pos.x, y: pos.y - 1 });
-        this.pushToStack(stack, { x: pos.x, y: pos.y + 1 });
-        this.pushToStack(stack, { x: pos.x + 1, y: pos.y - 1 });
-        this.pushToStack(stack, { x: pos.x + 1, y: pos.y });
-        this.pushToStack(stack, { x: pos.x + 1, y: pos.y + 1 });
-        this.pushToStack(stack, { x: pos.x - 1, y: pos.y - 1 });
-        this.pushToStack(stack, { x: pos.x - 1, y: pos.y });
-        this.pushToStack(stack, { x: pos.x - 1, y: pos.y + 1 });
-    }
-
-    pushToStack(stack: Vec2[], pos: Vec2) {
-        if (pos.x >= 0 && pos.x < this.pictureDimensions.height && pos.y >= 0 && pos.y < this.pictureDimensions.width) {
-            stack.push(pos);
-        }
-    }
-
-    copyMatrix(matrix: number[][]): number[][] {
-        const newMatrix = this.createEmptyMatrix(this.pictureDimensions.height, this.pictureDimensions.width, 1);
-        for (let i = 0; i < this.pictureDimensions.height; i++) {
-            for (let j = 0; j < this.pictureDimensions.width; j++) {
-                newMatrix[i][j] = matrix[i][j];
-            }
-        }
-        return newMatrix;
     }
 
     createDifferencesImage(differenceMatrix: number[][]) {
@@ -158,17 +62,17 @@ export class DetectionDifferenceService {
         const data = imageData.data;
         for (let i = 0; i < differenceMatrix.length; i++) {
             for (let j = 0; j < differenceMatrix[0].length; j++) {
-                const index = (i * differenceMatrix[0].length + j) * this.pixelDataSize;
-                if (differenceMatrix[i][j] !== this.emptyPixelValue) {
-                    data[index] = 0;
-                    data[index + 1] = 0;
-                    data[index + 2] = 0;
-                    data[index + 3] = 255;
+                const index = (i * differenceMatrix[0].length + j) * PixelSize;
+                if (differenceMatrix[i][j] !== PossibleColor.EMPTYPIXEL) {
+                    data[index] = PossibleColor.BLACK;
+                    data[index + 1] = PossibleColor.BLACK;
+                    data[index + 2] = PossibleColor.BLACK;
+                    data[index + 3] = PossibleColor.WHITE;
                 } else {
-                    data[index] = 255;
-                    data[index + 1] = 255;
-                    data[index + 2] = 255;
-                    data[index + 3] = 255;
+                    data[index] = PossibleColor.WHITE;
+                    data[index + 1] = PossibleColor.WHITE;
+                    data[index + 2] = PossibleColor.WHITE;
+                    data[index + 3] = PossibleColor.WHITE;
                 }
             }
         }
@@ -185,21 +89,21 @@ export class DetectionDifferenceService {
         }
 
         let differentPixelCounter = 0;
-        for (let i = 0; i < this.pictureDimensions.height; i++) {
-            for (let j = 0; j < this.pictureDimensions.width; j++) {
-                if (differenceMatrix[i][j] !== this.emptyPixelValue) {
+        for (let i = 0; i < this.height; i++) {
+            for (let j = 0; j < this.width; j++) {
+                if (differenceMatrix[i][j] !== PossibleColor.EMPTYPIXEL) {
                     differentPixelCounter++;
                 }
             }
         }
 
-        const surfaceCovered: number = differentPixelCounter / (this.pictureDimensions.height * this.pictureDimensions.width);
+        const surfaceCovered: number = differentPixelCounter / (this.height * this.width);
         return surfaceCovered > surfaceCoveredThreshold ? 'facile' : 'difficile';
     }
 
     extractDifference(differenceMatrix: number[][], coords: Vec2): number[][] {
-        const result = this.createEmptyMatrix(differenceMatrix.length, differenceMatrix[0].length, this.emptyPixelValue);
-        if (differenceMatrix[coords.y][coords.x] === this.emptyPixelValue) {
+        const result = this.createEmptyMatrix(differenceMatrix.length, differenceMatrix[0].length, PossibleColor.EMPTYPIXEL);
+        if (differenceMatrix[coords.y][coords.x] === PossibleColor.EMPTYPIXEL) {
             return result;
         }
         const difference = this.findDifference(differenceMatrix, coords);
@@ -207,6 +111,83 @@ export class DetectionDifferenceService {
             result[x][y] = 1;
         }
         return result;
+    }
+
+    private applyRadius(matrix: number[][], radius: number, diffCoordinates: number[]) {
+        const radiusCoordinates = this.computeRadiusRelativeCoordinates(radius);
+
+        for (let i = 0; i < diffCoordinates.length; i += 2) {
+            for (let k = 0; k < radiusCoordinates.length; k += 2) {
+                const coordX = diffCoordinates[i] + radiusCoordinates[k];
+                const coordY = diffCoordinates[i + 1] + radiusCoordinates[k + 1];
+                if (coordX >= 0 && coordY >= 0 && coordX < this.height && coordY < this.width) {
+                    if (matrix[coordX][coordY] === PossibleColor.EMPTYPIXEL) {
+                        matrix[coordX][coordY] = 1;
+                    }
+                }
+            }
+        }
+        return matrix;
+    }
+
+    private computeRadiusRelativeCoordinates(radius: number): number[] {
+        const radiusCoordinates = [];
+        for (let i = -radius; i <= radius; i++) {
+            for (let j = -radius; j <= radius; j++) {
+                if (Math.sqrt(i ** 2 + j ** 2) <= radius) {
+                    radiusCoordinates[radiusCoordinates.length] = i;
+                    radiusCoordinates[radiusCoordinates.length] = j;
+                }
+            }
+        }
+        return radiusCoordinates;
+    }
+
+    private areEqual(val1: Rgba, val2: Rgba): boolean {
+        if (val1.r === val2.r && val1.g === val2.g && val1.b === val2.b && val1.a === val2.a) {
+            return true;
+        }
+        return false;
+    }
+
+    private createEmptyMatrix(height: number, width: number, filler: number | boolean) {
+        const matrix = [];
+        for (let i = 0; i < height; i++) {
+            matrix[i] = new Array(width).fill(filler);
+        }
+        return matrix;
+    }
+
+    private deleteDifference(matrix: number[][], pos: Vec2) {
+        const stack: Vec2[] = [];
+        this.pushNeighborsToStack(stack, pos);
+        matrix[pos.x][pos.y] = PossibleColor.EMPTYPIXEL;
+        while (stack.length > 0) {
+            const newPos = stack.pop();
+            if (newPos) {
+                if (matrix[newPos.x][newPos.y] !== PossibleColor.EMPTYPIXEL) {
+                    matrix[newPos.x][newPos.y] = PossibleColor.EMPTYPIXEL;
+                    this.pushNeighborsToStack(stack, newPos);
+                }
+            }
+        }
+    }
+
+    private pushNeighborsToStack(stack: Vec2[], pos: Vec2) {
+        this.pushToStack(stack, { x: pos.x, y: pos.y - 1 });
+        this.pushToStack(stack, { x: pos.x, y: pos.y + 1 });
+        this.pushToStack(stack, { x: pos.x + 1, y: pos.y - 1 });
+        this.pushToStack(stack, { x: pos.x + 1, y: pos.y });
+        this.pushToStack(stack, { x: pos.x + 1, y: pos.y + 1 });
+        this.pushToStack(stack, { x: pos.x - 1, y: pos.y - 1 });
+        this.pushToStack(stack, { x: pos.x - 1, y: pos.y });
+        this.pushToStack(stack, { x: pos.x - 1, y: pos.y + 1 });
+    }
+
+    private pushToStack(stack: Vec2[], pos: Vec2) {
+        if (pos.x >= 0 && pos.x < this.height && pos.y >= 0 && pos.y < this.width) {
+            stack.push(pos);
+        }
     }
 
     private findDifference(differenceMatrix: number[][], coords: Vec2): number[][] {
@@ -244,7 +225,7 @@ export class DetectionDifferenceService {
             nx < differenceMatrix.length &&
             ny >= 0 &&
             ny < differenceMatrix[0].length &&
-            differenceMatrix[nx][ny] !== this.emptyPixelValue
+            differenceMatrix[nx][ny] !== PossibleColor.EMPTYPIXEL
         ) {
             stack.push([nx, ny]);
         }

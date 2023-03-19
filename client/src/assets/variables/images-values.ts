@@ -25,7 +25,9 @@ export enum PossibleRadius {
 }
 
 export enum PossibleColor {
-    BLACK = 255,
-    WHITE = 0,
+    BLACK = 0,
+    WHITE = 255,
     EMPTYPIXEL = -1,
 }
+
+export const PixelSize = 4;

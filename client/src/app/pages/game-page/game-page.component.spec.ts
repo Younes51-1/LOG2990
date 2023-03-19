@@ -62,7 +62,8 @@ describe('GamePageComponent', () => {
         classicModeServiceSpy = jasmine.createSpyObj('ClassicModeService', ['timer$', 'differencesFound$', 'gameFinished$', 'userGame$']);
         socketHelper = new SocketTestHelper();
         socketServiceMock = new SocketClientServiceMock();
-        socketServiceMock.socket = socketHelper as unknown as Socket;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (socketServiceMock as any).socket = socketHelper as unknown as Socket;
         chatServiceSpy = new ChatService(socketServiceMock);
         spyOn(chatServiceSpy, 'sendMessage').and.callFake(() => {
             return;

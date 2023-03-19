@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable max-classes-per-file */
 /* eslint-disable max-lines */
 import { HttpClientTestingModule } from '@angular/common/http/testing';
@@ -19,7 +20,7 @@ class SocketClientServiceMock extends CommunicationSocketService {
 }
 
 class ChatServiceMock extends ChatService {
-    override handleSocket() {
+    override handleMessage() {
         return;
     }
 }
@@ -46,7 +47,7 @@ describe('ClassicModeService', () => {
         differenceTry = { validated: true, differencePos: { x: 0, y: 0 }, username: 'Test' };
         socketHelper = new SocketTestHelper();
         socketServiceMock = new SocketClientServiceMock();
-        socketServiceMock.socket = socketHelper as unknown as Socket;
+        (socketServiceMock as any).socket = socketHelper as unknown as Socket;
         chatServiceMock = new ChatServiceMock(socketServiceMock);
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule],
@@ -59,7 +60,7 @@ describe('ClassicModeService', () => {
             ],
         });
         service = TestBed.inject(ClassicModeService);
-        service.handleSocket();
+        (service as any).handleSocket();
     });
 
     it('should be created', () => {
@@ -70,7 +71,7 @@ describe('ClassicModeService', () => {
         communicationService = TestBed.inject(CommunicationHttpService);
         const getGameSpy = spyOn(communicationService, 'getGame').and.returnValue(of(gameData));
         const disconnectSpy = spyOn(service, 'disconnectSocket');
-        const connectSpy = spyOn(service, 'connect');
+        const connectSpy = spyOn(service as any, 'connect');
         communicationSocketService = TestBed.inject(CommunicationSocketService);
         const communicationSocketServiceSpy = spyOn(communicationSocketService, 'send').and.callFake(() => {
             return;
@@ -97,7 +98,7 @@ describe('ClassicModeService', () => {
         communicationService = TestBed.inject(CommunicationHttpService);
         const getGameSpy = spyOn(communicationService, 'getGame').and.returnValue(of(gameData));
         const disconnectSpy = spyOn(service, 'disconnectSocket');
-        const connectSpy = spyOn(service, 'connect');
+        const connectSpy = spyOn(service as any, 'connect');
         communicationSocketService = TestBed.inject(CommunicationSocketService);
         const communicationSocketServiceSpy = spyOn(communicationSocketService, 'send').and.callFake(() => {
             return;
@@ -106,7 +107,7 @@ describe('ClassicModeService', () => {
         expect(getGameSpy).toHaveBeenCalled();
         expect(disconnectSpy).toHaveBeenCalled();
         expect(connectSpy).toHaveBeenCalled();
-        expect(communicationSocketServiceSpy).toHaveBeenCalledWith('askingToJoinGame', ['fakeGame', 'Test']);
+        expect(communicationSocketServiceSpy).toHaveBeenCalledWith('askingToJoinGame', { gameName: 'fakeGame', username: 'Test' });
     });
 
     it("should alert game is not found after calling 'initClassicMode'", () => {
@@ -130,7 +131,7 @@ describe('ClassicModeService', () => {
         });
         service.gameRoom = gameRoom;
         service.playerRejected('Test');
-        expect(communicationSocketServiceSpy).toHaveBeenCalledWith('rejectPlayer', [service.gameRoom.roomId, 'Test']);
+        expect(communicationSocketServiceSpy).toHaveBeenCalledWith('rejectPlayer', { roomId: service.gameRoom.roomId, username: 'Test' });
     });
 
     it("should send 'acceptPlayer' after calling 'playerAccepted'", () => {
@@ -143,7 +144,7 @@ describe('ClassicModeService', () => {
         });
         service.gameRoom = gameRoom;
         service.playerAccepted('Test');
-        expect(communicationSocketServiceSpy).toHaveBeenCalledWith('acceptPlayer', [service.gameRoom.roomId, 'Test']);
+        expect(communicationSocketServiceSpy).toHaveBeenCalledWith('acceptPlayer', { roomId: service.gameRoom.roomId, username: 'Test' });
     });
 
     it('should not connect to the server', () => {
@@ -154,7 +155,7 @@ describe('ClassicModeService', () => {
         const spy2 = spyOn(window, 'alert').and.callFake(() => {
             return;
         });
-        service.connect();
+        (service as any).connect();
         expect(spy).toHaveBeenCalled();
         expect(spy2).toHaveBeenCalled();
     });
@@ -167,10 +168,10 @@ describe('ClassicModeService', () => {
         const spy2 = spyOn(communicationSocketService, 'connect').and.callFake(() => {
             return;
         });
-        const spy3 = spyOn(service, 'handleSocket').and.callFake(() => {
+        const spy3 = spyOn(service as any, 'handleSocket').and.callFake(() => {
             return;
         });
-        service.connect();
+        (service as any).connect();
         expect(spy).toHaveBeenCalled();
         expect(spy2).toHaveBeenCalled();
         expect(spy3).toHaveBeenCalled();
@@ -326,7 +327,7 @@ describe('ClassicModeService', () => {
         const spyOff = spyOn(communicationSocketService, 'off').and.callFake(() => {
             return;
         });
-        const spyChat = spyOn(chatServiceMock, 'handleSocket');
+        const spyChat = spyOn(chatServiceMock, 'handleMessage');
         service.username = gameRoom.userGame.username1;
         service.gameRoom = gameRoom;
         service.startGame();
@@ -341,24 +342,24 @@ describe('ClassicModeService', () => {
 
     it('should validate the difference', () => {
         communicationSocketService = TestBed.inject(CommunicationSocketService);
-        expect(service.canSendValidate).toBeTruthy();
+        expect((service as any).canSendValidate).toBeTruthy();
         const spy = spyOn(communicationSocketService, 'send').and.callFake(() => {
             return;
         });
         service.gameRoom = gameRoom;
         service.validateDifference({ x: 0, y: 0 });
-        expect(service.canSendValidate).toBeFalsy();
+        expect((service as any).canSendValidate).toBeFalsy();
         expect(spy).toHaveBeenCalled();
     });
 
     it('should not validate the difference', () => {
         communicationSocketService = TestBed.inject(CommunicationSocketService);
-        service.canSendValidate = false;
+        (service as any).canSendValidate = false;
         const spy = spyOn(communicationSocketService, 'send').and.callFake(() => {
             return;
         });
         service.validateDifference({ x: 0, y: 0 });
-        expect(service.canSendValidate).toBeFalsy();
+        expect((service as any).canSendValidate).toBeFalsy();
         expect(spy).not.toHaveBeenCalled();
     });
 
@@ -387,7 +388,7 @@ describe('ClassicModeService', () => {
         service.gameRoom = gameRoom;
         service.username = gameRoom.userGame.username1;
         service.abandonGame();
-        expect(sendSpy).toHaveBeenCalledWith('abandoned', [service.gameRoom.roomId, service.username]);
+        expect(sendSpy).toHaveBeenCalledWith('abandoned', { roomId: service.gameRoom.roomId, username: service.username });
     });
 
     it('should abort the game creation', () => {
@@ -422,7 +423,7 @@ describe('ClassicModeService', () => {
         service.gameRoom = gameRoom;
         service.username = 'differentUsername';
         service.abortGame();
-        expect(sendSpy).toHaveBeenCalledWith('leaveGame', [service.gameRoom.roomId, service.username]);
+        expect(sendSpy).toHaveBeenCalledWith('leaveGame', { roomId: service.gameRoom.roomId, username: service.username });
         expect(service.disconnectSocket).toHaveBeenCalled();
     });
 
@@ -496,7 +497,7 @@ describe('ClassicModeService', () => {
         service.gameRoom = gameRoom;
         service.reset();
         expect(service.gameRoom).toBeUndefined();
-        expect(service.canSendValidate).toBeTruthy();
+        expect((service as any).canSendValidate).toBeTruthy();
         expect(service.username).toEqual('');
         expect(service.userDifferencesFound).toEqual(0);
     });

@@ -5,10 +5,10 @@ import { CreationGamePageComponent } from '@app/pages/creation-game-page/creatio
     providedIn: 'root',
 })
 export class ForegroundService {
-    component: CreationGamePageComponent;
-    width: number;
-    height: number;
-    imageToDraw: HTMLImageElement;
+    private component: CreationGamePageComponent;
+    private width: number;
+    private height: number;
+    private imageToDraw: HTMLImageElement;
 
     setComponent(component: CreationGamePageComponent) {
         this.component = component;

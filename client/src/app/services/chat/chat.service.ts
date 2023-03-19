@@ -8,11 +8,11 @@ import { Subject } from 'rxjs';
 })
 export class ChatService {
     message$ = new Subject<Message>();
-    isTyping = false;
+    private isTyping = false;
 
     constructor(private readonly socketService: CommunicationSocketService) {}
 
-    handleSocket(): void {
+    handleMessage(): void {
         this.socketService.on('message', (message: Message) => {
             message.time = Date.now();
             this.message$.next(message);

@@ -12,7 +12,6 @@ import { Subject } from 'rxjs';
 })
 export class ClassicModeService {
     gameRoom: GameRoom;
-    canSendValidate = true;
     username: string;
     userDifferencesFound = 0;
     totalDifferencesFound$ = new Subject<number>();
@@ -25,6 +24,8 @@ export class ClassicModeService {
     accepted$ = new Subject<boolean>();
     gameCanceled$ = new Subject<boolean>();
     abandoned$ = new Subject<string>();
+
+    private canSendValidate = true;
 
     constructor(
         private readonly socketService: CommunicationSocketService,
@@ -62,7 +63,7 @@ export class ClassicModeService {
                 this.username = username;
                 this.disconnectSocket();
                 this.connect();
-                this.socketService.send('askingToJoinGame', [gameName, username]);
+                this.socketService.send('askingToJoinGame', { gameName, username });
             } else {
                 alert('Jeu introuvable');
             }
@@ -71,17 +72,87 @@ export class ClassicModeService {
 
     playerRejected(player: string): void {
         if (this.socketService.isSocketAlive()) {
-            this.socketService.send('rejectPlayer', [this.gameRoom.roomId, player]);
+            this.socketService.send('rejectPlayer', { roomId: this.gameRoom.roomId, username: player });
         }
     }
 
     playerAccepted(player: string): void {
         if (this.socketService.isSocketAlive()) {
-            this.socketService.send('acceptPlayer', [this.gameRoom.roomId, player]);
+            this.socketService.send('acceptPlayer', { roomId: this.gameRoom.roomId, username: player });
         }
     }
 
-    connect(): void {
+    startGame(): void {
+        if (this.gameRoom.userGame.username1 === this.username) {
+            this.socketService.send('start', this.gameRoom.roomId);
+        }
+        this.chatService.handleMessage();
+        this.socketService.off('gameInfo');
+        this.socketService.off('gameCreated');
+        this.socketService.off('playerAccepted');
+        this.socketService.off('playerRejected');
+        this.socketService.off('gameCanceled');
+    }
+
+    validateDifference(differencePos: Vec2) {
+        if (!this.canSendValidate) {
+            return;
+        }
+        this.socketService.send('validate', { differencePos, roomId: this.gameRoom.roomId, username: this.username });
+        this.canSendValidate = false;
+    }
+
+    endGame(): void {
+        if (this.socketService.isSocketAlive()) {
+            this.socketService.send('endGame', { roomId: this.gameRoom.roomId, username: this.username });
+        }
+    }
+
+    abandonGame() {
+        if (this.socketService.isSocketAlive()) {
+            this.socketService.send('abandoned', { roomId: this.gameRoom.roomId, username: this.username });
+        }
+    }
+
+    abortGame(): void {
+        if (this.socketService.isSocketAlive() && this.gameRoom?.userGame.username1 === this.username) {
+            this.socketService.send('abortGameCreation', this.gameRoom.roomId);
+        } else if (this.socketService.isSocketAlive() && this.gameRoom) {
+            this.socketService.send('leaveGame', { roomId: this.gameRoom.roomId, username: this.username });
+        }
+        this.disconnectSocket();
+    }
+
+    disconnectSocket(): void {
+        if (this.socketService.isSocketAlive()) {
+            this.socketService.disconnect();
+        }
+    }
+
+    connectSocket(): void {
+        if (!this.socketService.isSocketAlive()) {
+            this.socketService.connect();
+        }
+    }
+
+    reset() {
+        this.gameRoom = undefined as unknown as GameRoom;
+        this.canSendValidate = true;
+        this.username = '';
+        this.userDifferencesFound = 0;
+        this.totalDifferencesFound$ = new Subject<number>();
+        this.userDifferencesFound$ = new Subject<number>();
+        this.timer$ = new Subject<number>();
+        this.gameFinished$ = new Subject<boolean>();
+        this.gameRoom$ = new Subject<GameRoom>();
+        this.serverValidateResponse$ = new Subject<DifferenceTry>();
+        this.rejected$ = new Subject<boolean>();
+        this.accepted$ = new Subject<boolean>();
+        this.gameCanceled$ = new Subject<boolean>();
+        this.abandoned$ = new Subject<string>();
+    }
+
+    private connect(): void {
         if (!this.socketService.isSocketAlive()) {
             this.socketService.connect();
             this.handleSocket();
@@ -90,7 +161,7 @@ export class ClassicModeService {
         }
     }
 
-    handleSocket(): void {
+    private handleSocket(): void {
         this.socketService.on('gameInfo', (gameRoom: GameRoom) => {
             if (gameRoom && (!this.gameRoom || this.gameRoom.userGame.gameData.gameForm.name === gameRoom.userGame.gameData.gameForm.name)) {
                 this.gameRoom = gameRoom;
@@ -171,75 +242,5 @@ export class ClassicModeService {
             this.timer$.next(timer);
             this.canSendValidate = true;
         });
-    }
-
-    startGame(): void {
-        if (this.gameRoom.userGame.username1 === this.username) {
-            this.socketService.send('start', this.gameRoom.roomId);
-        }
-        this.chatService.handleSocket();
-        this.socketService.off('gameInfo');
-        this.socketService.off('gameCreated');
-        this.socketService.off('playerAccepted');
-        this.socketService.off('playerRejected');
-        this.socketService.off('gameCanceled');
-    }
-
-    validateDifference(differencePos: Vec2) {
-        if (!this.canSendValidate) {
-            return;
-        }
-        this.socketService.send('validate', [differencePos, this.gameRoom.roomId, this.username]);
-        this.canSendValidate = false;
-    }
-
-    endGame(): void {
-        if (this.socketService.isSocketAlive()) {
-            this.socketService.send('endGame', [this.gameRoom.roomId, this.username]);
-        }
-    }
-
-    abandonGame() {
-        if (this.socketService.isSocketAlive()) {
-            this.socketService.send('abandoned', [this.gameRoom.roomId, this.username]);
-        }
-    }
-
-    abortGame(): void {
-        if (this.socketService.isSocketAlive() && this.gameRoom?.userGame.username1 === this.username) {
-            this.socketService.send('abortGameCreation', this.gameRoom.roomId);
-        } else if (this.socketService.isSocketAlive() && this.gameRoom) {
-            this.socketService.send('leaveGame', [this.gameRoom.roomId, this.username]);
-        }
-        this.disconnectSocket();
-    }
-
-    disconnectSocket(): void {
-        if (this.socketService.isSocketAlive()) {
-            this.socketService.disconnect();
-        }
-    }
-
-    connectSocket(): void {
-        if (!this.socketService.isSocketAlive()) {
-            this.socketService.connect();
-        }
-    }
-
-    reset() {
-        this.gameRoom = undefined as unknown as GameRoom;
-        this.canSendValidate = true;
-        this.username = '';
-        this.userDifferencesFound = 0;
-        this.totalDifferencesFound$ = new Subject<number>();
-        this.userDifferencesFound$ = new Subject<number>();
-        this.timer$ = new Subject<number>();
-        this.gameFinished$ = new Subject<boolean>();
-        this.gameRoom$ = new Subject<GameRoom>();
-        this.serverValidateResponse$ = new Subject<DifferenceTry>();
-        this.rejected$ = new Subject<boolean>();
-        this.accepted$ = new Subject<boolean>();
-        this.gameCanceled$ = new Subject<boolean>();
-        this.abandoned$ = new Subject<string>();
     }
 }

@@ -8,7 +8,7 @@ import { environment } from 'src/environments/environment.prod';
 export class CommunicationSocketService {
     // code imported from https://gitlab.com/nikolayradoev/socket-io-exemple
     // Author: Nikolay Radoev
-    socket: Socket;
+    private socket: Socket;
 
     isSocketAlive() {
         return this.socket && this.socket.connected;

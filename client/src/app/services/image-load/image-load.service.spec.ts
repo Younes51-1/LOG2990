@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable max-lines */
 import { HttpClientModule, HttpResponse } from '@angular/common/http';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
@@ -97,7 +98,7 @@ describe('ImageLoadService', () => {
         service = TestBed.inject(ImageLoadService);
         fixture = TestBed.createComponent(CreationGamePageComponent);
         component = fixture.componentInstance;
-        service.component = component;
+        (service as any).component = component;
         foregroundService = TestBed.inject(ForegroundService);
         fixture.detectChanges();
     });
@@ -116,7 +117,7 @@ describe('ImageLoadService', () => {
 
     it('openDifferencesDialog should open dialog', async () => {
         const spy = spyOn(component.dialog, 'open');
-        service.openDifferencesDialog();
+        (service as any).openDifferencesDialog();
         expect(spy).toHaveBeenCalledOnceWith(CreationDialogComponent, {
             data: {
                 imageUrl: component.imageDifferencesUrl,
@@ -126,7 +127,7 @@ describe('ImageLoadService', () => {
     });
 
     it('should open Differences Dialog when image 1 and 2 has content', fakeAsync(() => {
-        const spy = spyOn(service, 'openDifferencesDialog');
+        const spy = spyOn(service as any, 'openDifferencesDialog');
         component.image1 = { value: 'https://example.com/image3.jpg' } as HTMLInputElement;
         component.image2 = { value: 'https://example.com/image3.jpg' } as HTMLInputElement;
         component.runDetectionSystem();
@@ -135,7 +136,7 @@ describe('ImageLoadService', () => {
     }));
 
     it('should not open Differences Dialog if image2 has no content', fakeAsync(() => {
-        const spy = spyOn(service, 'openDifferencesDialog');
+        const spy = spyOn(service as any, 'openDifferencesDialog');
         component.image1 = { value: 'https://example.com/image3.jpg' } as HTMLInputElement;
         component.image2 = { value: undefined } as unknown as HTMLInputElement;
         component.runDetectionSystem();
@@ -144,7 +145,7 @@ describe('ImageLoadService', () => {
     }));
 
     it('should not open Differences Dialog if image1 has no content', fakeAsync(() => {
-        const spy = spyOn(service, 'openDifferencesDialog');
+        const spy = spyOn(service as any, 'openDifferencesDialog');
         component.image2 = { value: 'https://example.com/image3.jpg' } as HTMLInputElement;
         component.image1 = { value: undefined } as unknown as HTMLInputElement;
         component.runDetectionSystem();
@@ -157,14 +158,14 @@ describe('ImageLoadService', () => {
             return;
         });
         const newGameName = 'newGameName';
-        service.saveNameGame(newGameName);
+        (service as any).saveNameGame(newGameName);
         expect(component.nameGame).toEqual(newGameName);
     });
 
     it('should call convert image to data url', () => {
         const canvas = document.createElement('canvas');
         const spy = spyOn(canvas, 'toDataURL').and.returnValue('fake,value');
-        const res = service.convertImageToB64Url(canvas);
+        const res = (service as any).convertImageToB64Url(canvas);
         expect(spy).toHaveBeenCalled();
         expect(res).toEqual('value');
     });
@@ -175,10 +176,10 @@ describe('ImageLoadService', () => {
         const mockImageElement = {
             value: '',
         } as HTMLInputElement;
-        spyOn(service, 'getImageData').and.returnValue({ hasCorrectDimensions: true, isBmp: true, is24BitPerPixel: true });
+        spyOn(service as any, 'getImageData').and.returnValue({ hasCorrectDimensions: true, isBmp: true, is24BitPerPixel: true });
         const spy = spyOn(foregroundService, 'updateImageDisplay');
 
-        service.handleReaderOnload(mockFileReader, mockEvent, mockImageElement);
+        (service as any).handleReaderOnload(mockFileReader, mockEvent, mockImageElement);
 
         expect(spy).toHaveBeenCalledWith(mockEvent, mockImageElement);
     });
@@ -189,11 +190,11 @@ describe('ImageLoadService', () => {
         const mockImageElement = {
             value: '',
         } as HTMLInputElement;
-        spyOn(service, 'getImageData').and.returnValue({ hasCorrectDimensions: false, isBmp: true, is24BitPerPixel: true });
+        spyOn(service as any, 'getImageData').and.returnValue({ hasCorrectDimensions: false, isBmp: true, is24BitPerPixel: true });
         spyOn(foregroundService, 'updateImageDisplay');
         spyOn(window, 'alert');
 
-        service.handleReaderOnload(mockFileReader, mockEvent, mockImageElement);
+        (service as any).handleReaderOnload(mockFileReader, mockEvent, mockImageElement);
 
         expect(window.alert).toHaveBeenCalledWith("Image refusée: elle n'est pas de taille 640x480");
     });
@@ -204,11 +205,11 @@ describe('ImageLoadService', () => {
         const mockImageElement = {
             value: '',
         } as HTMLInputElement;
-        spyOn(service, 'getImageData').and.returnValue({ hasCorrectDimensions: true, isBmp: false, is24BitPerPixel: false });
+        spyOn(service as any, 'getImageData').and.returnValue({ hasCorrectDimensions: true, isBmp: false, is24BitPerPixel: false });
         spyOn(foregroundService, 'updateImageDisplay');
         spyOn(window, 'alert');
 
-        service.handleReaderOnload(mockFileReader, mockEvent, mockImageElement);
+        (service as any).handleReaderOnload(mockFileReader, mockEvent, mockImageElement);
 
         expect(window.alert).toHaveBeenCalledWith('Image refusée: elle ne respecte pas le format BMP-24 bit');
     });
@@ -219,11 +220,11 @@ describe('ImageLoadService', () => {
         const mockImageElement = {
             value: '',
         } as HTMLInputElement;
-        spyOn(service, 'getImageData').and.returnValue({ hasCorrectDimensions: false, isBmp: false, is24BitPerPixel: false });
+        spyOn(service as any, 'getImageData').and.returnValue({ hasCorrectDimensions: false, isBmp: false, is24BitPerPixel: false });
         spyOn(foregroundService, 'updateImageDisplay');
         spyOn(window, 'alert');
 
-        service.handleReaderOnload(mockFileReader, mockEvent, mockImageElement);
+        (service as any).handleReaderOnload(mockFileReader, mockEvent, mockImageElement);
 
         expect(window.alert).toHaveBeenCalledWith('Image refusée: elle ne respecte pas le format BMP-24 bit de taille 640x480');
     });
@@ -234,13 +235,13 @@ describe('ImageLoadService', () => {
         const mockImageElement = {
             value: '',
         } as HTMLInputElement;
-        spyOn(service, 'getImageData').and.returnValue({ hasCorrectDimensions: false, isBmp: false, is24BitPerPixel: false });
+        spyOn(service as any, 'getImageData').and.returnValue({ hasCorrectDimensions: false, isBmp: false, is24BitPerPixel: false });
         spyOn(foregroundService, 'updateImageDisplay');
         spyOn(window, 'alert');
 
-        service.handleReaderOnload(mockFileReader, mockEvent, mockImageElement);
+        (service as any).handleReaderOnload(mockFileReader, mockEvent, mockImageElement);
 
-        expect(service.getImageData).toHaveBeenCalledWith(mockFileReader);
+        expect((service as any).getImageData).toHaveBeenCalledWith(mockFileReader);
     });
 
     /* eslint-disable @typescript-eslint/no-magic-numbers */
@@ -255,33 +256,33 @@ describe('ImageLoadService', () => {
         const mockReader = {
             result: mockArrayBuffer,
         } as unknown as FileReader;
-        const res = service.getImageData(mockReader);
+        const res = (service as any).getImageData(mockReader);
         expect(res).toEqual({ hasCorrectDimensions: true, isBmp: true, is24BitPerPixel: true });
     }));
     /* eslint-enable @typescript-eslint/no-magic-numbers */
 
     it("shouldn't call saveNameGame after closing Matdialog if result is undefined", () => {
-        const saveNameGameSpy = spyOn(service, 'saveNameGame');
+        const saveNameGameSpy = spyOn(service as any, 'saveNameGame');
         const dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
         const dialogRefSpy = jasmine.createSpyObj('MatDialog', ['afterClosed', 'close']);
         dialogSpy.open.and.returnValue(dialogRefSpy);
         dialogRefSpy.afterClosed.and.returnValue(of('test'));
         dialogRefSpy.close.and.returnValue(of('test'));
-        service.openDifferencesDialog();
+        (service as any).openDifferencesDialog();
         component.dialogRef.close();
         expect(component.dialogRef).toBeDefined();
         expect(saveNameGameSpy).not.toHaveBeenCalled();
     });
 
     it("should call saveNameGame after closing Matdialog if result isn't undefined", () => {
-        const saveNameGameSpy = spyOn(service, 'saveNameGame');
+        const saveNameGameSpy = spyOn(service as any, 'saveNameGame');
         const dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
-        service.component.dialog = dialogSpy;
+        (service as any).component.dialog = dialogSpy;
         const dialogRefSpy = jasmine.createSpyObj('MatDialog', ['afterClosed', 'close']);
         dialogSpy.open.and.returnValue(dialogRefSpy);
         dialogRefSpy.afterClosed.and.returnValue(of('test'));
         dialogRefSpy.close.and.returnValue(of('test'));
-        service.openDifferencesDialog();
+        (service as any).openDifferencesDialog();
         component.dialogRef.close();
         expect(component.dialogRef).toBeDefined();
         expect(saveNameGameSpy).toHaveBeenCalledWith('test');
@@ -298,10 +299,10 @@ describe('ImageLoadService', () => {
     }));
 
     it("shouldn't call saveNameGame only if getGame return undefined or null", () => {
-        spyOn(service, 'convertImageToB64Url').and.returnValue('https://example.com/image3.jpg');
-        service.component.differenceCount = 0;
-        service.component.difficulty = 'facile';
-        service.component.differenceMatrix = [[]];
+        spyOn(service as any, 'convertImageToB64Url').and.returnValue('https://example.com/image3.jpg');
+        (service as any).component.differenceCount = 0;
+        (service as any).component.difficulty = 'facile';
+        (service as any).component.differenceMatrix = [[]];
         const newGame: NewGame = {
             name: 'test',
             image1: 'https://example.com/image3.jpg',
@@ -311,42 +312,42 @@ describe('ImageLoadService', () => {
             differenceMatrix: [[]],
         };
         gameData.gameForm = null as unknown as GameForm;
-        service.saveNameGame('test');
+        (service as any).saveNameGame('test');
         expect(communicationServiceSpy.getGame).toHaveBeenCalledWith('test');
         expect(communicationServiceSpy.createNewGame).toHaveBeenCalledWith(newGame);
     });
 
     it("should call saveNameGame if getGame doesn't return undefined or null", () => {
-        spyOn(service, 'convertImageToB64Url').and.returnValue('https://example.com/image3.jpg');
-        service.component.differenceCount = 0;
-        service.component.difficulty = 'facile';
-        service.component.differenceMatrix = [[]];
+        spyOn(service as any, 'convertImageToB64Url').and.returnValue('https://example.com/image3.jpg');
+        (service as any).component.differenceCount = 0;
+        (service as any).component.difficulty = 'facile';
+        (service as any).component.differenceMatrix = [[]];
         spyOn(window, 'alert');
-        service.saveNameGame('test');
+        (service as any).saveNameGame('test');
         expect(communicationServiceSpy.getGame).toHaveBeenCalledWith('test');
         expect(communicationServiceSpy.createNewGame).not.toHaveBeenCalled();
         expect(window.alert).toHaveBeenCalledWith('Nom de jeu déjà utilisé');
     });
 
     it('should navigate to config in case createNewGame was successful', () => {
-        spyOn(service, 'convertImageToB64Url').and.returnValue('https://example.com/image3.jpg');
-        service.component.differenceCount = 0;
-        service.component.difficulty = 'facile';
-        service.component.differenceMatrix = [[]];
+        spyOn(service as any, 'convertImageToB64Url').and.returnValue('https://example.com/image3.jpg');
+        (service as any).component.differenceCount = 0;
+        (service as any).component.difficulty = 'facile';
+        (service as any).component.differenceMatrix = [[]];
         gameData.gameForm = null as unknown as GameForm;
         communicationServiceSpy.createNewGame.and.returnValue(of(null as unknown as HttpResponse<string>));
-        spyOn(service.component.getRouter, 'navigate').and.returnValue(Promise.resolve(true));
-        service.saveNameGame('test');
+        spyOn((service as any).component.getRouter, 'navigate').and.returnValue(Promise.resolve(true));
+        (service as any).saveNameGame('test');
         expect(communicationServiceSpy.getGame).toHaveBeenCalledWith('test');
         expect(communicationServiceSpy.createNewGame).toHaveBeenCalled();
-        expect(service.component.getRouter.navigate).toHaveBeenCalledWith(['/config']);
+        expect((service as any).component.getRouter.navigate).toHaveBeenCalledWith(['/config']);
     });
 
     it('should alert in case createNewGame return null', () => {
-        spyOn(service, 'convertImageToB64Url').and.returnValue('https://example.com/image3.jpg');
-        service.component.differenceCount = 0;
-        service.component.difficulty = 'facile';
-        service.component.differenceMatrix = [[]];
+        spyOn(service as any, 'convertImageToB64Url').and.returnValue('https://example.com/image3.jpg');
+        (service as any).component.differenceCount = 0;
+        (service as any).component.difficulty = 'facile';
+        (service as any).component.differenceMatrix = [[]];
         spyOn(window, 'alert');
         gameData.gameForm = null as unknown as GameForm;
         communicationServiceSpy.createNewGame.and.returnValue(
@@ -354,29 +355,29 @@ describe('ImageLoadService', () => {
                 new Error('bad request');
             }),
         );
-        service.saveNameGame('test');
+        (service as any).saveNameGame('test');
         expect(communicationServiceSpy.getGame).toHaveBeenCalledWith('test');
         expect(communicationServiceSpy.createNewGame).toHaveBeenCalled();
         expect(window.alert).toHaveBeenCalledWith('Erreur lors de la création du jeu');
     });
 
     it("shouldn't runDetectionSystem if image1 or image2 is undefined", () => {
-        service.component.image1 = undefined as unknown as HTMLInputElement;
-        service.component.image2 = undefined as unknown as HTMLInputElement;
-        service.component.differenceMatrix = [];
-        service.component.differenceCount = 0;
-        service.component.difficulty = 'facile';
-        const countDifferencesSpy = spyOn(service.component.detectionService, 'countDifferences');
-        const createDifferencesImageSpy = spyOn(service.component.detectionService, 'createDifferencesImage');
-        const computeLevelDifficultySpy = spyOn(service.component.detectionService, 'computeLevelDifficulty');
-        service.component.runDetectionSystem();
+        (service as any).component.image1 = undefined as unknown as HTMLInputElement;
+        (service as any).component.image2 = undefined as unknown as HTMLInputElement;
+        (service as any).component.differenceMatrix = [];
+        (service as any).component.differenceCount = 0;
+        (service as any).component.difficulty = 'facile';
+        const countDifferencesSpy = spyOn((service as any).component.detectionService, 'countDifferences');
+        const createDifferencesImageSpy = spyOn((service as any).component.detectionService, 'createDifferencesImage');
+        const computeLevelDifficultySpy = spyOn((service as any).component.detectionService, 'computeLevelDifficulty');
+        (service as any).component.runDetectionSystem();
         expect(countDifferencesSpy).not.toHaveBeenCalled();
         expect(createDifferencesImageSpy).not.toHaveBeenCalled();
         expect(computeLevelDifficultySpy).not.toHaveBeenCalled();
     });
 
     it('should call handleReaderOnload on FileReader load', (done) => {
-        const handleReaderOnloadSpy = spyOn(service, 'handleReaderOnload').and.callFake(() => {
+        const handleReaderOnloadSpy = spyOn(service as any, 'handleReaderOnload').and.callFake(() => {
             return;
         });
         const file = new File(['https://example.com/image3.jpg'], 'testFile', { type: 'image/bmp' });
@@ -388,5 +389,12 @@ describe('ImageLoadService', () => {
             done();
             // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         }, 1000);
+    });
+
+    it('should set component and width and height when setComponent()', () => {
+        service.setComponent(component);
+        expect((service as any).component).toEqual(component);
+        expect((service as any).width).toEqual(component.width);
+        expect((service as any).height).toEqual(component.height);
     });
 });

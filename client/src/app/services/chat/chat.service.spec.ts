@@ -18,7 +18,7 @@ describe('ChatService', () => {
         const message = { text: 'hello', user: 'user', time: 123 };
         const spy = jasmine.createSpy('spy');
         chatService.message$.subscribe(spy);
-        chatService.handleSocket();
+        chatService.handleMessage();
         expect(socketService.on).toHaveBeenCalledWith('message', jasmine.any(Function));
         const handler = (socketService.on as jasmine.Spy).calls.mostRecent().args[1];
         handler(message);

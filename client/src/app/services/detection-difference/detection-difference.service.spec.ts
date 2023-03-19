@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { Vec2 } from '@app/interfaces/vec2';
 import { DetectionDifferenceService } from '@app/services/detection-difference/detection-difference.service';
@@ -35,7 +36,7 @@ describe('DetectionDifferenceService', () => {
             context1.fillRect(randomValue, randomValue, randomValue, randomValue);
             context2.fillRect(randomValue, randomValue, randomValue, randomValue);
             const diffMatrix = service.generateDifferencesMatrix(context1, context2, 3);
-            const emptyMatrix = service.createEmptyMatrix(height, width, emptyPixelValue);
+            const emptyMatrix = (service as any).createEmptyMatrix(height, width, emptyPixelValue);
             expect(diffMatrix).toEqual(emptyMatrix);
         }
     });
@@ -54,7 +55,7 @@ describe('DetectionDifferenceService', () => {
             context1.fillStyle = 'red';
             context1.fillRect(1, 1, 1, 1); // difference
             const diffMatrix = service.generateDifferencesMatrix(context1, context2, 0);
-            const emptyMatrix = service.createEmptyMatrix(height, width, emptyPixelValue);
+            const emptyMatrix = (service as any).createEmptyMatrix(height, width, emptyPixelValue);
             emptyMatrix[1][1] = 1;
             expect(diffMatrix).toEqual(emptyMatrix);
         }
@@ -65,7 +66,7 @@ describe('DetectionDifferenceService', () => {
         const canvas2 = document.createElement('canvas');
         const context1 = canvas1.getContext('2d');
         const context2 = canvas2.getContext('2d');
-        const spy = spyOn(service, 'applyRadius');
+        const spy = spyOn(service as any, 'applyRadius');
         if (context1 && context2) {
             service.generateDifferencesMatrix(context1, context2, 3);
             expect(spy).toHaveBeenCalled();
@@ -73,7 +74,7 @@ describe('DetectionDifferenceService', () => {
     });
 
     it('should apply radius correctly', () => {
-        const spy = spyOn(service, 'computeRadiusRelativeCoordinates').and.callThrough();
+        const spy = spyOn(service as any, 'computeRadiusRelativeCoordinates').and.callThrough();
         const initialMatrix = [
             [emptyPixelValue, 1, emptyPixelValue],
             [emptyPixelValue, emptyPixelValue, emptyPixelValue],
@@ -81,7 +82,7 @@ describe('DetectionDifferenceService', () => {
         ];
         const radius = 2;
         const diffCoordinates = [0, 1];
-        const matrixAfterRadius = service.applyRadius(initialMatrix, radius, diffCoordinates);
+        const matrixAfterRadius = (service as any).applyRadius(initialMatrix, radius, diffCoordinates);
         const expectedMatrix = [
             [1, 1, 1],
             [1, 1, 1],
@@ -94,31 +95,31 @@ describe('DetectionDifferenceService', () => {
     it('should compare rgba values correctly', () => {
         let rgba1 = { r: 0, g: 0, b: 0, a: 0 };
         const rgba2 = { r: 0, g: 0, b: 0, a: 0 };
-        const result1 = service.areEqual(rgba1, rgba2);
+        const result1 = (service as any).areEqual(rgba1, rgba2);
         expect(result1).toBeTruthy();
         rgba1 = { r: 1, g: 0, b: 0, a: 0 };
-        const result2 = service.areEqual(rgba1, rgba2);
+        const result2 = (service as any).areEqual(rgba1, rgba2);
         expect(result2).toBeFalsy();
     });
 
     it('createEmptyMatix should return a new matrix', () => {
-        const serviceMatrix = service.createEmptyMatrix(matrix.length, matrix[0].length, 1);
+        const serviceMatrix = (service as any).createEmptyMatrix(matrix.length, matrix[0].length, 1);
         expect(serviceMatrix).toBeTruthy();
     });
 
     it('createEmptyMatix should return a new matrix with dimensions equal to parametre', () => {
-        const serviceMatrix = service.createEmptyMatrix(matrix.length, matrix[0].length, 1);
+        const serviceMatrix = (service as any).createEmptyMatrix(matrix.length, matrix[0].length, 1);
         expect(serviceMatrix.length).toEqual(matrix.length);
         expect(serviceMatrix[0].length).toEqual(matrix[0].length);
     });
 
     it("createEmptyMatix should return a new matrix equal to 'matrix' dimensions ", () => {
-        const serviceMatrix = service.createEmptyMatrix(matrix.length, matrix[0].length, 1);
+        const serviceMatrix = (service as any).createEmptyMatrix(matrix.length, matrix[0].length, 1);
         expect(serviceMatrix).toEqual(matrix);
     });
 
     it('should count the number of differences correctly', () => {
-        const diffMatrix = service.createEmptyMatrix(height, width, emptyPixelValue);
+        const diffMatrix = (service as any).createEmptyMatrix(height, width, emptyPixelValue);
         diffMatrix[1][1] = 1; // first difference
         diffMatrix[1][2] = 1; // should be counted as the same difference
         diffMatrix[5][2] = 1; // second difference
@@ -127,20 +128,20 @@ describe('DetectionDifferenceService', () => {
     });
 
     it('should delete the difference', () => {
-        const diffMatrix = service.createEmptyMatrix(height, width, emptyPixelValue);
+        const diffMatrix = (service as any).createEmptyMatrix(height, width, emptyPixelValue);
         diffMatrix[1][1] = 1;
-        const referenceMatrix = service.copyMatrix(diffMatrix);
+        const referenceMatrix = JSON.parse(JSON.stringify(diffMatrix));
         diffMatrix[100][1] = 1;
         diffMatrix[100][2] = 1; // adding a difference
-        service.deleteDifference(diffMatrix, { x: 100, y: 1 }); // deleting it
+        (service as any).deleteDifference(diffMatrix, { x: 100, y: 1 }); // deleting it
         expect(diffMatrix).toEqual(referenceMatrix);
     });
 
     it('should push neighbors to stack', () => {
         const stack: Vec2[] = [];
         const pos = { x: 1, y: 1 };
-        const spy = spyOn(service, 'pushToStack');
-        service.pushNeighborsToStack(stack, pos);
+        const spy = spyOn(service as any, 'pushToStack');
+        (service as any).pushNeighborsToStack(stack, pos);
         expect(spy).toHaveBeenCalledWith(stack, { x: pos.x, y: pos.y - 1 });
         expect(spy).toHaveBeenCalledWith(stack, { x: pos.x, y: pos.y + 1 });
         expect(spy).toHaveBeenCalledWith(stack, { x: pos.x + 1, y: pos.y - 1 });
@@ -157,7 +158,7 @@ describe('DetectionDifferenceService', () => {
         const stack: Vec2[] = [];
         const pos = { x: 1, y: 1 };
         const spy = spyOn(stack, 'push');
-        service.pushToStack(stack, pos);
+        (service as any).pushToStack(stack, pos);
         expect(spy).toHaveBeenCalledWith(pos);
     });
 
@@ -165,16 +166,8 @@ describe('DetectionDifferenceService', () => {
         const stack: Vec2[] = [];
         const pos = { x: 648, y: 1 };
         const spy = spyOn(stack, 'push');
-        service.pushToStack(stack, pos);
+        (service as any).pushToStack(stack, pos);
         expect(spy).not.toHaveBeenCalled();
-    });
-
-    it('should copy matrix', () => {
-        const matrix1 = service.createEmptyMatrix(height, width, 1);
-        const copyMatrix = service.copyMatrix(matrix1);
-        expect(copyMatrix).toEqual(matrix1);
-        copyMatrix[0][0] = emptyPixelValue;
-        expect(copyMatrix).not.toEqual(matrix1);
     });
 
     /* eslint-disable @typescript-eslint/no-magic-numbers */
@@ -223,7 +216,7 @@ describe('DetectionDifferenceService', () => {
 
     it('should return easy if surface covered by differences is bigger than 0,15', () => {
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        const diffMatrix = service.createEmptyMatrix(480, 640, 0);
+        const diffMatrix = (service as any).createEmptyMatrix(480, 640, 0);
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         const difficulty = service.computeLevelDifficulty(7, diffMatrix);
         expect(difficulty).toEqual('facile');
@@ -231,7 +224,7 @@ describe('DetectionDifferenceService', () => {
 
     it('should return hard if criteria are met', () => {
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        const diffMatrix = service.createEmptyMatrix(480, 640, emptyPixelValue);
+        const diffMatrix = (service as any).createEmptyMatrix(480, 640, emptyPixelValue);
         diffMatrix[0][0] = 1;
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         const difficulty = service.computeLevelDifficulty(7, diffMatrix);

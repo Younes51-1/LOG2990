@@ -8,30 +8,14 @@ import { AsciiLetterValue, BIT_PER_PIXEL, OffsetValues } from 'src/assets/variab
     providedIn: 'root',
 })
 export class ImageLoadService {
-    component: CreationGamePageComponent;
-    width: number;
-    height: number;
+    private component: CreationGamePageComponent;
+    private width: number;
+    private height: number;
 
     setComponent(component: CreationGamePageComponent) {
         this.component = component;
         this.width = this.component.width;
         this.height = this.component.height;
-    }
-
-    openDifferencesDialog() {
-        this.component.dialogRef = this.component.dialog.open(CreationDialogComponent, {
-            data: {
-                imageUrl: this.component.imageDifferencesUrl,
-                nbDifferences: this.component.differenceCount,
-            },
-        });
-        if (this.component.dialogRef) {
-            this.component.dialogRef.afterClosed().subscribe((result) => {
-                if (result) {
-                    this.saveNameGame(result);
-                }
-            });
-        }
     }
 
     verifyImageFormat(e: Event, img: HTMLInputElement): void {
@@ -45,7 +29,29 @@ export class ImageLoadService {
         }
     }
 
-    getImageData(reader: FileReader) {
+    runDetectionSystem() {
+        const img1HasContent: boolean = this.component.image1?.value !== undefined;
+        const img2HasContent: boolean = this.component.image2?.value !== undefined;
+
+        if ((img1HasContent && img2HasContent) || this.component.undo.length > 0) {
+            this.component.differenceMatrix = this.component.detectionService.generateDifferencesMatrix(
+                this.component.context1,
+                this.component.context2,
+                this.component.radius,
+            );
+            this.component.differenceCount = this.component.detectionService.countDifferences(
+                JSON.parse(JSON.stringify(this.component.differenceMatrix)),
+            );
+            this.component.imageDifferencesUrl = this.component.detectionService.createDifferencesImage(this.component.differenceMatrix);
+            this.component.difficulty = this.component.detectionService.computeLevelDifficulty(
+                this.component.differenceCount,
+                JSON.parse(JSON.stringify(this.component.differenceMatrix)),
+            );
+            this.openDifferencesDialog();
+        }
+    }
+
+    private getImageData(reader: FileReader) {
         const width = Math.abs(new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.WIDTH, true));
         const height = Math.abs(new DataView(reader.result as ArrayBuffer).getInt32(OffsetValues.HEIGHT, true));
         const data = new Uint8Array(reader.result as ArrayBuffer);
@@ -57,7 +63,7 @@ export class ImageLoadService {
         return { hasCorrectDimensions, isBmp, is24BitPerPixel };
     }
 
-    handleReaderOnload(reader: FileReader, e: Event, img: HTMLInputElement): void {
+    private handleReaderOnload(reader: FileReader, e: Event, img: HTMLInputElement): void {
         const { hasCorrectDimensions, isBmp, is24BitPerPixel } = this.getImageData(reader);
         if (!(isBmp && is24BitPerPixel) || !hasCorrectDimensions) {
             img.value = '';
@@ -73,27 +79,7 @@ export class ImageLoadService {
         }
     }
 
-    runDetectionSystem() {
-        const img1HasContent: boolean = this.component.image1?.value !== undefined;
-        const img2HasContent: boolean = this.component.image2?.value !== undefined;
-
-        if ((img1HasContent && img2HasContent) || this.component.undo.length > 0) {
-            this.component.differenceMatrix = this.component.detectionService.generateDifferencesMatrix(
-                this.component.context1,
-                this.component.context2,
-                this.component.radius,
-            );
-            this.component.differenceCount = this.component.detectionService.countDifferences(this.component.differenceMatrix);
-            this.component.imageDifferencesUrl = this.component.detectionService.createDifferencesImage(this.component.differenceMatrix);
-            this.component.difficulty = this.component.detectionService.computeLevelDifficulty(
-                this.component.differenceCount,
-                JSON.parse(JSON.stringify(this.component.differenceMatrix)),
-            );
-            this.openDifferencesDialog();
-        }
-    }
-
-    saveNameGame(name: string) {
+    private saveNameGame(name: string) {
         this.component.nameGame = name;
         const newGame: NewGame = {
             name,
@@ -119,7 +105,23 @@ export class ImageLoadService {
         });
     }
 
-    convertImageToB64Url(canvas: HTMLCanvasElement): string {
+    private convertImageToB64Url(canvas: HTMLCanvasElement): string {
         return canvas.toDataURL().split(',')[1];
+    }
+
+    private openDifferencesDialog() {
+        this.component.dialogRef = this.component.dialog.open(CreationDialogComponent, {
+            data: {
+                imageUrl: this.component.imageDifferencesUrl,
+                nbDifferences: this.component.differenceCount,
+            },
+        });
+        if (this.component.dialogRef) {
+            this.component.dialogRef.afterClosed().subscribe((result) => {
+                if (result) {
+                    this.saveNameGame(result);
+                }
+            });
+        }
     }
 }

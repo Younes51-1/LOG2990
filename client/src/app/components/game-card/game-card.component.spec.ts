@@ -60,7 +60,8 @@ describe('GameCardComponent', () => {
         ]);
         socketHelper = new SocketTestHelper();
         socketServiceMock = new SocketClientServiceMock();
-        socketServiceMock.socket = socketHelper as unknown as Socket;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (socketServiceMock as any).socket = socketHelper as unknown as Socket;
         TestBed.configureTestingModule({
             declarations: [GameCardComponent],
             imports: [AppRoutingModule, DynamicTestModule, RouterTestingModule, HttpClientTestingModule],
