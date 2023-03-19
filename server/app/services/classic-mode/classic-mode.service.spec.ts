@@ -10,7 +10,9 @@ import { Socket } from 'socket.io';
 
 class TestClassicModeService extends ClassicModeService {
     addElementToMap(key: string, value: GameRoom) {
-        this.gameRooms.set(key, value);
+        // We want to assign a value to the private field
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (this as any).gameRooms.set(key, value);
     }
 }
 
@@ -44,7 +46,7 @@ describe('ClassicModeService', () => {
         const roomId = 'socketId';
         socket.join.returns();
         service.initNewRoom(socket, getFakeUserGame(), true);
-        expect(service.gameRooms.get(roomId)).toBeDefined();
+        expect(service.getRoom(roomId)).toBeDefined();
     });
 
     it('canJoinGame should return undefined if the game does not exist', () => {
@@ -98,7 +100,7 @@ describe('ClassicModeService', () => {
         const newRoom = getFakeGameRoom();
         testClassicModeService.addElementToMap(newRoom.roomId, newRoom);
         expect(service.joinGame(socket, newRoom.userGame.gameData.gameForm.name, 'FakeUser2')).toEqual(true);
-        expect(service.gameRooms.get(newRoom.roomId).userGame.potentialPlayers).toContain('FakeUser2');
+        expect(service.getRoom(newRoom.roomId).userGame.potentialPlayers).toContain('FakeUser2');
     });
 
     it('validateDifference should return true if the difference is valid', () => {
@@ -123,14 +125,14 @@ describe('ClassicModeService', () => {
     it('isGameFinished should return true if all differences have been found', () => {
         const newRoom = getFakeGameRoom();
         testClassicModeService.addElementToMap(newRoom.roomId, newRoom);
-        testClassicModeService.gameRooms.get(newRoom.roomId).userGame.nbDifferenceFound = 2;
+        testClassicModeService.getRoom(newRoom.roomId).userGame.nbDifferenceFound = 2;
         expect(testClassicModeService.isGameFinished(newRoom.roomId)).toBeTruthy();
     });
 
     it('isGameFinished should return false if not all differences have been found', () => {
         const newRoom = getFakeGameRoom();
         testClassicModeService.addElementToMap(newRoom.roomId, newRoom);
-        testClassicModeService.gameRooms.get(newRoom.roomId).userGame.nbDifferenceFound = 1;
+        testClassicModeService.getRoom(newRoom.roomId).userGame.nbDifferenceFound = 1;
         expect(testClassicModeService.isGameFinished(newRoom.roomId)).toBeFalsy();
     });
 
@@ -138,15 +140,37 @@ describe('ClassicModeService', () => {
         const newRoom = getFakeGameRoom();
         testClassicModeService.addElementToMap(newRoom.roomId, newRoom);
         testClassicModeService.updateTimer(newRoom);
-        expect(testClassicModeService.gameRooms.get(newRoom.roomId).userGame.timer).toEqual(1);
+        expect(testClassicModeService.getRoom(newRoom.roomId).userGame.timer).toEqual(1);
+    });
+
+    it('getRoom should return room', () => {
+        // We need to cast to any because the map is private
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (testClassicModeService as any).gameRooms = new Map();
+        const newRoom = getFakeGameRoom();
+        testClassicModeService.addElementToMap(newRoom.roomId, newRoom);
+        expect(testClassicModeService.getRoom(newRoom.roomId)).toEqual(newRoom);
+    });
+
+    it('setRoom should add room', () => {
+        // We need to cast to any because the map is private
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (testClassicModeService as any).gameRooms = new Map();
+        const newRoom = getFakeGameRoom();
+        testClassicModeService.setRoom(newRoom);
+        // We need to cast to any because the map is private
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        expect((testClassicModeService as any).gameRooms.get(newRoom.roomId)).toEqual(newRoom);
     });
 
     it('deleteRoom should delete room', () => {
-        testClassicModeService.gameRooms = new Map();
+        // We need to cast to any because the map is private
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (testClassicModeService as any).gameRooms = new Map();
         const newRoom = getFakeGameRoom();
         testClassicModeService.addElementToMap(newRoom.roomId, newRoom);
         testClassicModeService.deleteRoom(newRoom.roomId);
-        expect(testClassicModeService.gameRooms.get(newRoom.roomId)).toBeUndefined();
+        expect(testClassicModeService.getRoom(newRoom.roomId)).toBeUndefined();
     });
 
     it('GameRoom should be of type GameRoom', () => {

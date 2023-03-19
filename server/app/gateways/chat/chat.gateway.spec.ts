@@ -48,7 +48,7 @@ describe('ChatGateway', () => {
                 expect(event).toEqual(ChatEvents.Message);
             },
         } as BroadcastOperator<unknown, unknown>);
-        gateway.sendMessage(socket, ['fake message', room.userGame.username1, room.roomId]);
+        gateway.sendMessage(socket, { message: 'fake message', username: room.userGame.username1, roomId: room.roomId });
     });
 });
 

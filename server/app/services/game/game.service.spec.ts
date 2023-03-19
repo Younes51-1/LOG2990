@@ -146,7 +146,7 @@ describe('GameService', () => {
         const game = getFakeGame2();
         await gameModel.create(game);
         const getGame = await service.getGame(game.name);
-        expect(getGame.gameForm.difficulty).toEqual('Difficile');
+        expect(getGame.gameForm.difficulty).toEqual('difficile');
     });
 
     it('deleteGame should delete the game', async () => {
@@ -203,7 +203,7 @@ const getFakeGameData = (): GameData => ({
         nbDifference: 5,
         image1url: `${environment.serverUrl}/FakeGame/image1.bmp`,
         image2url: `${environment.serverUrl}/FakeGame/image2.bmp`,
-        difficulty: 'Facile',
+        difficulty: 'facile',
         soloBestTimes: [new BestTime(), new BestTime(), new BestTime()],
         vsBestTimes: [new BestTime(), new BestTime(), new BestTime()],
     },
