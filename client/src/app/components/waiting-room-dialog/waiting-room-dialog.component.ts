@@ -16,7 +16,8 @@ export class WaitingRoomComponent implements OnInit {
     rejectedSubscription: Subscription;
     acceptedSubscription: Subscription;
     gameCanceledSubscription: Subscription;
-    constructor(public classicModeService: ClassicModeService, public router: Router, public dialogRef: MatDialogRef<WaitingRoomComponent>) {}
+
+    constructor(public classicModeService: ClassicModeService, private router: Router, private dialogRef: MatDialogRef<WaitingRoomComponent>) {}
 
     ngOnInit() {
         this.rejectedSubscription = this.classicModeService.rejected$.subscribe((rejected) => {

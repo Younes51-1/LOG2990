@@ -1,11 +1,6 @@
 import { Component, Input, OnChanges } from '@angular/core';
 import { GameRoom } from '@app/interfaces/game';
-
-enum Times {
-    MinInSec = 60,
-    SecInMil = 1000,
-    TenSec = 10,
-}
+import { Time } from 'src/assets/variables/time';
 
 @Component({
     selector: 'app-game-scoreboard',
@@ -32,8 +27,8 @@ export class GameScoreboardComponent implements OnChanges {
         if (this.gameRoom) {
             this.totalNumber = this.gameRoom.userGame.gameData.gameForm.nbDifference;
             this.difficulty = this.gameRoom.userGame.gameData.gameForm.difficulte;
-            this.minutes = Math.floor(this.timer / Times.MinInSec);
-            this.seconds = this.timer % Times.MinInSec;
+            this.minutes = Math.floor(this.timer / Time.MinInSec);
+            this.seconds = this.timer % Time.MinInSec;
         }
     }
 }

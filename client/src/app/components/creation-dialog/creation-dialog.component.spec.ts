@@ -1,4 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// We need it to access private methods and properties in the test
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CreationDialogComponent } from '@app/components/creation-dialog/creation-dialog.component';
 
@@ -8,6 +11,7 @@ describe('CreationDialogComponent', () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
+            imports: [FormsModule],
             declarations: [CreationDialogComponent],
             providers: [
                 { provide: MatDialogRef, useValue: {} },
@@ -27,12 +31,12 @@ describe('CreationDialogComponent', () => {
     });
 
     it('ngAfterViewInit should load image', (done) => {
-        const drawImageSpy = spyOn(component, 'drawImage').and.callFake(() => {
+        const drawImageSpy = spyOn(component as any, 'drawImage').and.callFake(() => {
             return;
         });
         component.data.imageUrl = 'https://i.imgur.com/tG1K4kJ.jpeg';
         component.ngAfterViewInit();
-        component.image.dispatchEvent(new Event('load'));
+        (component as any).image.dispatchEvent(new Event('load'));
         setTimeout(() => {
             expect(drawImageSpy).toHaveBeenCalled();
             done();
@@ -50,8 +54,7 @@ describe('CreationDialogComponent', () => {
         const scaleSpy = spyOn(component.context, 'scale').and.callFake(() => {
             return;
         });
-
-        component.drawImage(new Image());
+        (component as any).drawImage(new Image());
         expect(drawImagespy).toHaveBeenCalled();
         expect(translateSpy).not.toHaveBeenCalled();
         expect(scaleSpy).not.toHaveBeenCalled();
@@ -66,10 +69,10 @@ describe('CreationDialogComponent', () => {
 
     it('should emit the name of the game', () => {
         // eslint-disable-next-line @typescript-eslint/no-empty-function
-        component.dialogRef = { close: () => {} } as MatDialogRef<CreationDialogComponent>;
-        const emitNameGameSpy = spyOn(component.dialogRef, 'close').and.callThrough();
+        (component as any).dialogRef = { close: () => {} } as MatDialogRef<CreationDialogComponent>;
+        const emitNameGameSpy = spyOn((component as any).dialogRef, 'close').and.callThrough();
         component.inputValue = 'test';
-        component.emitNameGame();
+        (component as any).emitNameGame();
         expect(emitNameGameSpy).toHaveBeenCalledWith('test');
     });
 
@@ -81,9 +84,9 @@ describe('CreationDialogComponent', () => {
     });
 
     it('should call emitNameGame if inputValue is correct', () => {
-        spyOn(component, 'emitNameGame');
+        spyOn(component as any, 'emitNameGame');
         component.inputValue = 'test';
         component.toggleBorder();
-        expect(component.emitNameGame).toHaveBeenCalled();
+        expect((component as any).emitNameGame).toHaveBeenCalled();
     });
 });

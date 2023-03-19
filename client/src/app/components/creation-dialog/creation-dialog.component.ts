@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, Inject, ViewChild } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { VerifyInputService } from '@app/services/verify-input/verify-input.service';
-
+import { Dimensions } from 'src/assets/variables/picture-dimension';
 @Component({
     selector: 'app-creation-modal-dialog',
     templateUrl: './creation-dialog.component.html',
@@ -16,22 +16,19 @@ import { VerifyInputService } from '@app/services/verify-input/verify-input.serv
 })
 export class CreationDialogComponent implements AfterViewInit {
     @ViewChild('canvasDifferences') canvasDifferences: ElementRef<HTMLCanvasElement>;
-    width: number;
-    height: number;
+    width = Dimensions.DEFAULT_WIDTH;
+    height = Dimensions.DEFAULT_HEIGHT;
     context: CanvasRenderingContext2D;
-    image: HTMLImageElement;
-    scaleNumber: number = 1;
     inputValue: string;
     applyBorder = false;
 
+    private image: HTMLImageElement;
+
     constructor(
         private verifyInputService: VerifyInputService,
-        public dialogRef: MatDialogRef<CreationDialogComponent>,
+        private dialogRef: MatDialogRef<CreationDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: { imageUrl: string; nbDifferences: number },
-    ) {
-        this.width = 640;
-        this.height = 480;
-    }
+    ) {}
 
     ngAfterViewInit(): void {
         this.context = this.canvasDifferences.nativeElement.getContext('2d') as CanvasRenderingContext2D;
@@ -42,14 +39,6 @@ export class CreationDialogComponent implements AfterViewInit {
         };
     }
 
-    drawImage(image: HTMLImageElement) {
-        this.context.drawImage(image, 0, 0, this.width, this.height);
-    }
-
-    emitNameGame() {
-        this.dialogRef.close(this.inputValue);
-    }
-
     toggleBorder() {
         if (!this.verifyInputService.verify(this.inputValue)) {
             this.applyBorder = true;
@@ -57,5 +46,13 @@ export class CreationDialogComponent implements AfterViewInit {
             this.emitNameGame();
             this.applyBorder = false;
         }
+    }
+
+    private drawImage(image: HTMLImageElement) {
+        this.context.drawImage(image, 0, 0, this.width, this.height);
+    }
+
+    private emitNameGame() {
+        this.dialogRef.close(this.inputValue);
     }
 }

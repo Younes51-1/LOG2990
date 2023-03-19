@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// We need it to access private methods and properties in the test
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material/dialog';
@@ -37,14 +39,14 @@ describe('WaitingRoomComponent', () => {
 
     it('should start the game and navigate to /game when accepted$ event is triggered', () => {
         spyOn(classicModeServiceSpy, 'startGame');
-        spyOn(component.router, 'navigate');
+        spyOn((component as any).router, 'navigate');
 
         fixture.detectChanges();
         classicModeServiceSpy.accepted$.next(true);
 
         expect(component.accepted).toBe(true);
         expect(classicModeServiceSpy.startGame).toHaveBeenCalled();
-        expect(component.router.navigate).toHaveBeenCalledWith(['/game']);
+        expect((component as any).router.navigate).toHaveBeenCalledWith(['/game']);
     });
 
     it('should display an alert, abort the game and close the component when gameCanceled$ event is triggered', () => {
@@ -77,7 +79,7 @@ describe('WaitingRoomComponent', () => {
 
     it('should unsubscribe from all subscriptions and close the dialog', () => {
         const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['close']);
-        component.dialogRef = dialogRefSpy;
+        (component as any).dialogRef = dialogRefSpy;
         const acceptedSubscription = of(null).subscribe();
         const rejectedSubscription = of(null).subscribe();
         const gameCanceledSubscription = of(null).subscribe();

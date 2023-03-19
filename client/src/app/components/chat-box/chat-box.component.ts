@@ -13,12 +13,12 @@ export class ChatBoxComponent implements OnInit {
     @ViewChild('chatbox', { static: true }) chatbox: ElementRef;
     @Input() gameRoom: GameRoom;
     @Input() username: string;
-    applyBorder = false;
 
+    applyBorder = false;
     message = '';
     messages: Message[] = [];
 
-    constructor(public chatService: ChatService, public verifyService: VerifyInputService) {}
+    constructor(private chatService: ChatService, private verifyService: VerifyInputService) {}
 
     ngOnInit() {
         this.chatService.message$.subscribe((message: Message) => {

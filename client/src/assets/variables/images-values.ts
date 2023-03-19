@@ -23,3 +23,9 @@ export enum PossibleRadius {
     NINE = 9,
     FIFTEEN = 15,
 }
+
+export enum PossibleColor {
+    BLACK = 255,
+    WHITE = 0,
+    EMPTYPIXEL = -1,
+}
