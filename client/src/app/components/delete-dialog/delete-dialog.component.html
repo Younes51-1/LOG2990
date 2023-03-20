@@ -1,3 +1,10 @@
-<p>Êtes-vous sûr de vouloir supprimer ?</p>
-<button mat-button (click)="emitSupp(true)">Oui</button>
-<button mat-button (click)="emitSupp(false)">Non</button>
+<div *ngIf="data.deleted">
+    <p *ngIf="data.deleted">Votre jeu a été supprimer</p>
+    <p *ngIf="!data.deleted">Êtes-vous sûr de vouloir supprimer ?</p>
+    <button mat-button (click)="close()">Ok</button>
+</div>
+<div *ngIf="!data.deleted">
+    <p>Êtes-vous sûr de vouloir supprimer ?</p>
+    <button mat-button (click)="emitSupp(true)">Oui</button>
+    <button mat-button (click)="emitSupp(false)">Non</button>
+</div>

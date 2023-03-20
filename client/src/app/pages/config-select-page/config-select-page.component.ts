@@ -39,7 +39,7 @@ export class ConfigSelectPageComponent implements OnInit {
 
     deleteNotify(name: string): void {
         if (this.pageType === PageKeys.Config) {
-            this.dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true });
+            this.dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { deleted: false } });
             if (this.dialogRef) {
                 this.dialogRef.afterClosed().subscribe((supp) => {
                     if (supp) {
@@ -52,7 +52,7 @@ export class ConfigSelectPageComponent implements OnInit {
 
     setSelected(name: string): void {
         for (const slide of this.slides) {
-            slide.isSelected = slide.name === name ? true : false;
+            slide.isSelected = slide.name === name;
         }
     }
 
