@@ -19,7 +19,7 @@ export class DrawingService {
     }
 
     handleCanvasEvent(eventType: string, event: MouseEvent, canvas: HTMLCanvasElement) {
-        if (eventType === 'mousedown') {
+        if (eventType === 'mousedown' && this.component.drawMode !== DrawModes.NOTHING) {
             this.emptyRedoStack();
             this.component.currentCanvas = canvas;
             this.pushToUndoStack();
