@@ -45,9 +45,7 @@ export class WaitingRoomComponent implements OnInit {
                 this.gameCanceled = true;
                 const dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { deleted: true } });
                 dialogRef.afterClosed().subscribe(() => {
-                    this.classicModeService.abortGame();
                     this.close();
-                    window.location.reload();
                 });
             }
         });
@@ -62,12 +60,13 @@ export class WaitingRoomComponent implements OnInit {
     }
 
     close() {
-        if (!this.accepted) {
-            this.classicModeService.abortGame();
-        }
         this.acceptedSubscription.unsubscribe();
         this.rejectedSubscription.unsubscribe();
         this.gameCanceledSubscription.unsubscribe();
         this.dialogRef.close();
+        if (!this.accepted) {
+            this.classicModeService.abortGame();
+            window.location.reload();
+        }
     }
 }

@@ -84,11 +84,11 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
     }
 
     @SubscribeMessage(ClassicModeEvents.AbortGameCreation)
-    abortGameCreation(socket: Socket): void {
-        const gameRoom = this.classicModeService.getRoom(socket.id);
+    abortGameCreation(socket: Socket, roomId: string): void {
+        const gameRoom = this.classicModeService.getRoom(roomId);
         if (!gameRoom) return;
         this.logger.log(`Game creation aborted: ${gameRoom.userGame.gameData.gameForm.name}`);
-        this.classicModeService.deleteRoom(socket.id);
+        this.classicModeService.deleteRoom(roomId);
         this.server.emit(ClassicModeEvents.GameDeleted, gameRoom.userGame.gameData.gameForm.name);
         this.server.emit(ClassicModeEvents.GameCanceled, gameRoom.userGame.gameData.gameForm.name);
     }
