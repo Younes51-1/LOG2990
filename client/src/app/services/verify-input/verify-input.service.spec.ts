@@ -1,4 +1,4 @@
-import { VerifyInputService } from './verify-input.service';
+import { VerifyInputService } from '@app/services/verify-input/verify-input.service';
 
 describe('VerifyInputService', () => {
     let service: VerifyInputService;

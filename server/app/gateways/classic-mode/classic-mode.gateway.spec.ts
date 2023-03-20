@@ -9,8 +9,8 @@ import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { createStubInstance, SinonStubbedInstance } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
-import { ClassicModeGateway } from './classic-mode.gateway';
-import { ClassicModeEvents, DelayBeforeEmittingTime } from './classic-mode.gateway.variables';
+import { ClassicModeGateway } from '@app/gateways/classic-mode/classic-mode.gateway';
+import { ClassicModeEvents, DelayBeforeEmittingTime } from '@app/gateways/classic-mode/classic-mode.gateway.variables';
 
 describe('ClassicModeGateway', () => {
     let gateway: ClassicModeGateway;

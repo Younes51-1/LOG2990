@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { ChatEvents } from './chat.gateway.variables';
+import { ChatEvents } from '@app/gateways/chat/chat.gateway.variables';
 
 @WebSocketGateway({ cors: true })
 @Injectable()

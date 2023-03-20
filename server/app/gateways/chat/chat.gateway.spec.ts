@@ -6,8 +6,8 @@ import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { createStubInstance, SinonStubbedInstance } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
-import { ChatGateway } from './chat.gateway';
-import { ChatEvents } from './chat.gateway.variables';
+import { ChatGateway } from '@app/gateways/chat/chat.gateway';
+import { ChatEvents } from '@app/gateways/chat/chat.gateway.variables';
 
 describe('ChatGateway', () => {
     let gateway: ChatGateway;

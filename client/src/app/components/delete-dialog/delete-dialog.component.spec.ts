@@ -3,7 +3,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
-import { DeleteDialogComponent } from './delete-dialog.component';
+import { DeleteDialogComponent } from '@app/components/delete-dialog/delete-dialog.component';
 
 describe('DeleteDialogComponent', () => {
     let component: DeleteDialogComponent;
