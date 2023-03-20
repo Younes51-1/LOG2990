@@ -254,7 +254,7 @@ describe('ClassicModeGateway', () => {
         jest.spyOn(classicModeService, 'getRoom').mockImplementation(() => {
             return getFakeGameRoom();
         });
-        gateway.abortGameCreation(socket);
+        gateway.abortGameCreation(socket, 'fakeRoomId');
         expect(abortGameCreationSpy).toHaveBeenCalled();
     });
 
@@ -275,7 +275,7 @@ describe('ClassicModeGateway', () => {
         jest.spyOn(classicModeService, 'getRoom').mockImplementation(() => {
             return undefined;
         });
-        gateway.abortGameCreation(socket);
+        gateway.abortGameCreation(socket, 'fakeRoomId');
         expect(abortGameCreationSpy).not.toHaveBeenCalled();
     });
 

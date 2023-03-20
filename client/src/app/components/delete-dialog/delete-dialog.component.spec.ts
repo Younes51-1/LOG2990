@@ -14,7 +14,7 @@ describe('DeleteDialogComponent', () => {
             declarations: [DeleteDialogComponent],
             providers: [
                 { provide: MatDialogRef, useValue: {} },
-                { provide: MAT_DIALOG_DATA, useValue: { gameFinished: true, gameWinner: true } },
+                { provide: MAT_DIALOG_DATA, useValue: { deleted: false } },
             ],
             imports: [AppRoutingModule],
         }).compileComponents();
@@ -42,5 +42,13 @@ describe('DeleteDialogComponent', () => {
         const emitSuppSpy = spyOn((component as any).dialogRef, 'close').and.callThrough();
         component.emitSupp(false);
         expect(emitSuppSpy).toHaveBeenCalledWith(false);
+    });
+
+    it('should emit true if no abandon click', () => {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        (component as any).dialogRef = { close: () => {} } as MatDialogRef<DeleteDialogComponent>;
+        const closeSpy = spyOn((component as any).dialogRef, 'close').and.callThrough();
+        component.close();
+        expect(closeSpy).toHaveBeenCalled();
     });
 });

@@ -14,7 +14,7 @@ import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 import { of } from 'rxjs';
 import { PageKeys } from 'src/assets/variables/game-card-options';
-import { ConfigSelectPageComponent } from './config-select-page.component';
+import { ConfigSelectPageComponent } from '@app/pages/config-select-page/config-select-page.component';
 import SpyObj = jasmine.SpyObj;
 import { GameCardComponent } from '@app/components/game-card/game-card.component';
 
@@ -187,7 +187,7 @@ describe('ConfigSelectPageComponent', () => {
         });
         component.pageType = PageKeys.Config;
         component.deleteNotify('Find the Differences 1');
-        expect(dialog.open).toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true });
+        expect(dialog.open).toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true, data: { deleted: false } });
         expect(dialogRefSpy.afterClosed).toHaveBeenCalled();
         expect((component as any).removeSlide).toHaveBeenCalledWith('Find the Differences 1');
     });
@@ -201,7 +201,7 @@ describe('ConfigSelectPageComponent', () => {
         });
         component.pageType = PageKeys.Config;
         component.deleteNotify('Find the Differences 1');
-        expect(dialog.open).toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true });
+        expect(dialog.open).toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true, data: { deleted: false } });
         expect(dialogRefSpy.afterClosed).toHaveBeenCalled();
         expect((component as any).removeSlide).not.toHaveBeenCalledWith('Find the Differences 1');
     });
