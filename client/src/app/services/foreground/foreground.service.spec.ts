@@ -203,11 +203,11 @@ describe('ForegroundService', () => {
             return;
         });
         service.updateContext(component.context1, component.canvasForeground1, 'https://i.imgur.com/tG1K4kJ.jpeg');
-        (service as any).imageToDraw.dispatchEvent(new Event('load'));
         setTimeout(() => {
             expect(drawImageSpy).toHaveBeenCalled();
             done();
-        }, 0);
+            // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        }, 1000);
     });
 
     it('should fill context in white', () => {

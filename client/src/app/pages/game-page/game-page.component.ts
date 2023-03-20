@@ -77,6 +77,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.abandonedGameSubscription = this.classicModeService.abandoned$.subscribe((userName: string) => {
             if (userName !== this.username) {
                 this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
+                this.startConfetti();
             }
             this.unsubscribe();
             this.classicModeService.endGame();

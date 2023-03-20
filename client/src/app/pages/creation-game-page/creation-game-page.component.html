@@ -85,15 +85,15 @@
             </div>
         </div>
         <div class="tools">
-            <button class="button action" (mouseenter)="enableMode('pencil')"
+            <button class="button action" (click)="enableMode('pencil')"
                 (click)="showColorPicker = true; showPencilThicknessPicker = true; showEraserThicknessPicker = false">
                 <i class="fas fa-pencil-alt"></i>
             </button>
-            <button class="button action" (mouseenter)="enableMode('rectangle')"
+            <button class="button action" (click)="enableMode('rectangle')"
                 (click)="showColorPicker = true; showPencilThicknessPicker = false; showEraserThicknessPicker = false">
                 <i class="fas fa-vector-square"></i>
             </button>
-            <button class="button action" (mouseenter)="enableMode('eraser')"
+            <button class="button action" (click)="enableMode('eraser')"
                 (click)="showColorPicker = false; showPencilThicknessPicker = false; showEraserThicknessPicker = true">
                 <i class="fa fa-eraser"></i>
             </button>
