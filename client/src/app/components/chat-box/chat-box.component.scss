@@ -2,7 +2,6 @@
   position: relative;
   width: 300px;
   height: 500px;
-  margin-left: 10%;
   color: black;
   box-shadow: 0px 0px 17px 3px rgba(0, 0, 0, 0.25);
 }
@@ -56,6 +55,7 @@ li {
 li p {
   overflow-y: visible;
   word-break: break-all;
+  white-space: break-spaces;
 }
 
 .opponent {
@@ -119,15 +119,18 @@ li p {
   bottom: 0;
   left: 0;
   border-top: 1px solid rgba(60, 51, 176, 0.1);
-  // overflow: hidden;
+}
+
+textarea:focus,
+input:focus {
+  outline: none;
 }
 
 .ip-msg {
-  width: 70%;
   font-size: 14px;
   padding: 15px;
-  padding-right: 30%;
-  border: 1px black;
+  width: 88%;
+  border: none;
 }
 
 .btn {
@@ -138,4 +141,12 @@ li p {
   display: inline-block;
   margin-right: 10px;
   padding: 0 7px;
+}
+
+.plane {
+  border: none;
+}
+
+.error-border {
+  border: 2px solid red;
 }

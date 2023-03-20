@@ -3,7 +3,7 @@
 import { OverlayModule } from '@angular/cdk/overlay';
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { MatDialog, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -11,13 +11,14 @@ import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { GameCardComponent } from '@app/components/game-card/game-card.component';
 import { GameData } from '@app/interfaces/game';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
-import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
-import { CommunicationService } from '@app/services/communicationService/communication.service';
-import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
+import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
+import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
+import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
 import { of } from 'rxjs';
 import { Socket } from 'socket.io-client';
 import { options, PageKeys } from 'src/assets/variables/game-card-options';
 import SpyObj = jasmine.SpyObj;
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 @NgModule({
     imports: [HttpClientModule, OverlayModule, MatDialogModule, BrowserAnimationsModule],
@@ -38,7 +39,7 @@ describe('GameCardComponent', () => {
     let fixture: ComponentFixture<GameCardComponent>;
     let socketServiceMock: SocketClientServiceMock;
     let socketHelper: SocketTestHelper;
-    let communicationServiceSpy: SpyObj<CommunicationService>;
+    let communicationServiceSpy: SpyObj<CommunicationHttpService>;
     let communicationSocketService: CommunicationSocketService;
 
     beforeEach(async () => {
@@ -59,18 +60,19 @@ describe('GameCardComponent', () => {
         ]);
         socketHelper = new SocketTestHelper();
         socketServiceMock = new SocketClientServiceMock();
-        socketServiceMock.socket = socketHelper as unknown as Socket;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (socketServiceMock as any).socket = socketHelper as unknown as Socket;
         TestBed.configureTestingModule({
             declarations: [GameCardComponent],
-            imports: [AppRoutingModule, DynamicTestModule, RouterTestingModule],
+            imports: [AppRoutingModule, DynamicTestModule, RouterTestingModule, HttpClientTestingModule],
             providers: [
                 ClassicModeService,
                 CommunicationSocketService,
                 { provide: CommunicationSocketService, useValue: socketServiceMock },
-                { provide: CommunicationService, useValue: communicationServiceSpy },
+                { provide: CommunicationHttpService, useValue: communicationServiceSpy },
                 { provide: MatDialog },
                 { provide: MAT_DIALOG_DATA, useValue: {} },
-                CommunicationService,
+                CommunicationHttpService,
             ],
         }).compileComponents();
     });
@@ -151,6 +153,17 @@ describe('GameCardComponent', () => {
         expect(component.btnTwo).toEqual(options.selection.btnTwo);
     });
 
+    it("should call check game when 'Option multijoueur' is clicked", () => {
+        component.page = PageKeys.Selection;
+        component.ngOnInit();
+        fixture.detectChanges();
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        const spy = spyOn(component, 'checkGame');
+        const btn = fixture.debugElement.nativeElement.getElementsByTagName('button')[1];
+        btn.click();
+        expect(spy).toHaveBeenCalled();
+    });
+
     it('should focus appropriate input', fakeAsync(() => {
         const inputElement = document.createElement('input');
         document.body.appendChild(inputElement);
@@ -181,7 +194,9 @@ describe('GameCardComponent', () => {
     });
 
     it("should call 'classicModeService.connectSocket' when 'checkGame' is called", () => {
-        const spy = spyOn(component.classicModeService, 'connectSocket');
+        // Needed to access private properties
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const spy = spyOn((component as any).classicModeService, 'connectSocket');
         component.checkGame();
         expect(spy).toHaveBeenCalled();
     });
@@ -232,50 +247,77 @@ describe('GameCardComponent', () => {
         expect(component.gameExists).toBe(true);
     });
 
-    it('should emit the correct value when startSoloGame is called', () => {
+    it('should emit the correct value when startSoloGame is called', fakeAsync(() => {
+        // needed to call private property
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const routerSpy = spyOn((component as any).router, 'navigate').and.stub();
         const spy = spyOn(component.notify, 'emit');
-        component.startSoloGame();
+        // needed to call private method
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (component as any).startSoloGame();
+        tick();
+        expect(spy).toHaveBeenCalledWith(component.slide.name);
+        expect(routerSpy).toHaveBeenCalledWith([options.config.routeOne]);
+    }));
+
+    it('should emit the correct object when deleteCard is called', () => {
+        const spy = spyOn(component.notify, 'emit');
+        // needed to call private method
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (component as any).deleteCard();
         expect(spy).toHaveBeenCalledWith(component.slide.name);
     });
 
-    it("should call 'initClassicMode' by startSoloGame if page is Selection", () => {
-        const spy = spyOn(component.classicModeService, 'initClassicMode');
+    it("should call 'initClassicMode' by startSoloGame", fakeAsync(() => {
+        // needed to call private property
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const routerSpy = spyOn((component as any).router, 'navigate').and.stub();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const classicModespy = spyOn((component as any).classicModeService, 'initClassicMode');
         component.page = PageKeys.Selection;
         component.ngOnInit();
-        component.startSoloGame();
-        expect(spy).toHaveBeenCalled();
-    });
+        // needed to call private method
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (component as any).startSoloGame();
+        tick();
+        expect(classicModespy).toHaveBeenCalled();
+        expect(routerSpy).toHaveBeenCalledWith([options.selection.routeOne]);
+    }));
 
-    it("shouldn't call 'initClassicMode' by startSoloGame if page isn't Selection", () => {
-        const spy = spyOn(component.classicModeService, 'initClassicMode');
-        component.startSoloGame();
-        expect(spy).not.toHaveBeenCalled();
-    });
-
-    it("should call 'createGame' and set 'createJoin' to true when 'createJoinMultiGame' is called and all requirements are met", () => {
-        const spy = spyOn(component, 'createGame');
-        component.createJoin = false;
+    it("should call 'createGame' when 'createJoinMultiGame' is called and all requirements are met", () => {
+        // needed to call private method
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const spy = spyOn(component as any, 'createGame');
         component.gameExists = false;
         component.page = PageKeys.Selection;
-        component.createJoinMultiGame();
+        // needed to call private method
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (component as any).createJoinMultiGame();
         expect(spy).toHaveBeenCalled();
-        expect(component.createJoin).toBe(true);
     });
 
     it("should call 'canJoinGame' when 'createJoinMultiGame' is called and all requirements are met", () => {
-        const spy = spyOn(component, 'canJoinGame');
+        // needed to call private method
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const spy = spyOn(component as any, 'canJoinGame');
         component.gameExists = true;
         component.page = PageKeys.Selection;
-        component.createJoinMultiGame();
+        // needed to call private method
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (component as any).createJoinMultiGame();
         expect(spy).toHaveBeenCalled();
     });
 
     it("should call 'initClassicMode' and emit slide and open waiting room dialog when 'createGame' is called", () => {
-        const createWaintingRoomSpy = spyOn(component.classicModeService, 'initClassicMode');
+        // needed to call private method
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const createWaintingRoomSpy = spyOn((component as any).classicModeService, 'initClassicMode');
         const emitSpy = spyOn(component.notify, 'emit');
-        const dialogSpy = spyOn(component.dialog, 'open');
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const dialogSpy = spyOn((component as any).dialog, 'open');
         component.inputValue2 = 'test';
-        component.createGame();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (component as any).createGame();
         expect(createWaintingRoomSpy).toHaveBeenCalledWith(component.slide.name, 'test', false);
         expect(emitSpy).toHaveBeenCalledWith(component.slide);
         expect(dialogSpy).toHaveBeenCalled();
@@ -283,7 +325,9 @@ describe('GameCardComponent', () => {
 
     it('should emit the correct object when createGame is called', () => {
         const spy = spyOn(component.notify, 'emit');
-        component.createGame();
+        // needed to call private method
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (component as any).createGame();
         expect(spy).toHaveBeenCalledWith(component.slide);
     });
 
@@ -293,34 +337,44 @@ describe('GameCardComponent', () => {
             return;
         });
         component.inputValue2 = 'test';
-        component.canJoinGame();
-        expect(spy).toHaveBeenCalledWith('canJoinGame', [component.slide.name, 'test']);
+        // needed to call private method
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (component as any).canJoinGame();
+        expect(spy).toHaveBeenCalledWith('canJoinGame', { gameName: component.slide.name, username: 'test' });
     });
 
     it("should set 'applyBorder' to false and disconnectSocket when cannot join a game", () => {
-        const spy = spyOn(component.classicModeService, 'disconnectSocket');
+        // needed to call private method
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const spy = spyOn((component as any).classicModeService, 'disconnectSocket');
         component.applyBorder = true;
-        component.canJoinGame();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (component as any).canJoinGame();
         socketHelper.peerSideEmit('cannotJoinGame');
         expect(spy).toHaveBeenCalled();
         expect(component.applyBorder).toBe(false);
     });
 
     it("should set 'createJoin' to true and call 'joinGame' when you can join a game", () => {
-        const spy = spyOn(component, 'joinGame');
-        component.createJoin = false;
-        component.canJoinGame();
+        // needed to call private method
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const spy = spyOn(component as any, 'joinGame');
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (component as any).canJoinGame();
         socketHelper.peerSideEmit('canJoinGame');
         expect(spy).toHaveBeenCalled();
-        expect(component.createJoin).toBe(true);
     });
 
     it("should call 'joinWaitingRoomClassicModeMulti' and emit slide and open waiting room dialog when 'joinGame' is called", () => {
-        const joinWaintingRoomSpy = spyOn(component.classicModeService, 'joinWaitingRoomClassicModeMulti');
+        // needed to call private method
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const joinWaintingRoomSpy = spyOn((component as any).classicModeService, 'joinWaitingRoomClassicModeMulti');
         const emitSpy = spyOn(component.notify, 'emit');
-        const dialogSpy = spyOn(component.dialog, 'open');
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const dialogSpy = spyOn((component as any).dialog, 'open');
         component.inputValue2 = 'test';
-        component.joinGame();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (component as any).joinGame();
         expect(joinWaintingRoomSpy).toHaveBeenCalledWith(component.slide.name, 'test');
         expect(emitSpy).toHaveBeenCalledWith(component.slide);
         expect(dialogSpy).toHaveBeenCalled();
@@ -336,10 +390,14 @@ describe('GameCardComponent', () => {
     it('should call startSoloGame if inputValue1 is correct', () => {
         component.page = PageKeys.Selection;
         component.ngOnInit();
-        spyOn(component, 'startSoloGame');
+        // needed to call private method
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        spyOn(component as any, 'startSoloGame');
         component.inputValue1 = 'test';
         component.verifySoloInput();
-        expect(component.startSoloGame).toHaveBeenCalled();
+        // needed to call private method
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        expect((component as any).startSoloGame).toHaveBeenCalled();
     });
 
     it('should toggle the border if inputValue2 is incorrect', () => {
@@ -352,11 +410,16 @@ describe('GameCardComponent', () => {
     it('should call createJoinMultiGame and connectSocket if inputValue1 is correct', () => {
         component.page = PageKeys.Selection;
         component.ngOnInit();
-        spyOn(component.classicModeService, 'connectSocket');
-        spyOn(component, 'createJoinMultiGame');
+        // needed to call private method
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        spyOn((component as any).classicModeService, 'connectSocket');
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        spyOn(component as any, 'createJoinMultiGame');
         component.inputValue2 = 'test';
         component.verifyMultiInput();
-        expect(component.classicModeService.connectSocket).toHaveBeenCalled();
-        expect(component.createJoinMultiGame).toHaveBeenCalled();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        expect((component as any).classicModeService.connectSocket).toHaveBeenCalled();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        expect((component as any).createJoinMultiGame).toHaveBeenCalled();
     });
 });

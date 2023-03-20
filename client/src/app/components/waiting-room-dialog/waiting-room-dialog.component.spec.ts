@@ -1,17 +1,22 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// We need it to access private methods and properties in the test
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material/dialog';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
-import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
+import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
 import { of } from 'rxjs';
 import { WaitingRoomComponent } from './waiting-room-dialog.component';
+import { NgZone } from '@angular/core';
 
 describe('WaitingRoomComponent', () => {
     let component: WaitingRoomComponent;
     let fixture: ComponentFixture<WaitingRoomComponent>;
     let classicModeServiceSpy: ClassicModeService;
+    let zone: NgZone;
 
     beforeEach(async () => {
+        zone = new NgZone({ enableLongStackTrace: false });
         await TestBed.configureTestingModule({
             declarations: [WaitingRoomComponent],
             providers: [ClassicModeService, { provide: MatDialogRef, useValue: {} }],
@@ -37,29 +42,34 @@ describe('WaitingRoomComponent', () => {
 
     it('should start the game and navigate to /game when accepted$ event is triggered', () => {
         spyOn(classicModeServiceSpy, 'startGame');
-        spyOn(component.router, 'navigate');
+        spyOn((component as any).router, 'navigate');
 
         fixture.detectChanges();
         classicModeServiceSpy.accepted$.next(true);
 
         expect(component.accepted).toBe(true);
         expect(classicModeServiceSpy.startGame).toHaveBeenCalled();
-        expect(component.router.navigate).toHaveBeenCalledWith(['/game']);
+        expect((component as any).router.navigate).toHaveBeenCalledWith(['/game']);
     });
 
-    it('should display an alert, abort the game and close the component when gameCanceled$ event is triggered', () => {
+    it('should display an alert, abort the game and close the component when gameCanceled$ event is triggered', fakeAsync(() => {
         spyOn(component, 'close');
         spyOn(classicModeServiceSpy, 'abortGame');
         spyOn(window, 'alert');
+        spyOn((component as any).router, 'navigate');
 
         fixture.detectChanges();
         component.gameCanceled = false;
         classicModeServiceSpy.gameCanceled$.next(true);
-
+        zone.run(() => {
+            classicModeServiceSpy.gameCanceled$.next(true);
+        });
+        tick();
+        expect((component as any).router.navigate).toHaveBeenCalledWith(['/selection']);
         expect(window.alert).toHaveBeenCalledWith('Game canceled');
         expect(classicModeServiceSpy.abortGame).toHaveBeenCalled();
         expect(component.close).toHaveBeenCalled();
-    });
+    }));
 
     it('should call classicModeService.playerAccepted with the given player', () => {
         spyOn(classicModeServiceSpy, 'playerAccepted');
@@ -77,13 +87,13 @@ describe('WaitingRoomComponent', () => {
 
     it('should unsubscribe from all subscriptions and close the dialog', () => {
         const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['close']);
-        component.dialogRef = dialogRefSpy;
+        (component as any).dialogRef = dialogRefSpy;
         const acceptedSubscription = of(null).subscribe();
         const rejectedSubscription = of(null).subscribe();
         const gameCanceledSubscription = of(null).subscribe();
-        component.acceptedSubscription = acceptedSubscription;
-        component.rejectedSubscription = rejectedSubscription;
-        component.gameCanceledSubscription = gameCanceledSubscription;
+        (component as any).acceptedSubscription = acceptedSubscription;
+        (component as any).rejectedSubscription = rejectedSubscription;
+        (component as any).gameCanceledSubscription = gameCanceledSubscription;
 
         component.close();
 

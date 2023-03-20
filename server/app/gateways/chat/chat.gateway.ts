@@ -11,8 +11,8 @@ export class ChatGateway {
     constructor(private readonly logger: Logger) {}
 
     @SubscribeMessage(ChatEvents.SendMessage)
-    sendMessage(socket: Socket, data: [message: string, username: string, roomId: string]) {
-        this.server.to(data[2]).emit(ChatEvents.Message, { message: data[0], username: data[1] });
-        this.logger.log(`${data[1]}: ${data[0]}`);
+    sendMessage(socket: Socket, data: { message: string; username: string; roomId: string }): void {
+        this.server.to(data.roomId).emit(ChatEvents.Message, { message: data.message, username: data.username });
+        this.logger.log(`${data.username}: ${data.message}`);
     }
 }

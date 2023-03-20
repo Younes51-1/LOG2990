@@ -62,7 +62,7 @@ describe('GameService', () => {
         expect(gameModel).toBeDefined();
     });
 
-    it('getAllGames() return all games in database', async () => {
+    it('getAllGames should return all games in database', async () => {
         await gameModel.deleteMany({});
         expect(await service.getAllGames()).toEqual([]);
         const game = getFakeGame();
@@ -70,7 +70,7 @@ describe('GameService', () => {
         expect((await service.getAllGames()).length).toEqual(1);
     });
 
-    it('addGame() should add the game to the DB', async () => {
+    it('createNewGame should add the game to the DB', async () => {
         await gameModel.deleteMany({});
         const game = getFakeGameData();
         await service.createNewGame({
@@ -83,7 +83,7 @@ describe('GameService', () => {
         expect(await gameModel.countDocuments()).toEqual(1);
     });
 
-    it('addGame() shouldnt add game if database throw error', async () => {
+    it('createNewGame should not add game if the database throw an error', async () => {
         jest.spyOn(gameModel, 'create').mockImplementation(async () => Promise.reject(''));
         await gameModel.deleteMany({});
         const game = getFakeGameData();
@@ -98,7 +98,7 @@ describe('GameService', () => {
         ).rejects.toBeTruthy();
     });
 
-    it('addGame() should fail if fs.write of saveImage fails', async () => {
+    it('createNewGame should fail if fs.write of saveImage fails', async () => {
         jest.spyOn(service, 'saveImage').mockImplementation(async () => Promise.reject(''));
         await gameModel.deleteMany({});
         const game = getFakeGameData();
@@ -113,21 +113,21 @@ describe('GameService', () => {
         ).rejects.toBeTruthy();
     });
 
-    it('getGame() return game with the specified name', async () => {
+    it('getGame should return undefined if the game with the specified subject code does not exist', async () => {
+        expect(await service.getGame('FakeGame')).toEqual({});
+    });
+
+    it('getGame should return the game with the specified name', async () => {
         const game = getFakeGame();
         await gameModel.create(game);
         expect(await service.getGame(game.name)).toEqual(expect.objectContaining(getFakeGameData()));
     });
 
-    it('getGame() return undefined if game with the specified subject code does not exist', async () => {
-        expect(await service.getGame('FakeGame')).toEqual({});
-    });
-
-    it('getMatrix() should reject if file directory does not exist', async () => {
+    it('getMatrix should reject if file directory does not exist', async () => {
         await expect(service.getMatrix('WrongPathGame')).rejects.toBeTruthy();
     });
 
-    it('saveMatrix() should create new directory if directory does not exist', async () => {
+    it('saveMatrix should create new directory if directory does not exist', async () => {
         const game = getFakeGameData();
         expect(fs.existsSync('./assets/WrongPathGame')).toBeFalsy();
         service.saveMatrix({
@@ -146,10 +146,10 @@ describe('GameService', () => {
         const game = getFakeGame2();
         await gameModel.create(game);
         const getGame = await service.getGame(game.name);
-        expect(getGame.gameForm.difficulte).toEqual('Difficile');
+        expect(getGame.gameForm.difficulty).toEqual('difficile');
     });
 
-    it('deleteGame() should delete the game', async () => {
+    it('deleteGame should delete the game', async () => {
         jest.spyOn(classicModeGateway, 'cancelDeletedGame').mockImplementation();
         await gameModel.deleteMany({});
         const game = getFakeGame();
@@ -159,13 +159,13 @@ describe('GameService', () => {
         expect(classicModeGateway.cancelDeletedGame).toHaveBeenCalledWith(game.name);
     });
 
-    it('deleteGame() should fail if the game does not exist', async () => {
+    it('deleteGame should fail if the game does not exist', async () => {
         await gameModel.deleteMany({});
         const game = getFakeGame();
         await expect(service.deleteGame(game.name)).rejects.toBeTruthy();
     });
 
-    it('deleteGame() should fail if mongo query failed', async () => {
+    it('deleteGame should fail if mongo query failed', async () => {
         jest.spyOn(gameModel, 'deleteOne').mockRejectedValue('');
         const game = getFakeGame();
         await expect(service.deleteGame(game.name)).rejects.toBeTruthy();
@@ -203,7 +203,7 @@ const getFakeGameData = (): GameData => ({
         nbDifference: 5,
         image1url: `${environment.serverUrl}/FakeGame/image1.bmp`,
         image2url: `${environment.serverUrl}/FakeGame/image2.bmp`,
-        difficulte: 'Facile',
+        difficulty: 'facile',
         soloBestTimes: [new BestTime(), new BestTime(), new BestTime()],
         vsBestTimes: [new BestTime(), new BestTime(), new BestTime()],
     },

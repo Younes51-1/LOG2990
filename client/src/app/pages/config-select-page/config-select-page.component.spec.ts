@@ -1,19 +1,22 @@
-import { Location } from '@angular/common';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// We need it to access private methods and properties in the test
+import { CommonModule, Location } from '@angular/common';
 import { HttpClientModule, HttpResponse } from '@angular/common/http';
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule, NgZone } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { By } from '@angular/platform-browser';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ConfigParamsComponent } from '@app/components/config-params/config-params.component';
 import { DeleteDialogComponent } from '@app/components/delete-dialog/delete-dialog.component';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
-import { CommunicationService } from '@app/services/communicationService/communication.service';
+import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 import { of } from 'rxjs';
 import { PageKeys } from 'src/assets/variables/game-card-options';
 import { ConfigSelectPageComponent } from './config-select-page.component';
 import SpyObj = jasmine.SpyObj;
+import { GameCardComponent } from '@app/components/game-card/game-card.component';
 
 @NgModule({
     imports: [MatDialogModule, HttpClientModule],
@@ -23,8 +26,9 @@ export class DynamicTestModule {}
 describe('ConfigSelectPageComponent', () => {
     let component: ConfigSelectPageComponent;
     let fixture: ComponentFixture<ConfigSelectPageComponent>;
-    let communicationServiceSpy: SpyObj<CommunicationService>;
+    let communicationServiceSpy: SpyObj<CommunicationHttpService>;
     let dialog: MatDialog;
+    let zone: NgZone;
 
     beforeEach(async () => {
         communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getAllGames', 'deleteGame']);
@@ -58,14 +62,26 @@ describe('ConfigSelectPageComponent', () => {
                 },
             ]),
         );
+        zone = new NgZone({ enableLongStackTrace: false });
         communicationServiceSpy.deleteGame.and.returnValue(of(new HttpResponse({ status: 200 }) as HttpResponse<string>));
         dialog = jasmine.createSpyObj('MatDialog', ['open']);
         TestBed.configureTestingModule({
-            declarations: [ConfigSelectPageComponent, ConfigParamsComponent],
-            imports: [DynamicTestModule, RouterTestingModule, AppRoutingModule],
+            imports: [DynamicTestModule, RouterTestingModule, AppRoutingModule, CommonModule],
+            schemas: [CUSTOM_ELEMENTS_SCHEMA],
+            declarations: [ConfigSelectPageComponent, ConfigParamsComponent, GameCardComponent],
             providers: [
-                { provide: CommunicationService, useValue: communicationServiceSpy },
+                { provide: CommunicationHttpService, useValue: communicationServiceSpy },
                 { provide: MatDialog, useValue: dialog },
+                {
+                    provide: ActivatedRoute,
+                    useValue: {
+                        snapshot: {
+                            data: {
+                                page: 'selection',
+                            },
+                        },
+                    },
+                },
             ],
         }).compileComponents();
     });
@@ -73,6 +89,7 @@ describe('ConfigSelectPageComponent', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(ConfigSelectPageComponent);
         component = fixture.componentInstance;
+
         fixture.detectChanges();
     });
 
@@ -83,15 +100,21 @@ describe('ConfigSelectPageComponent', () => {
     it('should navigate to the configuration page when searching for the ./config URL', fakeAsync(() => {
         const router = TestBed.inject(Router);
         const location = TestBed.inject(Location);
-        router.initialNavigation();
-        router.navigate(['/config']);
+        zone.run(() => {
+            router.initialNavigation();
+        });
+        zone.run(() => {
+            router.navigate(['/config']);
+        });
         tick();
         expect(location.path()).toEqual('/config');
     }));
 
     it('should instantiate the component when navigating to /config', fakeAsync(() => {
         const router = TestBed.inject(Router);
-        router.navigate(['/config']);
+        zone.run(() => {
+            router.navigate(['/config']);
+        });
         tick();
         expect(fixture.componentInstance).toBeTruthy();
     }));
@@ -144,14 +167,14 @@ describe('ConfigSelectPageComponent', () => {
     it('should correctly initialize image if pageType is config', () => {
         component.pageType = PageKeys.Config;
         fixture.detectChanges();
-        component.initializeImgSource();
+        (component as any).initializeImgSource();
         expect(component.imgSource).toEqual('./assets/pictures/config.png');
     });
 
     it('should correctly initialize image if pageType is selection', () => {
         component.pageType = PageKeys.Selection;
         fixture.detectChanges();
-        component.initializeImgSource();
+        (component as any).initializeImgSource();
         expect(component.imgSource).toEqual('./assets/pictures/selection.png');
     });
 
@@ -159,42 +182,42 @@ describe('ConfigSelectPageComponent', () => {
         const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
         (dialog.open as jasmine.Spy).and.returnValue(dialogRefSpy);
         dialogRefSpy.afterClosed.and.returnValue(of(true));
-        spyOn(component, 'removeSlide').and.callFake(() => {
+        spyOn(component as any, 'removeSlide').and.callFake(() => {
             return;
         });
         component.pageType = PageKeys.Config;
         component.deleteNotify('Find the Differences 1');
         expect(dialog.open).toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true });
         expect(dialogRefSpy.afterClosed).toHaveBeenCalled();
-        expect(component.removeSlide).toHaveBeenCalledWith('Find the Differences 1');
+        expect((component as any).removeSlide).toHaveBeenCalledWith('Find the Differences 1');
     });
 
     it("deleteNotify shouldn't call removeSlide if PageKeys is set to Config and user responded no", () => {
         const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
         (dialog.open as jasmine.Spy).and.returnValue(dialogRefSpy);
         dialogRefSpy.afterClosed.and.returnValue(of(false));
-        spyOn(component, 'removeSlide').and.callFake(() => {
+        spyOn(component as any, 'removeSlide').and.callFake(() => {
             return;
         });
         component.pageType = PageKeys.Config;
         component.deleteNotify('Find the Differences 1');
         expect(dialog.open).toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true });
         expect(dialogRefSpy.afterClosed).toHaveBeenCalled();
-        expect(component.removeSlide).not.toHaveBeenCalledWith('Find the Differences 1');
+        expect((component as any).removeSlide).not.toHaveBeenCalledWith('Find the Differences 1');
     });
 
     it("deleteNotify shouldn't call removeSlide if PageKeys isn't set to Config", () => {
         const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
         (dialog.open as jasmine.Spy).and.returnValue(dialogRefSpy);
         dialogRefSpy.afterClosed.and.returnValue(of(false));
-        spyOn(component, 'removeSlide').and.callFake(() => {
+        spyOn(component as any, 'removeSlide').and.callFake(() => {
             return;
         });
         component.pageType = PageKeys.Selection;
         component.deleteNotify('Find the Differences 1');
         expect(dialog.open).not.toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true });
         expect(dialogRefSpy.afterClosed).not.toHaveBeenCalled();
-        expect(component.removeSlide).not.toHaveBeenCalledWith('Find the Differences 1');
+        expect((component as any).removeSlide).not.toHaveBeenCalledWith('Find the Differences 1');
     });
 
     it('should set the selected slide', () => {
@@ -206,8 +229,35 @@ describe('ConfigSelectPageComponent', () => {
 
     it('removeSlide should remove the slide from the carousel and call deleteGame', () => {
         component.pageType = PageKeys.Config;
-        component.removeSlide('Find the Differences 1');
+        (component as any).removeSlide('Find the Differences 1');
         expect(component.slides.length).toEqual(1);
         expect(communicationServiceSpy.deleteGame).toHaveBeenCalled();
+    });
+
+    it('initializeImgSource should set the image source to the correct value', () => {
+        component.pageType = PageKeys.Config;
+        (component as any).initializeImgSource();
+        expect(component.imgSource).toEqual('./assets/pictures/config.png');
+    });
+
+    it('initializeImgSource should set the image source to the correct value', () => {
+        component.pageType = PageKeys.Selection;
+        (component as any).initializeImgSource();
+        expect(component.imgSource).toEqual('./assets/pictures/selection.png');
+    });
+
+    it('getSlidesFromServer should call getAllGames and set the slides', () => {
+        component.pageType = PageKeys.Config;
+        (component as any).getSlidesFromServer();
+        expect(communicationServiceSpy.getAllGames).toHaveBeenCalled();
+        expect(component.slides.length).toEqual(2);
+    });
+
+    it('should call initializeImgSource on init', () => {
+        spyOn(component as any, 'initializeImgSource').and.callFake(() => {
+            return;
+        });
+        component.ngOnInit();
+        expect((component as any).initializeImgSource).toHaveBeenCalled();
     });
 });

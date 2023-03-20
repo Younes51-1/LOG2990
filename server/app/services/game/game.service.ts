@@ -69,8 +69,8 @@ export class GameService {
     async saveMatrix(newGame: NewGame): Promise<void> {
         const dirName = `./assets/${newGame.name}`;
         if (!fs.existsSync(dirName)) await fs.mkdirSync(dirName);
-        const matrixtoString = newGame.differenceMatrix.map((row) => row.join(',')).join(';');
-        fs.writeFile(`${dirName}/differenceMatrix.txt`, matrixtoString, () => {
+        const matrixToString = newGame.differenceMatrix.map((row) => row.join(',')).join(';');
+        fs.writeFile(`${dirName}/differenceMatrix.txt`, matrixToString, () => {
             return; // folder already exists
         });
     }
@@ -107,7 +107,7 @@ export class GameService {
         gameForm.nbDifference = game.nbDifference;
         gameForm.image1url = `${environment.serverUrl}/${game.name}/image1.bmp`;
         gameForm.image2url = `${environment.serverUrl}/${game.name}/image2.bmp`;
-        gameForm.difficulte = this.calculateDifficulty(game.nbDifference);
+        gameForm.difficulty = this.calculateDifficulty(game.nbDifference);
         gameForm.soloBestTimes = game.soloBestTimes;
         gameForm.vsBestTimes = game.vsBestTimes;
         return gameForm;
@@ -129,6 +129,6 @@ export class GameService {
     }
 
     private calculateDifficulty(nbDifference: number): string {
-        return nbDifference <= DIFFICULTY_THRESHOLD ? 'Facile' : 'Difficile';
+        return nbDifference <= DIFFICULTY_THRESHOLD ? 'facile' : 'difficile';
     }
 }

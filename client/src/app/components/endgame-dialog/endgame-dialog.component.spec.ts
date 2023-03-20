@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// We need it to access private methods and properties in the test
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
@@ -28,16 +30,16 @@ describe('EndgameDialogComponent', () => {
 
     it('should emit true if abandon click', () => {
         // eslint-disable-next-line @typescript-eslint/no-empty-function
-        component.dialogRef = { close: () => {} } as MatDialogRef<EndgameDialogComponent>;
-        const emitAbandonSpy = spyOn(component.dialogRef, 'close').and.callThrough();
+        (component as any).dialogRef = { close: () => {} } as MatDialogRef<EndgameDialogComponent>;
+        const emitAbandonSpy = spyOn((component as any).dialogRef, 'close').and.callThrough();
         component.emitAbandon(true);
         expect(emitAbandonSpy).toHaveBeenCalledWith(true);
     });
 
     it('should emit true if no abandon click', () => {
         // eslint-disable-next-line @typescript-eslint/no-empty-function
-        component.dialogRef = { close: () => {} } as MatDialogRef<EndgameDialogComponent>;
-        const emitAbandonSpy = spyOn(component.dialogRef, 'close').and.callThrough();
+        (component as any).dialogRef = { close: () => {} } as MatDialogRef<EndgameDialogComponent>;
+        const emitAbandonSpy = spyOn((component as any).dialogRef, 'close').and.callThrough();
         component.emitAbandon(false);
         expect(emitAbandonSpy).toHaveBeenCalledWith(false);
     });

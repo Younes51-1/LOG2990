@@ -48,7 +48,7 @@ describe('ChatGateway', () => {
                 expect(event).toEqual(ChatEvents.Message);
             },
         } as BroadcastOperator<unknown, unknown>);
-        gateway.sendMessage(socket, ['fake message', room.userGame.username1, room.roomId]);
+        gateway.sendMessage(socket, { message: 'fake message', username: room.userGame.username1, roomId: room.roomId });
     });
 });
 
@@ -69,7 +69,7 @@ const getFakeUserGame1 = (): UserGame => ({
             nbDifference: 2,
             image1url: `${environment.serverUrl}/FakeGame/image1.bmp`,
             image2url: `${environment.serverUrl}/FakeGame/image2.bmp`,
-            difficulte: 'Facile',
+            difficulty: 'Facile',
             soloBestTimes: [new BestTime(), new BestTime(), new BestTime()],
             vsBestTimes: [new BestTime(), new BestTime(), new BestTime()],
         },
@@ -79,6 +79,6 @@ const getFakeUserGame1 = (): UserGame => ({
 
 const getFakeGameRoom = (): GameRoom => ({
     userGame: getFakeUserGame1(),
-    roomId: 'socketid',
+    roomId: 'socketId',
     started: true,
 });

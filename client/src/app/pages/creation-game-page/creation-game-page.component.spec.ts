@@ -7,17 +7,17 @@ import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { DrawModes } from '@app/interfaces/creation-game';
 import { CreationGamePageComponent } from '@app/pages/creation-game-page/creation-game-page.component';
-import { CommunicationService } from '@app/services/communicationService/communication.service';
-import { DrawingService } from '@app/services/drawingService/drawing.service';
-import { ForegroundService } from '@app/services/foregroundService/foreground.service';
-import { ImageLoadService } from '@app/services/imageLoad/image-load.service';
+import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
+import { DrawingService } from '@app/services/drawing/drawing.service';
+import { ForegroundService } from '@app/services/foreground/foreground.service';
+import { ImageLoadService } from '@app/services/image-load/image-load.service';
 
 describe('CreationGamePageComponent', () => {
     let component: CreationGamePageComponent;
     let fixture: ComponentFixture<CreationGamePageComponent>;
     let foregroundService: ForegroundService;
     let drawingService: DrawingService;
-    let communicationService: CommunicationService;
+    let communicationService: CommunicationHttpService;
     let imageLoadService: ImageLoadService;
     let router: Router;
 
@@ -28,7 +28,7 @@ describe('CreationGamePageComponent', () => {
         });
         foregroundService = TestBed.inject(ForegroundService);
         drawingService = TestBed.inject(DrawingService);
-        communicationService = TestBed.inject(CommunicationService);
+        communicationService = TestBed.inject(CommunicationHttpService);
         imageLoadService = TestBed.inject(ImageLoadService);
         router = TestBed.inject(Router);
         fixture = TestBed.createComponent(CreationGamePageComponent);

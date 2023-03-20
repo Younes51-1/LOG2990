@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 // eslint-disable-next-line max-classes-per-file
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
-import { ComponentFixture, fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, discardPeriodicTasks, fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatToolbar } from '@angular/material/toolbar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -10,14 +11,14 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
+import { GameScoreboardComponent } from '@app/components/game-scoreboard/game-scoreboard.component';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
-import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { GameData, GameRoom } from '@app/interfaces/game';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
-import { ChatService } from '@app/services/chatService/chat.service';
-import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
-import { CommunicationService } from '@app/services/communicationService/communication.service';
-import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
+import { ChatService } from '@app/services/chat/chat.service';
+import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
+import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
+import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
 import { of } from 'rxjs';
 import { Socket } from 'socket.io-client';
 import SpyObj = jasmine.SpyObj;
@@ -40,7 +41,7 @@ describe('GamePageComponent', () => {
 
     let component: GamePageComponent;
     let fixture: ComponentFixture<GamePageComponent>;
-    let communicationServiceSpy: SpyObj<CommunicationService>;
+    let communicationServiceSpy: SpyObj<CommunicationHttpService>;
     let classicModeServiceSpy: ClassicModeService;
     let socketServiceMock: SocketClientServiceMock;
     let socketHelper: SocketTestHelper;
@@ -61,19 +62,20 @@ describe('GamePageComponent', () => {
         classicModeServiceSpy = jasmine.createSpyObj('ClassicModeService', ['timer$', 'differencesFound$', 'gameFinished$', 'userGame$']);
         socketHelper = new SocketTestHelper();
         socketServiceMock = new SocketClientServiceMock();
-        socketServiceMock.socket = socketHelper as unknown as Socket;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (socketServiceMock as any).socket = socketHelper as unknown as Socket;
         chatServiceSpy = new ChatService(socketServiceMock);
         spyOn(chatServiceSpy, 'sendMessage').and.callFake(() => {
             return;
         });
         await TestBed.configureTestingModule({
-            declarations: [GamePageComponent, SidebarComponent, MatToolbar, EndgameDialogComponent, ChatBoxComponent, PlayAreaComponent],
+            declarations: [GamePageComponent, GameScoreboardComponent, MatToolbar, EndgameDialogComponent, ChatBoxComponent, PlayAreaComponent],
             imports: [DynamicTestModule, RouterTestingModule, MatDialogModule],
             providers: [
                 ChatService,
                 ClassicModeService,
                 CommunicationSocketService,
-                CommunicationService,
+                CommunicationHttpService,
                 { provide: CommunicationSocketService, useValue: socketServiceMock },
                 { provide: ChatService, useValue: chatServiceSpy },
             ],
@@ -91,9 +93,9 @@ describe('GamePageComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should contain a sidebar', () => {
+    it('should contain a scoreboard', () => {
         fixture.detectChanges();
-        const sidebar = fixture.debugElement.nativeElement.querySelector('app-sidebar');
+        const sidebar = fixture.debugElement.nativeElement.querySelector('app-game-scoreboard');
         expect(sidebar).not.toBeNull();
     });
 
@@ -120,7 +122,7 @@ describe('GamePageComponent', () => {
     it('should subscribe to userDifferencesFound$ observable', () => {
         const testingValue = 5;
         component.gameRoom.userGame.username2 = 'user2';
-        component.differenceThreshold = 5;
+        (component as any).differenceThreshold = 5;
         classicModeServiceSpy = TestBed.inject(ClassicModeService);
         const spyDifferencesFound = spyOn(classicModeServiceSpy.userDifferencesFound$, 'subscribe').and.callThrough();
         const endGameSpy = spyOn(classicModeServiceSpy, 'endGame');
@@ -194,7 +196,7 @@ describe('GamePageComponent', () => {
         expect(component.gameRoom).toEqual(gameRoom);
         expect(component.gameName).toEqual(gameRoom.userGame.gameData.gameForm.name);
         expect(component.username).toEqual(classicModeServiceSpy.username);
-        expect(component.differenceThreshold).toEqual(gameRoom.userGame.gameData.gameForm.nbDifference / 2);
+        expect((component as any).differenceThreshold).toEqual(gameRoom.userGame.gameData.gameForm.nbDifference / 2);
     });
 
     it('should assign the corresponding threshold from gameRoom$ observable for odd differences number in multiplayer mode', () => {
@@ -208,7 +210,7 @@ describe('GamePageComponent', () => {
         expect(component.gameRoom).toEqual(gameRoom);
         expect(component.gameName).toEqual(gameRoom.userGame.gameData.gameForm.name);
         expect(component.username).toEqual(classicModeServiceSpy.username);
-        expect(component.differenceThreshold).toEqual((gameRoom.userGame.gameData.gameForm.nbDifference + 1) / 2);
+        expect((component as any).differenceThreshold).toEqual((gameRoom.userGame.gameData.gameForm.nbDifference + 1) / 2);
     });
 
     it('should assign the corresponding threshold from gameRoom$ observable solo mode', () => {
@@ -221,7 +223,7 @@ describe('GamePageComponent', () => {
         expect(component.gameRoom).toEqual(gameRoom);
         expect(component.gameName).toEqual(gameRoom.userGame.gameData.gameForm.name);
         expect(component.username).toEqual(classicModeServiceSpy.username);
-        expect(component.differenceThreshold).toEqual(gameRoom.userGame.gameData.gameForm.nbDifference);
+        expect((component as any).differenceThreshold).toEqual(gameRoom.userGame.gameData.gameForm.nbDifference);
     });
 
     it('should subscribe to abandoned$ observable', () => {
@@ -233,52 +235,62 @@ describe('GamePageComponent', () => {
     });
 
     it('should open EndgameDialogComponent with correct data if all differences found in single player mode', () => {
-        component.gameFinished = true;
+        (component as any).gameFinished = true;
         component.totalDifferencesFound = component.gameRoom.userGame.gameData.gameForm.nbDifference;
-        const matDialogSpy = spyOn(component.dialog, 'open').and.callThrough();
+        const matDialogSpy = spyOn((component as any).dialog, 'open').and.callThrough();
         component.endGame();
         expect(matDialogSpy).toHaveBeenCalledWith(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
     });
 
     it('should open EndgameDialogComponent with correct data if in multiplayer mode and winner', () => {
-        component.gameFinished = true;
+        (component as any).gameFinished = true;
         component.totalDifferencesFound = 0;
         component.gameRoom.userGame.username2 = 'test';
-        component.userDifferencesFound = component.differenceThreshold;
-        const matDialogSpy = spyOn(component.dialog, 'open').and.callThrough();
+        component.userDifferencesFound = (component as any).differenceThreshold;
+        const matDialogSpy = spyOn((component as any).dialog, 'open').and.callThrough();
         component.endGame();
         expect(matDialogSpy).toHaveBeenCalledWith(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
     });
 
+    it('should call startConfetti() if the game is won', fakeAsync(() => {
+        (component as any).gameFinished = true;
+        component.userDifferencesFound = (component as any).differenceThreshold;
+        const mockConfetti = spyOn(component as any, 'startConfetti').and.callThrough();
+        component.endGame();
+        tick(1001);
+        expect(mockConfetti).toHaveBeenCalled();
+        discardPeriodicTasks();
+    }));
+
     it('should open EndgameDialogComponent with correct data if in multiplayer mode and looser', () => {
-        component.gameFinished = true;
+        (component as any).gameFinished = true;
         component.totalDifferencesFound = 0;
         component.gameRoom.userGame.gameData.gameForm.nbDifference = 1;
         component.gameRoom.userGame.username2 = 'test';
-        component.differenceThreshold = 1;
+        (component as any).differenceThreshold = 1;
         component.userDifferencesFound = 0;
-        const matDialogSpy = spyOn(component.dialog, 'open').and.callThrough();
+        const matDialogSpy = spyOn((component as any).dialog, 'open').and.callThrough();
         component.endGame();
         expect(matDialogSpy).toHaveBeenCalledWith(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: false } });
     });
 
     it('endgame should call abandonConfirmation if game is not finished', () => {
-        const abandonConfirmationSpy = spyOn(component, 'abandonConfirmation');
+        const abandonConfirmationSpy = spyOn(component as any, 'abandonConfirmation');
         component.endGame();
         expect(abandonConfirmationSpy).toHaveBeenCalled();
     });
 
     it('should open EndgameDialogComponent and abandon game if abandon is true', fakeAsync(() => {
-        spyOn(component.dialog, 'open').and.returnValue(mockDialogRef as MatDialogRef<EndgameDialogComponent>);
-        spyOn(component.router, 'navigate');
-        spyOn(component.classicModeService, 'abandonGame');
-        spyOn(component.classicModeService, 'disconnectSocket');
-        component.abandonConfirmation();
+        spyOn((component as any).dialog, 'open').and.returnValue(mockDialogRef as MatDialogRef<EndgameDialogComponent>);
+        spyOn((component as any).router, 'navigate');
+        spyOn((component as any).classicModeService, 'abandonGame');
+        spyOn((component as any).classicModeService, 'disconnectSocket');
+        (component as any).abandonConfirmation();
         flush();
-        expect(component.dialog.open).toHaveBeenCalled();
-        expect(component.classicModeService.abandonGame).toHaveBeenCalled();
-        expect(component.classicModeService.disconnectSocket).toHaveBeenCalled();
-        expect(component.router.navigate).toHaveBeenCalledWith(['/home']);
+        expect((component as any).dialog.open).toHaveBeenCalled();
+        expect((component as any).classicModeService.abandonGame).toHaveBeenCalled();
+        expect((component as any).classicModeService.disconnectSocket).toHaveBeenCalled();
+        expect((component as any).router.navigate).toHaveBeenCalledWith(['/home']);
     }));
 
     it('should send error message in case of error', () => {
@@ -297,5 +309,30 @@ describe('GamePageComponent', () => {
         component.username = gameRoom.userGame.username1;
         component.sendEvent('abandon');
         expect(chatServiceSpy.sendMessage).toHaveBeenCalledWith(`${component.username} a abandonné la partie`, 'Système', component.gameRoom.roomId);
+    });
+
+    it('should have a button to quit the game', fakeAsync(() => {
+        const quitBtn = fixture.debugElement.nativeElement.querySelector('button');
+        const endGameSpy = spyOn(component, 'endGame');
+        quitBtn.click();
+        tick();
+        expect(endGameSpy).toHaveBeenCalled();
+    }));
+
+    it('should unsubscribe from all subscriptions on unsubscribe', () => {
+        spyOn((component as any).timerSubscription, 'unsubscribe');
+        spyOn((component as any).differencesFoundSubscription, 'unsubscribe');
+        spyOn((component as any).userDifferencesFoundSubscription, 'unsubscribe');
+        spyOn((component as any).gameFinishedSubscription, 'unsubscribe');
+        spyOn((component as any).gameRoomSubscription, 'unsubscribe');
+        spyOn((component as any).abandonedGameSubscription, 'unsubscribe');
+
+        (component as any).unsubscribe();
+        expect((component as any).timerSubscription.unsubscribe).toHaveBeenCalled();
+        expect((component as any).differencesFoundSubscription.unsubscribe).toHaveBeenCalled();
+        expect((component as any).userDifferencesFoundSubscription.unsubscribe).toHaveBeenCalled();
+        expect((component as any).gameFinishedSubscription.unsubscribe).toHaveBeenCalled();
+        expect((component as any).gameRoomSubscription.unsubscribe).toHaveBeenCalled();
+        expect((component as any).abandonedGameSubscription.unsubscribe).toHaveBeenCalled();
     });
 });

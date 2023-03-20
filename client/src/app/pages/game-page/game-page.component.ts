@@ -3,9 +3,11 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
 import { GameRoom } from '@app/interfaces/game';
-import { ChatService } from '@app/services/chatService/chat.service';
-import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
+import { ChatService } from '@app/services/chat/chat.service';
+import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
+import confetti from 'canvas-confetti';
 import { Subscription } from 'rxjs';
+import { Time } from 'src/assets/variables/time';
 
 @Component({
     selector: 'app-game-page',
@@ -19,12 +21,12 @@ export class GamePageComponent implements OnInit, OnDestroy {
     timer = 0;
     totalDifferencesFound = 0;
     userDifferencesFound = 0;
-    differenceThreshold = 0;
-    gameFinished = false;
-    abandon = false;
     gameRoom: GameRoom;
-    dialogRef: MatDialogRef<EndgameDialogComponent>;
 
+    private gameFinished = false;
+    private dialogRef: MatDialogRef<EndgameDialogComponent>;
+    private intervalId: ReturnType<typeof setInterval>;
+    private differenceThreshold = 0;
     private timerSubscription: Subscription;
     private differencesFoundSubscription: Subscription;
     private userDifferencesFoundSubscription: Subscription;
@@ -32,8 +34,14 @@ export class GamePageComponent implements OnInit, OnDestroy {
     private gameRoomSubscription: Subscription;
     private abandonedGameSubscription: Subscription;
 
+    // Need all services in constructor
     // eslint-disable-next-line max-params
-    constructor(public dialog: MatDialog, public classicModeService: ClassicModeService, private chatService: ChatService, public router: Router) {}
+    constructor(
+        private dialog: MatDialog,
+        private classicModeService: ClassicModeService,
+        private chatService: ChatService,
+        private router: Router,
+    ) {}
 
     ngOnInit() {
         this.timerSubscription = this.classicModeService.timer$.subscribe((timer: number) => {
@@ -79,6 +87,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         if (this.gameFinished) {
             if (this.userDifferencesFound === this.differenceThreshold) {
                 this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
+                this.startConfetti();
             } else {
                 this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: false } });
             }
@@ -86,25 +95,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.unsubscribe();
         } else {
             this.abandonConfirmation();
-        }
-    }
-
-    abandonConfirmation() {
-        this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: false, gameWinner: false } });
-        if (this.dialogRef) {
-            this.dialogRef.afterClosed().subscribe((abandon) => {
-                if (abandon) {
-                    this.abandon = true;
-                    this.sendEvent('abandon');
-                    this.classicModeService.abandonGame();
-                    this.unsubscribe();
-                    setTimeout(() => {
-                        this.classicModeService.disconnectSocket();
-                        this.router.navigate(['/home']);
-                        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-                    }, 1000);
-                }
-            });
         }
     }
 
@@ -122,17 +112,46 @@ export class GamePageComponent implements OnInit, OnDestroy {
         }
     }
 
-    unsubscribe() {
+    ngOnDestroy() {
+        this.classicModeService.reset();
+        this.dialog.closeAll();
+        clearInterval(this.intervalId);
+    }
+
+    private startConfetti() {
+        this.intervalId = setInterval(() => {
+            confetti({
+                particleCount: 300,
+                spread: 100,
+                origin: { y: 0.6 },
+                colors: ['#29cdff', '#78ff44', '#ff718d', '#fdff6a'],
+            });
+        }, Time.SecInMil);
+    }
+
+    private abandonConfirmation() {
+        this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: false, gameWinner: false } });
+        if (this.dialogRef) {
+            this.dialogRef.afterClosed().subscribe((abandon) => {
+                if (abandon) {
+                    this.sendEvent('abandon');
+                    this.classicModeService.abandonGame();
+                    this.unsubscribe();
+                    setTimeout(() => {
+                        this.classicModeService.disconnectSocket();
+                        this.router.navigate(['/home']);
+                    }, Time.SecInMil);
+                }
+            });
+        }
+    }
+
+    private unsubscribe() {
         this.timerSubscription.unsubscribe();
         this.differencesFoundSubscription.unsubscribe();
         this.userDifferencesFoundSubscription.unsubscribe();
         this.gameFinishedSubscription.unsubscribe();
         this.gameRoomSubscription.unsubscribe();
         this.abandonedGameSubscription.unsubscribe();
-    }
-
-    ngOnDestroy() {
-        this.classicModeService.reset();
-        this.dialog.closeAll();
     }
 }

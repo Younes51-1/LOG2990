@@ -10,7 +10,9 @@ import { Socket } from 'socket.io';
 
 class TestClassicModeService extends ClassicModeService {
     addElementToMap(key: string, value: GameRoom) {
-        this.gameRooms.set(key, value);
+        // We want to assign a value to the private field
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (this as any).gameRooms.set(key, value);
     }
 }
 
@@ -40,14 +42,14 @@ describe('ClassicModeService', () => {
         expect(service).toBeDefined();
     });
 
-    it('initRoom should create a new room with the given id', () => {
-        const roomId = 'socketid';
+    it('initNewRoom should create a new room with the given id', () => {
+        const roomId = 'socketId';
         socket.join.returns();
         service.initNewRoom(socket, getFakeUserGame(), true);
-        expect(service.gameRooms.get(roomId)).toBeDefined();
+        expect(service.getRoom(roomId)).toBeDefined();
     });
 
-    it('canJoinGame should return undefined if the game doesnt exist', () => {
+    it('canJoinGame should return undefined if the game does not exist', () => {
         expect(service.canJoinGame(socket, getFakeGameRoom().userGame.gameData.gameForm.name, 'FakeUser')).toBeUndefined();
     });
 
@@ -87,35 +89,21 @@ describe('ClassicModeService', () => {
         expect(service.canJoinGame(socket, newRoom.userGame.gameData.gameForm.name, 'FakeUser2')).toEqual(newRoom);
     });
 
-    it('JoinGame should return false if the gameName is undefined', () => {
+    it('joinGame should return false if the gameName is undefined', () => {
         expect(service.joinGame(socket, undefined, 'FakeUser2')).toEqual(false);
     });
 
-    it('JoinGame should add the player to the potentialPlayer list and return true if succeded', () => {
+    it('joinGame should add the player to the potentialPlayer list and return true if succeeded', () => {
         jest.spyOn(service, 'getGameRoom').mockImplementation(() => {
             return getFakeGameRoom();
         });
         const newRoom = getFakeGameRoom();
         testClassicModeService.addElementToMap(newRoom.roomId, newRoom);
         expect(service.joinGame(socket, newRoom.userGame.gameData.gameForm.name, 'FakeUser2')).toEqual(true);
-        expect(service.gameRooms.get(newRoom.roomId).userGame.potentielPlayers).toContain('FakeUser2');
+        expect(service.getRoom(newRoom.roomId).userGame.potentielPlayers).toContain('FakeUser2');
     });
 
-    it('isGameFinished should return true if all differences have been found', () => {
-        const newRoom = getFakeGameRoom();
-        testClassicModeService.addElementToMap(newRoom.roomId, newRoom);
-        testClassicModeService.gameRooms.get(newRoom.roomId).userGame.nbDifferenceFound = 2;
-        expect(testClassicModeService.isGameFinished(newRoom.roomId)).toBeTruthy();
-    });
-
-    it('isGameFinished should return false if not all differences have been found', () => {
-        const newRoom = getFakeGameRoom();
-        testClassicModeService.addElementToMap(newRoom.roomId, newRoom);
-        testClassicModeService.gameRooms.get(newRoom.roomId).userGame.nbDifferenceFound = 1;
-        expect(testClassicModeService.isGameFinished(newRoom.roomId)).toBeFalsy();
-    });
-
-    it('validateDifference should return true if difference is valid', () => {
+    it('validateDifference should return true if the difference is valid', () => {
         const newRoom = getFakeGameRoom();
         const position = new Vector2D();
         position.x = 1;
@@ -124,7 +112,7 @@ describe('ClassicModeService', () => {
         expect(testClassicModeService.validateDifference(newRoom.roomId, position)).toBeTruthy();
     });
 
-    it('validateDifference should return false if difference is not valid', () => {
+    it('validateDifference should return false if the difference is not valid', () => {
         const newRoom = getFakeGameRoom();
         testClassicModeService.addElementToMap(newRoom.roomId, newRoom);
         expect(testClassicModeService.validateDifference(newRoom.roomId, { x: 0, y: 0 })).toBeFalsy();
@@ -134,40 +122,76 @@ describe('ClassicModeService', () => {
         expect(testClassicModeService.validateDifference(getFakeGameRoom().roomId, { x: 0, y: 0 })).toBeFalsy();
     });
 
+    it('isGameFinished should return true if all differences have been found', () => {
+        const newRoom = getFakeGameRoom();
+        testClassicModeService.addElementToMap(newRoom.roomId, newRoom);
+        testClassicModeService.getRoom(newRoom.roomId).userGame.nbDifferenceFound = 2;
+        expect(testClassicModeService.isGameFinished(newRoom.roomId)).toBeTruthy();
+    });
+
+    it('isGameFinished should return false if not all differences have been found', () => {
+        const newRoom = getFakeGameRoom();
+        testClassicModeService.addElementToMap(newRoom.roomId, newRoom);
+        testClassicModeService.getRoom(newRoom.roomId).userGame.nbDifferenceFound = 1;
+        expect(testClassicModeService.isGameFinished(newRoom.roomId)).toBeFalsy();
+    });
+
     it('updateTimer should increment timer', () => {
         const newRoom = getFakeGameRoom();
         testClassicModeService.addElementToMap(newRoom.roomId, newRoom);
         testClassicModeService.updateTimer(newRoom);
-        expect(testClassicModeService.gameRooms.get(newRoom.roomId).userGame.timer).toEqual(1);
+        expect(testClassicModeService.getRoom(newRoom.roomId).userGame.timer).toEqual(1);
+    });
+
+    it('getRoom should return room', () => {
+        // We need to cast to any because the map is private
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (testClassicModeService as any).gameRooms = new Map();
+        const newRoom = getFakeGameRoom();
+        testClassicModeService.addElementToMap(newRoom.roomId, newRoom);
+        expect(testClassicModeService.getRoom(newRoom.roomId)).toEqual(newRoom);
+    });
+
+    it('setRoom should add room', () => {
+        // We need to cast to any because the map is private
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (testClassicModeService as any).gameRooms = new Map();
+        const newRoom = getFakeGameRoom();
+        testClassicModeService.setRoom(newRoom);
+        // We need to cast to any because the map is private
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        expect((testClassicModeService as any).gameRooms.get(newRoom.roomId)).toEqual(newRoom);
     });
 
     it('deleteRoom should delete room', () => {
-        testClassicModeService.gameRooms = new Map();
+        // We need to cast to any because the map is private
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (testClassicModeService as any).gameRooms = new Map();
         const newRoom = getFakeGameRoom();
         testClassicModeService.addElementToMap(newRoom.roomId, newRoom);
         testClassicModeService.deleteRoom(newRoom.roomId);
-        expect(testClassicModeService.gameRooms.get(newRoom.roomId)).toBeUndefined();
+        expect(testClassicModeService.getRoom(newRoom.roomId)).toBeUndefined();
     });
 
-    it('GameRoom should have be of type GameRoom', () => {
+    it('GameRoom should be of type GameRoom', () => {
         const newRoom = new GameRoom();
         expect(newRoom).toBeInstanceOf(GameRoom);
     });
 
-    it('GetGameRoom should return the gameRoom', () => {
+    it('getGameRoom should return the gameRoom', () => {
         const newRoom = getFakeGameRoom();
         testClassicModeService.addElementToMap(newRoom.roomId, newRoom);
         expect(testClassicModeService.getGameRoom(newRoom.userGame.gameData.gameForm.name)).toEqual(newRoom);
     });
 
-    it('GetGameRoom should not return the gameRoom if started is true', () => {
+    it('getGameRoom should not return the gameRoom if started is true', () => {
         const newRoom = getFakeGameRoom();
         newRoom.started = true;
         testClassicModeService.addElementToMap(newRoom.roomId, newRoom);
         expect(testClassicModeService.getGameRoom(newRoom.userGame.gameData.gameForm.name)).toEqual(undefined);
     });
 
-    it('GetGameRoom should not return undefined if no game is found', () => {
+    it('getGameRoom should not return undefined if no game is found', () => {
         expect(testClassicModeService.getGameRoom('notaRealGame')).toEqual(undefined);
     });
 });
@@ -189,7 +213,7 @@ const getFakeUserGame = (): UserGame => ({
             nbDifference: 2,
             image1url: `${environment.serverUrl}/FakeGame/image1.bmp`,
             image2url: `${environment.serverUrl}/FakeGame/image2.bmp`,
-            difficulte: 'Facile',
+            difficulty: 'Facile',
             soloBestTimes: [new BestTime(), new BestTime(), new BestTime()],
             vsBestTimes: [new BestTime(), new BestTime(), new BestTime()],
         },
@@ -199,6 +223,6 @@ const getFakeUserGame = (): UserGame => ({
 
 const getFakeGameRoom = (): GameRoom => ({
     userGame: getFakeUserGame(),
-    roomId: 'socketid',
+    roomId: 'socketId',
     started: false,
 });

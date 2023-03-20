@@ -7,7 +7,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 })
 export class EndgameDialogComponent {
     constructor(
-        public dialogRef: MatDialogRef<EndgameDialogComponent>,
+        private dialogRef: MatDialogRef<EndgameDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: { gameFinished: boolean; gameWinner: boolean },
     ) {}
 

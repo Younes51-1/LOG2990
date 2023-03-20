@@ -1,8 +1,8 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { Message } from '@app/interfaces/chat';
 import { GameRoom } from '@app/interfaces/game';
-import { ChatService } from '@app/services/chatService/chat.service';
-import { VerifyInputService } from '@app/services/verifyInput/verify-input.service';
+import { ChatService } from '@app/services/chat/chat.service';
+import { VerifyInputService } from '@app/services/verify-input/verify-input.service';
 
 @Component({
     selector: 'app-chat-box',
@@ -14,10 +14,11 @@ export class ChatBoxComponent implements OnInit {
     @Input() gameRoom: GameRoom;
     @Input() username: string;
 
+    applyBorder = false;
     message = '';
     messages: Message[] = [];
 
-    constructor(public chatService: ChatService, public verifyService: VerifyInputService) {}
+    constructor(private chatService: ChatService, private verifyService: VerifyInputService) {}
 
     ngOnInit() {
         this.chatService.message$.subscribe((message: Message) => {
@@ -30,11 +31,11 @@ export class ChatBoxComponent implements OnInit {
 
     sendMessage() {
         if (!this.verifyService.verify(this.message)) {
-            // TODO: CSS for invalid input
-            return;
+            this.applyBorder = true;
         } else {
             this.chatService.sendMessage(this.message, this.username, this.gameRoom.roomId);
             this.message = '';
+            this.applyBorder = false;
         }
     }
 

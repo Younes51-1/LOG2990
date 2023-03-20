@@ -3,9 +3,9 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { WaitingRoomComponent } from '@app/components/waiting-room-dialog/waiting-room-dialog.component';
 import { GameForm } from '@app/interfaces/game';
-import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
-import { CommunicationSocketService } from '@app/services/communicationSocket/communication-socket.service';
-import { VerifyInputService } from '@app/services/verifyInput/verify-input.service';
+import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
+import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
+import { VerifyInputService } from '@app/services/verify-input/verify-input.service';
 import { options, PageKeys } from 'src/assets/variables/game-card-options';
 
 @Component({
@@ -31,15 +31,15 @@ export class GameCardComponent implements OnInit, OnDestroy {
     inputValue1: string;
     inputValue2: string;
     gameExists = false;
-    createJoin = false;
-    dialogRef: MatDialogRef<WaitingRoomComponent>;
+    private dialogRef: MatDialogRef<WaitingRoomComponent>;
 
+    // We need to disable the max-params rule because we need to inject all the services
     // eslint-disable-next-line max-params
     constructor(
-        public classicModeService: ClassicModeService,
+        private classicModeService: ClassicModeService,
         private router: Router,
         private readonly socketService: CommunicationSocketService,
-        public dialog: MatDialog,
+        private dialog: MatDialog,
         private verifyService: VerifyInputService,
     ) {}
 
@@ -84,45 +84,8 @@ export class GameCardComponent implements OnInit, OnDestroy {
         });
     }
 
-    startSoloGame() {
-        if (this.page === PageKeys.Selection) {
-            this.classicModeService.initClassicMode(this.slide.name, this.inputValue1, true);
-            this.router.navigate([this.routeOne]);
-        }
+    deleteCard() {
         this.notify.emit(this.slide.name);
-    }
-
-    createJoinMultiGame() {
-        if (this.page === PageKeys.Selection && !this.gameExists) {
-            this.createGame();
-            this.createJoin = true;
-        } else if (this.page === PageKeys.Selection && this.gameExists) {
-            this.canJoinGame();
-        }
-    }
-
-    createGame() {
-        this.classicModeService.initClassicMode(this.slide.name, this.inputValue2, false);
-        this.notify.emit(this.slide);
-        this.dialogRef = this.dialog.open(WaitingRoomComponent, { disableClose: true, width: '80%', height: '80%' });
-    }
-
-    canJoinGame() {
-        this.socketService.send('canJoinGame', [this.slide.name, this.inputValue2]);
-        this.socketService.on('cannotJoinGame', () => {
-            this.applyBorder = false;
-            this.classicModeService.disconnectSocket();
-        });
-        this.socketService.on('canJoinGame', () => {
-            this.joinGame();
-            this.createJoin = true;
-        });
-    }
-
-    joinGame() {
-        this.classicModeService.joinWaitingRoomClassicModeMulti(this.slide.name, this.inputValue2);
-        this.notify.emit(this.slide);
-        this.dialogRef = this.dialog.open(WaitingRoomComponent, { disableClose: true, width: '80%', height: '80%' });
     }
 
     verifySoloInput() {
@@ -146,5 +109,42 @@ export class GameCardComponent implements OnInit, OnDestroy {
         if (this.dialogRef) {
             this.dialogRef.close();
         }
+    }
+
+    private startSoloGame() {
+        this.classicModeService.initClassicMode(this.slide.name, this.inputValue1, true);
+        this.router.navigate([this.routeOne]);
+        this.notify.emit(this.slide.name);
+    }
+
+    private createJoinMultiGame() {
+        if (this.gameExists) {
+            this.canJoinGame();
+        } else {
+            this.createGame();
+        }
+    }
+
+    private createGame() {
+        this.classicModeService.initClassicMode(this.slide.name, this.inputValue2, false);
+        this.notify.emit(this.slide);
+        this.dialogRef = this.dialog.open(WaitingRoomComponent, { disableClose: true, width: '80%', height: '80%' });
+    }
+
+    private canJoinGame() {
+        this.socketService.send('canJoinGame', { gameName: this.slide.name, username: this.inputValue2 });
+        this.socketService.on('cannotJoinGame', () => {
+            this.applyBorder = false;
+            this.classicModeService.disconnectSocket();
+        });
+        this.socketService.on('canJoinGame', () => {
+            this.joinGame();
+        });
+    }
+
+    private joinGame() {
+        this.classicModeService.joinWaitingRoomClassicModeMulti(this.slide.name, this.inputValue2);
+        this.notify.emit(this.slide);
+        this.dialogRef = this.dialog.open(WaitingRoomComponent, { disableClose: true, width: '80%', height: '80%' });
     }
 }

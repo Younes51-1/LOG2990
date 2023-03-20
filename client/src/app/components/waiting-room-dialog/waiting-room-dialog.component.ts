@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { ClassicModeService } from '@app/services/classicMode/classic-mode.service';
+import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -13,10 +13,11 @@ export class WaitingRoomComponent implements OnInit {
     rejected = false;
     accepted = false;
     gameCanceled = false;
-    rejectedSubscription: Subscription;
-    acceptedSubscription: Subscription;
-    gameCanceledSubscription: Subscription;
-    constructor(public classicModeService: ClassicModeService, public router: Router, public dialogRef: MatDialogRef<WaitingRoomComponent>) {}
+    private rejectedSubscription: Subscription;
+    private acceptedSubscription: Subscription;
+    private gameCanceledSubscription: Subscription;
+
+    constructor(public classicModeService: ClassicModeService, private router: Router, private dialogRef: MatDialogRef<WaitingRoomComponent>) {}
 
     ngOnInit() {
         this.rejectedSubscription = this.classicModeService.rejected$.subscribe((rejected) => {
@@ -37,6 +38,7 @@ export class WaitingRoomComponent implements OnInit {
                 alert('Game canceled');
                 this.classicModeService.abortGame();
                 this.close();
+                this.router.navigate(['/selection']);
             }
         });
     }
