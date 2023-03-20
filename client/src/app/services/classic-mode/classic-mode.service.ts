@@ -23,6 +23,7 @@ export class ClassicModeService {
     rejected$ = new Subject<boolean>();
     accepted$ = new Subject<boolean>();
     gameCanceled$ = new Subject<boolean>();
+    gameDeleted$ = new Subject<boolean>();
     abandoned$ = new Subject<string>();
 
     private canSendValidate = true;

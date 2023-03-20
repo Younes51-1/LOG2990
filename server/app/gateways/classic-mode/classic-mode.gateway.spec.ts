@@ -258,9 +258,30 @@ describe('ClassicModeGateway', () => {
         expect(abortGameCreationSpy).toHaveBeenCalled();
     });
 
+    it("abortGameCreation shouldn't emit gameCreationAborted if gameRoom doesn't exist", () => {
+        const abortGameCreationSpy = jest.spyOn(classicModeService, 'deleteRoom').mockImplementation();
+        server.to.returns({
+            emit: (event: string, gameName: string) => {
+                expect(event).toEqual(ClassicModeEvents.GameDeleted);
+                expect(gameName).toEqual(getFakeGameRoom().userGame.gameData.gameForm.name);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        server.to.returns({
+            emit: (event: string, gameName: string) => {
+                expect(event).toEqual(ClassicModeEvents.GameCanceled);
+                expect(gameName).toEqual(getFakeGameRoom().userGame.gameData.gameForm.name);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        jest.spyOn(classicModeService, 'getRoom').mockImplementation(() => {
+            return undefined;
+        });
+        gateway.abortGameCreation(socket);
+        expect(abortGameCreationSpy).not.toHaveBeenCalled();
+    });
+
     it('leaveGame should emit gameInfo with the game info if the user did leave', () => {
         const room = getFakeGameRoom();
-        room.userGame.potentialPlayers = ['fakeUsername2'];
+        room.userGame.potentielPlayers = ['fakeUsername2'];
         server.to.returns({
             emit: (event: string, gameInfo: GameRoom) => {
                 expect(event).toEqual(ClassicModeEvents.GameInfo);
@@ -271,12 +292,27 @@ describe('ClassicModeGateway', () => {
             return room;
         });
         gateway.leaveGame(socket, { roomId: getFakeGameRoom().roomId, username: 'fakeUsername2' });
-        expect(classicModeService.getRoom(getFakeGameRoom().roomId).userGame.potentialPlayers).toEqual([]);
+        expect(classicModeService.getRoom(getFakeGameRoom().roomId).userGame.potentielPlayers).toEqual([]);
+    });
+
+    it("leaveGame shouldn't emit gameInfo with the game info if gameRoom is undefined", () => {
+        const room = getFakeGameRoom();
+        room.userGame.potentielPlayers = ['fakeUsername2'];
+        server.to.returns({
+            emit: (event: string, gameInfo: GameRoom) => {
+                expect(event).toEqual(ClassicModeEvents.GameInfo);
+                expect(gameInfo).toEqual(getFakeGameRoom());
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        jest.spyOn(classicModeService, 'getRoom').mockImplementation(() => {
+            return undefined;
+        });
+        gateway.leaveGame(socket, { roomId: getFakeGameRoom().roomId, username: 'fakeUsername2' });
     });
 
     it('playerRejected should emit PlayerRejected with the game room', () => {
         const room = getFakeGameRoom();
-        room.userGame.potentialPlayers = ['fakeUsername2'];
+        room.userGame.potentielPlayers = ['fakeUsername2'];
         server.to.returns({
             emit: (event: string, gameInfo: GameRoom) => {
                 expect(event).toEqual(ClassicModeEvents.PlayerRejected);
@@ -287,12 +323,12 @@ describe('ClassicModeGateway', () => {
             return room;
         });
         gateway.playerRejected(socket, { roomId: getFakeGameRoom().roomId, username: 'fakeUsername2' });
-        expect(classicModeService.getRoom(getFakeGameRoom().roomId).userGame.potentialPlayers).toEqual([]);
+        expect(classicModeService.getRoom(getFakeGameRoom().roomId).userGame.potentielPlayers).toEqual([]);
     });
 
     it('playerAccepted should emit PlayerAccepted with the game room', () => {
         const room = getFakeGameRoom();
-        room.userGame.potentialPlayers = [];
+        room.userGame.potentielPlayers = [];
         room.userGame.username2 = 'fakeUsername2';
         room.started = true;
         server.to.returns({
@@ -305,7 +341,7 @@ describe('ClassicModeGateway', () => {
             return room;
         });
         gateway.playerAccepted(socket, { roomId: getFakeGameRoom().roomId, username: 'fakeUsername2' });
-        expect(classicModeService.getRoom(getFakeGameRoom().roomId).userGame.potentialPlayers).toEqual(room.userGame.potentialPlayers);
+        expect(classicModeService.getRoom(getFakeGameRoom().roomId).userGame.potentielPlayers).toEqual(room.userGame.potentielPlayers);
     });
 
     it('afterInit should have created an interval to emit time', () => {
@@ -365,7 +401,7 @@ const getFakeUserGame1 = (): UserGame => ({
     username1: 'FakeUser',
     nbDifferenceFound: 0,
     timer: 0,
-    potentialPlayers: [],
+    potentielPlayers: [],
     gameData: {
         differenceMatrix: [
             [-1, -1, -1],

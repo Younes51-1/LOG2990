@@ -13,9 +13,9 @@ export class WaitingRoomComponent implements OnInit {
     rejected = false;
     accepted = false;
     gameCanceled = false;
-    rejectedSubscription: Subscription;
-    acceptedSubscription: Subscription;
-    gameCanceledSubscription: Subscription;
+    private rejectedSubscription: Subscription;
+    private acceptedSubscription: Subscription;
+    private gameCanceledSubscription: Subscription;
 
     constructor(public classicModeService: ClassicModeService, private router: Router, private dialogRef: MatDialogRef<WaitingRoomComponent>) {}
 
@@ -38,6 +38,7 @@ export class WaitingRoomComponent implements OnInit {
                 alert('Game canceled');
                 this.classicModeService.abortGame();
                 this.close();
+                this.router.navigate(['/selection']);
             }
         });
     }

@@ -340,7 +340,7 @@ describe('GameCardComponent', () => {
         // needed to call private method
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (component as any).canJoinGame();
-        expect(spy).toHaveBeenCalledWith('canJoinGame', [component.slide.name, 'test']);
+        expect(spy).toHaveBeenCalledWith('canJoinGame', { gameName: component.slide.name, username: 'test' });
     });
 
     it("should set 'applyBorder' to false and disconnectSocket when cannot join a game", () => {

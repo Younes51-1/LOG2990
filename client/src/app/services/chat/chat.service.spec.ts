@@ -27,7 +27,7 @@ describe('ChatService', () => {
 
     it('should send message', () => {
         chatService.sendMessage('hello', 'user', 'room');
-        expect(socketService.send).toHaveBeenCalledWith('sendMessage', ['hello', 'user', 'room']);
+        expect(socketService.send).toHaveBeenCalledWith('sendMessage', { message: 'hello', username: 'user', roomId: 'room' });
     });
 
     it('should set isTyping', () => {

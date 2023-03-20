@@ -20,7 +20,7 @@ export class ChatService {
     }
 
     sendMessage(message: string, username: string, roomId: string): void {
-        this.socketService.send('sendMessage', [message, username, roomId]);
+        this.socketService.send('sendMessage', { message, username, roomId });
     }
 
     setIsTyping(value: boolean): void {

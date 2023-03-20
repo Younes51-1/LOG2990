@@ -132,7 +132,7 @@ export class GameCardComponent implements OnInit, OnDestroy {
     }
 
     private canJoinGame() {
-        this.socketService.send('canJoinGame', [this.slide.name, this.inputValue2]);
+        this.socketService.send('canJoinGame', { gameName: this.slide.name, username: this.inputValue2 });
         this.socketService.on('cannotJoinGame', () => {
             this.applyBorder = false;
             this.classicModeService.disconnectSocket();

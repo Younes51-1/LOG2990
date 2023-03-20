@@ -9,7 +9,7 @@ export class UserGame {
     username2?: string;
 
     @ApiProperty()
-    potentialPlayers: string[];
+    potentielPlayers: string[];
 
     @ApiProperty()
     gameData: GameData;

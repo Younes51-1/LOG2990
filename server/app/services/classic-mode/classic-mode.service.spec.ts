@@ -63,7 +63,7 @@ describe('ClassicModeService', () => {
     it('canJoinGame should return undefined if the player is the user 1', () => {
         jest.spyOn(service, 'getGameRoom').mockImplementation(() => {
             const room = getFakeGameRoom();
-            room.userGame.potentialPlayers = undefined;
+            room.userGame.potentielPlayers = undefined;
             return room;
         });
         const newRoom = getFakeGameRoom();
@@ -74,7 +74,7 @@ describe('ClassicModeService', () => {
     it('canJoinGame should return undefined if the user is already in the potentialPlayer list', () => {
         jest.spyOn(service, 'getGameRoom').mockImplementation(() => {
             const newRoom = getFakeGameRoom();
-            newRoom.userGame.potentialPlayers.push('FakeUser2');
+            newRoom.userGame.potentielPlayers.push('FakeUser2');
             return newRoom;
         });
         expect(service.canJoinGame(socket, getFakeGameRoom().userGame.gameData.gameForm.name, 'FakeUser2')).toBeUndefined();
@@ -100,7 +100,7 @@ describe('ClassicModeService', () => {
         const newRoom = getFakeGameRoom();
         testClassicModeService.addElementToMap(newRoom.roomId, newRoom);
         expect(service.joinGame(socket, newRoom.userGame.gameData.gameForm.name, 'FakeUser2')).toEqual(true);
-        expect(service.getRoom(newRoom.roomId).userGame.potentialPlayers).toContain('FakeUser2');
+        expect(service.getRoom(newRoom.roomId).userGame.potentielPlayers).toContain('FakeUser2');
     });
 
     it('validateDifference should return true if the difference is valid', () => {
@@ -201,7 +201,7 @@ const getFakeUserGame = (): UserGame => ({
     username1: 'FakeUser',
     nbDifferenceFound: 0,
     timer: 0,
-    potentialPlayers: [],
+    potentielPlayers: [],
     gameData: {
         differenceMatrix: [
             [-1, -1, -1],
