@@ -105,6 +105,7 @@ describe('DrawingService', () => {
         const spyPushToUndoStack = spyOn(service, 'pushToUndoStack').and.callFake(() => {
             return;
         });
+        (service as any).component.drawMode = DrawModes.RECTANGLE;
         (service as any).component.currentCanvas = canvas;
         service.handleCanvasEvent('mousedown', event, canvas);
         expect(spy).toHaveBeenCalled();
