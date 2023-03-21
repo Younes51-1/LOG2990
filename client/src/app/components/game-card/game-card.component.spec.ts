@@ -343,7 +343,7 @@ describe('GameCardComponent', () => {
         expect(spy).toHaveBeenCalledWith('canJoinGame', { gameName: component.slide.name, username: 'test' });
     });
 
-    it("should set 'applyBorder' to false and disconnectSocket when cannot join a game", () => {
+    it("should set 'applyBorder' to true and disconnectSocket when cannot join a game", () => {
         // needed to call private method
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const spy = spyOn((component as any).classicModeService, 'disconnectSocket');
@@ -352,7 +352,7 @@ describe('GameCardComponent', () => {
         (component as any).canJoinGame();
         socketHelper.peerSideEmit('cannotJoinGame');
         expect(spy).toHaveBeenCalled();
-        expect(component.applyBorder).toBe(false);
+        expect(component.applyBorder).toBe(true);
     });
 
     it("should set 'createJoin' to true and call 'joinGame' when you can join a game", () => {
