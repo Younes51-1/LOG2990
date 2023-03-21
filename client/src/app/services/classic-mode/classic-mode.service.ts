@@ -220,7 +220,7 @@ export class ClassicModeService {
                 gameRoom &&
                 gameRoom.userGame.username1 !== this.username &&
                 gameRoom.userGame.username2 !== this.username &&
-                !gameRoom.userGame.potentielPlayers?.includes(this.username)
+                !gameRoom.userGame.potentialPlayers?.includes(this.username)
             ) {
                 this.rejected$.next(true);
             } else if (gameRoom) {

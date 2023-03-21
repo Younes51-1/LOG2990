@@ -3,14 +3,14 @@
     <h2 *ngIf="classicModeService.gameRoom?.userGame?.username1 === classicModeService?.username">CRÉATION DU JEU</h2>
     <h2 *ngIf="classicModeService.gameRoom?.userGame?.username1 !== classicModeService?.username">JOINDRE</h2>
     <div *ngIf="classicModeService.gameRoom?.userGame?.username1 === classicModeService?.username">
-        <p class="waiting" *ngIf="classicModeService.gameRoom?.userGame?.potentielPlayers">Joueurs en attente : </p>
-        <p class="waiting" *ngFor="let player of classicModeService.gameRoom?.userGame?.potentielPlayers">
-            {{player}} 
+        <p class="waiting" *ngIf="classicModeService.gameRoom?.userGame?.potentialPlayers">Joueurs en attente : </p>
+        <p class="waiting" *ngFor="let player of classicModeService.gameRoom?.userGame?.potentialPlayers">
+            {{player}}
             <button (click)="playerAccepted(player)">Accepter</button>
             <button (click)="playerRejected(player)">Refuser</button>
         </p>
         <div
-            *ngIf="!classicModeService.gameRoom?.userGame?.potentielPlayers || classicModeService.gameRoom?.userGame?.potentielPlayers!.length === 0">
+            *ngIf="!classicModeService.gameRoom?.userGame?.potentialPlayers || classicModeService.gameRoom?.userGame?.potentialPlayers!.length === 0">
             <div class="wrapper">
                 <div class="circle"></div>
                 <div class="circle"></div>

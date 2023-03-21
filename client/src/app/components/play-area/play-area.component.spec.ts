@@ -36,7 +36,7 @@ describe('PlayAreaComponent', () => {
         nbDifference: 0,
         image1url: 'https://picsum.photos/402',
         image2url: 'https://picsum.photos/204',
-        difficulte: '',
+        difficulty: '',
         soloBestTimes: [],
         vsBestTimes: [],
     };

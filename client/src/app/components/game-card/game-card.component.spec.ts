@@ -2,8 +2,9 @@
 // eslint-disable-next-line max-classes-per-file
 import { OverlayModule } from '@angular/cdk/overlay';
 import { HttpClientModule } from '@angular/common/http';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { NgModule } from '@angular/core';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialog, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -18,7 +19,6 @@ import { of } from 'rxjs';
 import { Socket } from 'socket.io-client';
 import { options, PageKeys } from 'src/assets/variables/game-card-options';
 import SpyObj = jasmine.SpyObj;
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 @NgModule({
     imports: [HttpClientModule, OverlayModule, MatDialogModule, BrowserAnimationsModule],
@@ -32,7 +32,7 @@ class SocketClientServiceMock extends CommunicationSocketService {
 
 describe('GameCardComponent', () => {
     const differenceMatrix: number[][] = [[]];
-    const gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulte: '', soloBestTimes: [], vsBestTimes: [] };
+    const gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulty: '', soloBestTimes: [], vsBestTimes: [] };
     const gameData: GameData = { gameForm, differenceMatrix };
 
     let component: GameCardComponent;
@@ -86,7 +86,7 @@ describe('GameCardComponent', () => {
             nbDifference: 10,
             image1url: 'https://example.com/image1.jpg',
             image2url: 'https://example.com/image2.jpg',
-            difficulte: 'easy',
+            difficulty: 'easy',
             soloBestTimes: [
                 { name: 'player1', time: 200 },
                 { name: 'player2', time: 150 },
@@ -115,7 +115,7 @@ describe('GameCardComponent', () => {
     });
 
     it('slide should have difficulte', () => {
-        expect(component.slide.difficulte).toBeTruthy();
+        expect(component.slide.difficulty).toBeTruthy();
     });
 
     it('should have three best solo scores', () => {

@@ -33,7 +33,7 @@ describe('ImageLoadService', () => {
             nbDifference: 10,
             image1url: 'https://example.com/image1.jpg',
             image2url: 'https://example.com/image2.jpg',
-            difficulte: 'easy',
+            difficulty: 'easy',
             soloBestTimes: [
                 { name: 'player1', time: 200 },
                 { name: 'player2', time: 150 },
@@ -49,7 +49,7 @@ describe('ImageLoadService', () => {
                     nbDifference: 10,
                     image1url: 'https://example.com/image1.jpg',
                     image2url: 'https://example.com/image2.jpg',
-                    difficulte: 'easy',
+                    difficulty: 'easy',
                     soloBestTimes: [
                         { name: 'player1', time: 200 },
                         { name: 'player2', time: 150 },
@@ -61,7 +61,7 @@ describe('ImageLoadService', () => {
                     nbDifference: 15,
                     image1url: 'https://example.com/image3.jpg',
                     image2url: 'https://example.com/image4.jpg',
-                    difficulte: 'medium',
+                    difficulty: 'medium',
                     soloBestTimes: [
                         { name: 'player3', time: 300 },
                         { name: 'player4', time: 250 },

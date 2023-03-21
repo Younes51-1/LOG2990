@@ -10,7 +10,7 @@ export interface UserGame {
     nbDifferenceFound: number;
     nbDifferenceFound2?: number;
     timer: number;
-    potentielPlayers?: string[];
+    potentialPlayers?: string[];
 }
 
 export interface GameForm {
@@ -18,7 +18,7 @@ export interface GameForm {
     nbDifference: number;
     image1url: string;
     image2url: string;
-    difficulte: string;
+    difficulty: string;
     soloBestTimes: BestTime[];
     vsBestTimes: BestTime[];
     isSelected?: boolean;

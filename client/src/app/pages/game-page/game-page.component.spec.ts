@@ -54,7 +54,7 @@ describe('GamePageComponent', () => {
 
     beforeEach(async () => {
         differenceMatrix = [[]];
-        gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulte: '', soloBestTimes: [], vsBestTimes: [] };
+        gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulty: '', soloBestTimes: [], vsBestTimes: [] };
         gameData = { gameForm, differenceMatrix };
         gameRoom = { userGame: { gameData, nbDifferenceFound: 0, timer: 0, username1: 'Test' }, roomId: 'fakeId', started: false };
         communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getGame']);

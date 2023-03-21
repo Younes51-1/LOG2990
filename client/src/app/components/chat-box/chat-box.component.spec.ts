@@ -3,11 +3,11 @@ import { NgModule } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
+import { Message } from '@app/interfaces/chat';
+import { GameData, GameRoom } from '@app/interfaces/game';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { ChatService } from '@app/services/chat/chat.service';
 import { VerifyInputService } from '@app/services/verify-input/verify-input.service';
-import { Message } from '@app/interfaces/chat';
-import { GameData, GameRoom } from '@app/interfaces/game';
 
 @NgModule({
     imports: [MatDialogModule, HttpClientModule],
@@ -33,7 +33,7 @@ describe('ChatBoxComponent', () => {
 
     beforeEach(() => {
         differenceMatrix = [[]];
-        gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulte: '', soloBestTimes: [], vsBestTimes: [] };
+        gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulty: '', soloBestTimes: [], vsBestTimes: [] };
         gameData = { gameForm, differenceMatrix };
         gameRoom = { userGame: { gameData, nbDifferenceFound: 0, timer: 0, username1: 'Test' }, roomId: 'fakeId', started: false };
         messageStub = { message: 'message', username: 'username', time: 0 };

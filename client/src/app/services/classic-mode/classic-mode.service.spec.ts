@@ -41,7 +41,7 @@ describe('ClassicModeService', () => {
 
     beforeEach(() => {
         differenceMatrix = [[]];
-        gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulte: '', soloBestTimes: [], vsBestTimes: [] };
+        gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulty: '', soloBestTimes: [], vsBestTimes: [] };
         gameData = { gameForm, differenceMatrix };
         gameRoom = { userGame: { gameData, nbDifferenceFound: 0, timer: 0, username1: 'Test' }, roomId: 'fakeId', started: false };
         differenceTry = { validated: true, differencePos: { x: 0, y: 0 }, username: 'Test' };
@@ -285,7 +285,7 @@ describe('ClassicModeService', () => {
 
     it('should handle playerRejected if differents players still in potentielPlayers', () => {
         service.username = 'differentUsername';
-        gameRoom.userGame.potentielPlayers = ['myusername', 'anotherDifferentUsername'];
+        gameRoom.userGame.potentialPlayers = ['myusername', 'anotherDifferentUsername'];
         socketHelper.peerSideEmit('playerRejected', gameRoom);
         expect(service.rejected$).toBeTruthy();
     });

@@ -10,13 +10,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ConfigParamsComponent } from '@app/components/config-params/config-params.component';
 import { DeleteDialogComponent } from '@app/components/delete-dialog/delete-dialog.component';
+import { GameCardComponent } from '@app/components/game-card/game-card.component';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
+import { ConfigSelectPageComponent } from '@app/pages/config-select-page/config-select-page.component';
 import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 import { of } from 'rxjs';
 import { PageKeys } from 'src/assets/variables/game-card-options';
-import { ConfigSelectPageComponent } from '@app/pages/config-select-page/config-select-page.component';
 import SpyObj = jasmine.SpyObj;
-import { GameCardComponent } from '@app/components/game-card/game-card.component';
 
 @NgModule({
     imports: [MatDialogModule, HttpClientModule],
@@ -39,7 +39,7 @@ describe('ConfigSelectPageComponent', () => {
                     nbDifference: 10,
                     image1url: 'https://example.com/image1.jpg',
                     image2url: 'https://example.com/image2.jpg',
-                    difficulte: 'easy',
+                    difficulty: 'easy',
                     soloBestTimes: [
                         { name: 'player1', time: 200 },
                         { name: 'player2', time: 150 },
@@ -52,7 +52,7 @@ describe('ConfigSelectPageComponent', () => {
                     nbDifference: 15,
                     image1url: 'https://example.com/image3.jpg',
                     image2url: 'https://example.com/image4.jpg',
-                    difficulte: 'medium',
+                    difficulty: 'medium',
                     soloBestTimes: [
                         { name: 'player3', time: 300 },
                         { name: 'player4', time: 250 },
