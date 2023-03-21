@@ -115,7 +115,7 @@ export class DrawingService {
     }
 
     private updateCanvas1Display() {
-        if (!this.component.urlPath1 || this.component.urlPath1 === '') {
+        if (!this.component.urlPath1 || this.component.urlPath1.trim() === '') {
             this.component.context1.fillStyle = 'white';
             this.component.context1.fillRect(0, 0, this.width, this.height);
             this.component.context1.drawImage(this.component.canvasForeground1, 0, 0, this.width, this.height);
@@ -125,7 +125,7 @@ export class DrawingService {
     }
 
     private updateCanvas2Display() {
-        if (!this.component.urlPath2 || this.component.urlPath2 === '') {
+        if (!this.component.urlPath2 || this.component.urlPath2.trim() === '') {
             this.component.context2.fillStyle = 'white';
             this.component.context2.fillRect(0, 0, this.width, this.height);
             this.component.context2.drawImage(this.component.canvasForeground2, 0, 0, this.width, this.height);
