@@ -3,7 +3,7 @@ import { environment } from '@app/environments/environment.prod';
 import { ClassicModeGateway } from '@app/gateways/classic-mode/classic-mode.gateway';
 import { Game, GameDocument, gameSchema } from '@app/model/database/game';
 import { GameData } from '@app/model/dto/game/game-data.dto';
-import { BestTime } from '@app/model/schema/best-time.schema';
+import { BestTime } from '@app/model/schema/best-times.schema';
 import { GameService } from '@app/services/game/game.service';
 import { getConnectionToken, getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';

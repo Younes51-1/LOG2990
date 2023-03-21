@@ -1,4 +1,4 @@
-import { BestTime } from '@app/model/schema/best-time.schema';
+import { BestTime } from '@app/model/schema/best-times.schema';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document } from 'mongoose';
