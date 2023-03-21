@@ -18,7 +18,7 @@ describe('VerifyInputService', () => {
     });
 
     it('should return false when input is an empty string', () => {
-        const input = service.verify('');
+        const input = service.verify(' ');
         expect(input).toBe(false);
     });
 
