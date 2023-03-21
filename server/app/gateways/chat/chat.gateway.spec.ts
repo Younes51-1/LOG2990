@@ -57,7 +57,7 @@ const getFakeUserGame1 = (): UserGame => ({
     username1: 'FakeUser',
     nbDifferenceFound: 0,
     timer: 0,
-    potentielPlayers: [],
+    potentialPlayers: [],
     gameData: {
         differenceMatrix: [
             [-1, -1, -1],

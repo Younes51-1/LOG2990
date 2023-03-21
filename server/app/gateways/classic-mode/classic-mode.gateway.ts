@@ -98,7 +98,7 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
         const gameRoom = this.classicModeService.getRoom(playerInfo.roomId);
         if (!gameRoom) return;
         this.logger.log(`${playerInfo.username} left the game: ${gameRoom.userGame.gameData.gameForm.name}`);
-        gameRoom.userGame.potentielPlayers = gameRoom.userGame.potentielPlayers.filter((player) => player !== playerInfo.username);
+        gameRoom.userGame.potentialPlayers = gameRoom.userGame.potentialPlayers.filter((player) => player !== playerInfo.username);
         this.classicModeService.setRoom(gameRoom);
         this.server.to(gameRoom.roomId).emit(ClassicModeEvents.GameInfo, gameRoom);
     }
@@ -108,7 +108,7 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
         const gameRoom = this.classicModeService.getRoom(playerInfo.roomId);
         if (gameRoom) {
             this.logger.log(`${playerInfo.roomId} rejected from game: ${gameRoom.userGame.gameData.gameForm.name}`);
-            gameRoom.userGame.potentielPlayers = gameRoom.userGame.potentielPlayers.filter((player) => player !== playerInfo.username);
+            gameRoom.userGame.potentialPlayers = gameRoom.userGame.potentialPlayers.filter((player) => player !== playerInfo.username);
             this.classicModeService.setRoom(gameRoom);
             this.server.to(gameRoom.roomId).emit(ClassicModeEvents.PlayerRejected, gameRoom);
         }
@@ -119,7 +119,7 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
         const gameRoom = this.classicModeService.getRoom(playerInfo.roomId);
         if (gameRoom) {
             this.logger.log(`${playerInfo.username} accepted in game:  ${gameRoom.userGame.gameData.gameForm.name}`);
-            gameRoom.userGame.potentielPlayers = [];
+            gameRoom.userGame.potentialPlayers = [];
             gameRoom.userGame.username2 = playerInfo.username;
             gameRoom.started = true;
             this.classicModeService.setRoom(gameRoom);

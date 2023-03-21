@@ -283,7 +283,7 @@ describe('ClassicModeService', () => {
         expect(service.rejected$).toBeTruthy();
     });
 
-    it('should handle playerRejected if differents players still in potentielPlayers', () => {
+    it('should handle playerRejected if differents players still in potentialPlayers', () => {
         service.username = 'differentUsername';
         gameRoom.userGame.potentialPlayers = ['myusername', 'anotherDifferentUsername'];
         socketHelper.peerSideEmit('playerRejected', gameRoom);

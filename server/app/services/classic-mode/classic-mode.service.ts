@@ -19,13 +19,13 @@ export class ClassicModeService {
     canJoinGame(socket: Socket, gameName: string, userName: string): GameRoom {
         const gameRoom = this.getGameRoom(gameName);
         if (!gameRoom) return undefined;
-        if (!gameRoom.userGame.potentielPlayers) {
-            gameRoom.userGame.potentielPlayers = [];
+        if (!gameRoom.userGame.potentialPlayers) {
+            gameRoom.userGame.potentialPlayers = [];
         }
         if (gameRoom.userGame.username1.toLowerCase() === userName.toLowerCase()) {
             return undefined;
         }
-        if (gameRoom.userGame.potentielPlayers.some((player) => player.toLowerCase() === userName.toLowerCase())) {
+        if (gameRoom.userGame.potentialPlayers.some((player) => player.toLowerCase() === userName.toLowerCase())) {
             return undefined;
         }
         return gameRoom;
@@ -34,7 +34,7 @@ export class ClassicModeService {
     joinGame(socket: Socket, gameName: string, userName: string): boolean {
         const gameRoom = this.getGameRoom(gameName);
         if (!gameName) return false;
-        gameRoom.userGame.potentielPlayers.push(userName);
+        gameRoom.userGame.potentialPlayers.push(userName);
         this.setRoom(gameRoom);
         socket.join(gameRoom.roomId);
         return true;

@@ -281,7 +281,7 @@ describe('ClassicModeGateway', () => {
 
     it('leaveGame should emit gameInfo with the game info if the user did leave', () => {
         const room = getFakeGameRoom();
-        room.userGame.potentielPlayers = ['fakeUsername2'];
+        room.userGame.potentialPlayers = ['fakeUsername2'];
         server.to.returns({
             emit: (event: string, gameInfo: GameRoom) => {
                 expect(event).toEqual(ClassicModeEvents.GameInfo);
@@ -292,12 +292,12 @@ describe('ClassicModeGateway', () => {
             return room;
         });
         gateway.leaveGame(socket, { roomId: getFakeGameRoom().roomId, username: 'fakeUsername2' });
-        expect(classicModeService.getRoom(getFakeGameRoom().roomId).userGame.potentielPlayers).toEqual([]);
+        expect(classicModeService.getRoom(getFakeGameRoom().roomId).userGame.potentialPlayers).toEqual([]);
     });
 
     it("leaveGame shouldn't emit gameInfo with the game info if gameRoom is undefined", () => {
         const room = getFakeGameRoom();
-        room.userGame.potentielPlayers = ['fakeUsername2'];
+        room.userGame.potentialPlayers = ['fakeUsername2'];
         server.to.returns({
             emit: (event: string, gameInfo: GameRoom) => {
                 expect(event).toEqual(ClassicModeEvents.GameInfo);
@@ -312,7 +312,7 @@ describe('ClassicModeGateway', () => {
 
     it('playerRejected should emit PlayerRejected with the game room', () => {
         const room = getFakeGameRoom();
-        room.userGame.potentielPlayers = ['fakeUsername2'];
+        room.userGame.potentialPlayers = ['fakeUsername2'];
         server.to.returns({
             emit: (event: string, gameInfo: GameRoom) => {
                 expect(event).toEqual(ClassicModeEvents.PlayerRejected);
@@ -323,12 +323,12 @@ describe('ClassicModeGateway', () => {
             return room;
         });
         gateway.playerRejected(socket, { roomId: getFakeGameRoom().roomId, username: 'fakeUsername2' });
-        expect(classicModeService.getRoom(getFakeGameRoom().roomId).userGame.potentielPlayers).toEqual([]);
+        expect(classicModeService.getRoom(getFakeGameRoom().roomId).userGame.potentialPlayers).toEqual([]);
     });
 
     it('playerAccepted should emit PlayerAccepted with the game room', () => {
         const room = getFakeGameRoom();
-        room.userGame.potentielPlayers = [];
+        room.userGame.potentialPlayers = [];
         room.userGame.username2 = 'fakeUsername2';
         room.started = true;
         server.to.returns({
@@ -341,7 +341,7 @@ describe('ClassicModeGateway', () => {
             return room;
         });
         gateway.playerAccepted(socket, { roomId: getFakeGameRoom().roomId, username: 'fakeUsername2' });
-        expect(classicModeService.getRoom(getFakeGameRoom().roomId).userGame.potentielPlayers).toEqual(room.userGame.potentielPlayers);
+        expect(classicModeService.getRoom(getFakeGameRoom().roomId).userGame.potentialPlayers).toEqual(room.userGame.potentialPlayers);
     });
 
     it('afterInit should have created an interval to emit time', () => {
@@ -401,7 +401,7 @@ const getFakeUserGame1 = (): UserGame => ({
     username1: 'FakeUser',
     nbDifferenceFound: 0,
     timer: 0,
-    potentielPlayers: [],
+    potentialPlayers: [],
     gameData: {
         differenceMatrix: [
             [-1, -1, -1],
