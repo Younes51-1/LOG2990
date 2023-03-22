@@ -1,0 +1,36 @@
+<div id="container">
+    <div class="cards">
+        <div class="card">
+            <div class="front-card">
+                <img src="{{slide.image1url}}" />
+            </div>
+            <div class="back-card">
+                <p>Difficulté : {{slide.difficulty}}</p>
+                <span>Meilleurs scores solo
+                    <p *ngFor="let time of slide.soloBestTimes">{{time.name}} : {{time.time}}</p>
+                </span>
+                <span>Meilleurs scores 1v1
+                    <p *ngFor="let time of slide.vsBestTimes">{{time.name}} : {{time.time}}</p>
+                </span>
+            </div>
+        </div>
+    </div>
+    <p>{{slide.name}}</p>
+    <button *ngIf="this.page === 'config'" routerLink="{{ routeOne }}" (click)="deleteCard()">{{ btnOne }}</button>
+    <button *ngIf="this.page === 'config'" routerLink="{{ routeTwo }}">{{ btnTwo }}</button>
+    <button *ngIf="this.page === 'selection'"
+        (click)="showInput1 = true; showInput2 = false; focusInput(); onCardSelect()">Jouer en solo</button>
+    <button *ngIf="this.page === 'selection'"
+        (click)="showInput1 = false; showInput2 = true; checkGame(); focusInput(); onCardSelect()">Option
+        multijoueur</button>
+    <div class="player-name" *ngIf="showInput1 && slide.isSelected">
+        <input type="text" [(ngModel)]="inputValue1" placeholder="Entrez votre nom"
+            [ngClass]="{'error-border': applyBorder}" (keyup.enter)="soloButton.click()">
+        <button #soloButton (click)="verifySoloInput()">{{ btnOne }}</button>
+    </div>
+    <div class="player-name" *ngIf="showInput2 && slide.isSelected">
+        <input type="text" [(ngModel)]="inputValue2" placeholder="Entrez votre nom"
+            [ngClass]="{'error-border': applyBorder}" (keyup.enter)="multiButton.click()">
+        <button #multiButton (click)="verifyMultiInput()">{{ this.gameExists ? "Joindre" : "Créer" }}</button>
+    </div>
+</div>

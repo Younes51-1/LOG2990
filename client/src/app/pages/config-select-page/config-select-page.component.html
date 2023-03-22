@@ -1,0 +1,20 @@
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.1/css/all.css" crossorigin="anonymous" />
+<div class="container">
+    <header>
+        <button class="home-button" routerLink="/home">
+            <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+        </button>
+        <img src={{imgSource}}>
+    </header>
+    <ngx-slick-carousel class="carousel" [config]="slideConfig">
+        <div ngxSlickItem *ngFor="let slide of slides" class="slide">
+            <app-game-card [slide]="slide" [page]="pageType" (notify)="deleteNotify($event)" (notifySelected)="setSelected($event)"></app-game-card>
+        </div>
+    </ngx-slick-carousel>
+    <div *ngIf="this.pageType === 'config'" class="configElement">
+        <button class="btn" routerLink="/creation">Créer un jeu</button>
+        <div class="centered-text">
+            <app-config-params></app-config-params>
+        </div>
+    </div>
+</div>

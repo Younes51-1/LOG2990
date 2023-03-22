@@ -1,0 +1,125 @@
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.1/css/all.css" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
+<div class="container" (mouseup)="handleMouseUp()">
+    <header>
+        <button class="config-button" routerLink="/config">
+            <i class="fa fa-cog fa-3x" aria-hidden="true"></i>
+        </button>
+        <img src="./assets/pictures/creation.png" />
+    </header>
+    <p>* Les images doivent posséder le format 24-bit bitmap (BPM) avec une taille de 640x480 px *</p>
+    <div class="both">
+        <label class="custom-file-upload button">
+            <i class="fas fa-upload"></i>
+            <input #images1et2 type="file" accept="image/bmp" (change)="verifyImageFormat($event, images1et2)"
+                data-input="false" style="display:none" />
+        </label>
+        Images originale et modifiée
+        <button class="custom-button button" (click)="reset(images1et2)">
+            <i class="fas fa-trash-alt"></i>
+        </button>
+    </div>
+    <section class="canvas">
+        <div class="canvas1">
+            <div class="both">
+                <label class="custom-file-upload button">
+                    <i class="fas fa-upload"></i>
+                    <input #image1 type="file" accept="image/bmp" (change)="verifyImageFormat($event, image1)"
+                        data-input="false" style="display:none">
+                </label>
+                Image originale
+                <button class="custom-button button" (click)="reset(image1)">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+            <canvas #canvas1 (mousedown)="handleCanvasEvent('mousedown', $event, canvas1)"
+                (mousemove)="handleCanvasEvent('mousemove', $event, canvas1)"
+                (mouseup)="handleCanvasEvent('mouseup', $event, canvas1)"
+                (mouseleave)="handleCanvasEvent('mouseleave', $event, canvas1)"
+                (mouseenter)="handleCanvasEvent('mouseenter', $event, canvas1)" [attr.width]="width"
+                [attr.height]="height"></canvas>
+            <p><button class="button" (click)="reset(canvas1)">Réinitialiser l'avant-plan</button></p>
+        </div>
+        <div class="swap">
+            <button class="button" (click)="duplicateForeground(canvas1)"><i class="fa fa-arrow-right"></i></button>
+            <button class="button" (click)="pushAndSwapForegrounds()"><i class="fas fa-exchange-alt"></i></button>
+            <button class="button" (click)="duplicateForeground(canvas2)"><i class="fa fa-arrow-left"></i></button>
+        </div>
+        <div class="canvas2">
+            <div class="both">
+                <label class="custom-file-upload button">
+                    <i class="fas fa-upload"></i>
+                    <input #image2 type="file" accept="image/bmp" (change)="verifyImageFormat($event, image2)"
+                        data-input=" false" style="display:none" /></label>
+                Image modifiée
+                <button class="custom-button button" (click)="reset(image2)">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+            <canvas #canvas2 (mousedown)="handleCanvasEvent('mousedown', $event, canvas2)"
+                (mousemove)="handleCanvasEvent('mousemove', $event, canvas2)"
+                (mouseup)="handleCanvasEvent('mouseup', $event, canvas2)"
+                (mouseleave)="handleCanvasEvent('mouseleave', $event, canvas2)"
+                (mouseenter)="handleCanvasEvent('mouseenter', $event, canvas2)" [attr.width]="width"
+                [attr.height]="height"></canvas>
+            <p><button class="button" (click)="reset(canvas2)">Réinitialiser l'avant-plan</button></p>
+        </div>
+    </section>
+    <div class="actions">
+        <div class="pickers">
+            <div *ngIf="showColorPicker" class="color">
+                <p><label for="colorpicker">Couleur</label></p>
+                <p><input class="button" id="colorpicker" [(colorPicker)]="color" [style.background]="color" /></p>
+            </div>
+            <div *ngIf="showPencilThicknessPicker">
+                <p><label for="pencilSize">Largeur - {{ pencilSize }} px</label></p>
+                <mat-slider id="pencilSize" min="1" max="100" step="1" [(ngModel)]="pencilSize">
+                    <input matSliderThumb />
+                </mat-slider>
+            </div>
+            <div *ngIf="showEraserThicknessPicker" class="eraser">
+                <p><label for="eraserSize">Largeur - {{ eraserSize }} px</label></p>
+                <mat-slider id="eraserSize" min="1" max="100" step="1" [(ngModel)]="eraserSize">
+                    <input matSliderThumb />
+                </mat-slider>
+            </div>
+        </div>
+        <div class="tools">
+            <button class="button action" (click)="enableMode('pencil')"
+                (click)="showColorPicker = true; showPencilThicknessPicker = true; showEraserThicknessPicker = false">
+                <i class="fas fa-pencil-alt"></i>
+            </button>
+            <button class="button action" (click)="enableMode('rectangle')"
+                (click)="showColorPicker = true; showPencilThicknessPicker = false; showEraserThicknessPicker = false">
+                <i class="fas fa-vector-square"></i>
+            </button>
+            <button class="button action" (click)="enableMode('eraser')"
+                (click)="showColorPicker = false; showPencilThicknessPicker = false; showEraserThicknessPicker = true">
+                <i class="fa fa-eraser"></i>
+            </button>
+            <button class="button"
+                (click)="ctrlZ(); showColorPicker = false; showPencilThicknessPicker = false; showEraserThicknessPicker = false"><i
+                    class="fas fa-undo"></i></button>
+            <button class="button"
+                (click)="ctrlShiftZ(); showColorPicker = false; showPencilThicknessPicker = false; showEraserThicknessPicker = false"><i
+                    class="fas fa-redo"></i></button>
+        </div>
+    </div>
+    <section class="footer">
+        <fieldset>
+            <legend>Paramètres du rayon d'élargissement</legend>
+            <div *ngFor="let radius of possibleRadius">
+                <input *ngIf="radius !== 3" type="radio" #rayon{{radius}} name="choixRayon" value="{{ radius }}"
+                    (click)="updateRadius(radius)" />
+                <input *ngIf="radius === 3" type="radio" #rayon{{radius}} name="choixRayon" value="{{ radius }}"
+                    (click)="updateRadius(radius)" checked />
+                <label for="rayon{{ radius }}">{{ radius }} </label>
+            </div>
+        </fieldset>
+        <button
+            *ngIf="(image1?.value !== '' && image2?.value !== '') || images1et2?.value !== '' || this.undo.length > 0"
+            class="button" (click)="runDetectionSystem()">
+            Visualiser les différences
+        </button>
+    </section>
+</div>
