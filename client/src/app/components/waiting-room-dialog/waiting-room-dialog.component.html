@@ -1,0 +1,40 @@
+<div class="container">
+    <h1>SALLE D'ATTENTE</h1>
+    <h2 *ngIf="classicModeService.gameRoom?.userGame?.username1 === classicModeService?.username">CRÉATION DU JEU</h2>
+    <h2 *ngIf="classicModeService.gameRoom?.userGame?.username1 !== classicModeService?.username">JOINDRE</h2>
+    <div *ngIf="classicModeService.gameRoom?.userGame?.username1 === classicModeService?.username">
+        <p class="waiting" *ngIf="classicModeService.gameRoom?.userGame?.potentialPlayers">Joueurs en attente : </p>
+        <p class="waiting" *ngFor="let player of classicModeService.gameRoom?.userGame?.potentialPlayers">
+            {{player}}
+            <button (click)="playerAccepted(player)">Accepter</button>
+            <button (click)="playerRejected(player)">Refuser</button>
+        </p>
+        <div
+            *ngIf="!classicModeService.gameRoom?.userGame?.potentialPlayers || classicModeService.gameRoom?.userGame?.potentialPlayers!.length === 0">
+            <div class="wrapper">
+                <div class="circle"></div>
+                <div class="circle"></div>
+                <div class="circle"></div>
+                <div class="shadow"></div>
+                <div class="shadow"></div>
+                <div class="shadow"></div>
+                <span>Attente d'un joueur</span>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="classicModeService.gameRoom?.userGame?.username1 !== classicModeService?.username && !this.rejected">
+        <div class="wrapper">
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="shadow"></div>
+            <div class="shadow"></div>
+            <div class="shadow"></div>
+            <span>Attente d'approbation</span>
+        </div>
+    </div>
+    <div *ngIf="this.rejected">
+        <p>Vous avez été rejeté</p>
+    </div>
+    <button class="quit" (click)="close()">Quitter</button>
+</div>
