@@ -6,8 +6,8 @@ import { ClassicModeService } from '@app/services/classic-mode/classic-mode.serv
 import { DetectionDifferenceService } from '@app/services/detection-difference/detection-difference.service';
 import { MouseService } from '@app/services/mouse/mouse.service';
 import { Color } from 'src/assets/variables/color';
-import { Dimensions } from 'src/assets/variables/picture-dimension';
 import { PossibleColor } from 'src/assets/variables/images-values';
+import { Dimensions } from 'src/assets/variables/picture-dimension';
 
 @Component({
     selector: 'app-play-area',
@@ -114,12 +114,12 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         const context1 = this.canvas1.nativeElement.getContext('2d');
         if (context1) {
             this.context1 = context1;
-            this.context1.font = '30px comic sans ms';
+            this.context1.font = '50px MarioFont';
         }
         const context2 = this.canvas2.nativeElement.getContext('2d');
         if (context2) {
             this.context2 = context2;
-            this.context2.font = '30px comic sans ms';
+            this.context2.font = '50px MarioFont';
         }
     }
 
