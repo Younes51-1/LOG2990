@@ -27,6 +27,7 @@ import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { SlickCarouselModule } from 'ngx-slick-carousel';
 import { DeleteDialogComponent } from './components/delete-dialog/delete-dialog.component';
+import { VideoReplayDialogComponent } from './components/video-replay-dialog/video-replay-dialog.component';
 
 /**
  * Main module that is used in main.ts.
@@ -50,6 +51,7 @@ import { DeleteDialogComponent } from './components/delete-dialog/delete-dialog.
         ConfigSelectPageComponent,
         WaitingRoomComponent,
         DeleteDialogComponent,
+        VideoReplayDialogComponent,
     ],
     providers: [],
     bootstrap: [AppComponent],

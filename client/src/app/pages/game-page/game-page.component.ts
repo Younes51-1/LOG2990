@@ -3,6 +3,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
 import { GameRoom } from '@app/interfaces/game';
+import { VideoReplay } from '@app/interfaces/video-replay';
 import { ChatService } from '@app/services/chat/chat.service';
 import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
 import confetti from 'canvas-confetti';
@@ -22,6 +23,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     totalDifferencesFound = 0;
     userDifferencesFound = 0;
     gameRoom: GameRoom;
+    videoReplay: VideoReplay;
 
     private gameFinished = false;
     private dialogRef: MatDialogRef<EndgameDialogComponent>;
@@ -82,15 +84,22 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.unsubscribe();
             this.classicModeService.endGame();
         });
+        this.videoReplay = { rien: true };
     }
 
     endGame() {
         if (this.gameFinished) {
             if (this.userDifferencesFound === this.differenceThreshold) {
-                this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
+                this.dialogRef = this.dialog.open(EndgameDialogComponent, {
+                    disableClose: true,
+                    data: { gameFinished: true, gameWinner: true, videoReplay: this.videoReplay },
+                });
                 this.startConfetti();
             } else {
-                this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: false } });
+                this.dialogRef = this.dialog.open(EndgameDialogComponent, {
+                    disableClose: true,
+                    data: { gameFinished: true, gameWinner: false, videoReplay: this.videoReplay },
+                });
             }
             this.classicModeService.endGame();
             this.unsubscribe();
