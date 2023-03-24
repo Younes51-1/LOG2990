@@ -1,6 +1,13 @@
 export interface GameData {
     gameForm: GameForm;
     differenceMatrix: number[][];
+    gameConstants?: GameConstants;
+}
+
+export interface GameConstants {
+    initialTime: number;
+    penaltyTime: number;
+    bonusTime: number;
 }
 
 export interface UserGame {

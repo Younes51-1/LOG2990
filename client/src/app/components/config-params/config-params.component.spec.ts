@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { ConfigParamsComponent } from '@app/components/config-params/config-params.component';
-
+// TODO: refactor tests based on new component
 describe('ConfigParamsComponent', () => {
     let component: ConfigParamsComponent;
     let fixture: ComponentFixture<ConfigParamsComponent>;

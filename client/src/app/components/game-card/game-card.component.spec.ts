@@ -114,7 +114,7 @@ describe('GameCardComponent', () => {
         expect(image.src).toEqual('https://example.com/image1.jpg');
     });
 
-    it('slide should have difficulte', () => {
+    it('slide should have difficulty', () => {
         expect(component.slide.difficulty).toBeTruthy();
     });
 
