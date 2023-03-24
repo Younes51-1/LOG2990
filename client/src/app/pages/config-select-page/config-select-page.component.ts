@@ -6,6 +6,7 @@ import { GameForm, GameHistory } from '@app/interfaces/game';
 import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 import { ConfigHttpService } from '@app/services/config-http/config-http.service';
 import { PageKeys } from 'src/assets/variables/game-card-options';
+import { Time } from 'src/assets/variables/time';
 
 @Component({
     selector: 'app-config-select-page',
@@ -76,6 +77,11 @@ export class ConfigSelectPageComponent implements OnInit {
         }
     }
 
+    calculateTime(time: number) {
+        const minutes = Math.floor(time / Time.MinInSec);
+        const seconds = time % Time.MinInSec;
+        return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
     private getSlidesFromServer(): void {
         const component = this;
         this.gameCommunicationService.getAllGames().subscribe((res) => {

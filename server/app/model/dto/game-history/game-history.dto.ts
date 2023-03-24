@@ -12,7 +12,7 @@ export class GameHistory {
 
     @ApiProperty()
     @IsNumber()
-    endTime: number;
+    timer: number;
 
     @ApiProperty()
     @IsString()

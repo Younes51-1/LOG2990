@@ -98,7 +98,8 @@ export class ClassicModeService {
         newGameHistory.name = gameRoom.userGame.gameData.gameForm.name;
         newGameHistory.username1 = gameRoom.userGame.username1;
         newGameHistory.username2 = gameRoom.userGame?.username2;
-        newGameHistory.startTime = new Date().getTime();
+        newGameHistory.startTime = Date.now();
+        newGameHistory.timer = 0;
         if (gameRoom.userGame.username2) {
             newGameHistory.gameMode = 'Mode classique Multi-joueur';
         } else {
@@ -110,7 +111,8 @@ export class ClassicModeService {
 
     updateGameHistory(endGame: EndGame): void {
         const gameHistory = this.gameHistory.get(endGame.roomId);
-        gameHistory.endTime = new Date().getTime() - gameHistory.startTime;
+        const gameRoom = this.gameRooms.get(endGame.roomId);
+        gameHistory.timer = gameRoom.userGame.timer;
         if (endGame.gameFinished) {
             if (endGame.winner) {
                 gameHistory.winner = endGame.username;
@@ -128,7 +130,7 @@ export class ClassicModeService {
         if (gameHistory.username2) {
             gameHistory.abandonned = username;
         } else {
-            this.updateGameHistory({ roomId, gameFinished: false, winner: false, username, timer: 0 });
+            this.updateGameHistory({ roomId, gameFinished: false, winner: false, username });
         }
         this.gameHistory.set(roomId, gameHistory);
     }

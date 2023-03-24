@@ -16,7 +16,7 @@ export class GameHistory {
 
     @ApiProperty()
     @Prop({ required: true })
-    endTime: number;
+    timer: number;
 
     @ApiProperty()
     @Prop({ required: true })

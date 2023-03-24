@@ -11,8 +11,5 @@ export class EndGame {
     username: string;
 
     @ApiProperty()
-    timer: number;
-
-    @ApiProperty()
     gameFinished: boolean;
 }
