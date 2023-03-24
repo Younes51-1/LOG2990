@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { DifferenceTry } from '@app/interfaces/difference-try';
-import { GameRoom } from '@app/interfaces/game';
+import { GameRoom, EndGame } from '@app/interfaces/game';
 import { Vec2 } from '@app/interfaces/vec2';
 import { ChatService } from '@app/services/chat/chat.service';
 import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
@@ -103,9 +103,14 @@ export class ClassicModeService {
         this.canSendValidate = false;
     }
 
-    endGame(): void {
+    endGame(gameFinished: boolean, winner: boolean): void {
         if (this.socketService.isSocketAlive()) {
-            this.socketService.send('endGame', { roomId: this.gameRoom.roomId, username: this.username });
+            const endGame = {} as EndGame;
+            endGame.gameFinished = gameFinished;
+            endGame.winner = winner;
+            endGame.roomId = this.gameRoom.roomId;
+            endGame.username = this.username;
+            this.socketService.send('endGame', endGame);
         }
     }
 

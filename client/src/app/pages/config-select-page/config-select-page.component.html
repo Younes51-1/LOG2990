@@ -17,4 +17,16 @@
             <app-config-params></app-config-params>
         </div>
     </div>
+    <button class="btn" (click)="deletePartie()">Supprimer touts les parties</button>
+    <div *ngFor="let partie of parties">
+        <button class="btn" (click)="deletePartie(partie._id)">Supprimer cette parties</button>
+        <p>{{partie.name}}</p>
+        <p>{{partie.startTime}}</p>
+        <p>{{partie.endTime}}</p>
+        <p>{{partie.username1}}</p>
+        <p>{{partie?.username2}}</p>
+        <p>{{partie.gameMode}}</p>
+        <p><s>{{partie?.abandonned}}</s></p>
+        <p><b>{{partie.winner}}</b></p>
+    </div>
 </div>

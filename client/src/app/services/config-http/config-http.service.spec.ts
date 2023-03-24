@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { GameHistoryHttpService } from './game-history-http.service';
+import { ConfigHttpService } from './config-http.service';
 
 describe('GameHistoryHttpService', () => {
-    let service: GameHistoryHttpService;
+    let service: ConfigHttpService;
 
     beforeEach(() => {
         TestBed.configureTestingModule({});
-        service = TestBed.inject(GameHistoryHttpService);
+        service = TestBed.inject(ConfigHttpService);
     });
 
     it('should be created', () => {

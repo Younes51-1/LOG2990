@@ -23,19 +23,19 @@ export class GameHistory {
     username1: string;
 
     @ApiProperty()
-    @Prop({ required: true })
-    username2?: string;
+    @Prop({ required: false })
+    username2: string;
 
     @ApiProperty()
     @Prop({ required: true })
     gameMode: string;
 
     @ApiProperty()
-    @Prop({ required: true })
-    abandonned?: string;
+    @Prop({ required: false })
+    abandonned: string;
 
     @ApiProperty()
-    @Prop({ required: true })
+    @Prop({ required: false })
     winner: string;
 
     @ApiProperty()

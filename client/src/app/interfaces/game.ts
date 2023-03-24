@@ -45,6 +45,7 @@ export interface NewGame {
 }
 
 export interface GameHistory {
+    _id?: string;
     name: string;
     startTime: number;
     endTime: number;
@@ -53,4 +54,12 @@ export interface GameHistory {
     gameMode: string;
     abandonned?: string;
     winner: string;
+}
+
+export interface EndGame {
+    winner: boolean;
+    timer: number;
+    roomId: string;
+    username: string;
+    gameFinished: boolean;
 }

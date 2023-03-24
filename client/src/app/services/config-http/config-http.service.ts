@@ -3,12 +3,12 @@ import { Injectable } from '@angular/core';
 import { Constants } from '@app/interfaces/constants';
 import { BestTime, GameHistory } from '@app/interfaces/game';
 import { Observable, catchError, of } from 'rxjs';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
     providedIn: 'root',
 })
-export class GameHistoryHttpService {
+export class ConfigHttpService {
     private readonly baseUrl: string = environment.serverUrl;
     constructor(private readonly http: HttpClient) {}
 
@@ -28,8 +28,12 @@ export class GameHistoryHttpService {
         return this.http.put(`${this.baseUrl}/config/constants`, constants, { observe: 'response', responseType: 'text' });
     }
 
-    deleteHistory(): Observable<HttpResponse<string>> {
-        return this.http.delete(`${this.baseUrl}/config/history`, { observe: 'response', responseType: 'text' });
+    deleteHistory(id?: string): Observable<HttpResponse<string>> {
+        if (id) {
+            return this.http.delete(`${this.baseUrl}/config/history/${id}`, { observe: 'response', responseType: 'text' });
+        } else {
+            return this.http.delete(`${this.baseUrl}/config/history`, { observe: 'response', responseType: 'text' });
+        }
     }
 
     deleteBestTimes(): Observable<HttpResponse<string>> {

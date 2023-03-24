@@ -81,15 +81,31 @@ export class ConfigController {
     }
 
     @ApiOkResponse({
-        description: 'delete history',
+        description: 'delete all histories',
     })
     @ApiNotFoundResponse({
         description: 'Return NOT_FOUND http status when request fails',
     })
     @Delete('/history')
-    async deleteHistory(@Res() response: Response) {
+    async deleteHistoryies(@Res() response: Response) {
         try {
             await this.gameHistoryService.deleteGamesHistories();
+            response.status(HttpStatus.OK).send();
+        } catch (error) {
+            response.status(HttpStatus.NOT_FOUND).send(error.message);
+        }
+    }
+
+    @ApiOkResponse({
+        description: 'delete history',
+    })
+    @ApiNotFoundResponse({
+        description: 'Return NOT_FOUND http status when request fails',
+    })
+    @Delete('/history/:id')
+    async deleteHistory(@Param('id') id: string, @Res() response: Response) {
+        try {
+            await this.gameHistoryService.deleteGamesHistories(id);
             response.status(HttpStatus.OK).send();
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send(error.message);

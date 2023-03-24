@@ -12,9 +12,21 @@ export class GameHistoryService {
         return await this.historyModel.find({});
     }
 
-    async deleteGamesHistories(): Promise<void> {
+    async saveGameHistory(gameHistory: GameHistory): Promise<void> {
         try {
-            await this.historyModel.deleteMany({});
+            await this.historyModel.create(gameHistory);
+        } catch (error) {
+            return Promise.reject(`Failed to save game history: ${error}`);
+        }
+    }
+
+    async deleteGamesHistories(id?: string): Promise<void> {
+        try {
+            if (id) {
+                await this.historyModel.deleteOne({ _id: id });
+            } else {
+                await this.historyModel.deleteMany({});
+            }
         } catch (error) {
             return Promise.reject(`Failed to delete game histories: ${error}`);
         }

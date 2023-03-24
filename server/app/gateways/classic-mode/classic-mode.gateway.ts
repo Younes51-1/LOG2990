@@ -1,21 +1,28 @@
 import { ClassicModeEvents, DelayBeforeEmittingTime } from '@app/gateways/classic-mode/classic-mode.gateway.variables';
 import { GameRoom } from '@app/model/schema/game-room.schema';
 import { Vector2D } from '@app/model/schema/vector2d.schema';
+import { EndGame } from '@app/model/schema/end-game.schema';
 import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { GameHistoryService } from '@app/services/game-history/game-history.service';
 
 @WebSocketGateway({ cors: true })
 @Injectable()
 export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
     @WebSocketServer() private server: Server;
 
-    constructor(private readonly logger: Logger, private readonly classicModeService: ClassicModeService) {}
+    constructor(
+        private readonly logger: Logger,
+        private readonly classicModeService: ClassicModeService,
+        private readonly gameHistoryService: GameHistoryService,
+    ) {}
 
     @SubscribeMessage(ClassicModeEvents.Start)
     startGame(socket: Socket, roomId: string): void {
         const gameRoom = this.classicModeService.getRoom(roomId);
+        this.classicModeService.saveGameHistory(gameRoom);
         this.logger.log(`Launching the game: ${gameRoom.userGame.gameData.gameForm.name}`);
         this.server.to(roomId).emit(ClassicModeEvents.Started);
     }
@@ -27,21 +34,36 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
             .to(data.roomId)
             .emit(ClassicModeEvents.DifferenceValidated, { validated, differencePos: data.differencePos, username: data.username });
         if (this.classicModeService.isGameFinished(data.roomId)) {
-            this.endGame(socket, { roomId: data.roomId, username: data.username });
+            const endGame = {} as EndGame;
+            endGame.gameFinished = true;
+            endGame.winner = true;
+            endGame.roomId = data.roomId;
+            endGame.username = data.username;
+            this.endGame(socket, endGame);
         }
     }
 
     @SubscribeMessage(ClassicModeEvents.EndGame)
-    endGame(socket: Socket, data: { roomId: string; username: string }): void {
-        const gameRoom = this.classicModeService.getRoom(data.roomId);
+    endGame(socket: Socket, endGame: EndGame): void {
+        const gameRoom = this.classicModeService.getRoom(endGame.roomId);
         if (!gameRoom) return;
         this.logger.log(`End of game: ${gameRoom.userGame.gameData.gameForm.name}`);
-        this.server.to(data.roomId).emit(ClassicModeEvents.GameFinished);
-        this.classicModeService.deleteRoom(data.roomId);
+        this.server.to(endGame.roomId).emit(ClassicModeEvents.GameFinished);
+        this.classicModeService.updateGameHistory(endGame);
+        const gameHistory = this.classicModeService.getGameHistory(endGame.roomId);
+        this.gameHistoryService.saveGameHistory(gameHistory);
+        this.classicModeService.deleteRoom(endGame.roomId);
     }
 
     @SubscribeMessage(ClassicModeEvents.Abandoned)
     abandoned(socket: Socket, data: { roomId: string; username: string }): void {
+        this.classicModeService.abandonGameHistory(data.roomId, data.username);
+        const gameRoom = this.classicModeService.getRoom(data.roomId);
+        if (!gameRoom) return;
+        if (!gameRoom.userGame.username2) {
+            const gameHistory = this.classicModeService.getGameHistory(data.roomId);
+            this.gameHistoryService.saveGameHistory(gameHistory);
+        }
         this.server.to(data.roomId).emit(ClassicModeEvents.Abandoned, data.username);
     }
 
