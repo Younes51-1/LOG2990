@@ -43,3 +43,14 @@ export interface NewGame {
     nbDifference: number;
     differenceMatrix: number[][];
 }
+
+export interface GameHistory {
+    name: string;
+    startTime: number;
+    endTime: number;
+    username1: string;
+    username2?: string;
+    gameMode: string;
+    abandonned?: string;
+    winner: string;
+}
