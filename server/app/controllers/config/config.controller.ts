@@ -1,6 +1,7 @@
-import { Constants } from '@app/model/dto/config/constants.dto';
-import { GameHistory } from '@app/model/dto/config/game-history.dto';
+import { Constants } from '@app/model/dto/game-history/constants.dto';
+import { GameHistory } from '@app/model/dto/game-history/game-history.dto';
 import { BestTime } from '@app/model/schema/best-times.schema';
+import { GameHistoryService } from '@app/services/game-history/game-history.service';
 import { Body, Controller, Delete, Get, HttpStatus, Param, Put, Res } from '@nestjs/common';
 import { ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
@@ -8,6 +9,7 @@ import { Response } from 'express';
 @ApiTags('Config')
 @Controller('config')
 export class ConfigController {
+    constructor(private readonly gameHistoryService: GameHistoryService) {}
     @ApiOkResponse({
         description: 'Returns all history',
         type: GameHistory,
@@ -19,8 +21,8 @@ export class ConfigController {
     @Get('/history')
     async getAllHistory(@Res() response: Response) {
         try {
-            // TODO: implement this
-            response.status(HttpStatus.OK).json();
+            const allHistory = await this.gameHistoryService.getGamesHistories();
+            response.status(HttpStatus.OK).json(allHistory);
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send(error.message);
         }
@@ -87,8 +89,8 @@ export class ConfigController {
     @Delete('/history')
     async deleteHistory(@Res() response: Response) {
         try {
-            // TODO: implement this
-            response.status(HttpStatus.OK).json();
+            await this.gameHistoryService.deleteGamesHistories();
+            response.status(HttpStatus.OK).send();
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send(error.message);
         }
