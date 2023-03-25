@@ -11,12 +11,12 @@ export class FakeScoreBoardComponent implements OnInit {
     @Input() gameName: string;
     @Input() opponentUsername: string;
     @Input() username: string;
+    @Input() minutes: number = 0;
+    @Input() seconds: number = 0;
 
     gameMode: string = 'mode classique';
     difficulty: string;
     nbDiff: number;
-    minutes = 0;
-    seconds = 0;
     differencesFound = 0;
     opponentDifferencesFound = 0;
 

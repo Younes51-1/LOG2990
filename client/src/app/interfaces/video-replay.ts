@@ -8,5 +8,11 @@ export interface VideoReplay {
         opponentUsername: string;
         username: string;
     };
+    actions: InstructionReplay[];
     rien: boolean;
+}
+
+export interface InstructionReplay {
+    type: string;
+    time: number;
 }

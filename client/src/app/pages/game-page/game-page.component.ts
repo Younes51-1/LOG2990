@@ -93,6 +93,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 opponentUsername: this.opponentUsername,
                 username: this.username,
             },
+            actions: [],
             rien: true,
         };
     }
