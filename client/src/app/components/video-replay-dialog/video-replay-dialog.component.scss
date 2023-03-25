@@ -1,3 +1,9 @@
+.title {
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+}
+
 .div1 {
     display: flex;
 }
@@ -5,4 +11,42 @@
 .div0 {
     display: flex;
     justify-content: center;
+}
+
+.replaySection {
+    border: 6px solid #8200ff;
+    padding: 30px;
+}
+
+.replaySection {
+    display: flex;
+    flex-wrap: wrap;
+    overflow-y: auto;
+}
+
+.replaySection > * {
+    flex: 1 1 calc(50% - 10px);
+    margin: 5px;
+    max-width: 100%;
+}
+
+.options {
+    padding: 25px;
+    display: flex;
+    justify-content: center;
+}
+
+app-fake-score-board {
+}
+
+app-fake-chat-box {
+    padding: 0 30px 5px 30px;
+}
+
+.options button {
+    margin-right: 10px;
+}
+
+.options button:last-child {
+    margin-right: 0;
 }

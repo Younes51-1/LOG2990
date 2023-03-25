@@ -84,10 +84,27 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.unsubscribe();
             this.classicModeService.endGame();
         });
-        this.videoReplay = { rien: true };
+
+        this.videoReplay = {
+            images: { original: '', modified: '' },
+            scoreboardParams: {
+                gameRoom: this.gameRoom,
+                gameName: this.gameName,
+                opponentUsername: this.opponentUsername,
+                username: this.username,
+            },
+            rien: true,
+        };
     }
 
     endGame() {
+        this.videoReplay.scoreboardParams = {
+            gameRoom: this.gameRoom,
+            gameName: this.gameName,
+            opponentUsername: this.opponentUsername,
+            username: this.username,
+        };
+
         if (this.gameFinished) {
             if (this.userDifferencesFound === this.differenceThreshold) {
                 this.dialogRef = this.dialog.open(EndgameDialogComponent, {
@@ -119,6 +136,14 @@ export class GamePageComponent implements OnInit, OnDestroy {
             case 'abandon':
                 this.chatService.sendMessage(`${this.username} a abandonné la partie`, 'Système', this.gameRoom.roomId);
                 break;
+        }
+    }
+
+    getImage(data: { src: string; first: boolean }) {
+        if (data.first) {
+            this.videoReplay.images.original = data.src;
+        } else {
+            this.videoReplay.images.modified = data.src;
         }
     }
 

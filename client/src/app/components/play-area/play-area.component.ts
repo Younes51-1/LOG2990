@@ -20,6 +20,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
 
     @Input() gameRoom: GameRoom;
     @Output() userError = new EventEmitter();
+    @Output() sendImage = new EventEmitter<{ src: string; first: boolean }>();
 
     private canvasClicked: HTMLCanvasElement;
     private playerIsAllowedToClick = true;
@@ -83,6 +84,8 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
             this.differenceMatrix = this.gameRoom.userGame.gameData.differenceMatrix;
             this.original.src = this.gameRoom.userGame.gameData.gameForm.image1url;
             this.modified.src = this.gameRoom.userGame.gameData.gameForm.image2url;
+            this.sendImage.emit({ src: this.original.src, first: true });
+            this.sendImage.emit({ src: this.modified.src, first: false });
         }
 
         this.original.crossOrigin = 'Anonymous'; // needed to get access to images of server

@@ -1,9 +1,26 @@
-<div class="div0">
-    <app-game-scoreboard></app-game-scoreboard>
+<div class="title"><p>Reprise Vidéo</p></div>
+<div class="replaySection">
+    <div class="div0">
+        <app-fake-score-board
+            [gameRoom]="this.data.videoReplay.scoreboardParams.gameRoom"
+            [gameName]="this.data.videoReplay.scoreboardParams.gameName"
+            [opponentUsername]="this.data.videoReplay.scoreboardParams.opponentUsername"
+            [username]="this.data.videoReplay.scoreboardParams.username"
+        ></app-fake-score-board>
+    </div>
+    <div class="div1">
+        <app-fake-play-area
+            [original]="this.data.videoReplay.images.original"
+            [modified]="this.data.videoReplay.images.modified"
+        ></app-fake-play-area>
+        <app-fake-chat-box></app-fake-chat-box>
+    </div>
 </div>
-<div class="div1">
-    <app-play-area></app-play-area>
-    <app-chat-box></app-chat-box>
+
+<div class="options">
+    <button mat-button>Pause</button>
+    <button mat-button>Reprendre</button>
+    <button mat-button>Recommencer</button>
+    <button mat-button>choix vitesse</button>
+    <button mat-button routerLink="/home">Terminer</button>
 </div>
-<button mat-button (click)="replay()">Replay</button>
-<button mat-button routerLink="/home">Terminer</button>

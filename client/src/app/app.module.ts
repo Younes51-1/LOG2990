@@ -28,6 +28,9 @@ import { ColorPickerModule } from 'ngx-color-picker';
 import { SlickCarouselModule } from 'ngx-slick-carousel';
 import { DeleteDialogComponent } from './components/delete-dialog/delete-dialog.component';
 import { VideoReplayDialogComponent } from './components/video-replay-dialog/video-replay-dialog.component';
+import { FakePlayAreaComponent } from './components/fake-components/fake-play-area/fake-play-area.component';
+import { FakeScoreBoardComponent } from './components/fake-components/fake-score-board/fake-score-board.component';
+import { FakeChatBoxComponent } from './components/fake-components/fake-chat-box/fake-chat-box.component';
 
 /**
  * Main module that is used in main.ts.
@@ -52,6 +55,9 @@ import { VideoReplayDialogComponent } from './components/video-replay-dialog/vid
         WaitingRoomComponent,
         DeleteDialogComponent,
         VideoReplayDialogComponent,
+        FakePlayAreaComponent,
+        FakeScoreBoardComponent,
+        FakeChatBoxComponent,
     ],
     providers: [],
     bootstrap: [AppComponent],
