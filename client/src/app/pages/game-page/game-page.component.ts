@@ -5,6 +5,7 @@ import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-d
 import { GameRoom } from '@app/interfaces/game';
 import { ChatService } from '@app/services/chat/chat.service';
 import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
+import { HelpService } from '@app/services/help/help.service';
 import confetti from 'canvas-confetti';
 import { Subscription } from 'rxjs';
 import { Time } from 'src/assets/variables/time';
@@ -22,6 +23,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     totalDifferencesFound = 0;
     userDifferencesFound = 0;
     gameRoom: GameRoom;
+    hintNum = 0;
 
     private gameFinished = false;
     private dialogRef: MatDialogRef<EndgameDialogComponent>;
@@ -41,6 +43,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         private classicModeService: ClassicModeService,
         private chatService: ChatService,
         private router: Router,
+        private helpService: HelpService,
     ) {}
 
     ngOnInit() {
@@ -99,6 +102,16 @@ export class GamePageComponent implements OnInit, OnDestroy {
         }
     }
 
+    toggleHint() {
+        if (this.hintNum < 3) {
+            this.helpService.isHintModeOn = !this.helpService.isHintModeOn;
+            this.helpService.hintMode();
+
+            this.sendEvent('hint');
+            this.hintNum += 1;
+        }
+    }
+
     sendEvent(event: string) {
         switch (event) {
             case 'error':
@@ -109,6 +122,9 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 break;
             case 'abandon':
                 this.chatService.sendMessage(`${this.username} a abandonné la partie`, 'Système', this.gameRoom.roomId);
+                break;
+            case 'hint':
+                this.chatService.sendMessage('Indice utilisé', 'Système', this.gameRoom.roomId);
                 break;
         }
     }
