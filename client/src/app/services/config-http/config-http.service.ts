@@ -1,8 +1,8 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Constants } from '@app/interfaces/constants';
-import { BestTime, GameHistory } from '@app/interfaces/game';
-import { Observable, catchError, of } from 'rxjs';
+import { GameHistory, NewBestTime } from '@app/interfaces/game';
+import { catchError, Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -20,8 +20,10 @@ export class ConfigHttpService {
         return this.http.get<Constants>(`${this.baseUrl}/config/constants`).pipe(catchError(this.handleError<Constants>('getConstants')));
     }
 
-    updateBestTime(name: string, bestTimes: BestTime[]): Observable<HttpResponse<string>> {
-        return this.http.put(`${this.baseUrl}/config/times/${name}`, bestTimes, { observe: 'response', responseType: 'text' });
+    updateBestTime(name: string, newBestTime: NewBestTime): Observable<number> {
+        return this.http
+            .put<number>(`${this.baseUrl}/config/times/${name}`, newBestTime)
+            .pipe(catchError(this.handleError<number>('updateBestTime')));
     }
 
     updateConstants(constants: Constants): Observable<HttpResponse<string>> {

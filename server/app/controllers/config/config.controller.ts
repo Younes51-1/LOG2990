@@ -1,7 +1,8 @@
 import { Constants } from '@app/model/dto/game-history/constants.dto';
 import { GameHistory } from '@app/model/dto/game-history/game-history.dto';
-import { BestTime } from '@app/model/schema/best-times.schema';
+import { NewBestTime } from '@app/model/dto/game/new-best-times.dto';
 import { GameHistoryService } from '@app/services/game-history/game-history.service';
+import { GameService } from '@app/services/game/game.service';
 import { Body, Controller, Delete, Get, HttpStatus, Param, Put, Res } from '@nestjs/common';
 import { ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
@@ -9,7 +10,7 @@ import { Response } from 'express';
 @ApiTags('Config')
 @Controller('config')
 export class ConfigController {
-    constructor(private readonly gameHistoryService: GameHistoryService) {}
+    constructor(private readonly gameHistoryService: GameHistoryService, private readonly gameService: GameService) {}
     @ApiOkResponse({
         description: 'Returns all history',
         type: GameHistory,
@@ -47,17 +48,16 @@ export class ConfigController {
 
     @ApiOkResponse({
         description: 'update Best Time',
-        type: BestTime,
-        isArray: true,
+        type: Number,
     })
     @ApiNotFoundResponse({
         description: 'Return NOT_FOUND http status when request fails',
     })
     @Put('/times/:name')
-    async updateBestTime(@Param('name') name: string, @Body() bestTimes: BestTime[], @Res() response: Response) {
+    async updateBestTime(@Param('name') name: string, @Body() newBestTimes: NewBestTime, @Res() response: Response) {
         try {
-            // TODO: implement this
-            response.status(HttpStatus.OK).json();
+            const bestTimePosition = await this.gameService.updateBestTime(name, newBestTimes);
+            response.status(HttpStatus.OK).json(bestTimePosition);
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send(error.message);
         }

@@ -4,6 +4,7 @@ import { ClassicModeGateway } from '@app/gateways/classic-mode/classic-mode.gate
 import { Game, GameDocument } from '@app/model/database/game';
 import { GameData } from '@app/model/dto/game/game-data.dto';
 import { GameForm } from '@app/model/dto/game/game-form.dto';
+import { NewBestTime } from '@app/model/dto/game/new-best-times.dto';
 import { NewGame } from '@app/model/dto/game/new-game.dto';
 import { BestTime } from '@app/model/schema/best-times.schema';
 import { Injectable } from '@nestjs/common';
@@ -75,6 +76,38 @@ export class GameService {
         });
     }
 
+    async updateBestTime(name: string, newBestTime: NewBestTime): Promise<number> {
+        try {
+            const game = await this.gameModel.findOne({ name });
+            if (!game) return Promise.reject('Could not find game');
+            let position;
+            if (newBestTime.isSolo) {
+                const { newBestTimes, position: newPosition } = this.insertNewBestTime(game.soloBestTimes, newBestTime);
+                game.soloBestTimes = newBestTimes;
+                position = newPosition;
+            } else {
+                const { newBestTimes, position: newPosition } = this.insertNewBestTime(game.vsBestTimes, newBestTime);
+                game.vsBestTimes = newBestTimes;
+                position = newPosition;
+            }
+            await game.save();
+            return position;
+        } catch (error) {
+            return Promise.reject(`Failed to update best time: ${error}`);
+        }
+    }
+
+    private insertNewBestTime(bestTimes: BestTime[], newBestTime: NewBestTime): { newBestTimes: BestTime[]; position: number } {
+        const newBestTimes = bestTimes;
+        const newBestTimeToInsert = new BestTime();
+        newBestTimeToInsert.name = newBestTime.name;
+        newBestTimeToInsert.time = newBestTime.time;
+        newBestTimes.push(newBestTimeToInsert);
+        newBestTimes.sort((a, b) => a.time - b.time);
+        newBestTimes.pop();
+        return { newBestTimes, position: newBestTimes.findIndex((bestTime) => bestTime.name === newBestTime.name) };
+    }
+
     private async convertNewGameToGame(newGame: NewGame): Promise<Game> {
         const game = new Game();
         game.name = newGame.name;
@@ -122,9 +155,9 @@ export class GameService {
 
     private newBestTimes(): BestTime[] {
         return [
-            { name: 'Player 1', time: '1:00' },
-            { name: 'Player 2', time: '2:00' },
-            { name: 'Player 3', time: '3:00' },
+            { name: 'Player 1', time: 60 },
+            { name: 'Player 2', time: 120 },
+            { name: 'Player 3', time: 180 },
         ];
     }
 

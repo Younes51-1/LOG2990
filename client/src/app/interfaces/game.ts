@@ -44,6 +44,13 @@ export interface NewGame {
     differenceMatrix: number[][];
 }
 
+export class NewBestTime {
+    gameName: string;
+    isSolo: boolean;
+    name: string;
+    time: number;
+}
+
 export interface GameHistory {
     _id?: string;
     name: string;

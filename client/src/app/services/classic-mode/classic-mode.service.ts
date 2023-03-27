@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { DifferenceTry } from '@app/interfaces/difference-try';
-import { GameRoom, EndGame } from '@app/interfaces/game';
+import { EndGame, GameRoom, NewBestTime } from '@app/interfaces/game';
 import { Vec2 } from '@app/interfaces/vec2';
 import { ChatService } from '@app/services/chat/chat.service';
 import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
+import { ConfigHttpService } from '@app/services/config-http/config-http.service';
 import { Subject } from 'rxjs';
 
 @Injectable({
@@ -14,6 +15,7 @@ export class ClassicModeService {
     gameRoom: GameRoom;
     username: string;
     userDifferencesFound = 0;
+    isAbandoned = false;
     totalDifferencesFound$ = new Subject<number>();
     userDifferencesFound$ = new Subject<number>();
     timer$ = new Subject<number>();
@@ -25,12 +27,14 @@ export class ClassicModeService {
     gameCanceled$ = new Subject<boolean>();
     gameDeleted$ = new Subject<boolean>();
     abandoned$ = new Subject<string>();
+    timePosition$ = new Subject<number>();
 
     private canSendValidate = true;
 
     constructor(
         private readonly socketService: CommunicationSocketService,
         private communicationService: CommunicationHttpService,
+        private configHttpService: ConfigHttpService,
         private chatService: ChatService,
     ) {}
 
@@ -111,6 +115,7 @@ export class ClassicModeService {
             endGame.roomId = this.gameRoom.roomId;
             endGame.username = this.username;
             this.socketService.send('endGame', endGame);
+            this.updateBestTime(gameFinished, winner);
         }
     }
 
@@ -240,6 +245,7 @@ export class ClassicModeService {
         });
 
         this.socketService.on('abandoned', (userName: string) => {
+            this.isAbandoned = true;
             this.abandoned$.next(userName);
         });
 
@@ -248,5 +254,21 @@ export class ClassicModeService {
             this.timer$.next(timer);
             this.canSendValidate = true;
         });
+    }
+
+    private updateBestTime(gameFinished: boolean, winner: boolean): void {
+        const actualBestTime = this.gameRoom.userGame.username2
+            ? this.gameRoom.userGame.gameData.gameForm.vsBestTimes[2].time
+            : this.gameRoom.userGame.gameData.gameForm.soloBestTimes[2].time;
+        if (this.gameRoom.userGame.timer < actualBestTime && winner && gameFinished && !this.isAbandoned) {
+            const newBestTime = new NewBestTime();
+            newBestTime.gameName = this.gameRoom.userGame.gameData.gameForm.name;
+            newBestTime.time = this.gameRoom.userGame.timer;
+            newBestTime.name = this.username;
+            newBestTime.isSolo = !this.gameRoom.userGame.username2;
+            this.configHttpService.updateBestTime(this.gameRoom.userGame.gameData.gameForm.name, newBestTime).subscribe((position) => {
+                this.timePosition$.next(position);
+            });
+        }
     }
 }
