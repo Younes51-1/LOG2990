@@ -26,6 +26,7 @@ import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { SlickCarouselModule } from 'ngx-slick-carousel';
+import { RestrictNumbersDirective } from './components/config-params/restrict-numbers';
 import { DeleteDialogComponent } from './components/delete-dialog/delete-dialog.component';
 
 /**
@@ -50,6 +51,7 @@ import { DeleteDialogComponent } from './components/delete-dialog/delete-dialog.
         ConfigSelectPageComponent,
         WaitingRoomComponent,
         DeleteDialogComponent,
+        RestrictNumbersDirective,
     ],
     providers: [],
     bootstrap: [AppComponent],

@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { Constants } from 'src/assets/variables/constants';
 import { VerifyInputService } from '@app/services/verify-input/verify-input.service';
+import { Constants } from 'src/assets/variables/constants';
 import { Time } from 'src/assets/variables/time';
 
 @Component({
@@ -17,12 +17,10 @@ export class ConfigParamsComponent {
 
     constructor(private verifyInput: VerifyInputService) {}
 
-    manuallyChangeValue(inputType: string, value: string) {
+    manuallyChangeValue(inputType: string, value: number) {
         if (!this.verifyInput.verifyNumber(value, inputType)) {
             this.isInvalidInput = true;
-            return;
         }
-        this.isInvalidInput = false;
         switch (inputType) {
             case 'initialTime':
                 this.initialTime = +value;
@@ -33,56 +31,79 @@ export class ConfigParamsComponent {
             case 'bonusTime':
                 this.bonusTime = +value;
                 break;
-            default:
-                break;
         }
+        this.validateAllInputs();
     }
 
     buttonIncreaseInitialTime() {
-        this.resetInvalidInput();
-        const maxInitialTime = Constants.MaxInitialTime;
-        if (this.initialTime + Time.FiveSeconds <= maxInitialTime) {
-            this.initialTime = this.initialTime + Time.FiveSeconds;
+        if (this.initialTime < Constants.MinInitialTime) {
+            this.initialTime = Constants.MinInitialTime;
         } else {
-            this.initialTime = maxInitialTime;
+            const maxInitialTime = Constants.MaxInitialTime;
+            this.initialTime = this.initialTime + Time.FiveSeconds <= maxInitialTime ? this.initialTime + Time.FiveSeconds : maxInitialTime;
         }
+        this.validateAllInputs();
     }
 
     buttonDecreaseInitialTime() {
-        this.resetInvalidInput();
-        const minInitialTime = Constants.MinInitialTime;
-        if (this.initialTime - Time.FiveSeconds >= minInitialTime) {
-            this.initialTime = this.initialTime - Time.FiveSeconds;
+        if (this.initialTime > Constants.MaxInitialTime) {
+            this.initialTime = Constants.MaxInitialTime;
         } else {
-            this.initialTime = minInitialTime;
+            const minInitialTime = Constants.MinInitialTime;
+            this.initialTime = this.initialTime - Time.FiveSeconds >= minInitialTime ? this.initialTime - Time.FiveSeconds : minInitialTime;
         }
+        this.validateAllInputs();
     }
 
     buttonIncreasePenalty() {
-        this.resetInvalidInput();
-        const maxPenaltyTime = Constants.MaxPenaltyTime;
-        this.penaltyTime = this.penaltyTime + 1 <= maxPenaltyTime ? this.penaltyTime + 1 : maxPenaltyTime;
+        if (this.penaltyTime < Constants.MinPenaltyTime) {
+            this.penaltyTime = Constants.MinPenaltyTime;
+        } else {
+            const maxPenaltyTime = Constants.MaxPenaltyTime;
+            this.penaltyTime = this.penaltyTime + 1 <= maxPenaltyTime ? this.penaltyTime + 1 : maxPenaltyTime;
+        }
+        this.validateAllInputs();
     }
 
     buttonDecreasePenalty() {
-        this.resetInvalidInput();
-        const minPenaltyTime = Constants.MinPenaltyTime;
-        this.penaltyTime = this.penaltyTime - 1 >= minPenaltyTime ? this.penaltyTime - 1 : minPenaltyTime;
+        if (this.penaltyTime > Constants.MaxPenaltyTime) {
+            this.penaltyTime = Constants.MaxPenaltyTime;
+        } else {
+            const minPenaltyTime = Constants.MinPenaltyTime;
+            this.penaltyTime = this.penaltyTime - 1 >= minPenaltyTime ? this.penaltyTime - 1 : minPenaltyTime;
+        }
+        this.validateAllInputs();
     }
 
     buttonIncreaseBonus() {
-        this.resetInvalidInput();
-        const maxBonusTime = Constants.MaxBonusTime;
-        this.bonusTime = this.bonusTime + 1 <= maxBonusTime ? this.bonusTime + 1 : maxBonusTime;
+        if (this.bonusTime < Constants.MinBonusTime) {
+            this.bonusTime = Constants.MinBonusTime;
+        } else {
+            const maxBonusTime = Constants.MaxBonusTime;
+            this.bonusTime = this.bonusTime + 1 <= maxBonusTime ? this.bonusTime + 1 : maxBonusTime;
+        }
+        this.validateAllInputs();
     }
 
     buttonDecreaseBonus() {
-        this.resetInvalidInput();
-        const minBonusTime = Constants.MinBonusTime;
-        this.bonusTime = this.bonusTime - 1 >= minBonusTime ? this.bonusTime - 1 : minBonusTime;
+        if (this.bonusTime > Constants.MaxBonusTime) {
+            this.bonusTime = Constants.MaxBonusTime;
+        } else {
+            const minBonusTime = Constants.MinBonusTime;
+            this.bonusTime = this.bonusTime - 1 >= minBonusTime ? this.bonusTime - 1 : minBonusTime;
+        }
+        this.validateAllInputs();
     }
 
-    private resetInvalidInput() {
-        this.isInvalidInput = false;
+    applyNewConstants() {
+        // TODO: apply new constants to all games
+        return;
+    }
+
+    private validateAllInputs() {
+        this.isInvalidInput =
+            !this.verifyInput.verifyNumber(this.initialTime, 'initialTime') ||
+            !this.verifyInput.verifyNumber(this.penaltyTime, 'penaltyTime') ||
+            !this.verifyInput.verifyNumber(this.bonusTime, 'bonusTime');
     }
 }

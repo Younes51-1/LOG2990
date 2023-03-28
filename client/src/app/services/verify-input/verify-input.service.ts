@@ -43,18 +43,16 @@ export class VerifyInputService {
         return true;
     }
 
-    verifyNumber(input: string, type: string): boolean {
+    verifyNumber(input: number | undefined, type: string): boolean {
         if (!input) return false;
-
-        if (Number.isNaN(+input)) return false;
 
         switch (type) {
             case 'initialTime':
-                return +input >= Constants.MinInitialTime && +input <= Constants.MaxInitialTime;
+                return input >= Constants.MinInitialTime && input <= Constants.MaxInitialTime;
             case 'penaltyTime':
-                return +input >= Constants.MinPenaltyTime && +input <= Constants.MaxPenaltyTime;
+                return input >= Constants.MinPenaltyTime && input <= Constants.MaxPenaltyTime;
             case 'bonusTime':
-                return +input >= Constants.MinBonusTime && +input <= Constants.MaxBonusTime;
+                return input >= Constants.MinBonusTime && input <= Constants.MaxBonusTime;
             default:
                 return false;
         }
