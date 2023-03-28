@@ -22,6 +22,7 @@ export enum ClassicModeEvents {
     PlayerAccepted = 'playerAccepted',
     AcceptPlayer = 'acceptPlayer',
     RejectPlayer = 'rejectPlayer',
+    NewBestTimeScore = 'newBestTimeScore',
     Timer = 'timer',
 }
 

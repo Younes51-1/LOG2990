@@ -257,18 +257,18 @@ export class ClassicModeService {
     }
 
     private updateBestTime(gameFinished: boolean, winner: boolean): void {
-        const actualBestTime = this.gameRoom.userGame.username2
-            ? this.gameRoom.userGame.gameData.gameForm.vsBestTimes[2].time
-            : this.gameRoom.userGame.gameData.gameForm.soloBestTimes[2].time;
-        if (this.gameRoom.userGame.timer < actualBestTime && winner && gameFinished && !this.isAbandoned) {
-            const newBestTime = new NewBestTime();
-            newBestTime.gameName = this.gameRoom.userGame.gameData.gameForm.name;
-            newBestTime.time = this.gameRoom.userGame.timer;
-            newBestTime.name = this.username;
-            newBestTime.isSolo = !this.gameRoom.userGame.username2;
-            this.configHttpService.updateBestTime(this.gameRoom.userGame.gameData.gameForm.name, newBestTime).subscribe((position) => {
-                this.timePosition$.next(position);
-            });
-        }
+        this.configHttpService.getBestTime(this.gameRoom.userGame.gameData.gameForm.name).subscribe((bestTimes) => {
+            const actualBestTime = this.gameRoom.userGame.username2 ? bestTimes.vsBestTimes[2].time : bestTimes.soloBestTimes[2].time;
+            if (this.gameRoom.userGame.timer < actualBestTime && winner && gameFinished && !this.isAbandoned) {
+                const newBestTime = new NewBestTime();
+                newBestTime.gameName = this.gameRoom.userGame.gameData.gameForm.name;
+                newBestTime.time = this.gameRoom.userGame.timer;
+                newBestTime.name = this.username;
+                newBestTime.isSolo = !this.gameRoom.userGame.username2;
+                this.configHttpService.updateBestTime(this.gameRoom.userGame.gameData.gameForm.name, newBestTime).subscribe((position) => {
+                    this.timePosition$.next(position);
+                });
+            }
+        });
     }
 }

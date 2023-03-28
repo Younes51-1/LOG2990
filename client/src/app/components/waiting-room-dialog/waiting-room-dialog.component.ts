@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { DeleteDialogComponent } from '@app/components/delete-dialog/delete-dialog.component';
 import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
 import { Subscription } from 'rxjs';
-import { DeleteDialogComponent } from '@app/components/delete-dialog/delete-dialog.component';
 
 @Component({
     selector: 'app-waiting-room-dialog',
@@ -43,7 +43,7 @@ export class WaitingRoomComponent implements OnInit {
         this.gameCanceledSubscription = this.classicModeService.gameCanceled$.subscribe((finished) => {
             if (!this.gameCanceled && finished) {
                 this.gameCanceled = true;
-                const dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { deleted: true } });
+                const dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { action: 'deleted' } });
                 if (dialogRef) {
                     dialogRef.afterClosed().subscribe(() => {
                         this.close();

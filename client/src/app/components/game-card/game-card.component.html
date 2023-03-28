@@ -19,7 +19,7 @@
     </div>
     <p>{{ slide.name }}</p>
     <button *ngIf="this.page === 'config'" routerLink="{{ routeOne }}" (click)="deleteCard()">{{ btnOne }}</button>
-    <button *ngIf="this.page === 'config'" routerLink="{{ routeTwo }}">{{ btnTwo }}</button>
+    <button *ngIf="this.page === 'config'" routerLink="{{ routeTwo }}" (click)="resetCard()">{{ btnTwo }}</button>
     <button *ngIf="this.page === 'selection'" (click)="showInput1 = true; showInput2 = false; focusInput(); onCardSelect()">Jouer en solo</button>
     <button *ngIf="this.page === 'selection'" (click)="showInput1 = false; showInput2 = true; checkGame(); focusInput(); onCardSelect()">
         Option multijoueur

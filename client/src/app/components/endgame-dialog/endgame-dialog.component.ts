@@ -2,6 +2,9 @@ import { Component, Inject, Input, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
 import { Time } from 'src/assets/variables/time';
+
+const NOT_TOP3 = -1;
+
 @Component({
     selector: 'app-endgame-modal-dialog',
     templateUrl: './endgame-dialog.component.html',
@@ -30,10 +33,7 @@ export class EndgameDialogComponent implements OnInit {
                 })}`;
             }
             this.classicModeService.timePosition$.subscribe((timePosition: number) => {
-                // eslint-disable-next-line no-console
-                console.log(timePosition);
-                // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-                if (timePosition === -1) return;
+                if (timePosition === NOT_TOP3) return;
                 timePosition++;
                 if (timePosition === 1) this.timePosition = `${timePosition}er`;
                 else this.timePosition = `${timePosition}eme`;

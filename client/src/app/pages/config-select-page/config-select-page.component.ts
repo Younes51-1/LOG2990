@@ -50,11 +50,25 @@ export class ConfigSelectPageComponent implements OnInit {
 
     deleteNotify(name: string): void {
         if (this.pageType === PageKeys.Config) {
-            this.dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { deleted: false } });
+            this.dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { action: 'delete' } });
             if (this.dialogRef) {
                 this.dialogRef.afterClosed().subscribe((supp) => {
                     if (supp) {
                         this.removeSlide(name);
+                    }
+                });
+            }
+        }
+    }
+
+    resetNotify(name: string): void {
+        if (this.pageType === PageKeys.Config) {
+            this.dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { action: 'reset' } });
+            if (this.dialogRef) {
+                this.dialogRef.afterClosed().subscribe((supp) => {
+                    if (supp) {
+                        this.configCommunicationService.deleteBestTime(name).subscribe();
+                        window.location.reload();
                     }
                 });
             }
@@ -82,6 +96,31 @@ export class ConfigSelectPageComponent implements OnInit {
         const seconds = time % Time.MinInSec;
         return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
+
+    resetBestTimes() {
+        this.dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { action: 'resetAll' } });
+        if (this.dialogRef) {
+            this.dialogRef.afterClosed().subscribe((supp) => {
+                if (supp) {
+                    this.configCommunicationService.deleteBestTimes().subscribe();
+                    window.location.reload();
+                }
+            });
+        }
+    }
+
+    deleteAllGames(): void {
+        this.dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { action: 'deleteAll' } });
+        if (this.dialogRef) {
+            this.dialogRef.afterClosed().subscribe((supp) => {
+                if (supp) {
+                    this.gameCommunicationService.deleteAllGames().subscribe();
+                    this.slides = [];
+                }
+            });
+        }
+    }
+
     private getSlidesFromServer(): void {
         const component = this;
         this.gameCommunicationService.getAllGames().subscribe((res) => {

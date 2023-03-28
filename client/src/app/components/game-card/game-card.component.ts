@@ -19,6 +19,8 @@ export class GameCardComponent implements OnInit, OnDestroy {
     @Input() slide: GameForm;
 
     @Output() notify = new EventEmitter();
+    @Output() deleteNotify = new EventEmitter();
+    @Output() resetNotify = new EventEmitter();
     @Output() notifySelected = new EventEmitter<string>();
 
     routeOne: string;
@@ -64,7 +66,7 @@ export class GameCardComponent implements OnInit, OnDestroy {
             });
         });
         this.slide.vsBestTimes.forEach((time) => {
-            this.soloBestTime.push({
+            this.vsBestTime.push({
                 name: time.name,
                 time: `${Math.floor(time.time / Time.MinInSec)}:${(time.time % Time.MinInSec).toLocaleString('en-US', {
                     minimumIntegerDigits: 2,
@@ -108,7 +110,11 @@ export class GameCardComponent implements OnInit, OnDestroy {
     }
 
     deleteCard() {
-        this.notify.emit(this.slide.name);
+        this.deleteNotify.emit(this.slide.name);
+    }
+
+    resetCard() {
+        this.resetNotify.emit(this.slide.name);
     }
 
     verifySoloInput() {

@@ -1,6 +1,7 @@
 import { GameConstants } from '@app/model/database/game-constants';
 import { GameHistory } from '@app/model/dto/game-history/game-history.dto';
 import { NewBestTime } from '@app/model/dto/game/new-best-times.dto';
+import { BestTime } from '@app/model/schema/best-times.schema';
 import { GameConstantsService } from '@app/services/game-constant/game-constants.service';
 import { GameHistoryService } from '@app/services/game-history/game-history.service';
 import { GameService } from '@app/services/game/game.service';
@@ -46,6 +47,23 @@ export class ConfigController {
         try {
             const constants = await this.gameConstantsService.getGameConstants();
             response.status(HttpStatus.OK).json(constants);
+        } catch (error) {
+            response.status(HttpStatus.NOT_FOUND).send(error.message);
+        }
+    }
+
+    @ApiOkResponse({
+        description: 'Returns best times for a specific game',
+        type: BestTime,
+    })
+    @ApiNotFoundResponse({
+        description: 'Return NOT_FOUND http status when request fails',
+    })
+    @Get('/times/:name')
+    async getBestTime(@Param('name') name: string, @Res() response: Response) {
+        try {
+            const bestTime = await this.gameService.getBestTime(name);
+            response.status(HttpStatus.OK).json(bestTime);
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send(error.message);
         }
@@ -126,8 +144,8 @@ export class ConfigController {
     @Delete('/times')
     async deleteBestTimes(@Res() response: Response) {
         try {
-            // TODO: implement this
-            response.status(HttpStatus.OK).json();
+            await this.gameService.deleteBestTimes();
+            response.status(HttpStatus.OK).send();
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send(error.message);
         }
@@ -142,8 +160,8 @@ export class ConfigController {
     @Delete('/times/:name')
     async deleteBestTime(@Param('name') name: string, @Res() response: Response) {
         try {
-            // TODO: implement this
-            response.status(HttpStatus.OK).json();
+            await this.gameService.deleteBestTime(name);
+            response.status(HttpStatus.OK).send();
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send(error.message);
         }

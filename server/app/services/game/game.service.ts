@@ -1,4 +1,4 @@
-import { DIFFICULTY_THRESHOLD } from '@app/constants';
+import { DIFFICULTY_THRESHOLD, NOT_TOP3 } from '@app/constants';
 import { environment } from '@app/environments/environment';
 import { ClassicModeGateway } from '@app/gateways/classic-mode/classic-mode.gateway';
 import { Game, GameDocument } from '@app/model/database/game';
@@ -27,6 +27,12 @@ export class GameService {
         return await this.convertGameToGameData(game);
     }
 
+    async getBestTime(name: string): Promise<{ soloBestTimes: BestTime[]; vsBestTimes: BestTime[] }> {
+        const game = await this.gameModel.findOne({ name });
+        if (!game) return Promise.reject('Failed to get best time');
+        return await { soloBestTimes: game.soloBestTimes, vsBestTimes: game.vsBestTimes };
+    }
+
     async createNewGame(newGame: NewGame): Promise<void> {
         try {
             await this.saveImages(newGame);
@@ -49,6 +55,30 @@ export class GameService {
             this.classicModeGateway.cancelDeletedGame(name);
         } catch (error) {
             return Promise.reject(`Failed to delete game: ${error}`);
+        }
+    }
+
+    async deleteBestTimes(): Promise<void> {
+        try {
+            const games = await this.gameModel.find({});
+            games.forEach(async (game) => {
+                game.soloBestTimes = this.newBestTimes();
+                game.vsBestTimes = this.newBestTimes();
+                await game.save();
+            });
+        } catch (error) {
+            return Promise.reject(`Failed to delete best times: ${error}`);
+        }
+    }
+
+    async deleteBestTime(name: string): Promise<void> {
+        try {
+            const game = await this.gameModel.findOne({ name });
+            game.soloBestTimes = this.newBestTimes();
+            game.vsBestTimes = this.newBestTimes();
+            await game.save();
+        } catch (error) {
+            return Promise.reject(`Failed to delete best time: ${error}`);
         }
     }
 
@@ -91,6 +121,7 @@ export class GameService {
                 position = newPosition;
             }
             await game.save();
+            if (position !== NOT_TOP3) this.classicModeGateway.newBestTimeScore(newBestTime, position);
             return position;
         } catch (error) {
             return Promise.reject(`Failed to update best time: ${error}`);
