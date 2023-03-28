@@ -8,16 +8,17 @@
             [gameName]="this.data.videoReplay.scoreboardParams.gameName"
             [opponentUsername]="this.data.videoReplay.scoreboardParams.opponentUsername"
             [username]="this.data.videoReplay.scoreboardParams.username"
-            [minutes]="getMinutes()"
-            [seconds]="getSeconds()"
+            [time]="this.time"
         ></app-fake-score-board>
     </div>
     <div class="div1">
         <app-fake-play-area
             [original]="this.data.videoReplay.images.original"
             [modified]="this.data.videoReplay.images.modified"
+            [time]="this.time"
+            [actions]="this.playAreaActions"
         ></app-fake-play-area>
-        <app-fake-chat-box></app-fake-chat-box>
+        <app-fake-chat-box> [time]="this.time" </app-fake-chat-box>
     </div>
 </div>
 

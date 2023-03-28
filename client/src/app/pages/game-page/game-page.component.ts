@@ -3,7 +3,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
 import { GameRoom } from '@app/interfaces/game';
-import { VideoReplay } from '@app/interfaces/video-replay';
+import { Instruction, VideoReplay } from '@app/interfaces/video-replay';
 import { ChatService } from '@app/services/chat/chat.service';
 import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
 import confetti from 'canvas-confetti';
@@ -145,6 +145,10 @@ export class GamePageComponent implements OnInit, OnDestroy {
         } else {
             this.videoReplay.images.modified = data.src;
         }
+    }
+
+    getDiff(data: { diff: number[][] }) {
+        this.videoReplay.actions.push({ type: Instruction.DiffFound, timeStart: this.timer, difference: data.diff });
     }
 
     ngOnDestroy() {

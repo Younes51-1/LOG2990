@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { GameRoom } from '@app/interfaces/game';
+import { Time } from 'src/assets/variables/time';
 
 @Component({
     selector: 'app-fake-score-board',
@@ -11,8 +12,7 @@ export class FakeScoreBoardComponent implements OnInit {
     @Input() gameName: string;
     @Input() opponentUsername: string;
     @Input() username: string;
-    @Input() minutes: number = 0;
-    @Input() seconds: number = 0;
+    @Input() time: number;
 
     gameMode: string = 'mode classique';
     difficulty: string;
@@ -25,5 +25,13 @@ export class FakeScoreBoardComponent implements OnInit {
             this.nbDiff = this.gameRoom.userGame.gameData.gameForm.nbDifference;
             this.difficulty = this.gameRoom.userGame.gameData.gameForm.difficulty;
         }
+    }
+
+    getMinutes() {
+        return Math.floor(this.time / Time.MinInSec);
+    }
+
+    getSeconds() {
+        return this.time % Time.MinInSec;
     }
 }

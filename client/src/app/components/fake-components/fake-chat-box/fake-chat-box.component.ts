@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Message } from '@app/interfaces/chat';
 
 @Component({
@@ -7,6 +7,7 @@ import { Message } from '@app/interfaces/chat';
     styleUrls: ['./fake-chat-box.component.scss'],
 })
 export class FakeChatBoxComponent {
+    @Input() time: number;
     messages: Message[] = [];
     username: string;
 }

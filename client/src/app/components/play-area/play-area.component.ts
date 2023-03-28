@@ -21,6 +21,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     @Input() gameRoom: GameRoom;
     @Output() userError = new EventEmitter();
     @Output() sendImage = new EventEmitter<{ src: string; first: boolean }>();
+    @Output() sendDiff = new EventEmitter<{ diff: number[][] }>();
 
     private canvasClicked: HTMLCanvasElement;
     private playerIsAllowedToClick = true;
@@ -171,11 +172,12 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     }
 
     private flashDifference(difference: number[][]) {
+        this.sendDiff.emit({ diff: difference });
         if (!this.context1 || !this.context2) {
             return;
         }
-        const timeOut = 100;
-        const totalDuration = 1000;
+        const timeOut = 50;
+        const totalDuration = 500;
         const layer = this.createAndFillNewLayer(Color.Luigi, false, difference);
         let isFlashing = false;
         this.differenceIntervalId = setInterval(() => {

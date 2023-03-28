@@ -19,6 +19,7 @@
         [gameRoom]="gameRoom"
         (userError)="sendEvent('error')"
         (sendImage)="getImage($event)"
+        (sendDiff)="getDiff($event)"
     ></app-play-area>
     <app-chat-box [gameRoom]="gameRoom" [username]="username"></app-chat-box>
 </section>

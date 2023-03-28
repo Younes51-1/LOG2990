@@ -23,8 +23,8 @@ export enum Instruction {
 export interface InstructionReplay {
     type: Instruction;
     timeStart: number;
-    timeEnd: number;
-    difference: number[][];
-    message: Message;
-    mousePosition: Vec2;
+    timeEnd?: number;
+    difference?: number[][];
+    message?: Message;
+    mousePosition?: Vec2;
 }
