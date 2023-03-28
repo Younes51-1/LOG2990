@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { ConfigParamsComponent } from '@app/components/config-params/config-params.component';
+import { Constants } from 'src/assets/variables/constants';
 
 describe('ConfigParamsComponent', () => {
     let component: ConfigParamsComponent;
@@ -81,6 +82,13 @@ describe('ConfigParamsComponent', () => {
         expect(component.isInvalidInput).toBeFalse();
     });
 
+    it('should put initialTime in bounds if lower than minimum allowed', () => {
+        const tooLow = 0;
+        component.initialTime = tooLow;
+        component.buttonIncreaseInitialTime();
+        expect(component.initialTime.valueOf()).toEqual(Constants.MinInitialTime);
+    });
+
     it('should decrement initialTime by 5 seconds if in bounds', () => {
         const answer = 25;
         component.buttonDecreaseInitialTime();
@@ -94,6 +102,13 @@ describe('ConfigParamsComponent', () => {
         component.buttonDecreaseInitialTime();
         expect(component.initialTime.valueOf()).toEqual(answer);
         expect(component.isInvalidInput).toBeFalse();
+    });
+
+    it('should put initialTime in bounds if higher than maximum allowed', () => {
+        const tooHigh = 200;
+        component.initialTime = tooHigh;
+        component.buttonDecreaseInitialTime();
+        expect(component.initialTime.valueOf()).toEqual(Constants.MaxInitialTime);
     });
 
     it('should increment penaltyTime by 1 seconds if in bounds', () => {
@@ -111,6 +126,13 @@ describe('ConfigParamsComponent', () => {
         expect(component.isInvalidInput).toBeFalse();
     });
 
+    it('should put penaltyTime in bounds if lower than minimum allowed', () => {
+        const tooLow = 0;
+        component.penaltyTime = tooLow;
+        component.buttonIncreasePenalty();
+        expect(component.penaltyTime.valueOf()).toEqual(Constants.MinPenaltyTime);
+    });
+
     it('should decrement penaltyTime by 1 seconds if in bounds', () => {
         const answer = 4;
         component.buttonDecreasePenalty();
@@ -124,6 +146,13 @@ describe('ConfigParamsComponent', () => {
         component.buttonDecreasePenalty();
         expect(component.penaltyTime.valueOf()).toEqual(answer);
         expect(component.isInvalidInput).toBeFalse();
+    });
+
+    it('should put penaltyTime in bounds if higher than maximum allowed', () => {
+        const tooHigh = 50;
+        component.penaltyTime = tooHigh;
+        component.buttonDecreasePenalty();
+        expect(component.penaltyTime.valueOf()).toEqual(Constants.MaxPenaltyTime);
     });
 
     it('should increment bonusTime by 1 seconds if in bounds', () => {
@@ -141,6 +170,13 @@ describe('ConfigParamsComponent', () => {
         expect(component.isInvalidInput).toBeFalse();
     });
 
+    it('should put bonusTime in bounds if lower than minimum allowed', () => {
+        const tooLow = 0;
+        component.bonusTime = tooLow;
+        component.buttonIncreaseBonus();
+        expect(component.bonusTime.valueOf()).toEqual(Constants.MinBonusTime);
+    });
+
     it('should decrement bonusTime by 1 seconds if in bounds', () => {
         const answer = 4;
         component.buttonDecreaseBonus();
@@ -154,5 +190,12 @@ describe('ConfigParamsComponent', () => {
         component.buttonDecreaseBonus();
         expect(component.bonusTime.valueOf()).toEqual(answer);
         expect(component.isInvalidInput).toBeFalse();
+    });
+
+    it('should put bonusTime in bounds if higher than minimum allowed', () => {
+        const tooHigh = 50;
+        component.bonusTime = tooHigh;
+        component.buttonDecreaseBonus();
+        expect(component.bonusTime.valueOf()).toEqual(Constants.MaxBonusTime);
     });
 });
