@@ -1,4 +1,4 @@
-export interface Constants {
+export interface GameConstants {
     initialTime: number;
     penaltyTime: number;
     bonusTime: number;
