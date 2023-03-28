@@ -1,4 +1,5 @@
 import { GameRoom } from '@app/interfaces/game';
+import { Vec2 } from './vec2';
 
 export interface VideoReplay {
     images: { original: string; modified: string };
@@ -9,10 +10,20 @@ export interface VideoReplay {
         username: string;
     };
     actions: InstructionReplay[];
-    rien: boolean;
+}
+
+export enum Instruction {
+    DiffFound = 'diffFound',
+    Error = 'error',
+    ChatMessage = 'chatMessage',
+    CheatMode = 'cheatMode',
 }
 
 export interface InstructionReplay {
-    type: string;
-    time: number;
+    type: Instruction;
+    timeStart: number;
+    timeEnd: number;
+    difference: number[][];
+    message: string;
+    mousePosition: Vec2;
 }
