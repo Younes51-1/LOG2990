@@ -1,4 +1,5 @@
 import { GameRoom } from '@app/interfaces/game';
+import { Message } from './chat';
 import { Vec2 } from './vec2';
 
 export interface VideoReplay {
@@ -24,6 +25,6 @@ export interface InstructionReplay {
     timeStart: number;
     timeEnd: number;
     difference: number[][];
-    message: string;
+    message: Message;
     mousePosition: Vec2;
 }
