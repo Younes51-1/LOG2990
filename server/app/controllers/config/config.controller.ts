@@ -1,6 +1,7 @@
-import { Constants } from '@app/model/dto/game-history/constants.dto';
+import { GameConstants } from '@app/model/database/game-constants';
 import { GameHistory } from '@app/model/dto/game-history/game-history.dto';
 import { NewBestTime } from '@app/model/dto/game/new-best-times.dto';
+import { GameConstantsService } from '@app/services/game-constant/game-constants.service';
 import { GameHistoryService } from '@app/services/game-history/game-history.service';
 import { GameService } from '@app/services/game/game.service';
 import { Body, Controller, Delete, Get, HttpStatus, Param, Put, Res } from '@nestjs/common';
@@ -10,7 +11,11 @@ import { Response } from 'express';
 @ApiTags('Config')
 @Controller('config')
 export class ConfigController {
-    constructor(private readonly gameHistoryService: GameHistoryService, private readonly gameService: GameService) {}
+    constructor(
+        private readonly gameHistoryService: GameHistoryService,
+        private readonly gameService: GameService,
+        private readonly gameConstantsService: GameConstantsService,
+    ) {}
     @ApiOkResponse({
         description: 'Returns all history',
         type: GameHistory,
@@ -31,7 +36,7 @@ export class ConfigController {
 
     @ApiOkResponse({
         description: 'Returns constants',
-        type: Constants,
+        type: GameConstants,
     })
     @ApiNotFoundResponse({
         description: 'Return NOT_FOUND http status when request fails',
@@ -39,8 +44,8 @@ export class ConfigController {
     @Get('/constants')
     async getConstants(@Res() response: Response) {
         try {
-            // TODO: implement this
-            response.status(HttpStatus.OK).json();
+            const constants = await this.gameConstantsService.getGameConstants();
+            response.status(HttpStatus.OK).json(constants);
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send(error.message);
         }
@@ -65,16 +70,16 @@ export class ConfigController {
 
     @ApiOkResponse({
         description: 'update constants',
-        type: Constants,
+        type: GameConstants,
     })
     @ApiNotFoundResponse({
         description: 'Return NOT_FOUND http status when request fails',
     })
     @Put('/constants')
-    async updateConstants(@Body() constants: Constants, @Res() response: Response) {
+    async updateConstants(@Body() gameConstants: GameConstants, @Res() response: Response) {
         try {
-            // TODO: implement this
-            response.status(HttpStatus.OK).json();
+            await this.gameConstantsService.updateGameConstants(gameConstants);
+            response.status(HttpStatus.OK).send();
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send(error.message);
         }

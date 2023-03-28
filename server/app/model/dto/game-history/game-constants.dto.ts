@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber } from 'class-validator';
 
-export class Constants {
+export class GameConstants {
     @ApiProperty()
     @IsNumber()
     initialTime: number;
