@@ -17,10 +17,14 @@ export class VideoReplayDialogComponent implements AfterViewInit, OnInit {
     playAreaActions: InstructionReplay[] = [];
     scoreBoardActions: InstructionReplay[] = [];
     chatBoxActions: InstructionReplay[] = [];
+    replayRestarted: boolean = false;
+    actions: InstructionReplay[];
+    counter: number = 0;
 
     constructor(@Inject(MAT_DIALOG_DATA) public data: { videoReplay: VideoReplay }) {}
 
     ngOnInit(): void {
+        this.actions = this.data.videoReplay.actions;
         this.sortActions();
     }
 
@@ -32,9 +36,8 @@ export class VideoReplayDialogComponent implements AfterViewInit, OnInit {
     }
 
     sortActions(): void {
-        const actions = this.data.videoReplay.actions;
-        while (actions.length) {
-            const action = actions.shift();
+        while (this.counter < this.actions.length) {
+            const action = this.actions[this.counter++];
             if (action) {
                 switch (action.type) {
                     case Instruction.DiffFound:
@@ -82,6 +85,9 @@ export class VideoReplayDialogComponent implements AfterViewInit, OnInit {
 
     restart() {
         this.time = 0;
+        this.counter = 0;
+        this.replayRestarted = true;
+        this.sortActions();
         // ...
     }
 

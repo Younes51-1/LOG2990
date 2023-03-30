@@ -10,22 +10,30 @@ import { InstructionReplay } from '@app/interfaces/video-replay';
 export class FakeChatBoxComponent implements OnChanges, OnInit {
     @Input() time: number;
     @Input() actions: InstructionReplay[];
+    @Input() replayRestarted: boolean;
     messages: Message[] = [];
+    counter: number = 0;
     username: string;
     private currentAction: InstructionReplay | undefined;
 
     ngOnInit() {
-        this.currentAction = this.actions.shift();
+        this.currentAction = this.actions[this.counter++];
     }
 
     ngOnChanges(): void {
         if (this.currentAction && this.currentAction.message) {
             if (this.currentAction.timeStart === this.time) {
                 this.messages.push(this.currentAction.message);
-                if (this.actions.length) {
-                    this.currentAction = this.actions.shift();
+                if (this.counter < this.actions.length) {
+                    this.currentAction = this.actions[this.counter++];
                 }
             }
+        }
+        if (this.replayRestarted) {
+            this.counter = 0;
+            this.messages = [];
+            this.currentAction = this.actions[this.counter++];
+            this.replayRestarted = !this.replayRestarted;
         }
     }
 }
