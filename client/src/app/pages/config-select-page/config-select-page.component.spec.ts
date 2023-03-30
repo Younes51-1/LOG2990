@@ -187,7 +187,7 @@ describe('ConfigSelectPageComponent', () => {
         });
         component.pageType = PageKeys.Config;
         component.deleteNotify('Find the Differences 1');
-        expect(dialog.open).toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true, data: { deleted: false } });
+        expect(dialog.open).toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true, data: { action: 'delete' } });
         expect(dialogRefSpy.afterClosed).toHaveBeenCalled();
         expect((component as any).removeSlide).toHaveBeenCalledWith('Find the Differences 1');
     });
@@ -201,7 +201,7 @@ describe('ConfigSelectPageComponent', () => {
         });
         component.pageType = PageKeys.Config;
         component.deleteNotify('Find the Differences 1');
-        expect(dialog.open).toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true, data: { deleted: false } });
+        expect(dialog.open).toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true, data: { action: 'delete' } });
         expect(dialogRefSpy.afterClosed).toHaveBeenCalled();
         expect((component as any).removeSlide).not.toHaveBeenCalledWith('Find the Differences 1');
     });
