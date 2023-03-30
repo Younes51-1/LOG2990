@@ -13,16 +13,15 @@ export class ConfigParamsComponent {
     @Input() penaltyTime: number = Time.FiveSeconds;
     @Input() bonusTime: number = Time.FiveSeconds;
 
-    isInitialTimeValid: boolean = true;
-
     isInvalidInput: boolean = false;
 
     constructor(private verifyInput: VerifyInputService) {}
 
     manuallyChangeInitialTime(value: string) {
         if (this.verifyInput.verifyNotNumber(value)) {
-            const inputValue = document.getElementsByTagName('input')[0].value;
-            document.getElementsByTagName('input')[0].value = inputValue.replace(/[^0-9]*/g, '');
+            const numericInput = value.replace(/[^0-9]*/g, '');
+            document.getElementsByTagName('input')[0].value = numericInput;
+            this.initialTime = +numericInput;
         } else if (!this.verifyInput.verifyConstantsInBounds(+value, 'initialTime')) {
             this.isInvalidInput = true;
             this.initialTime = +value;
@@ -34,8 +33,9 @@ export class ConfigParamsComponent {
 
     manuallyChangePenaltyTime(value: string) {
         if (this.verifyInput.verifyNotNumber(value)) {
-            const inputValue = document.getElementsByTagName('input')[1].value;
-            document.getElementsByTagName('input')[1].value = inputValue.replace(/[^0-9]*/g, '');
+            const numericInput = value.replace(/[^0-9]*/g, '');
+            document.getElementsByTagName('input')[1].value = numericInput;
+            this.penaltyTime = +numericInput;
         } else if (!this.verifyInput.verifyConstantsInBounds(+value, 'penaltyTime')) {
             this.isInvalidInput = true;
             this.penaltyTime = +value;
@@ -47,8 +47,9 @@ export class ConfigParamsComponent {
 
     manuallyChangeBonusTime(value: string) {
         if (this.verifyInput.verifyNotNumber(value)) {
-            const inputValue = document.getElementsByTagName('input')[2].value;
-            document.getElementsByTagName('input')[2].value = inputValue.replace(/[^0-9]*/g, '');
+            const numericInput = value.replace(/[^0-9]*/g, '');
+            document.getElementsByTagName('input')[2].value = numericInput;
+            this.bonusTime = +numericInput;
         } else if (!this.verifyInput.verifyConstantsInBounds(+value, 'bonusTime')) {
             this.isInvalidInput = true;
             this.bonusTime = +value;
