@@ -30,9 +30,6 @@ export class VideoReplayDialogComponent implements AfterViewInit, OnInit {
 
     ngAfterViewInit(): void {
         this.startTimer();
-        // actions = data.videoreplay.actions //actions doit etre une queue
-        // actionsDeepCopy = action;
-        this.replay();
     }
 
     sortActions(): void {
@@ -47,40 +44,25 @@ export class VideoReplayDialogComponent implements AfterViewInit, OnInit {
                         this.chatBoxActions.push(action);
                         break;
                     case Instruction.Error:
+                        this.playAreaActions.push(action);
                         break;
-                    case Instruction.CheatMode:
+                    case Instruction.CheatModeStart:
+                        this.playAreaActions.push(action);
+                        break;
+                    case Instruction.CheatModeEnd:
+                        this.playAreaActions.push(action);
                         break;
                 }
             }
         }
     }
 
-    replay() {
-        // while ( notPaused )
-        //      currentAction = action.pop
-        //      if(currentAction.time > time)
-        //          doAction(action, speed);
-        //          if (actions.length > 0)
-        //              currentAction = actions.pop()
-        //          else { break; }
-        //
-        // this.currentAction = this.data.videoReplay.actions.pop();
-        // if (this.currentAction) {
-        //     while (true) {
-        //         if (this.currentAction.time >= this.time) {
-        //         }
-        //     }
-        // }
-    }
-
     pause() {
         this.stopTimer();
-        // ...
     }
 
     continue() {
         this.startTimer();
-        // ...
     }
 
     restart() {

@@ -11,21 +11,25 @@ export interface VideoReplay {
         username: string;
     };
     actions: InstructionReplay[];
+    sources: string[];
+    cheatLayers: HTMLCanvasElement[];
 }
 
 export enum Instruction {
     DiffFound = 'diffFound',
     Error = 'error',
     ChatMessage = 'chatMessage',
-    CheatMode = 'cheatMode',
+    CheatModeStart = 'cheatModeStart',
+    CheatModeEnd = 'cheatModeEnd',
     Hint = 'hint',
 }
 
 export interface InstructionReplay {
     type: Instruction;
     timeStart: number;
-    timeEnd?: number;
+    cheatLayer?: HTMLCanvasElement;
     difference?: number[][];
     message?: Message;
     mousePosition?: Vec2;
+    leftCanvas?: boolean;
 }

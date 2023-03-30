@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
 import { Message } from '@app/interfaces/chat';
 import { GameRoom } from '@app/interfaces/game';
+import { Vec2 } from '@app/interfaces/vec2';
 import { Instruction, VideoReplay } from '@app/interfaces/video-replay';
 import { ChatService } from '@app/services/chat/chat.service';
 import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
@@ -95,6 +96,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 username: this.username,
             },
             actions: [],
+            sources: [],
+            cheatLayers: [],
         };
     }
 
@@ -155,6 +158,23 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     getDiff(data: { diff: number[][] }) {
         this.videoReplay.actions.push({ type: Instruction.DiffFound, timeStart: this.timer, difference: data.diff });
+    }
+
+    getError(data: { pos: Vec2; leftCanvas: boolean }) {
+        this.videoReplay.actions.push({ type: Instruction.Error, timeStart: this.timer, mousePosition: data.pos, leftCanvas: data.leftCanvas });
+    }
+
+    getSource(data: { src: string; layer: HTMLCanvasElement }) {
+        this.videoReplay.sources.push(data.src);
+        this.videoReplay.cheatLayers.push(data.layer);
+    }
+
+    getCheatStart(data: { layer: HTMLCanvasElement }) {
+        this.videoReplay.actions.push({ type: Instruction.CheatModeStart, timeStart: this.timer, cheatLayer: data.layer });
+    }
+
+    getCheatEnd() {
+        this.videoReplay.actions.push({ type: Instruction.CheatModeEnd, timeStart: this.timer });
     }
 
     ngOnDestroy() {

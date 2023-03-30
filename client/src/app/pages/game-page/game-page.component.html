@@ -20,6 +20,10 @@
         (userError)="sendEvent('error')"
         (sendImage)="getImage($event)"
         (sendDiff)="getDiff($event)"
+        (sendError)="getError($event)"
+        (sendSource)="getSource($event)"
+        (sendCheatStart)="getCheatStart($event)"
+        (sendCheatEnd)="getCheatEnd()"
     ></app-play-area>
     <app-chat-box [gameRoom]="gameRoom" [username]="username"></app-chat-box>
 </section>

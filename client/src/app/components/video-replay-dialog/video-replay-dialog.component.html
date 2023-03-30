@@ -17,6 +17,10 @@
             [modified]="this.data.videoReplay.images.modified"
             [time]="this.time"
             [actions]="this.playAreaActions"
+            [speed]="this.speed"
+            [sources]="this.data.videoReplay.sources"
+            [cheatLayers]="this.data.videoReplay.cheatLayers"
+            [replayRestarted]="this.replayRestarted"
         ></app-fake-play-area>
         <app-fake-chat-box [time]="this.time" [actions]="this.chatBoxActions" [replayRestarted]="this.replayRestarted"> </app-fake-chat-box>
     </div>

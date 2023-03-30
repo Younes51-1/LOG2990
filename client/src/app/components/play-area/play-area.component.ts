@@ -22,6 +22,10 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     @Output() userError = new EventEmitter();
     @Output() sendImage = new EventEmitter<{ src: string; first: boolean }>();
     @Output() sendDiff = new EventEmitter<{ diff: number[][] }>();
+    @Output() sendError = new EventEmitter<{ pos: Vec2; leftCanvas: boolean }>();
+    @Output() sendSource = new EventEmitter<{ src: string; layer: HTMLCanvasElement }>();
+    @Output() sendCheatStart = new EventEmitter<{ layer: HTMLCanvasElement }>();
+    @Output() sendCheatEnd = new EventEmitter();
 
     private canvasClicked: HTMLCanvasElement;
     private playerIsAllowedToClick = true;
@@ -154,6 +158,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
 
         const context = canvas.getContext('2d');
         const image = canvas === this.canvas1.nativeElement ? this.original : this.modified;
+        this.sendError.emit({ pos: this.mousePosition, leftCanvas: image === this.original });
         if (context) {
             context.fillStyle = Color.Mario;
             context.fillText('ERREUR', this.mousePosition.x - textDimensions.x / 2, this.mousePosition.y + textDimensions.y / 2, textDimensions.x);
@@ -229,6 +234,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         this.context2.putImageData(image2, 0, 0);
         this.modified.src = this.canvas2.nativeElement.toDataURL();
         this.verifyDifferenceMatrix();
+        this.sendSource.emit({ src: this.modified.src, layer: this.layer });
     }
 
     private verifyDifferenceMatrix() {
@@ -240,6 +246,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
             return;
         }
         if (!this.isCheatModeOn) {
+            this.sendCheatEnd.emit();
             clearInterval(this.cheatIntervalId);
             this.context1.drawImage(this.original, 0, 0, this.width, this.height);
             this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
@@ -248,6 +255,8 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         const flashDuration = 125;
         let isFlashing = true;
         this.verifyDifferenceMatrix();
+
+        this.sendCheatStart.emit({ layer: this.layer });
         this.cheatIntervalId = setInterval(() => {
             if (isFlashing) {
                 this.context1.drawImage(this.original, 0, 0, this.width, this.height);

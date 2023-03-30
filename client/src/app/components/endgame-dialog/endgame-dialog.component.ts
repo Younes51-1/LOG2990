@@ -20,6 +20,9 @@ export class EndgameDialogComponent {
     }
 
     openVideoReplay() {
-        this.videoReplayDialog.open(VideoReplayDialogComponent, { data: { videoReplay: this.data.videoReplay } });
+        this.videoReplayDialog.open(VideoReplayDialogComponent, {
+            data: { videoReplay: this.data.videoReplay },
+            disableClose: true,
+        });
     }
 }
