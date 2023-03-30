@@ -137,11 +137,15 @@ describe.only('ConfigController', () => {
     });
 
     it('updateBestTime should modify the bestTime of specific game and return OK', async () => {
-        gameService.updateBestTime.resolves();
+        gameService.updateBestTime.resolves(0);
 
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.json = (position) => {
+            expect(position).toEqual(0);
             return res;
         };
         res.send = () => res;
