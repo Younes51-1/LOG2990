@@ -127,22 +127,17 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     sendEvent(event: string) {
-        let message: Message = { message: '', username: '' };
         switch (event) {
             case 'error':
-                message = { message: `Erreur par ${this.username}`, username: 'Système', time: this.timer };
-                this.chatService.sendMessage(message.message, message.username, this.gameRoom.roomId);
+                this.chatService.sendMessage(`Erreur par ${this.username}`, 'Système', this.gameRoom.roomId);
                 break;
             case 'success':
-                message = { message: `Différence trouvée par ${this.username}`, username: 'Système', time: this.timer };
-                this.chatService.sendMessage(message.message, message.username, this.gameRoom.roomId);
+                this.chatService.sendMessage(`Différence trouvée par ${this.username}`, 'Système', this.gameRoom.roomId);
                 break;
             case 'abandon':
-                message = { message: `${this.username} a abandonné la partie`, username: 'Système', time: this.timer };
-                this.chatService.sendMessage(message.message, message.username, this.gameRoom.roomId);
+                this.chatService.sendMessage(`${this.username} a abandonné la partie`, 'Système', this.gameRoom.roomId);
                 break;
         }
-        this.videoReplay.actions.push({ type: Instruction.ChatMessage, timeStart: this.timer, message });
     }
 
     getImage(data: { src: string; first: boolean }) {
@@ -155,6 +150,10 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     getDiff(data: { diff: number[][] }) {
         this.videoReplay.actions.push({ type: Instruction.DiffFound, timeStart: this.timer, difference: data.diff });
+    }
+
+    getChatMessage(data: Message) {
+        this.videoReplay.actions.push({ type: Instruction.ChatMessage, timeStart: this.timer, message: data });
     }
 
     ngOnDestroy() {
