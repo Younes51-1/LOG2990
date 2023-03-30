@@ -142,7 +142,6 @@ export class GameService {
             }
             await game.save();
             if (position !== NOT_TOP3) {
-                this.classicModeGateway.newBestTimeScore(newBestTime, position);
                 if (newBestTime.isSolo) {
                     this.chatGateway.newBestTimeScore(
                         `${newBestTime.name} obtient la ${position + 1} place dans les meilleurs temps du jeu ${newBestTime.gameName} en mode solo`,
