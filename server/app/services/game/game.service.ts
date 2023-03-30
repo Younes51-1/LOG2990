@@ -63,6 +63,21 @@ export class GameService {
         }
     }
 
+    async deleteAllGames(): Promise<void> {
+        try {
+            const games = await this.gameModel.find({});
+            games.forEach(async (game) => {
+                await this.gameModel.deleteOne({
+                    name: game.name,
+                });
+                this.deleteImages(game.name);
+                this.classicModeGateway.cancelDeletedGame(game.name);
+            });
+        } catch (error) {
+            return Promise.reject(`Failed to delete all games: ${error}`);
+        }
+    }
+
     async deleteBestTimes(): Promise<void> {
         try {
             const games = await this.gameModel.find({});

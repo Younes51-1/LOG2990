@@ -20,7 +20,7 @@ import { GameConstantsService } from './services/game-constant/game-constants.se
             imports: [ConfigModule],
             inject: [ConfigService],
             useFactory: async (config: ConfigService) => ({
-                uri: config.get<string>('DATABASE_CONNECTION_STRING'), // Loaded from .env
+                uri: config.get<string>('DATABASE_CONNECTION_STRING'), // Loaded from .env, add '_TESTING' to the end for testing database
             }),
         }),
         MongooseModule.forFeature([

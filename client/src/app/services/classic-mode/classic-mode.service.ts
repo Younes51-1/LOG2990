@@ -259,6 +259,7 @@ export class ClassicModeService {
 
     private updateBestTime(gameFinished: boolean, winner: boolean): void {
         this.configHttpService.getBestTime(this.gameRoom.userGame.gameData.gameForm.name).subscribe((bestTimes) => {
+            if (!bestTimes) return;
             const actualBestTime = this.gameRoom.userGame.username2 ? bestTimes.vsBestTimes[2].time : bestTimes.soloBestTimes[2].time;
             if (this.gameRoom.userGame.timer < actualBestTime && winner && gameFinished && !this.isAbandoned) {
                 const newBestTime = new NewBestTime();
