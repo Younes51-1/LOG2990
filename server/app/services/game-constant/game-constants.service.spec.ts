@@ -23,6 +23,7 @@ describe('GameConstantsService', () => {
                 }),
                 MongooseModule.forFeature([{ name: 'game-constants', schema: gameConstantsSchema }]),
             ],
+            providers: [GameConstantsService],
         }).compile();
 
         service = module.get<GameConstantsService>(GameConstantsService);

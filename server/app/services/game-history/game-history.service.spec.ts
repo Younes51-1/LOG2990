@@ -4,7 +4,7 @@ import { getConnectionToken, getModelToken, MongooseModule } from '@nestjs/mongo
 import { Test } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Model } from 'mongoose';
-import { GameHistoryService } from './game-history.service';
+import { GameHistoryService } from '@app/services/game-history/game-history.service';
 
 describe('GameHistoryService', () => {
     let service: GameHistoryService;
@@ -23,6 +23,7 @@ describe('GameHistoryService', () => {
                 }),
                 MongooseModule.forFeature([{ name: 'games-histories', schema: gameHistorySchema }]),
             ],
+            providers: [GameHistoryService],
         }).compile();
 
         service = module.get<GameHistoryService>(GameHistoryService);
