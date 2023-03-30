@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
+import { Message } from '@app/interfaces/chat';
 import { GameRoom } from '@app/interfaces/game';
 import { Instruction, VideoReplay } from '@app/interfaces/video-replay';
 import { ChatService } from '@app/services/chat/chat.service';
@@ -126,17 +127,22 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     sendEvent(event: string) {
+        let message: Message = { message: '', username: '' };
         switch (event) {
             case 'error':
-                this.chatService.sendMessage(`Erreur par ${this.username}`, 'Système', this.gameRoom.roomId);
+                message = { message: `Erreur par ${this.username}`, username: 'Système', time: this.timer };
+                this.chatService.sendMessage(message.message, message.username, this.gameRoom.roomId);
                 break;
             case 'success':
-                this.chatService.sendMessage(`Différence trouvée par ${this.username}`, 'Système', this.gameRoom.roomId);
+                message = { message: `Différence trouvée par ${this.username}`, username: 'Système', time: this.timer };
+                this.chatService.sendMessage(message.message, message.username, this.gameRoom.roomId);
                 break;
             case 'abandon':
-                this.chatService.sendMessage(`${this.username} a abandonné la partie`, 'Système', this.gameRoom.roomId);
+                message = { message: `${this.username} a abandonné la partie`, username: 'Système', time: this.timer };
+                this.chatService.sendMessage(message.message, message.username, this.gameRoom.roomId);
                 break;
         }
+        this.videoReplay.actions.push({ type: Instruction.ChatMessage, timeStart: this.timer, message });
     }
 
     getImage(data: { src: string; first: boolean }) {

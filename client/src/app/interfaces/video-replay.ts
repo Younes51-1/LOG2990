@@ -18,6 +18,7 @@ export enum Instruction {
     Error = 'error',
     ChatMessage = 'chatMessage',
     CheatMode = 'cheatMode',
+    Hint = 'hint',
 }
 
 export interface InstructionReplay {

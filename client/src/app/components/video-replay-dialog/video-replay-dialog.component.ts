@@ -41,6 +41,7 @@ export class VideoReplayDialogComponent implements AfterViewInit, OnInit {
                         this.playAreaActions.push(action);
                         break;
                     case Instruction.ChatMessage:
+                        this.chatBoxActions.push(action);
                         break;
                     case Instruction.Error:
                         break;
