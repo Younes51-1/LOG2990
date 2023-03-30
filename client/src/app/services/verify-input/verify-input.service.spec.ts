@@ -33,18 +33,18 @@ describe('VerifyInputService', () => {
     });
 
     it('should return false when verifyNumber input is undefined', () => {
-        const output = service.verifyNumber(undefined, 'undefined');
+        const output = service.verifyConstantsInBounds(undefined, 'undefined');
         expect(output).toBe(false);
     });
 
     it('should return false when verifyNumber input contains zero-width characters', () => {
-        const output = service.verifyNumber(+'5​5', 'initialTime');
+        const output = service.verifyConstantsInBounds(+'5​5', 'initialTime');
         expect(output).toBe(false);
     });
 
     it('should return true when verifyNumber input is valid', () => {
         const ten = 10;
-        const output = service.verifyNumber(ten, 'penaltyTime');
+        const output = service.verifyConstantsInBounds(ten, 'penaltyTime');
         expect(output).toBe(true);
     });
 });

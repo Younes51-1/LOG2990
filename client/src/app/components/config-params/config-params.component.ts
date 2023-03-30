@@ -13,24 +13,47 @@ export class ConfigParamsComponent {
     @Input() penaltyTime: number = Time.FiveSeconds;
     @Input() bonusTime: number = Time.FiveSeconds;
 
+    isInitialTimeValid: boolean = true;
+
     isInvalidInput: boolean = false;
 
     constructor(private verifyInput: VerifyInputService) {}
 
-    manuallyChangeValue(inputType: string, value: number) {
-        if (!this.verifyInput.verifyNumber(value, inputType)) {
+    manuallyChangeInitialTime(value: string) {
+        if (this.verifyInput.verifyNotNumber(value)) {
+            const inputValue = document.getElementsByTagName('input')[0].value;
+            document.getElementsByTagName('input')[0].value = inputValue.replace(/[^0-9]*/g, '');
+        } else if (!this.verifyInput.verifyConstantsInBounds(+value, 'initialTime')) {
             this.isInvalidInput = true;
+            this.initialTime = +value;
+        } else {
+            this.initialTime = +value;
         }
-        switch (inputType) {
-            case 'initialTime':
-                this.initialTime = +value;
-                break;
-            case 'penaltyTime':
-                this.penaltyTime = +value;
-                break;
-            case 'bonusTime':
-                this.bonusTime = +value;
-                break;
+        this.validateAllInputs();
+    }
+
+    manuallyChangePenaltyTime(value: string) {
+        if (this.verifyInput.verifyNotNumber(value)) {
+            const inputValue = document.getElementsByTagName('input')[1].value;
+            document.getElementsByTagName('input')[1].value = inputValue.replace(/[^0-9]*/g, '');
+        } else if (!this.verifyInput.verifyConstantsInBounds(+value, 'penaltyTime')) {
+            this.isInvalidInput = true;
+            this.penaltyTime = +value;
+        } else {
+            this.penaltyTime = +value;
+        }
+        this.validateAllInputs();
+    }
+
+    manuallyChangeBonusTime(value: string) {
+        if (this.verifyInput.verifyNotNumber(value)) {
+            const inputValue = document.getElementsByTagName('input')[2].value;
+            document.getElementsByTagName('input')[2].value = inputValue.replace(/[^0-9]*/g, '');
+        } else if (!this.verifyInput.verifyConstantsInBounds(+value, 'bonusTime')) {
+            this.isInvalidInput = true;
+            this.bonusTime = +value;
+        } else {
+            this.bonusTime = +value;
         }
         this.validateAllInputs();
     }
@@ -102,8 +125,8 @@ export class ConfigParamsComponent {
 
     private validateAllInputs() {
         this.isInvalidInput =
-            !this.verifyInput.verifyNumber(this.initialTime, 'initialTime') ||
-            !this.verifyInput.verifyNumber(this.penaltyTime, 'penaltyTime') ||
-            !this.verifyInput.verifyNumber(this.bonusTime, 'bonusTime');
+            !this.verifyInput.verifyConstantsInBounds(this.initialTime, 'initialTime') ||
+            !this.verifyInput.verifyConstantsInBounds(this.penaltyTime, 'penaltyTime') ||
+            !this.verifyInput.verifyConstantsInBounds(this.bonusTime, 'bonusTime');
     }
 }

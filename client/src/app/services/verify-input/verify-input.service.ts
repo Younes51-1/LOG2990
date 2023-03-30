@@ -43,7 +43,14 @@ export class VerifyInputService {
         return true;
     }
 
-    verifyNumber(input: number | undefined, type: string): boolean {
+    verifyNotNumber(input: string): boolean {
+        if (!/^\d+$/.test(input)) {
+            return true;
+        }
+        return false;
+    }
+
+    verifyConstantsInBounds(input: number | undefined, type: string): boolean {
         if (!input) return false;
 
         switch (type) {
