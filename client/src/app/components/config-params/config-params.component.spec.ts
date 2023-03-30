@@ -35,36 +35,32 @@ describe('ConfigParamsComponent', () => {
         expect(bonusTime).not.toBeUndefined();
     });
 
-    it('should not change the variables when an unknown time is passed to manuallyChangeValue', () => {
-        const initialTime = component.initialTime;
-        const penaltyTime = component.penaltyTime;
-        const bonusTime = component.bonusTime;
-        const tenSeconds = 10;
-        component.manuallyChangeValue('unknownTime', tenSeconds);
-        expect(initialTime).toEqual(component.initialTime);
-        expect(penaltyTime).toEqual(component.penaltyTime);
-        expect(bonusTime).toEqual(component.bonusTime);
-    });
-
-    it('should set the value of initialTime in manualChangeValue', () => {
-        const answer = 50;
-        component.manuallyChangeValue('initialTime', answer);
+    it('should set the value of initialTime in manuallyChangeInitialTime', () => {
+        const answer = '50';
+        component.manuallyChangeInitialTime(answer);
         expect(component.initialTime).toEqual(+answer);
         expect(component.isInvalidInput).toBeFalse();
     });
 
-    it('should set the value of penaltyTime in manualChangeValue', () => {
-        const answer = 9;
-        component.manuallyChangeValue('penaltyTime', answer);
+    it('should set the value of penaltyTime in manuallyChangePenaltyTime', () => {
+        const answer = '9';
+        component.manuallyChangePenaltyTime(answer);
         expect(component.penaltyTime).toEqual(+answer);
         expect(component.isInvalidInput).toBeFalse();
     });
 
-    it('should set the value of bonusTime in manualChangeValue', () => {
-        const answer = 9;
-        component.manuallyChangeValue('bonusTime', answer);
+    it('should set the value of bonusTime in manuallyChangeBonusTime', () => {
+        const answer = '9';
+        component.manuallyChangeBonusTime(answer);
         expect(component.bonusTime).toEqual(+answer);
         expect(component.isInvalidInput).toBeFalse();
+    });
+
+    it('should set the value of bonusTime and isInvalidInput to true if value out of bounds in manuallyChangeBonusTime', () => {
+        const answer = '15';
+        component.manuallyChangeBonusTime(answer);
+        expect(component.isInvalidInput).toBe(true);
+        expect(component.bonusTime).toEqual(+answer);
     });
 
     it('should increment initialTime by 5 seconds if in bounds', () => {

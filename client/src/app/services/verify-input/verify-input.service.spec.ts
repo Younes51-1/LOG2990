@@ -32,19 +32,34 @@ describe('VerifyInputService', () => {
         expect(output).toBe(true);
     });
 
-    it('should return false when verifyNumber input is undefined', () => {
+    it('should return true when verifyNotNumber contains a non number', () => {
+        const output = service.verifyNotNumber('5a');
+        expect(output).toBe(true);
+    });
+
+    it('should return false when verifyNotNumber contains only numbers', () => {
+        const output = service.verifyNotNumber('5');
+        expect(output).toBe(false);
+    });
+
+    it('should return false when verifyConstantsInBounds input is undefined', () => {
         const output = service.verifyConstantsInBounds(undefined, 'undefined');
         expect(output).toBe(false);
     });
 
-    it('should return false when verifyNumber input contains zero-width characters', () => {
+    it('should return false when verifyConstantsInBounds input contains zero-width characters', () => {
         const output = service.verifyConstantsInBounds(+'5​5', 'initialTime');
         expect(output).toBe(false);
     });
 
-    it('should return true when verifyNumber input is valid', () => {
+    it('should return true when verifyConstantsInBounds input is valid', () => {
         const ten = 10;
         const output = service.verifyConstantsInBounds(ten, 'penaltyTime');
         expect(output).toBe(true);
+    });
+
+    it('should return false when verifyConstantsInBounds is called with an unknown type', () => {
+        const output = service.verifyConstantsInBounds(1, 'Samuel Pierre');
+        expect(output).toBe(false);
     });
 });
