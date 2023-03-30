@@ -33,7 +33,7 @@ export class FakeChatBoxComponent implements OnChanges, OnInit {
             this.counter = 0;
             this.messages = [];
             this.currentAction = this.actions[this.counter++];
-            this.replayRestarted = !this.replayRestarted;
+            this.replayRestarted = false;
         }
     }
 }
