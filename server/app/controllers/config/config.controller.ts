@@ -110,7 +110,7 @@ export class ConfigController {
         description: 'Return NOT_FOUND http status when request fails',
     })
     @Delete('/history')
-    async deleteHistoryies(@Res() response: Response) {
+    async deleteHistories(@Res() response: Response) {
         try {
             await this.gameHistoryService.deleteGamesHistories();
             response.status(HttpStatus.OK).send();

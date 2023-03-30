@@ -1,4 +1,6 @@
 import { environment } from '@app/environments/environment';
+import { ChatGateway } from '@app/gateways/chat/chat.gateway';
+import { ChatEvents } from '@app/gateways/chat/chat.gateway.variables';
 import { BestTime } from '@app/model/schema/best-times.schema';
 import { GameRoom } from '@app/model/schema/game-room.schema';
 import { UserGame } from '@app/model/schema/user-game.schema';
@@ -6,8 +8,6 @@ import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { createStubInstance, SinonStubbedInstance } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
-import { ChatGateway } from '@app/gateways/chat/chat.gateway';
-import { ChatEvents } from '@app/gateways/chat/chat.gateway.variables';
 
 describe('ChatGateway', () => {
     let gateway: ChatGateway;

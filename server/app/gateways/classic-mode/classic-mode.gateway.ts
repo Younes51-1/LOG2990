@@ -1,5 +1,4 @@
 import { ClassicModeEvents, DelayBeforeEmittingTime } from '@app/gateways/classic-mode/classic-mode.gateway.variables';
-import { NewBestTime } from '@app/model/dto/game/new-best-times.dto';
 import { EndGame } from '@app/model/schema/end-game.schema';
 import { GameRoom } from '@app/model/schema/game-room.schema';
 import { Vector2D } from '@app/model/schema/vector2d.schema';
@@ -182,10 +181,5 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
     cancelDeletedGame(gameName: string): void {
         this.logger.log(`Game canceled: ${gameName}`);
         this.server.emit(ClassicModeEvents.GameCanceled, gameName);
-    }
-
-    newBestTimeScore(bestTime: NewBestTime, position: number): void {
-        this.logger.log(`New best time score on game: ${bestTime.gameName}`);
-        this.server.emit(ClassicModeEvents.NewBestTimeScore, { bestTime, position });
     }
 }
