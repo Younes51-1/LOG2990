@@ -1,5 +1,6 @@
 import { DIFFICULTY_THRESHOLD, NOT_TOP3 } from '@app/constants';
 import { environment } from '@app/environments/environment';
+import { ChatGateway } from '@app/gateways/chat/chat.gateway';
 import { ClassicModeGateway } from '@app/gateways/classic-mode/classic-mode.gateway';
 import { Game, GameDocument } from '@app/model/database/game';
 import { GameData } from '@app/model/dto/game/game-data.dto';
@@ -14,7 +15,11 @@ import { Model } from 'mongoose';
 
 @Injectable()
 export class GameService {
-    constructor(@InjectModel(Game.name) public gameModel: Model<GameDocument>, private readonly classicModeGateway: ClassicModeGateway) {}
+    constructor(
+        @InjectModel(Game.name) public gameModel: Model<GameDocument>,
+        private readonly classicModeGateway: ClassicModeGateway,
+        private readonly chatGateway: ChatGateway,
+    ) {}
 
     async getAllGames(): Promise<GameForm[]> {
         const games = await this.gameModel.find({});
@@ -121,7 +126,20 @@ export class GameService {
                 position = newPosition;
             }
             await game.save();
-            if (position !== NOT_TOP3) this.classicModeGateway.newBestTimeScore(newBestTime, position);
+            if (position !== NOT_TOP3) {
+                this.classicModeGateway.newBestTimeScore(newBestTime, position);
+                if (newBestTime.isSolo) {
+                    this.chatGateway.newBestTimeScore(
+                        `${newBestTime.name} obtient la ${position + 1} place dans les meilleurs temps du jeu ${newBestTime.gameName} en mode solo`,
+                    );
+                } else {
+                    this.chatGateway.newBestTimeScore(
+                        `${newBestTime.name} obtient la ${position + 1} place dans les meilleurs temps du jeu ${
+                            newBestTime.gameName
+                        } en mode un contre un`,
+                    );
+                }
+            }
             return position;
         } catch (error) {
             return Promise.reject(`Failed to update best time: ${error}`);

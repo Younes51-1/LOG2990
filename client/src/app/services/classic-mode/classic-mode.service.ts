@@ -31,6 +31,7 @@ export class ClassicModeService {
 
     private canSendValidate = true;
 
+    // eslint-disable-next-line max-params
     constructor(
         private readonly socketService: CommunicationSocketService,
         private communicationService: CommunicationHttpService,

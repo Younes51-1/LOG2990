@@ -23,8 +23,6 @@ export class EndgameDialogComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        // eslint-disable-next-line no-console
-        console.log(this.data.gameWinner);
         if (this.data.gameWinner) {
             if (this.data.time) {
                 this.time = `${Math.floor(this.data.time / Time.MinInSec)}:${(this.data.time % Time.MinInSec).toLocaleString('en-US', {
