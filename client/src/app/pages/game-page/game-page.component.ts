@@ -105,7 +105,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     toggleHint() {
         if (this.hintNum < 3) {
             this.helpService.isHintModeOn = !this.helpService.isHintModeOn;
-            this.helpService.hintMode();
+            this.helpService.hintMode(this.hintNum);
 
             this.sendEvent('hint');
             this.hintNum += 1;

@@ -27,13 +27,13 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     original = new Image();
     modified = new Image();
     layer: HTMLCanvasElement;
+    differenceMatrix: number[][];
     private canvasClicked: HTMLCanvasElement;
     private playerIsAllowedToClick = true;
     private mousePosition: Vec2 = { x: 0, y: 0 };
     private buttonPressed = '';
     private audioValid = new Audio('assets/sounds/valid_sound.mp3');
     private audioInvalid = new Audio('assets/sounds/invalid_sound.mp3');
-    private differenceMatrix: number[][];
     private currentDifferenceMatrix: number[][];
     private differenceIntervalId: ReturnType<typeof setInterval>;
     private canvasSize = { x: Dimensions.DEFAULT_WIDTH, y: Dimensions.DEFAULT_HEIGHT };
@@ -114,17 +114,17 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         }
     }
 
-    verifyDifferenceMatrix(option: string) {
+    verifyDifferenceMatrix(option: string, matrix?: number[][]) {
         if (option === 'cheat') {
             this.layer = this.createAndFillNewLayer(Color.Cheat, true, false, this.differenceMatrix);
-        } else if (option === 'hint') {
-            this.layer = this.createAndFillNewLayer(Color.Hint, false, true, this.differenceMatrix);
+        } else if (option === 'hint' && matrix) {
+            this.layer = this.createAndFillNewLayer(Color.Hint, false, true, matrix);
         }
     }
 
     // eslint-disable-next-line max-params
     createAndFillNewLayer(color: Color, isCheat: boolean, isHint: boolean, matrix: number[][]): HTMLCanvasElement {
-        const helpAlphaValue = 0.7;
+        const helpAlphaValue = 0.5;
         const layer = document.createElement('canvas');
         layer.width = this.width;
         layer.height = this.height;
@@ -134,26 +134,14 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         }
         context.globalAlpha = isCheat || isHint ? helpAlphaValue : 1;
         context.fillStyle = color;
-        if (isHint) {
-            for (let i = 0; i < matrix.length; i++) {
-                for (let j = 0; j < matrix[0].length; j++) {
-                    if (matrix[i][j] !== PossibleColor.EMPTYPIXEL) {
-                        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-                        context.fillRect(j, i, 200, 200);
-                    }
+        for (let i = 0; i < matrix.length; i++) {
+            for (let j = 0; j < matrix[0].length; j++) {
+                if (matrix[i][j] !== PossibleColor.EMPTYPIXEL) {
+                    context.fillRect(j, i, 1, 1);
                 }
             }
-            return layer;
-        } else {
-            for (let i = 0; i < matrix.length; i++) {
-                for (let j = 0; j < matrix[0].length; j++) {
-                    if (matrix[i][j] !== PossibleColor.EMPTYPIXEL) {
-                        context.fillRect(j, i, 1, 1);
-                    }
-                }
-            }
-            return layer;
         }
+        return layer;
     }
 
     private setContexts() {
