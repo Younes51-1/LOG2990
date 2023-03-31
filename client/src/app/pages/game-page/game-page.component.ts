@@ -8,6 +8,7 @@ import { ClassicModeService } from '@app/services/classic-mode/classic-mode.serv
 import confetti from 'canvas-confetti';
 import { Subscription } from 'rxjs';
 import { Time } from 'src/assets/variables/time';
+import { ConfigHttpService } from '@app/services/config-http/config-http.service';
 
 @Component({
     selector: 'app-game-page',
@@ -22,6 +23,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     totalDifferencesFound = 0;
     userDifferencesFound = 0;
     gameRoom: GameRoom;
+    penaltyTime: number;
 
     private gameFinished = false;
     private dialogRef: MatDialogRef<EndgameDialogComponent>;
@@ -41,11 +43,15 @@ export class GamePageComponent implements OnInit, OnDestroy {
         private classicModeService: ClassicModeService,
         private chatService: ChatService,
         private router: Router,
+        private configService: ConfigHttpService,
     ) {}
 
     ngOnInit() {
         this.timerSubscription = this.classicModeService.timer$.subscribe((timer: number) => {
             this.timer = timer;
+        });
+        this.configService.getConstants().subscribe((res) => {
+            this.penaltyTime = res.penaltyTime;
         });
         this.differencesFoundSubscription = this.classicModeService.totalDifferencesFound$.subscribe((count) => {
             this.totalDifferencesFound = count;

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { VerifyInputService } from '@app/services/verify-input/verify-input.service';
 import { Constants } from 'src/assets/variables/constants';
 import { ConfigHttpService } from '@app/services/config-http/config-http.service';
@@ -9,14 +9,22 @@ import { Time } from 'src/assets/variables/time';
     templateUrl: './config-params.component.html',
     styleUrls: ['./config-params.component.scss'],
 })
-export class ConfigParamsComponent {
-    @Input() initialTime: number = Time.HalfMinute;
-    @Input() penaltyTime: number = Time.FiveSeconds;
-    @Input() bonusTime: number = Time.FiveSeconds;
+export class ConfigParamsComponent implements OnInit {
+    @Input() initialTime: number;
+    @Input() penaltyTime: number;
+    @Input() bonusTime: number;
 
     isInvalidInput: boolean = false;
 
     constructor(private verifyInput: VerifyInputService, private readonly configCommunicationService: ConfigHttpService) {}
+
+    ngOnInit() {
+        this.configCommunicationService.getConstants().subscribe((res) => {
+            this.initialTime = res.initialTime;
+            this.penaltyTime = res.penaltyTime;
+            this.bonusTime = res.bonusTime;
+        });
+    }
 
     manuallyChangeInitialTime(value: string) {
         if (this.verifyInput.verifyNotNumber(value)) {
@@ -29,6 +37,7 @@ export class ConfigParamsComponent {
         } else {
             this.initialTime = +value;
         }
+        this.validateAllInputs();
     }
 
     manuallyChangePenaltyTime(value: string) {
@@ -125,7 +134,7 @@ export class ConfigParamsComponent {
             penaltyTime: this.penaltyTime,
             bonusTime: this.bonusTime,
         };
-        this.configCommunicationService.updateConstants(constants);
+        this.configCommunicationService.updateConstants(constants).subscribe();
     }
 
     resetConstants() {
@@ -137,7 +146,7 @@ export class ConfigParamsComponent {
             penaltyTime: this.penaltyTime,
             bonusTime: this.bonusTime,
         };
-        this.configCommunicationService.updateConstants(constants);
+        this.configCommunicationService.updateConstants(constants).subscribe();
     }
 
     private validateAllInputs() {
