@@ -51,20 +51,10 @@ export class HelpService {
         }
         const flashDuration = 125;
         let isFlashing = true;
-        const totalDuration = 5000;
+        const totalDuration = 2000;
         const diffCoord = this.detectionDifferenceService.findRandomDifference(JSON.parse(JSON.stringify(this.component.differenceMatrix)));
-        if (hintNum === 1) {
-            if (diffCoord) {
-                this.component.verifyDifferenceMatrix('hint', this.chooseDial(diffCoord));
-            }
-        } else if (hintNum === 2) {
-            if (diffCoord) {
-                this.component.verifyDifferenceMatrix('hint', this.chooseDial(diffCoord));
-            }
-        } else {
-            if (diffCoord) {
-                this.component.verifyDifferenceMatrix('hint', this.chooseDial(diffCoord));
-            }
+        if (diffCoord) {
+            this.component.verifyDifferenceMatrix('hint', this.chooseDial(diffCoord, hintNum));
         }
         this.hintIntervalId = setInterval(() => {
             if (isFlashing) {
@@ -84,34 +74,36 @@ export class HelpService {
         }, totalDuration);
     }
 
-    private chooseDial(coords: Vec2): number[][] {
-        let dial = '';
-        if (0 < coords.x && coords.x < 320) {
-            if (coords.y && coords.y < 240) {
-                dial = 'northWest';
-            } else {
-                dial = 'southWest';
+    private chooseDial(coords: Vec2, hintNum: number): number[][] {
+        const dialDimensions = [
+            { width: 320, height: 240 },
+            { width: 160, height: 120 },
+        ];
+        const { width: dialWidth, height: dialHeight } = dialDimensions[hintNum];
+        switch (hintNum) {
+            case 0: {
+                const dialMatrix = [
+                    this.createPopulateMatrix({ x: 0, y: 0 }, { x: dialHeight, y: dialWidth }),
+                    this.createPopulateMatrix({ x: 0, y: dialWidth }, { x: dialHeight, y: dialWidth * 2 }),
+                    this.createPopulateMatrix({ x: dialHeight, y: 0 }, { x: dialHeight * 2, y: dialWidth }),
+                    this.createPopulateMatrix({ x: dialHeight, y: dialWidth }, { x: dialHeight * 2, y: dialWidth * 2 }),
+                ];
+                return dialMatrix[coords.x < dialHeight ? (coords.y < dialWidth ? 0 : 1) : coords.y < dialWidth ? 2 : 3];
             }
-        } else {
-            if (coords.y && coords.y < 240) {
-                dial = 'northEast';
-            } else {
-                dial = 'southEast';
+            case 1: {
+                const dialMatrix = new Array(16);
+                for (let i = 0; i < 16; i++) {
+                    const topLeft = { x: (i % 4) * dialHeight, y: Math.floor(i / 4) * dialWidth };
+                    const bottomRight = { x: topLeft.x + dialHeight, y: topLeft.y + dialWidth };
+                    dialMatrix[i] = this.createPopulateMatrix(topLeft, bottomRight);
+                }
+                const dialIndex = Math.floor(coords.y / dialWidth) * 4 + Math.floor(coords.x / dialHeight);
+                return dialMatrix[dialIndex];
             }
-        }
-
-        const undefinedMatrix = this.detectionDifferenceService.createEmptyMatrix(0, 0, 0);
-        switch (dial) {
-            case 'northWest':
-                return this.createPopulateMatrix({ x: 0, y: 0 }, { x: 320, y: 240 });
-            case 'northEast':
-                return this.createPopulateMatrix({ x: 320, y: 0 }, { x: 640, y: 240 });
-            case 'southWest':
-                return this.createPopulateMatrix({ x: 0, y: 240 }, { x: 320, y: 480 });
-            case 'southEast':
-                return this.createPopulateMatrix({ x: 320, y: 240 }, { x: 640, y: 480 });
+            case 2:
+                return [];
             default:
-                return undefinedMatrix;
+                return [];
         }
     }
 
@@ -121,8 +113,8 @@ export class HelpService {
             this.component.width,
             PossibleColor.EMPTYPIXEL,
         );
-        for (let i = start.y; i < end.y; i++) {
-            for (let j = start.x; j < end.x; j++) {
+        for (let i = start.x; i < end.x; i++) {
+            for (let j = start.y; j < end.y; j++) {
                 differenceMatrix[i][j] = PossibleColor.BLACK;
             }
         }
