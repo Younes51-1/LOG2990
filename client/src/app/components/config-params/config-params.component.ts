@@ -120,12 +120,15 @@ export class ConfigParamsComponent {
     }
 
     applyNewConstants() {
-        // TODO: apply new constants to all games
-        return;
+        const constants = {
+            initialTime: this.initialTime,
+            penaltyTime: this.penaltyTime,
+            bonusTime: this.bonusTime,
+        };
+        this.configCommunicationService.updateConstants(constants);
     }
 
     resetConstants() {
-        // TODO: fix avec la branche feature/constantes_de_jeu
         this.initialTime = Time.HalfMinute;
         this.penaltyTime = Time.FiveSeconds;
         this.bonusTime = Time.FiveSeconds;
