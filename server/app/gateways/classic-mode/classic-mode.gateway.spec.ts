@@ -1,16 +1,18 @@
 /* eslint-disable max-lines */
 import { environment } from '@app/environments/environment.prod';
+import { ClassicModeGateway } from '@app/gateways/classic-mode/classic-mode.gateway';
+import { ClassicModeEvents, DelayBeforeEmittingTime } from '@app/gateways/classic-mode/classic-mode.gateway.variables';
 import { BestTime } from '@app/model/schema/best-times.schema';
+import { EndGame } from '@app/model/schema/end-game.schema';
 import { GameRoom } from '@app/model/schema/game-room.schema';
 import { UserGame } from '@app/model/schema/user-game.schema';
 import { Vector2D } from '@app/model/schema/vector2d.schema';
 import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
+import { GameHistoryService } from '@app/services/game-history/game-history.service';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { createStubInstance, SinonStubbedInstance } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
-import { ClassicModeGateway } from '@app/gateways/classic-mode/classic-mode.gateway';
-import { ClassicModeEvents, DelayBeforeEmittingTime } from '@app/gateways/classic-mode/classic-mode.gateway.variables';
 
 describe('ClassicModeGateway', () => {
     let gateway: ClassicModeGateway;
@@ -18,10 +20,12 @@ describe('ClassicModeGateway', () => {
     let socket: SinonStubbedInstance<Socket>;
     let server: SinonStubbedInstance<Server>;
     let classicModeService: SinonStubbedInstance<ClassicModeService>;
+    let gameHistoryService: SinonStubbedInstance<GameHistoryService>;
 
     beforeEach(async () => {
         logger = createStubInstance(Logger);
         classicModeService = createStubInstance(ClassicModeService);
+        gameHistoryService = createStubInstance(GameHistoryService);
         socket = createStubInstance<Socket>(Socket);
         Object.defineProperty(socket, 'id', { value: getFakeGameRoom().roomId, writable: true });
         server = createStubInstance<Server>(Server);
@@ -36,6 +40,10 @@ describe('ClassicModeGateway', () => {
                 {
                     provide: ClassicModeService,
                     useValue: classicModeService,
+                },
+                {
+                    provide: GameHistoryService,
+                    useValue: gameHistoryService,
                 },
             ],
         }).compile();
@@ -131,14 +139,14 @@ describe('ClassicModeGateway', () => {
                 expect(event).toEqual(ClassicModeEvents.GameFinished);
             },
         } as BroadcastOperator<unknown, unknown>);
-        gateway.endGame(socket, { roomId: getFakeGameRoom().roomId, username: getFakeGameRoom().userGame.username1 });
+        gateway.endGame(socket, getFakeEndGame());
     });
 
     it('endGame should do nothing if the gameRoom does not exist', () => {
         jest.spyOn(classicModeService, 'getRoom').mockImplementation(() => {
             return undefined;
         });
-        gateway.endGame(socket, { roomId: getFakeGameRoom().roomId, username: getFakeGameRoom().userGame.username1 });
+        gateway.endGame(socket, getFakeEndGame());
         expect(logger.log.notCalled).toBeTruthy();
     });
 
@@ -425,4 +433,11 @@ const getFakeGameRoom = (): GameRoom => ({
     userGame: getFakeUserGame1(),
     roomId: 'socketId',
     started: true,
+});
+
+const getFakeEndGame = (): EndGame => ({
+    username: getFakeGameRoom().userGame.username1,
+    roomId: getFakeGameRoom().roomId,
+    winner: true,
+    gameFinished: true,
 });

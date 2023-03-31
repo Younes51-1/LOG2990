@@ -1,5 +1,6 @@
 import { DELAY_BEFORE_CLOSING_CONNECTION } from '@app/constants';
-import { environment } from '@app/environments/environment.prod';
+import { environment } from '@app/environments/environment';
+import { ChatGateway } from '@app/gateways/chat/chat.gateway';
 import { ClassicModeGateway } from '@app/gateways/classic-mode/classic-mode.gateway';
 import { Game, GameDocument, gameSchema } from '@app/model/database/game';
 import { GameData } from '@app/model/dto/game/game-data.dto';
@@ -18,9 +19,11 @@ describe('GameService', () => {
     let mongoServer: MongoMemoryServer;
     let connection: Connection;
     let classicModeGateway: SinonStubbedInstance<ClassicModeGateway>;
+    let chatGateway: SinonStubbedInstance<ChatGateway>;
 
     beforeEach(async () => {
         classicModeGateway = createStubInstance(ClassicModeGateway);
+        chatGateway = createStubInstance(ChatGateway);
         mongoServer = await MongoMemoryServer.create();
         const module = await Test.createTestingModule({
             imports: [
@@ -37,6 +40,10 @@ describe('GameService', () => {
                 {
                     provide: ClassicModeGateway,
                     useValue: classicModeGateway,
+                },
+                {
+                    provide: ChatGateway,
+                    useValue: chatGateway,
                 },
             ],
         }).compile();

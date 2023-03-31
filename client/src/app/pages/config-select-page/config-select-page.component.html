@@ -4,17 +4,60 @@
         <button class="home-button" routerLink="/home">
             <i class="fa fa-home fa-2x" aria-hidden="true"></i>
         </button>
-        <img src={{imgSource}}>
+        <img src="{{ imgSource }}" />
     </header>
     <ngx-slick-carousel class="carousel" [config]="slideConfig">
         <div ngxSlickItem *ngFor="let slide of slides" class="slide">
-            <app-game-card [slide]="slide" [page]="pageType" (notify)="deleteNotify($event)" (notifySelected)="setSelected($event)"></app-game-card>
+            <app-game-card
+                [slide]="slide"
+                [page]="pageType"
+                (deleteNotify)="deleteNotify($event)"
+                (resetNotify)="resetNotify($event)"
+                (notifySelected)="setSelected($event)"
+            ></app-game-card>
         </div>
     </ngx-slick-carousel>
     <div *ngIf="this.pageType === 'config'" class="configElement">
         <button class="btn" routerLink="/creation">Créer un jeu</button>
+        <button class="btn" (click)="resetBestTimes()">Reinitialiser les meilleurs temps</button>
+        <button class="btn" (click)="deleteAllGames()">Supprimer tous les jeux</button>
         <div class="centered-text">
             <app-config-params></app-config-params>
         </div>
+    </div>
+    <div *ngIf="this.pageType === 'config'">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date et heure de début</th>
+                    <th>Durée totale</th>
+                    <th>Mode de jeu</th>
+                    <th>Joueur 1</th>
+                    <th>Joueur 2</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let partie of parties; let i = index">
+                    <td>{{ partie.startTime | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
+                    <td>{{ calculateTime(partie.timer) }}</td>
+                    <td>{{ partie.gameMode }}</td>
+                    <td [ngClass]="{ winner: partie.winner === partie.username1, abandoned: partie.abandonned === partie.username1 }">
+                        {{ partie.username1 }}
+                    </td>
+                    <td
+                        *ngIf="partie.username2 !== ''"
+                        [ngClass]="{ winner: partie.winner === partie.username2, abandoned: partie.abandonned === partie.username2 }"
+                    >
+                        {{ partie.username2 }}
+                    </td>
+                    <td>
+                        <button class="btn" (click)="deletePartie(partie._id)">Supprimer cette partie</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <button class="btn" (click)="deletePartie()">Supprimer touts les parties</button>
     </div>
 </div>

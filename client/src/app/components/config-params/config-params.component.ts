@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { VerifyInputService } from '@app/services/verify-input/verify-input.service';
 import { Constants } from 'src/assets/variables/constants';
+import { ConfigHttpService } from '@app/services/config-http/config-http.service';
 import { Time } from 'src/assets/variables/time';
 
 @Component({
@@ -15,7 +16,7 @@ export class ConfigParamsComponent {
 
     isInvalidInput: boolean = false;
 
-    constructor(private verifyInput: VerifyInputService) {}
+    constructor(private verifyInput: VerifyInputService, private readonly configCommunicationService: ConfigHttpService) {}
 
     manuallyChangeInitialTime(value: string) {
         if (this.verifyInput.verifyNotNumber(value)) {
@@ -28,7 +29,6 @@ export class ConfigParamsComponent {
         } else {
             this.initialTime = +value;
         }
-        this.validateAllInputs();
     }
 
     manuallyChangePenaltyTime(value: string) {
@@ -122,6 +122,19 @@ export class ConfigParamsComponent {
     applyNewConstants() {
         // TODO: apply new constants to all games
         return;
+    }
+
+    resetConstants() {
+        // TODO: fix avec la branche feature/constantes_de_jeu
+        this.initialTime = Time.HalfMinute;
+        this.penaltyTime = Time.FiveSeconds;
+        this.bonusTime = Time.FiveSeconds;
+        const constants = {
+            initialTime: this.initialTime,
+            penaltyTime: this.penaltyTime,
+            bonusTime: this.bonusTime,
+        };
+        this.configCommunicationService.updateConstants(constants);
     }
 
     private validateAllInputs() {

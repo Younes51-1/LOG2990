@@ -2,14 +2,17 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { ConfigParamsComponent } from '@app/components/config-params/config-params.component';
 import { Constants } from 'src/assets/variables/constants';
+import { ConfigHttpService } from '@app/services/config-http/config-http.service';
 
 describe('ConfigParamsComponent', () => {
     let component: ConfigParamsComponent;
     let fixture: ComponentFixture<ConfigParamsComponent>;
+    let configHttpService: jasmine.SpyObj<ConfigHttpService>;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [ConfigParamsComponent],
+            providers: [{ provide: ConfigHttpService, useValue: configHttpService }],
         }).compileComponents();
 
         fixture = TestBed.createComponent(ConfigParamsComponent);

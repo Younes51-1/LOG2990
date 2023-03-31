@@ -261,7 +261,7 @@ describe('GameCardComponent', () => {
     }));
 
     it('should emit the correct object when deleteCard is called', () => {
-        const spy = spyOn(component.notify, 'emit');
+        const spy = spyOn(component.deleteNotify, 'emit');
         // needed to call private method
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (component as any).deleteCard();
