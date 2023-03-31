@@ -149,6 +149,11 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
         }
     }
 
+    @SubscribeMessage(ClassicModeEvents.ChangeTime)
+    changeTime(socket: Socket, data: { roomId: string; time: number }): void {
+        this.classicModeService.applyTimeToTimer(data.roomId, data.time);
+    }
+
     afterInit(): void {
         setInterval(() => {
             this.emitTime();

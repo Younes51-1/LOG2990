@@ -134,4 +134,11 @@ export class ClassicModeService {
         }
         this.gameHistory.set(roomId, gameHistory);
     }
+
+    applyTimeToTimer(roomId: string, timeToApply: number): void {
+        const gameRoom = this.getRoom(roomId);
+        if (!gameRoom) return;
+        gameRoom.userGame.timer += timeToApply;
+        this.setRoom(gameRoom);
+    }
 }
