@@ -80,19 +80,22 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 this.startConfetti();
             }
             this.unsubscribe();
-            this.classicModeService.endGame();
+            this.classicModeService.endGame(true, true);
         });
     }
 
     endGame() {
         if (this.gameFinished) {
             if (this.userDifferencesFound === this.differenceThreshold) {
-                this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
+                this.dialogRef = this.dialog.open(EndgameDialogComponent, {
+                    disableClose: true,
+                    data: { gameFinished: true, gameWinner: true, time: this.timer },
+                });
                 this.startConfetti();
             } else {
                 this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: false } });
             }
-            this.classicModeService.endGame();
+            this.classicModeService.endGame(this.gameFinished, this.userDifferencesFound === this.differenceThreshold);
             this.unsubscribe();
         } else {
             this.abandonConfirmation();

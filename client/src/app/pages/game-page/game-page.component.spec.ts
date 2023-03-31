@@ -239,7 +239,10 @@ describe('GamePageComponent', () => {
         component.totalDifferencesFound = component.gameRoom.userGame.gameData.gameForm.nbDifference;
         const matDialogSpy = spyOn((component as any).dialog, 'open').and.callThrough();
         component.endGame();
-        expect(matDialogSpy).toHaveBeenCalledWith(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
+        expect(matDialogSpy).toHaveBeenCalledWith(EndgameDialogComponent, {
+            disableClose: true,
+            data: { gameFinished: true, gameWinner: true, time: 0 },
+        });
     });
 
     it('should open EndgameDialogComponent with correct data if in multiplayer mode and winner', () => {
@@ -249,7 +252,10 @@ describe('GamePageComponent', () => {
         component.userDifferencesFound = (component as any).differenceThreshold;
         const matDialogSpy = spyOn((component as any).dialog, 'open').and.callThrough();
         component.endGame();
-        expect(matDialogSpy).toHaveBeenCalledWith(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
+        expect(matDialogSpy).toHaveBeenCalledWith(EndgameDialogComponent, {
+            disableClose: true,
+            data: { gameFinished: true, gameWinner: true, time: 0 },
+        });
     });
 
     it('should call startConfetti() if the game is won', fakeAsync(() => {
