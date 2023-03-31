@@ -27,6 +27,7 @@ export class FakePlayAreaComponent implements AfterViewInit, OnChanges, OnInit {
     private image2 = new Image();
     private differenceInterval: ReturnType<typeof setInterval>;
     private cheatInterval: ReturnType<typeof setInterval>;
+    private errorTimeout: ReturnType<typeof setTimeout>;
     private currentAction: InstructionReplay | undefined;
     private audioValid = new Audio('assets/sounds/valid_sound.mp3');
     private audioInvalid = new Audio('assets/sounds/invalid_sound.mp3');
@@ -137,8 +138,7 @@ export class FakePlayAreaComponent implements AfterViewInit, OnChanges, OnInit {
         let isFlashing = false;
         this.differenceInterval = setInterval(() => {
             if (isFlashing) {
-                this.context1.drawImage(this.image1, 0, 0, this.width, this.height);
-                this.context2.drawImage(this.image2, 0, 0, this.width, this.height);
+                this.updateContexts();
             } else {
                 this.context1.drawImage(layer, 0, 0, this.width, this.height);
                 this.context2.drawImage(layer, 0, 0, this.width, this.height);
@@ -149,8 +149,7 @@ export class FakePlayAreaComponent implements AfterViewInit, OnChanges, OnInit {
             clearInterval(this.differenceInterval);
             this.cheatLayer = this.cheatLayers[this.srcCounter];
             this.image2.src = this.sources[this.srcCounter++];
-            this.context1.drawImage(this.image1, 0, 0, this.width, this.height);
-            this.context2.drawImage(this.image2, 0, 0, this.width, this.height);
+            this.updateContexts();
         }, totalDuration);
     }
 
@@ -187,13 +186,15 @@ export class FakePlayAreaComponent implements AfterViewInit, OnChanges, OnInit {
         const image = canvas === this.canvas1.nativeElement ? this.image1 : this.image2;
         if (context) {
             context.fillStyle = Color.Mario;
+            clearTimeout(this.errorTimeout);
+            this.updateContexts();
             context.fillText(
                 'ERREUR',
                 this.currentAction?.mousePosition.x - textDimensions.x / 2,
                 this.currentAction?.mousePosition.y + textDimensions.y / 2,
                 textDimensions.x,
             );
-            setTimeout(() => {
+            this.errorTimeout = setTimeout(() => {
                 context.drawImage(image, 0, 0, this.width, this.height);
             }, nMilliseconds);
         }
@@ -204,8 +205,7 @@ export class FakePlayAreaComponent implements AfterViewInit, OnChanges, OnInit {
         let isFlashing = true;
         this.cheatInterval = setInterval(() => {
             if (isFlashing) {
-                this.context1.drawImage(this.image1, 0, 0, this.width, this.height);
-                this.context2.drawImage(this.image2, 0, 0, this.width, this.height);
+                this.updateContexts();
             } else {
                 this.context1.drawImage(this.cheatLayer, 0, 0, this.width, this.height);
                 this.context2.drawImage(this.cheatLayer, 0, 0, this.width, this.height);
@@ -216,6 +216,10 @@ export class FakePlayAreaComponent implements AfterViewInit, OnChanges, OnInit {
 
     private endCheatMode() {
         clearInterval(this.cheatInterval);
+        this.updateContexts();
+    }
+
+    private updateContexts() {
         this.context1.drawImage(this.image1, 0, 0, this.width, this.height);
         this.context2.drawImage(this.image2, 0, 0, this.width, this.height);
     }
