@@ -3,16 +3,24 @@ import { By } from '@angular/platform-browser';
 import { ConfigParamsComponent } from '@app/components/config-params/config-params.component';
 import { Constants } from 'src/assets/variables/constants';
 import { ConfigHttpService } from '@app/services/config-http/config-http.service';
+import { Observable, of } from 'rxjs';
+import { GameConstants } from '@app/interfaces/game-constants';
 
 describe('ConfigParamsComponent', () => {
     let component: ConfigParamsComponent;
     let fixture: ComponentFixture<ConfigParamsComponent>;
-    let configHttpService: jasmine.SpyObj<ConfigHttpService>;
+    // let configHttpService: jasmine.SpyObj<ConfigHttpService>;
+
+    class ConfigHttpServiceStub {
+        getConstants(): Observable<GameConstants> {
+            return of({ initialTime: 30, penaltyTime: 5, bonusTime: 5 });
+        }
+    }
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [ConfigParamsComponent],
-            providers: [{ provide: ConfigHttpService, useValue: configHttpService }],
+            providers: [{ provide: ConfigHttpService, useClass: ConfigHttpServiceStub }],
         }).compileComponents();
 
         fixture = TestBed.createComponent(ConfigParamsComponent);
