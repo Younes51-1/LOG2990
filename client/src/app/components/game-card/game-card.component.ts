@@ -6,7 +6,7 @@ import { GameForm } from '@app/interfaces/game';
 import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
 import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
 import { VerifyInputService } from '@app/services/verify-input/verify-input.service';
-import { options, PageKeys } from 'src/assets/variables/game-card-options';
+import { PageKeys, options } from 'src/assets/variables/game-card-options';
 
 @Component({
     selector: 'app-game-card',

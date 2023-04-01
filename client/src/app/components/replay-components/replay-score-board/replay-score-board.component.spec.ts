@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { FakeScoreBoardComponent } from './fake-score-board.component';
+import { FakeScoreBoardComponent } from './replay-score-board.component';
 
 describe('FakeScoreBoardComponent', () => {
     let component: FakeScoreBoardComponent;

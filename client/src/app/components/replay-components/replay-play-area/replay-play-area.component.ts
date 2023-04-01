@@ -6,10 +6,10 @@ import { Dimensions } from 'src/assets/variables/picture-dimension';
 
 @Component({
     selector: 'app-fake-play-area',
-    templateUrl: './fake-play-area.component.html',
-    styleUrls: ['./fake-play-area.component.scss'],
+    templateUrl: './replay-play-area.component.html',
+    styleUrls: ['./replay-play-area.component.scss'],
 })
-export class FakePlayAreaComponent implements AfterViewInit, OnChanges, OnInit {
+export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit {
     @Input() original: string;
     @Input() modified: string;
     @Input() time: number;

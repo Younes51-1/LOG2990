@@ -12,10 +12,15 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { ConfigParamsComponent } from '@app/components/config-params/config-params.component';
 import { CreationDialogComponent } from '@app/components/creation-dialog/creation-dialog.component';
+import { DeleteDialogComponent } from '@app/components/delete-dialog/delete-dialog.component';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
 import { GameCardComponent } from '@app/components/game-card/game-card.component';
 import { GameScoreboardComponent } from '@app/components/game-scoreboard/game-scoreboard.component';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
+import { ReplayChatBoxComponent } from '@app/components/replay-components/replay-chat-box/replay-chat-box.component';
+import { ReplayPlayAreaComponent } from '@app/components/replay-components/replay-play-area/replay-play-area.component';
+import { ReplayScoreBoardComponent } from '@app/components/replay-components/replay-score-board/replay-score-board.component';
+import { VideoReplayDialogComponent } from '@app/components/video-replay-dialog/video-replay-dialog.component';
 import { WaitingRoomComponent } from '@app/components/waiting-room-dialog/waiting-room-dialog.component';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { AppMaterialModule } from '@app/modules/material.module';
@@ -26,11 +31,6 @@ import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { SlickCarouselModule } from 'ngx-slick-carousel';
-import { DeleteDialogComponent } from './components/delete-dialog/delete-dialog.component';
-import { VideoReplayDialogComponent } from './components/video-replay-dialog/video-replay-dialog.component';
-import { FakePlayAreaComponent } from './components/fake-components/fake-play-area/fake-play-area.component';
-import { FakeScoreBoardComponent } from './components/fake-components/fake-score-board/fake-score-board.component';
-import { FakeChatBoxComponent } from './components/fake-components/fake-chat-box/fake-chat-box.component';
 
 /**
  * Main module that is used in main.ts.
@@ -55,9 +55,9 @@ import { FakeChatBoxComponent } from './components/fake-components/fake-chat-box
         WaitingRoomComponent,
         DeleteDialogComponent,
         VideoReplayDialogComponent,
-        FakePlayAreaComponent,
-        FakeScoreBoardComponent,
-        FakeChatBoxComponent,
+        ReplayPlayAreaComponent,
+        ReplayScoreBoardComponent,
+        ReplayChatBoxComponent,
     ],
     providers: [],
     bootstrap: [AppComponent],

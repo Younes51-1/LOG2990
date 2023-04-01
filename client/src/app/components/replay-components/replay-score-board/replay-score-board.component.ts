@@ -4,10 +4,10 @@ import { Time } from 'src/assets/variables/time';
 
 @Component({
     selector: 'app-fake-score-board',
-    templateUrl: './fake-score-board.component.html',
-    styleUrls: ['./fake-score-board.component.scss'],
+    templateUrl: './replay-score-board.component.html',
+    styleUrls: ['./replay-score-board.component.scss'],
 })
-export class FakeScoreBoardComponent implements OnInit {
+export class ReplayScoreBoardComponent implements OnInit {
     @Input() gameRoom: GameRoom;
     @Input() gameName: string;
     @Input() opponentUsername: string;
