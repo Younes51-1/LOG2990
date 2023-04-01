@@ -28,10 +28,10 @@ export class ReplayScoreBoardComponent implements OnInit {
     }
 
     getMinutes() {
-        return Math.floor(this.time / Time.MinInSec);
+        return Math.floor(this.time / Time.Sixty);
     }
 
     getSeconds() {
-        return this.time % Time.MinInSec;
+        return this.time % Time.Sixty;
     }
 }

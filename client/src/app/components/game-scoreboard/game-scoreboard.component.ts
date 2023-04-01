@@ -27,8 +27,8 @@ export class GameScoreboardComponent implements OnChanges {
         if (this.gameRoom) {
             this.totalNumber = this.gameRoom.userGame.gameData.gameForm.nbDifference;
             this.difficulty = this.gameRoom.userGame.gameData.gameForm.difficulty;
-            this.minutes = Math.floor(this.timer / Time.MinInSec);
-            this.seconds = this.timer % Time.MinInSec;
+            this.minutes = Math.floor(this.timer / Time.Sixty);
+            this.seconds = this.timer % Time.Sixty;
         }
     }
 }

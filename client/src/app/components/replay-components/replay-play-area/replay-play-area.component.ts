@@ -3,6 +3,7 @@ import { Instruction, InstructionReplay } from '@app/interfaces/video-replay';
 import { Color } from 'src/assets/variables/color';
 import { PossibleColor } from 'src/assets/variables/images-values';
 import { Dimensions } from 'src/assets/variables/picture-dimension';
+import { Time } from 'src/assets/variables/time';
 
 @Component({
     selector: 'app-fake-play-area',
@@ -129,7 +130,6 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
                 this.endCheatMode();
                 break;
             }
-            // No default
         }
     }
 
@@ -156,9 +156,8 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
         if (!this.context1 || !this.context2) {
             return;
         }
-        const timeOut = 50 / this.speed;
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        const totalDuration = 500 / this.speed;
+        const timeOut = Time.Fifty / this.speed;
+        const totalDuration = Time.Thousand / 2 / this.speed;
         const layer = this.createAndFillNewLayer(Color.Luigi, false, difference);
         let isFlashing = false;
         this.differenceInterval = setInterval(() => {
@@ -204,8 +203,7 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
             return;
         }
         const textDimensions = { x: 50, y: 30 };
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        const nMilliseconds = 1000 / this.speed;
+        const nMilliseconds = Time.Thousand / this.speed;
 
         const context = canvas.getContext('2d');
         if (context) {
@@ -225,7 +223,7 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
     }
 
     private startCheatMode() {
-        const flashDuration = 125 / this.speed;
+        const flashDuration = Time.OneHundredTwentyFive / this.speed;
         let isFlashing = true;
         this.cheatInterval = setInterval(() => {
             if (isFlashing) {

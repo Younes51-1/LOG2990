@@ -1,7 +1,9 @@
 export enum Time {
-    HalfMinute = 30,
-    FiveSeconds = 5,
-    MinInSec = 60,
-    SecInMil = 1000,
-    TenSec = 10,
+    Five = 5,
+    Ten = 10,
+    Thirty = 30,
+    Fifty = 50,
+    Sixty = 60,
+    OneHundredTwentyFive = 125,
+    Thousand = 1000,
 }

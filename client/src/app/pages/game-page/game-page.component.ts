@@ -190,7 +190,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 origin: { y: 0.6 },
                 colors: ['#29cdff', '#78ff44', '#ff718d', '#fdff6a'],
             });
-        }, Time.SecInMil);
+        }, Time.Thousand);
     }
 
     private abandonConfirmation() {
@@ -204,7 +204,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
                     setTimeout(() => {
                         this.classicModeService.disconnectSocket();
                         this.router.navigate(['/home']);
-                    }, Time.SecInMil);
+                    }, Time.Thousand);
                 }
             });
         }

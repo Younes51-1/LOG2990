@@ -17,7 +17,6 @@ export class VideoReplayDialogComponent implements AfterViewInit, OnInit {
     playAreaActions: InstructionReplay[] = [];
     scoreBoardActions: InstructionReplay[] = [];
     chatBoxActions: InstructionReplay[] = [];
-    // replayRestarted: boolean = false;
     actions: InstructionReplay[];
     counter: number = 0;
     replayEnded = false;
@@ -39,25 +38,8 @@ export class VideoReplayDialogComponent implements AfterViewInit, OnInit {
     sortActions(): void {
         while (this.counter < this.actions.length) {
             const action = this.actions[this.counter++];
-            if (action) {
-                switch (action.type) {
-                    case Instruction.DiffFound:
-                        this.playAreaActions.push(action);
-                        break;
-                    case Instruction.ChatMessage:
-                        this.chatBoxActions.push(action);
-                        break;
-                    case Instruction.Error:
-                        this.playAreaActions.push(action);
-                        break;
-                    case Instruction.CheatModeStart:
-                        this.playAreaActions.push(action);
-                        break;
-                    case Instruction.CheatModeEnd:
-                        this.playAreaActions.push(action);
-                        break;
-                }
-            }
+            if (action.type === Instruction.ChatMessage) this.chatBoxActions.push(action);
+            else this.playAreaActions.push(action);
         }
     }
 
@@ -89,9 +71,9 @@ export class VideoReplayDialogComponent implements AfterViewInit, OnInit {
                     this.replayEnded = true;
                     setTimeout(() => {
                         this.pauseSignal = !this.pauseSignal;
-                    }, 2000);
+                    }, 2 * Time.Thousand);
                 }
-            }, Time.SecInMil / this.speed);
+            }, Time.Thousand / this.speed);
         }
     }
 

@@ -7,14 +7,14 @@ import { Time } from 'src/assets/variables/time';
     styleUrls: ['./config-params.component.scss'],
 })
 export class ConfigParamsComponent {
-    @Input() initialTime = Time.HalfMinute;
-    @Input() penaltyTime = Time.FiveSeconds;
-    @Input() bonusTime = Time.FiveSeconds;
+    @Input() initialTime = Time.Thirty;
+    @Input() penaltyTime = Time.Five;
+    @Input() bonusTime = Time.Five;
 
     increaseValue(time: string) {
         switch (time) {
             case 'initialTime':
-                this.initialTime += Time.FiveSeconds;
+                this.initialTime += Time.Five;
                 break;
             case 'penaltyTime':
                 this.penaltyTime++;
@@ -30,7 +30,7 @@ export class ConfigParamsComponent {
     decreaseValue(time: string) {
         switch (time) {
             case 'initialTime':
-                this.initialTime -= Time.FiveSeconds;
+                this.initialTime -= Time.Five;
                 break;
             case 'penaltyTime':
                 this.penaltyTime--;
