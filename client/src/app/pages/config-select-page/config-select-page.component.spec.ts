@@ -2,6 +2,7 @@
 // We need it to access private methods and properties in the test
 import { CommonModule, Location } from '@angular/common';
 import { HttpClientModule, HttpResponse } from '@angular/common/http';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule, NgZone } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -66,7 +67,7 @@ describe('ConfigSelectPageComponent', () => {
         communicationServiceSpy.deleteGame.and.returnValue(of(new HttpResponse({ status: 200 }) as HttpResponse<string>));
         dialog = jasmine.createSpyObj('MatDialog', ['open']);
         TestBed.configureTestingModule({
-            imports: [DynamicTestModule, RouterTestingModule, AppRoutingModule, CommonModule],
+            imports: [DynamicTestModule, RouterTestingModule, AppRoutingModule, CommonModule, HttpClientTestingModule],
             schemas: [CUSTOM_ELEMENTS_SCHEMA],
             declarations: [ConfigSelectPageComponent, ConfigParamsComponent, GameCardComponent],
             providers: [

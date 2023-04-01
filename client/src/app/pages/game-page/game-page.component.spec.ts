@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 // eslint-disable-next-line max-classes-per-file
 import { HttpClientModule } from '@angular/common/http';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { NgModule } from '@angular/core';
 import { ComponentFixture, discardPeriodicTasks, fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -70,7 +71,7 @@ describe('GamePageComponent', () => {
         });
         await TestBed.configureTestingModule({
             declarations: [GamePageComponent, GameScoreboardComponent, MatToolbar, EndgameDialogComponent, ChatBoxComponent, PlayAreaComponent],
-            imports: [DynamicTestModule, RouterTestingModule, MatDialogModule],
+            imports: [DynamicTestModule, RouterTestingModule, MatDialogModule, HttpClientTestingModule],
             providers: [
                 ChatService,
                 ClassicModeService,
