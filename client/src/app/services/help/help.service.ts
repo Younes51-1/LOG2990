@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
 import { Vec2 } from '@app/interfaces/vec2';
 import { DetectionDifferenceService } from '@app/services/detection-difference/detection-difference.service';
+import confetti from 'canvas-confetti';
 import { PossibleColor } from 'src/assets/variables/images-values';
 @Injectable({
     providedIn: 'root',
@@ -10,6 +11,7 @@ import { PossibleColor } from 'src/assets/variables/images-values';
 export class HelpService {
     isCheatModeOn = false;
     isHintModeOn = false;
+    intervalId: ReturnType<typeof setInterval>;
     private component: PlayAreaComponent;
     private cheatIntervalId: ReturnType<typeof setInterval>;
     private hintIntervalId: ReturnType<typeof setInterval>;
@@ -18,6 +20,63 @@ export class HelpService {
 
     setComponent(component: PlayAreaComponent) {
         this.component = component;
+    }
+
+    startConfetti(coords: Vec2 | undefined) {
+        if (coords) {
+            const layer = document.createElement('canvas');
+            layer.width = this.component.width;
+            layer.height = this.component.height;
+            let isFlashing = false;
+            const defaults = {
+                origin: {
+                    x: coords.y / 640,
+                    y: coords.x / 480,
+                },
+                spread: 360,
+                ticks: 50,
+                gravity: 0,
+                decay: 0.94,
+                startVelocity: 30,
+                shapes: ['star'],
+                colors: ['FFE400', 'FFBD00', 'E89400', 'FFCA6C', 'FDFFB8'],
+                zIndex: -1,
+            };
+            const confettiGenerator = confetti.create(layer, {});
+            confettiGenerator({ ...defaults, particleCount: 40, scalar: 1.2, shapes: ['star'] });
+            confettiGenerator({ ...defaults, particleCount: 10, scalar: 0.75, shapes: ['circle'] });
+            setTimeout(() => {
+                confettiGenerator({ ...defaults, particleCount: 40, scalar: 1.2, shapes: ['star'] });
+                confettiGenerator({ ...defaults, particleCount: 10, scalar: 0.75, shapes: ['circle'] });
+            }, 100);
+            setTimeout(() => {
+                confettiGenerator({ ...defaults, particleCount: 40, scalar: 1.2, shapes: ['star'] });
+                confettiGenerator({ ...defaults, particleCount: 10, scalar: 0.75, shapes: ['circle'] });
+            }, 200);
+            setInterval(() => {
+                if (isFlashing) {
+                    this.component.context1.drawImage(this.component.original, 0, 0, this.component.width, this.component.height);
+                    this.component.context2.drawImage(this.component.modified, 0, 0, this.component.width, this.component.height);
+                } else {
+                    this.component.context1.drawImage(layer, 0, 0, this.component.width, this.component.height);
+                    this.component.context2.drawImage(layer, 0, 0, this.component.width, this.component.height);
+                }
+                isFlashing = !isFlashing;
+            }, 0.000001);
+        } else {
+            const duration = 15 * 1000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+            this.intervalId = setInterval(() => {
+                const timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) {
+                    return clearInterval(this.intervalId);
+                }
+                const particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * (0.3 - 0.1) + 0.1, y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * (0.9 - 0.7) + 0.7, y: Math.random() - 0.2 } }));
+            }, 250);
+        }
     }
 
     cheatMode() {
@@ -52,9 +111,14 @@ export class HelpService {
         const flashDuration = 125;
         let isFlashing = true;
         const totalDuration = 2000;
-        const diffCoord = this.detectionDifferenceService.findRandomDifference(JSON.parse(JSON.stringify(this.component.differenceMatrix)));
-        if (diffCoord) {
-            this.component.verifyDifferenceMatrix('hint', this.chooseDial(diffCoord, hintNum));
+        const diffCoords = this.detectionDifferenceService.findRandomDifference(JSON.parse(JSON.stringify(this.component.differenceMatrix)));
+        if (diffCoords) {
+            if (hintNum === 2) {
+                this.startConfetti(diffCoords);
+                return;
+            } else {
+                this.component.verifyDifferenceMatrix('hint', this.chooseDial(diffCoords, hintNum));
+            }
         }
         this.hintIntervalId = setInterval(() => {
             if (isFlashing) {
@@ -100,8 +164,6 @@ export class HelpService {
                 const dialIndex = Math.floor(coords.y / dialWidth) * 4 + Math.floor(coords.x / dialHeight);
                 return dialMatrix[dialIndex];
             }
-            case 2:
-                return [];
             default:
                 return [];
         }

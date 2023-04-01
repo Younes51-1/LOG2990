@@ -6,10 +6,8 @@ import { GameRoom } from '@app/interfaces/game';
 import { ChatService } from '@app/services/chat/chat.service';
 import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
 import { HelpService } from '@app/services/help/help.service';
-import confetti from 'canvas-confetti';
 import { Subscription } from 'rxjs';
 import { Time } from 'src/assets/variables/time';
-
 @Component({
     selector: 'app-game-page',
     templateUrl: './game-page.component.html',
@@ -27,7 +25,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     private gameFinished = false;
     private dialogRef: MatDialogRef<EndgameDialogComponent>;
-    private intervalId: ReturnType<typeof setInterval>;
     private differenceThreshold = 0;
     private timerSubscription: Subscription;
     private differencesFoundSubscription: Subscription;
@@ -80,7 +77,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.abandonedGameSubscription = this.classicModeService.abandoned$.subscribe((userName: string) => {
             if (userName !== this.username) {
                 this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
-                this.startConfetti();
+                this.helpService.startConfetti(undefined);
             }
             this.unsubscribe();
             this.classicModeService.endGame();
@@ -91,7 +88,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         if (this.gameFinished) {
             if (this.userDifferencesFound === this.differenceThreshold) {
                 this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
-                this.startConfetti();
+                this.helpService.startConfetti(undefined);
             } else {
                 this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: false } });
             }
@@ -131,18 +128,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.classicModeService.reset();
         this.dialog.closeAll();
-        clearInterval(this.intervalId);
-    }
-
-    private startConfetti() {
-        this.intervalId = setInterval(() => {
-            confetti({
-                particleCount: 300,
-                spread: 100,
-                origin: { y: 0.6 },
-                colors: ['#29cdff', '#78ff44', '#ff718d', '#fdff6a'],
-            });
-        }, Time.SecInMil);
+        clearInterval(this.helpService.intervalId);
     }
 
     private abandonConfirmation() {
