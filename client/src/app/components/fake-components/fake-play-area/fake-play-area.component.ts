@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Input, OnChanges, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { Instruction, InstructionReplay } from '@app/interfaces/video-replay';
 import { Color } from 'src/assets/variables/color';
 import { PossibleColor } from 'src/assets/variables/images-values';
@@ -17,7 +17,9 @@ export class FakePlayAreaComponent implements AfterViewInit, OnChanges, OnInit {
     @Input() actions: InstructionReplay[];
     @Input() sources: string[];
     @Input() cheatLayers: HTMLCanvasElement[];
-    @Input() replayRestarted: boolean;
+    @Input() pauseSignal: boolean = false;
+    @Input() continueSignal: boolean = false;
+    @Input() restartSignal: boolean = false;
     @ViewChild('canvas1') canvas1: ElementRef<HTMLCanvasElement>;
     @ViewChild('canvas2') canvas2: ElementRef<HTMLCanvasElement>;
     private canvasSize = { x: Dimensions.DEFAULT_WIDTH, y: Dimensions.DEFAULT_HEIGHT };
@@ -34,6 +36,7 @@ export class FakePlayAreaComponent implements AfterViewInit, OnChanges, OnInit {
     private counter = 0;
     private srcCounter = 0;
     private cheatLayer: HTMLCanvasElement;
+    private firstChange = true;
 
     get width(): number {
         return this.canvasSize.x;
@@ -62,9 +65,15 @@ export class FakePlayAreaComponent implements AfterViewInit, OnChanges, OnInit {
         };
     }
 
-    ngOnChanges(): void {
-        if (!this.currentAction) return;
+    ngOnChanges(changes: SimpleChanges): void {
+        if (!this.firstChange) {
+            if (changes.continueSignal) this.setContexts();
+            if (changes.restartSignal) this.restart();
+            if (changes.pauseSignal) this.pause();
+        }
+        this.firstChange = false;
 
+        if (!this.currentAction) return;
         if (this.currentAction.timeStart <= this.time) {
             this.handleReplay();
 
@@ -74,6 +83,24 @@ export class FakePlayAreaComponent implements AfterViewInit, OnChanges, OnInit {
                 this.currentAction = undefined;
             }
         }
+    }
+
+    private restart() {
+        this.audioInvalid.pause();
+        this.audioValid.pause();
+        this.clearAsync();
+        this.counter = 0;
+        this.srcCounter = 0;
+        this.image1.src = this.original;
+        this.image2.src = this.modified;
+        this.currentAction = this.actions[this.counter++];
+    }
+
+    private pause() {
+        const nullContext = document.createElement('canvas').getContext('2d');
+        if (!nullContext) return;
+        this.context1 = nullContext;
+        this.context2 = nullContext;
     }
 
     private handleReplay(): void {
@@ -95,12 +122,10 @@ export class FakePlayAreaComponent implements AfterViewInit, OnChanges, OnInit {
             case Instruction.CheatModeStart: {
                 if (!this.currentAction.cheatLayer) return;
                 this.cheatLayer = this.currentAction.cheatLayer;
-                // this.cheatModeOn = true;
                 this.startCheatMode();
                 break;
             }
             case Instruction.CheatModeEnd: {
-                // this.cheatModeOn = false;
                 this.endCheatMode();
                 break;
             }
@@ -183,7 +208,6 @@ export class FakePlayAreaComponent implements AfterViewInit, OnChanges, OnInit {
         const nMilliseconds = 1000 / this.speed;
 
         const context = canvas.getContext('2d');
-        const image = canvas === this.canvas1.nativeElement ? this.image1 : this.image2;
         if (context) {
             context.fillStyle = Color.Mario;
             clearTimeout(this.errorTimeout);
@@ -195,7 +219,7 @@ export class FakePlayAreaComponent implements AfterViewInit, OnChanges, OnInit {
                 textDimensions.x,
             );
             this.errorTimeout = setTimeout(() => {
-                context.drawImage(image, 0, 0, this.width, this.height);
+                this.updateContexts();
             }, nMilliseconds);
         }
     }
@@ -212,6 +236,12 @@ export class FakePlayAreaComponent implements AfterViewInit, OnChanges, OnInit {
             }
             isFlashing = !isFlashing;
         }, flashDuration);
+    }
+
+    private clearAsync() {
+        clearInterval(this.cheatInterval);
+        clearInterval(this.differenceInterval);
+        clearTimeout(this.errorTimeout);
     }
 
     private endCheatMode() {

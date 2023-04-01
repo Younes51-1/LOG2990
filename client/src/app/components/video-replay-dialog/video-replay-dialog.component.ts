@@ -17,9 +17,13 @@ export class VideoReplayDialogComponent implements AfterViewInit, OnInit {
     playAreaActions: InstructionReplay[] = [];
     scoreBoardActions: InstructionReplay[] = [];
     chatBoxActions: InstructionReplay[] = [];
-    replayRestarted: boolean = false;
+    // replayRestarted: boolean = false;
     actions: InstructionReplay[];
     counter: number = 0;
+    replayEnded = false;
+    pauseSignal = false;
+    continueSignal = false;
+    restartSignal = false;
 
     constructor(@Inject(MAT_DIALOG_DATA) public data: { videoReplay: VideoReplay }) {}
 
@@ -58,27 +62,37 @@ export class VideoReplayDialogComponent implements AfterViewInit, OnInit {
     }
 
     pause() {
+        this.pauseSignal = !this.pauseSignal;
         this.stopTimer();
     }
 
     continue() {
+        this.continueSignal = !this.continueSignal;
         this.startTimer();
     }
 
     restart() {
+        this.continueSignal = !this.continueSignal;
+        this.restartSignal = !this.restartSignal;
         this.time = 0;
-        this.counter = 0;
-        this.replayRestarted = true;
-        this.sortActions();
-        // ...
+        this.replayEnded = false;
+        this.startTimer();
     }
 
-    /// /////////////////////////////////////////////////////////////////
     startTimer() {
-        this.stopTimer();
-        this.timer = setInterval(() => {
-            this.time++;
-        }, Time.SecInMil / this.speed);
+        if (!this.replayEnded) {
+            this.stopTimer();
+            this.timer = setInterval(() => {
+                this.time++;
+                if (this.time === this.actions[this.actions.length - 1].timeStart) {
+                    this.stopTimer();
+                    this.replayEnded = true;
+                    setTimeout(() => {
+                        this.pauseSignal = !this.pauseSignal;
+                    }, 2000);
+                }
+            }, Time.SecInMil / this.speed);
+        }
     }
 
     stopTimer() {

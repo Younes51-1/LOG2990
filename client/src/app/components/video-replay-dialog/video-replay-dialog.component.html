@@ -20,15 +20,17 @@
             [speed]="this.speed"
             [sources]="this.data.videoReplay.sources"
             [cheatLayers]="this.data.videoReplay.cheatLayers"
-            [replayRestarted]="this.replayRestarted"
+            [pauseSignal]="this.pauseSignal"
+            [continueSignal]="this.continueSignal"
+            [restartSignal]="this.restartSignal"
         ></app-fake-play-area>
-        <app-fake-chat-box [time]="this.time" [actions]="this.chatBoxActions" [replayRestarted]="this.replayRestarted"> </app-fake-chat-box>
+        <app-fake-chat-box [time]="this.time" [actions]="this.chatBoxActions" [restartSignal]="this.restartSignal"> </app-fake-chat-box>
     </div>
 </div>
 
 <div class="options">
-    <button mat-button (click)="stopTimer()">Pause</button>
-    <button mat-button (click)="startTimer()">Reprendre</button>
+    <button mat-button (click)="pause()">Pause</button>
+    <button mat-button (click)="continue()">Reprendre</button>
     <button mat-button (click)="restart()">Recommencer</button>
     <select [(ngModel)]="speed" (change)="startTimer()">
         <option value="1">x1</option>
