@@ -68,3 +68,8 @@ button:focus:before {
 button:active {
     transform: scale(0.9);
 }
+
+@font-face {
+    font-family: 'MarioFont';
+    src: url('../../../assets/fonts/MarioFont.ttf');
+}

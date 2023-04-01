@@ -8,6 +8,8 @@ import { MouseService } from '@app/services/mouse/mouse.service';
 import { Color } from 'src/assets/variables/color';
 import { PossibleColor } from 'src/assets/variables/images-values';
 import { Dimensions } from 'src/assets/variables/picture-dimension';
+import { ErrorText } from 'src/assets/variables/text';
+import { Time } from 'src/assets/variables/time';
 
 @Component({
     selector: 'app-play-area',
@@ -153,15 +155,15 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     }
 
     private errorAnswerVisuals(canvas: HTMLCanvasElement) {
-        const textDimensions = { x: 50, y: 30 };
         const nMilliseconds = 1000;
 
         const context = canvas.getContext('2d');
         const image = canvas === this.canvas1.nativeElement ? this.original : this.modified;
         this.sendError.emit({ pos: this.mousePosition, leftCanvas: image === this.original });
         if (context) {
+            console.log(context.font);
             context.fillStyle = Color.Mario;
-            context.fillText('ERREUR', this.mousePosition.x - textDimensions.x / 2, this.mousePosition.y + textDimensions.y / 2, textDimensions.x);
+            context.fillText('ERREUR', this.mousePosition.x - ErrorText.Width / 2, this.mousePosition.y + ErrorText.Height / 2, ErrorText.Width);
             setTimeout(() => {
                 context.drawImage(image, 0, 0, this.width, this.height);
                 this.playerIsAllowedToClick = true;
@@ -181,8 +183,6 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         if (!this.context1 || !this.context2) {
             return;
         }
-        const timeOut = 50;
-        const totalDuration = 500;
         const layer = this.createAndFillNewLayer(Color.Luigi, false, difference);
         let isFlashing = false;
         this.differenceIntervalId = setInterval(() => {
@@ -194,14 +194,14 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
                 this.context2.drawImage(layer, 0, 0, this.width, this.height);
             }
             isFlashing = !isFlashing;
-        }, timeOut);
+        }, Time.Fifty);
         setTimeout(() => {
             this.removeDifference(this.currentDifferenceMatrix);
             this.playerIsAllowedToClick = true;
             clearInterval(this.differenceIntervalId);
             this.context1.drawImage(this.original, 0, 0, this.width, this.height);
             this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
-        }, totalDuration);
+        }, Time.Thousand / 2);
     }
 
     private removeDifference(differenceMatrix: number[][]) {
@@ -252,7 +252,6 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
             this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
             return;
         }
-        const flashDuration = 125;
         let isFlashing = true;
         this.verifyDifferenceMatrix();
 
@@ -266,7 +265,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
                 this.context2.drawImage(this.layer, 0, 0, this.width, this.height);
             }
             isFlashing = !isFlashing;
-        }, flashDuration);
+        }, Time.OneHundredTwentyFive);
     }
 
     private createAndFillNewLayer(color: Color, isCheat: boolean, matrix: number[][]): HTMLCanvasElement {

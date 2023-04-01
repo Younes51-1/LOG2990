@@ -3,6 +3,7 @@ import { Instruction, InstructionReplay } from '@app/interfaces/video-replay';
 import { Color } from 'src/assets/variables/color';
 import { PossibleColor } from 'src/assets/variables/images-values';
 import { Dimensions } from 'src/assets/variables/picture-dimension';
+import { ErrorText } from 'src/assets/variables/text';
 import { Time } from 'src/assets/variables/time';
 
 @Component({
@@ -53,14 +54,11 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
 
     ngAfterViewInit(): void {
         this.setContexts();
-
         this.image1.src = this.original;
         this.image2.src = this.modified;
-
         this.image1.onload = () => {
             this.handleImageLoad(this.context1, this.image1);
         };
-
         this.image2.onload = () => {
             this.handleImageLoad(this.context2, this.image2);
         };
@@ -110,13 +108,13 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
         switch (this.currentAction.type) {
             case Instruction.DiffFound: {
                 if (!this.currentAction.difference) return;
-                this.playValidAudio();
+                this.playAudio(this.audioValid);
                 this.flashDifference(this.currentAction.difference);
                 break;
             }
             case Instruction.Error: {
                 const canvas = this.currentAction.leftCanvas ? this.canvas1.nativeElement : this.canvas2.nativeElement;
-                this.playInvalidAudio();
+                this.playAudio(this.audioInvalid);
                 this.errorAnswerVisuals(canvas);
                 break;
             }
@@ -202,7 +200,6 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
         if (!this.currentAction?.mousePosition) {
             return;
         }
-        const textDimensions = { x: 50, y: 30 };
         const nMilliseconds = Time.Thousand / this.speed;
 
         const context = canvas.getContext('2d');
@@ -212,9 +209,9 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
             this.updateContexts();
             context.fillText(
                 'ERREUR',
-                this.currentAction?.mousePosition.x - textDimensions.x / 2,
-                this.currentAction?.mousePosition.y + textDimensions.y / 2,
-                textDimensions.x,
+                this.currentAction?.mousePosition.x - ErrorText.Width / 2,
+                this.currentAction?.mousePosition.y + ErrorText.Height / 2,
+                ErrorText.Width,
             );
             this.errorTimeout = setTimeout(() => {
                 this.updateContexts();
@@ -252,15 +249,10 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
         this.context2.drawImage(this.image2, 0, 0, this.width, this.height);
     }
 
-    private playValidAudio() {
+    private playAudio(audio: HTMLAudioElement) {
         this.audioValid.pause();
-        this.audioValid.currentTime = 0;
-        this.audioValid.play();
-    }
-
-    private playInvalidAudio() {
         this.audioInvalid.pause();
-        this.audioValid.currentTime = 0;
-        this.audioInvalid.play();
+        audio.currentTime = 0;
+        audio.play();
     }
 }
