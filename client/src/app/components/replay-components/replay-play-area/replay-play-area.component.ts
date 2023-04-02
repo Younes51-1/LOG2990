@@ -27,11 +27,14 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
     private canvasSize = { x: Dimensions.DEFAULT_WIDTH, y: Dimensions.DEFAULT_HEIGHT };
     private context1: CanvasRenderingContext2D;
     private context2: CanvasRenderingContext2D;
+    private pauseCanvas1: HTMLCanvasElement;
+    private pauseCanvas2: HTMLCanvasElement;
     private image1 = new Image();
     private image2 = new Image();
     private differenceInterval: ReturnType<typeof setInterval>;
     private cheatInterval: ReturnType<typeof setInterval>;
     private errorTimeout: ReturnType<typeof setTimeout>;
+    private layerTimeout: ReturnType<typeof setTimeout>;
     private currentAction: InstructionReplay | undefined;
     private audioValid = new Audio('assets/sounds/valid_sound.mp3');
     private audioInvalid = new Audio('assets/sounds/invalid_sound.mp3');
@@ -39,6 +42,7 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
     private srcCounter = 0;
     private cheatLayer: HTMLCanvasElement;
     private firstChange = true;
+    private paused = false;
 
     get width(): number {
         return this.canvasSize.x;
@@ -54,6 +58,7 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
 
     ngAfterViewInit(): void {
         this.setContexts();
+        this.initializePauseCanvas();
         this.image1.src = this.original;
         this.image2.src = this.modified;
         this.image1.onload = () => {
@@ -66,7 +71,7 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
 
     ngOnChanges(changes: SimpleChanges): void {
         if (!this.firstChange) {
-            if (changes.continueSignal) this.setContexts();
+            if (changes.continueSignal) this.continue();
             if (changes.restartSignal) this.restart();
             if (changes.pauseSignal) this.pause();
         }
@@ -85,9 +90,13 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
     }
 
     private restart() {
+        if (this.paused) {
+            this.continue();
+            this.paused = false;
+        }
+        this.clearAsync();
         this.audioInvalid.pause();
         this.audioValid.pause();
-        this.clearAsync();
         this.counter = 0;
         this.srcCounter = 0;
         this.image1.src = this.original;
@@ -96,10 +105,17 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
     }
 
     private pause() {
-        const nullContext = document.createElement('canvas').getContext('2d');
-        if (!nullContext) return;
-        this.context1 = nullContext;
-        this.context2 = nullContext;
+        if (this.paused) return;
+        this.paused = true;
+        this.changeActiveContext(this.pauseCanvas1, this.canvas1.nativeElement, true);
+        this.changeActiveContext(this.pauseCanvas2, this.canvas2.nativeElement, false);
+    }
+
+    private continue() {
+        if (!this.paused) return;
+        this.paused = false;
+        this.changeActiveContext(this.canvas1.nativeElement, this.pauseCanvas1, true);
+        this.changeActiveContext(this.canvas2.nativeElement, this.pauseCanvas2, false);
     }
 
     private handleReplay(): void {
@@ -158,6 +174,7 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
         const totalDuration = Time.Thousand / 2 / this.speed;
         const layer = this.createAndFillNewLayer(Color.Luigi, false, difference);
         let isFlashing = false;
+        clearInterval(this.differenceInterval);
         this.differenceInterval = setInterval(() => {
             if (isFlashing) {
                 this.updateContexts();
@@ -167,7 +184,7 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
             }
             isFlashing = !isFlashing;
         }, timeOut);
-        setTimeout(() => {
+        this.layerTimeout = setTimeout(() => {
             clearInterval(this.differenceInterval);
             this.cheatLayer = this.cheatLayers[this.srcCounter];
             this.image2.src = this.sources[this.srcCounter++];
@@ -233,10 +250,28 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
         }, flashDuration);
     }
 
+    private initializePauseCanvas() {
+        this.pauseCanvas1 = document.createElement('canvas');
+        this.pauseCanvas1.width = this.width;
+        this.pauseCanvas1.height = this.height;
+        this.pauseCanvas2 = document.createElement('canvas');
+        this.pauseCanvas2.width = this.width;
+        this.pauseCanvas2.height = this.height;
+    }
+
+    private changeActiveContext(canvas1: HTMLCanvasElement, canvas2: HTMLCanvasElement, firstContext: boolean) {
+        const context = canvas1.getContext('2d');
+        if (!context) return;
+        context.drawImage(canvas2, 0, 0, this.width, this.height);
+        if (firstContext) this.context1 = context;
+        else this.context2 = context;
+    }
+
     private clearAsync() {
         clearInterval(this.cheatInterval);
         clearInterval(this.differenceInterval);
         clearTimeout(this.errorTimeout);
+        clearTimeout(this.layerTimeout);
     }
 
     private endCheatMode() {

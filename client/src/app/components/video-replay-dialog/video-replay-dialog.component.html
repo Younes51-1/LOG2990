@@ -11,6 +11,7 @@
                     [opponentUsername]="this.data.videoReplay.scoreboardParams.opponentUsername"
                     [username]="this.data.videoReplay.scoreboardParams.username"
                     [time]="this.time"
+                    [timeEnd]="this.actions[this.actions.length - 1].timeStart"
                 ></app-fake-score-board>
             </div>
             <app-fake-play-area
@@ -35,7 +36,7 @@
         <button mat-button (click)="pause()">Pause</button>
         <button mat-button (click)="continue()">Reprendre</button>
         <button mat-button (click)="restart()">Recommencer</button>
-        <select [(ngModel)]="speed" (change)="startTimer()">
+        <select [(ngModel)]="speed">
             <option value="1">x1</option>
             <option value="2">x2</option>
             <option value="4">x4</option>

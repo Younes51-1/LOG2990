@@ -13,6 +13,7 @@ export class ReplayScoreBoardComponent implements OnInit {
     @Input() opponentUsername: string;
     @Input() username: string;
     @Input() time: number;
+    @Input() timeEnd: number;
 
     gameMode: string = 'mode classique';
     difficulty: string;
@@ -28,10 +29,12 @@ export class ReplayScoreBoardComponent implements OnInit {
     }
 
     getMinutes() {
-        return Math.floor(this.time / Time.Sixty);
+        const time = this.time >= this.timeEnd ? this.timeEnd : this.time;
+        return Math.floor(time / Time.Sixty);
     }
 
     getSeconds() {
-        return this.time % Time.Sixty;
+        const time = this.time >= this.timeEnd ? this.timeEnd : this.time;
+        return time % Time.Sixty;
     }
 }
