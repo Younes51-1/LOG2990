@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { VideoReplayDialogComponent } from '@app/components/video-replay-dialog/video-replay-dialog.component';
 import { VideoReplay } from '@app/interfaces/video-replay';
 
@@ -23,6 +23,8 @@ export class EndgameDialogComponent {
         this.videoReplayDialog.open(VideoReplayDialogComponent, {
             data: { videoReplay: this.data.videoReplay },
             disableClose: true,
+            width: '62%',
+            height: '80%',
         });
     }
 }

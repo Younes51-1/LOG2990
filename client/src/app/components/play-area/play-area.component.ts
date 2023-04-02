@@ -161,7 +161,6 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         const image = canvas === this.canvas1.nativeElement ? this.original : this.modified;
         this.sendError.emit({ pos: this.mousePosition, leftCanvas: image === this.original });
         if (context) {
-            console.log(context.font);
             context.fillStyle = Color.Mario;
             context.fillText('ERREUR', this.mousePosition.x - ErrorText.Width / 2, this.mousePosition.y + ErrorText.Height / 2, ErrorText.Width);
             setTimeout(() => {

@@ -13,24 +13,25 @@ body {
     font-family: 'Verdana', sans-serif, monospace;
 }
 
-.slick-wrapper{
+.slick-wrapper {
     width: 1000px;
     margin: 20px auto;
 }
 
 .slick-prev.slick-arrow {
     position: fixed;
-    left:2%;
-    right:auto;
+    left: 2%;
+    right: auto;
 }
 
 .slick-next.slick-arrow {
     position: fixed;
-    left:auto;
-    right:2%;
+    left: auto;
+    right: 2%;
 }
 
-.slick-prev.slick-arrow:before, .slick-next.slick-arrow:before {
+.slick-prev.slick-arrow:before,
+.slick-next.slick-arrow:before {
     color: #000000;
     opacity: 1;
 }

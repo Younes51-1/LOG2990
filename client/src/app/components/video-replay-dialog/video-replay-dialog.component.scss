@@ -1,52 +1,59 @@
-.title {
-    padding: 10px;
+@font-face {
+    font-family: 'MarioFont';
+    src: url('../../../assets/fonts/MarioFont.ttf');
+}
+
+#title {
+    font-family: 'MarioFont';
     display: flex;
     justify-content: center;
+    font-size: 35px;
+    color: white;
+    text-shadow: -2px -2px #8200ff, 2px 2px #8200ff, 2px -2px #8200ff, -2px 2px #8200ff;
 }
 
-.div1 {
+#replaySection {
     display: flex;
-}
-
-.div0 {
-    display: flex;
-    justify-content: center;
-}
-
-.replaySection {
-    border: 6px solid #8200ff;
     padding: 30px;
 }
 
-.replaySection {
+#div0 {
+    flex-basis: 50%;
+}
+
+#div1 {
+    flex-basis: 50%;
     display: flex;
-    flex-wrap: wrap;
-    overflow-y: auto;
+    margin-top: 333px;
 }
 
-.replaySection > * {
-    flex: 1 1 calc(50% - 10px);
-    margin: 5px;
-    max-width: 100%;
+#scoreBoard {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
 }
 
-.options {
+#options {
     padding: 25px;
     display: flex;
     justify-content: center;
-}
-
-app-fake-score-board {
 }
 
 app-fake-chat-box {
     padding: 0 30px 5px 30px;
 }
 
-.options button {
+#options button {
     margin-right: 10px;
 }
 
-.options button:last-child {
+#options button:last-child {
     margin-right: 0;
+}
+
+#mainContainer {
+    border: 7px solid #8200ff;
+    transform: scale(0.65);
+    transform-origin: top left;
+    position: fixed;
 }
