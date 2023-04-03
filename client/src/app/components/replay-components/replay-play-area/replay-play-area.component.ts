@@ -7,7 +7,7 @@ import { ErrorText } from 'src/assets/variables/text';
 import { Time } from 'src/assets/variables/time';
 
 @Component({
-    selector: 'app-fake-play-area',
+    selector: 'app-replay-play-area',
     templateUrl: './replay-play-area.component.html',
     styleUrls: ['./replay-play-area.component.scss'],
 })

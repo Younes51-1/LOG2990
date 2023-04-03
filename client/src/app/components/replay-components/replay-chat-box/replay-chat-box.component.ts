@@ -3,7 +3,7 @@ import { Message } from '@app/interfaces/chat';
 import { InstructionReplay } from '@app/interfaces/video-replay';
 
 @Component({
-    selector: 'app-fake-chat-box',
+    selector: 'app-replay-chat-box',
     templateUrl: './replay-chat-box.component.html',
     styleUrls: ['./replay-chat-box.component.scss'],
 })
@@ -30,7 +30,6 @@ export class ReplayChatBoxComponent implements OnChanges, OnInit {
             }
         }
         this.firstChange = false;
-
         if (this.currentAction && this.currentAction.message) {
             if (this.currentAction.timeStart === this.time) {
                 this.messages.push(this.currentAction.message);
