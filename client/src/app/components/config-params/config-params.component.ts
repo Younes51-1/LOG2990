@@ -15,6 +15,8 @@ export class ConfigParamsComponent implements OnInit {
     @Input() bonusTime: number;
 
     isInvalidInput: boolean = false;
+    feedbackMessage: string = '';
+    private timeout: number = Time.SecInMil * 3;
 
     constructor(private verifyInput: VerifyInputService, private readonly configCommunicationService: ConfigHttpService) {}
 
@@ -135,6 +137,10 @@ export class ConfigParamsComponent implements OnInit {
             bonusTime: this.bonusTime,
         };
         this.configCommunicationService.updateConstants(constants).subscribe();
+        this.feedbackMessage = 'Nouvelles constantes appliquées avec succès!';
+        setTimeout(() => {
+            this.feedbackMessage = '';
+        }, this.timeout);
     }
 
     resetConstants() {
@@ -147,6 +153,10 @@ export class ConfigParamsComponent implements OnInit {
             bonusTime: this.bonusTime,
         };
         this.configCommunicationService.updateConstants(constants).subscribe();
+        this.feedbackMessage = 'Constantes réinitialisées avec succès!';
+        setTimeout(() => {
+            this.feedbackMessage = '';
+        }, this.timeout);
     }
 
     private validateAllInputs() {

@@ -18,6 +18,9 @@
         <button class="btn" (click)="buttonIncreaseBonus()">+</button>
     </div>
     <p class="invalidInput" *ngIf="this.isInvalidInput">Veuillez entrer un chiffre dans l'intervale demandée</p>
-    <button *ngIf="!this.isInvalidInput" class="btn" (click)="applyNewConstants()">Appliquer nouvelles constantes</button>
-    <button class="btn" (click)="resetConstants()">Réinitialiser les constantes</button>
+    <div class="constantsModification">
+        <button class="btn" (click)="resetConstants()">Réinitialiser les constantes</button>
+        <button *ngIf="!this.isInvalidInput" class="btn" (click)="applyNewConstants()">Appliquer nouvelles constantes</button>
+    </div>
+    <p class="modificationFeedback" *ngIf="feedbackMessage">{{feedbackMessage}}</p>
 </div>
