@@ -164,6 +164,12 @@ export class ClassicModeService {
         this.abandoned$ = new Subject<string>();
     }
 
+    changeTime(timeToApply: number): void {
+        if (this.socketService.isSocketAlive()) {
+            this.socketService.send('changeTime', { roomId: this.gameRoom.roomId, time: timeToApply });
+        }
+    }
+
     private connect(): void {
         if (!this.socketService.isSocketAlive()) {
             this.socketService.connect();
