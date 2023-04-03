@@ -10,6 +10,8 @@
         [differencesFound]="userDifferencesFound"
         [opponentDifferencesFound]="totalDifferencesFound - userDifferencesFound"
         [gameRoom]="gameRoom"
+        (sendDifferencesFound)="getDifferencesFound($event)"
+        (sendOpponentDifferencesFound)="getOpponentDifferencesFound($event)"
     ></app-game-scoreboard>
 </section>
 <section class="gameplay">

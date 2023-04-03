@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
 import { GameRoom } from '@app/interfaces/game';
 import { Time } from 'src/assets/variables/time';
 
@@ -16,9 +16,14 @@ export class GameScoreboardComponent implements OnChanges {
     @Input() opponentUsername: string;
     @Input() gameRoom: GameRoom;
 
+    @Output() sendDifferencesFound = new EventEmitter<number>();
+    @Output() sendOpponentDifferencesFound = new EventEmitter<number>();
+
     gameMode: string = 'mode classique';
     difficulty: string;
     totalNumber: number;
+    lastDifferencesFound: number = 0;
+    lastOpponentDifferencesFound: number = 0;
 
     minutes = 0;
     seconds = 0;
@@ -29,6 +34,14 @@ export class GameScoreboardComponent implements OnChanges {
             this.difficulty = this.gameRoom.userGame.gameData.gameForm.difficulty;
             this.minutes = Math.floor(this.timer / Time.Sixty);
             this.seconds = this.timer % Time.Sixty;
+        }
+        if (this.lastDifferencesFound !== this.differencesFound) {
+            this.lastDifferencesFound = this.differencesFound;
+            this.sendDifferencesFound.emit(this.differencesFound);
+        }
+        if (this.lastOpponentDifferencesFound !== this.opponentDifferencesFound) {
+            this.lastOpponentDifferencesFound = this.opponentDifferencesFound;
+            this.sendOpponentDifferencesFound.emit(this.opponentDifferencesFound);
         }
     }
 }

@@ -1,30 +1,58 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { GameRoom } from '@app/interfaces/game';
+import { InstructionReplay } from '@app/interfaces/video-replay';
 import { Time } from 'src/assets/variables/time';
 
 @Component({
-    selector: 'app-fake-score-board',
+    selector: 'app-replay-score-board',
     templateUrl: './replay-score-board.component.html',
     styleUrls: ['./replay-score-board.component.scss'],
 })
-export class ReplayScoreBoardComponent implements OnInit {
+export class ReplayScoreBoardComponent implements OnInit, OnChanges {
     @Input() gameRoom: GameRoom;
     @Input() gameName: string;
     @Input() opponentUsername: string;
     @Input() username: string;
     @Input() time: number;
     @Input() timeEnd: number;
+    @Input() actions: InstructionReplay[];
+    @Input() restartSignal: boolean;
 
     gameMode: string = 'mode classique';
     difficulty: string;
     nbDiff: number;
     differencesFound = 0;
     opponentDifferencesFound = 0;
+    counter: number = 0;
+    private currentAction: InstructionReplay | undefined;
+    private firstChange = true;
 
     ngOnInit(): void {
         if (this.gameRoom) {
             this.nbDiff = this.gameRoom.userGame.gameData.gameForm.nbDifference;
             this.difficulty = this.gameRoom.userGame.gameData.gameForm.difficulty;
+            this.currentAction = this.actions[this.counter++];
+        }
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (!this.firstChange) {
+            if (changes.restartSignal) {
+                this.counter = 0;
+                this.differencesFound = 0;
+                this.opponentDifferencesFound = 0;
+                this.currentAction = this.actions[this.counter++];
+            }
+        }
+        this.firstChange = false;
+        if (this.currentAction && this.currentAction.nbDifferences) {
+            if (this.currentAction.timeStart === this.time) {
+                if (this.opponentUsername === this.currentAction.username) this.opponentDifferencesFound++;
+                else this.differencesFound++;
+                if (this.counter < this.actions.length) {
+                    this.currentAction = this.actions[this.counter++];
+                }
+            }
         }
     }
 

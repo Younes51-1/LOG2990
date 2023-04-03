@@ -22,6 +22,7 @@ export enum Instruction {
     CheatModeStart = 'cheatModeStart',
     CheatModeEnd = 'cheatModeEnd',
     Hint = 'hint',
+    Score = 'score',
 }
 
 export interface InstructionReplay {
@@ -32,4 +33,6 @@ export interface InstructionReplay {
     message?: Message;
     mousePosition?: Vec2;
     leftCanvas?: boolean;
+    nbDifferences?: number;
+    username?: string;
 }

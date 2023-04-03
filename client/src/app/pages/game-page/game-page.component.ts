@@ -176,6 +176,14 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.videoReplay.actions.push({ type: Instruction.ChatMessage, timeStart: this.timer, message: data });
     }
 
+    getDifferencesFound(data: number) {
+        this.videoReplay.actions.push({ type: Instruction.Score, timeStart: this.timer, nbDifferences: data, username: this.username });
+    }
+
+    getOpponentDifferencesFound(data: number) {
+        this.videoReplay.actions.push({ type: Instruction.Score, timeStart: this.timer, nbDifferences: data, username: this.opponentUsername });
+    }
+
     ngOnDestroy() {
         this.classicModeService.reset();
         this.dialog.closeAll();

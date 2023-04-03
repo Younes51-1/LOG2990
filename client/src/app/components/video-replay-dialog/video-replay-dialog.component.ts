@@ -40,6 +40,7 @@ export class VideoReplayDialogComponent implements AfterViewInit, OnInit {
         while (this.counter < this.actions.length) {
             const action = this.actions[this.counter++];
             if (action.type === Instruction.ChatMessage) this.chatBoxActions.push(action);
+            else if (action.type === Instruction.Score) this.scoreBoardActions.push(action);
             else this.playAreaActions.push(action);
         }
     }
