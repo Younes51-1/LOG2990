@@ -5,9 +5,11 @@ import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-d
 import { GameRoom } from '@app/interfaces/game';
 import { ChatService } from '@app/services/chat/chat.service';
 import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
+import { ConfigHttpService } from '@app/services/config-http/config-http.service';
 import { HelpService } from '@app/services/help/help.service';
 import { Subscription } from 'rxjs';
 import { Time } from 'src/assets/variables/time';
+
 @Component({
     selector: 'app-game-page',
     templateUrl: './game-page.component.html',
@@ -22,6 +24,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     userDifferencesFound = 0;
     gameRoom: GameRoom;
     hintNum = 0;
+    penaltyTime: number;
 
     private gameFinished = false;
     private dialogRef: MatDialogRef<EndgameDialogComponent>;
@@ -41,11 +44,15 @@ export class GamePageComponent implements OnInit, OnDestroy {
         private chatService: ChatService,
         private router: Router,
         private helpService: HelpService,
+        private configService: ConfigHttpService,
     ) {}
 
     ngOnInit() {
         this.timerSubscription = this.classicModeService.timer$.subscribe((timer: number) => {
             this.timer = timer;
+        });
+        this.configService.getConstants().subscribe((res) => {
+            this.penaltyTime = res.penaltyTime;
         });
         this.differencesFoundSubscription = this.classicModeService.totalDifferencesFound$.subscribe((count) => {
             this.totalDifferencesFound = count;
@@ -80,7 +87,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 this.helpService.startConfetti(undefined);
             }
             this.unsubscribe();
-            this.classicModeService.endGame();
+            this.classicModeService.endGame(true, true);
         });
     }
 
@@ -92,7 +99,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             } else {
                 this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: false } });
             }
-            this.classicModeService.endGame();
+            this.classicModeService.endGame(this.gameFinished, this.userDifferencesFound === this.differenceThreshold);
             this.unsubscribe();
         } else {
             this.abandonConfirmation();
