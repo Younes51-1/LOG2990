@@ -30,6 +30,16 @@ describe('HelpService', () => {
         expect(service).toBeTruthy();
     });
 
+    it('should create a canvas element when given coordinates', () => {
+        const canvas = document.createElement('canvas');
+        spyOn(canvas, 'getContext').and.callThrough();
+        spyOn(document, 'createElement').and.returnValue(canvas);
+        service.startConfetti({ x: 100, y: 200 });
+        // eslint-disable-next-line deprecation/deprecation
+        expect(document.createElement).toHaveBeenCalledWith('canvas');
+        expect(canvas.getContext).toHaveBeenCalledWith('2d');
+    });
+
     it('should set variables and call cheatMode on press of T', () => {
         const cheatModeSpy = spyOn(service as any, 'cheatMode');
         const cheatModeKey = 't';

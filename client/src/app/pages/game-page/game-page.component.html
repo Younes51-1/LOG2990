@@ -4,8 +4,8 @@
 <section class="infos">
     <app-game-scoreboard [gameName]="gameName" [username]="username" [opponentUsername]="opponentUsername"
         [timer]="timer" [differencesFound]="userDifferencesFound"
-        [opponentDifferencesFound]="totalDifferencesFound - userDifferencesFound"
-        [gameRoom]="gameRoom" [penaltyTime]="penaltyTime"></app-game-scoreboard>
+        [opponentDifferencesFound]="totalDifferencesFound - userDifferencesFound" [gameRoom]="gameRoom"
+        [penaltyTime]="penaltyTime"></app-game-scoreboard>
 </section>
 <button *ngIf="!opponentUsername" class="hint" (click)="toggleHint()">Indices - il vous en reste {{ 3-hintNum
     }}</button>

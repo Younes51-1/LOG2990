@@ -111,6 +111,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.helpService.isHintModeOn = !this.helpService.isHintModeOn;
             this.helpService.hintMode(this.hintNum);
             this.sendEvent('hint');
+            this.classicModeService.changeTime(this.penaltyTime);
             this.hintNum += 1;
         }
     }

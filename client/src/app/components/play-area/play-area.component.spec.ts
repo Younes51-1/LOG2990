@@ -356,7 +356,7 @@ describe('PlayAreaComponent', () => {
         spyOn(component as any, 'createAndFillNewLayer').and.callFake(() => {
             return;
         });
-        (component as any).verifyDifferenceMatrix();
+        (component as any).verifyDifferenceMatrix('cheat');
         expect((component as any).createAndFillNewLayer).toHaveBeenCalled();
     });
 
@@ -364,6 +364,6 @@ describe('PlayAreaComponent', () => {
         const result = document.createElement('canvas');
         result.width = component.width;
         result.height = component.height;
-        expect((component as any).createAndFillNewLayer(Color.Cheat, true, differenceMatrix)).toEqual(result);
+        expect((component as any).createAndFillNewLayer(Color.Cheat, true, false, differenceMatrix)).toEqual(result);
     });
 });
