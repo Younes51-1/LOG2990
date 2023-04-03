@@ -46,12 +46,11 @@ export class ReplayScoreBoardComponent implements OnInit, OnChanges {
         }
         this.firstChange = false;
         if (this.currentAction && this.currentAction.nbDifferences) {
-            if (this.currentAction.timeStart === this.time) {
+            if (this.currentAction.timeStart <= this.time) {
                 if (this.opponentUsername === this.currentAction.username) this.opponentDifferencesFound++;
                 else this.differencesFound++;
-                if (this.counter < this.actions.length) {
-                    this.currentAction = this.actions[this.counter++];
-                }
+                if (this.actions.length) this.currentAction = this.actions[this.counter++];
+                else this.currentAction = undefined;
             }
         }
     }

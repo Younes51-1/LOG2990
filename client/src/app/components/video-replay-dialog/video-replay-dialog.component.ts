@@ -55,18 +55,19 @@ export class VideoReplayDialogComponent implements AfterViewInit, OnInit {
     continue() {
         if (!this.paused) return;
         this.paused = false;
-        this.continueSignal = !this.continueSignal;
         this.startTimer();
+        this.continueSignal = !this.continueSignal;
     }
 
     restart() {
         clearTimeout(this.endTimeout);
-        this.restartSignal = !this.restartSignal;
-        this.time = 0;
         this.startTimer();
+        this.time = 0;
+        this.restartSignal = !this.restartSignal;
     }
 
     startTimer() {
+        if (this.paused) return;
         this.stopTimer();
         this.timer = setInterval(() => {
             this.time++;

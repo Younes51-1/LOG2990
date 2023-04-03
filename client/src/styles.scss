@@ -13,6 +13,11 @@ body {
     font-family: 'Verdana', sans-serif, monospace;
 }
 
+@font-face {
+    font-family: 'MarioFont';
+    src: url('assets/fonts/MarioFont.ttf');
+}
+
 .slick-wrapper {
     width: 1000px;
     margin: 20px auto;

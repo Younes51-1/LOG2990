@@ -31,11 +31,10 @@ export class ReplayChatBoxComponent implements OnChanges, OnInit {
         }
         this.firstChange = false;
         if (this.currentAction && this.currentAction.message) {
-            if (this.currentAction.timeStart === this.time) {
+            if (this.currentAction.timeStart <= this.time) {
                 this.messages.push(this.currentAction.message);
-                if (this.counter < this.actions.length) {
-                    this.currentAction = this.actions[this.counter++];
-                }
+                if (this.actions.length) this.currentAction = this.actions[this.counter++];
+                else this.currentAction = undefined;
             }
         }
     }

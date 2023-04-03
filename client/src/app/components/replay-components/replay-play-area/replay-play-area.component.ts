@@ -80,19 +80,14 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
         if (!this.currentAction) return;
         if (this.currentAction.timeStart <= this.time) {
             this.handleReplay();
-
-            if (this.actions.length) {
-                this.currentAction = this.actions[this.counter++];
-            } else {
-                this.currentAction = undefined;
-            }
+            if (this.actions.length) this.currentAction = this.actions[this.counter++];
+            else this.currentAction = undefined;
         }
     }
 
     private restart() {
         if (this.paused) {
             this.continue();
-            this.paused = false;
         }
         this.clearAsync();
         this.audioInvalid.pause();

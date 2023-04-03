@@ -12,14 +12,10 @@
     padding: 30px;
 }
 
-#div0 {
-    flex-basis: 50%;
-}
-
 #div1 {
-    flex-basis: 50%;
-    display: flex;
     margin-top: 333px;
+    padding-left: 20px;
+    padding-right: 20px;
 }
 
 #scoreBoard {
@@ -48,7 +44,7 @@ app-fake-chat-box {
 
 #mainContainer {
     border: 7px solid #8200ff;
-    transform: scale(0.65);
+    transform: scale(0.66);
     transform-origin: top left;
     position: fixed;
 }
