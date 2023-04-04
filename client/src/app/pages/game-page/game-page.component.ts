@@ -5,10 +5,10 @@ import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-d
 import { GameRoom } from '@app/interfaces/game';
 import { ChatService } from '@app/services/chat/chat.service';
 import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
-import confetti from 'canvas-confetti';
+import { ConfigHttpService } from '@app/services/config-http/config-http.service';
+import { HelpService } from '@app/services/help/help.service';
 import { Subscription } from 'rxjs';
 import { Time } from 'src/assets/variables/time';
-import { ConfigHttpService } from '@app/services/config-http/config-http.service';
 
 @Component({
     selector: 'app-game-page',
@@ -23,11 +23,11 @@ export class GamePageComponent implements OnInit, OnDestroy {
     totalDifferencesFound = 0;
     userDifferencesFound = 0;
     gameRoom: GameRoom;
+    hintNum = 0;
     penaltyTime: number;
 
     private gameFinished = false;
     private dialogRef: MatDialogRef<EndgameDialogComponent>;
-    private intervalId: ReturnType<typeof setInterval>;
     private differenceThreshold = 0;
     private timerSubscription: Subscription;
     private differencesFoundSubscription: Subscription;
@@ -43,6 +43,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         private classicModeService: ClassicModeService,
         private chatService: ChatService,
         private router: Router,
+        private helpService: HelpService,
         private configService: ConfigHttpService,
     ) {}
 
@@ -83,7 +84,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.abandonedGameSubscription = this.classicModeService.abandoned$.subscribe((userName: string) => {
             if (userName !== this.username) {
                 this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
-                this.startConfetti();
+                this.helpService.startConfetti(undefined);
             }
             this.unsubscribe();
             this.classicModeService.endGame(true, true);
@@ -93,11 +94,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
     endGame() {
         if (this.gameFinished) {
             if (this.userDifferencesFound === this.differenceThreshold) {
-                this.dialogRef = this.dialog.open(EndgameDialogComponent, {
-                    disableClose: true,
-                    data: { gameFinished: true, gameWinner: true, time: this.timer },
-                });
-                this.startConfetti();
+                this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
+                this.helpService.startConfetti(undefined);
             } else {
                 this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: false } });
             }
@@ -105,6 +103,16 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.unsubscribe();
         } else {
             this.abandonConfirmation();
+        }
+    }
+
+    toggleHint() {
+        if (this.hintNum < 3) {
+            this.helpService.isHintModeOn = !this.helpService.isHintModeOn;
+            this.helpService.hintMode(this.hintNum);
+            this.sendEvent('hint');
+            this.classicModeService.changeTime(this.penaltyTime);
+            this.hintNum += 1;
         }
     }
 
@@ -119,24 +127,16 @@ export class GamePageComponent implements OnInit, OnDestroy {
             case 'abandon':
                 this.chatService.sendMessage(`${this.username} a abandonné la partie`, 'Système', this.gameRoom.roomId);
                 break;
+            case 'hint':
+                this.chatService.sendMessage('Indice utilisé', 'Système', this.gameRoom.roomId);
+                break;
         }
     }
 
     ngOnDestroy() {
         this.classicModeService.reset();
         this.dialog.closeAll();
-        clearInterval(this.intervalId);
-    }
-
-    private startConfetti() {
-        this.intervalId = setInterval(() => {
-            confetti({
-                particleCount: 300,
-                spread: 100,
-                origin: { y: 0.6 },
-                colors: ['#29cdff', '#78ff44', '#ff718d', '#fdff6a'],
-            });
-        }, Time.SecInMil);
+        clearInterval(this.helpService.intervalId);
     }
 
     private abandonConfirmation() {
