@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 import { environment } from '@app/environments/environment.prod';
-import { ClassicModeGateway } from '@app/gateways/classic-mode/classic-mode.gateway';
-import { ClassicModeEvents, DelayBeforeEmittingTime } from '@app/gateways/classic-mode/classic-mode.gateway.variables';
+import { ClassicModeGateway } from '@app/gateways/game-mode/game-mode.gateway';
+import { ClassicModeEvents, DelayBeforeEmittingTime } from '@app/gateways/game-mode/game-mode.gateway.variables';
 import { BestTime } from '@app/model/schema/best-times.schema';
 import { EndGame } from '@app/model/schema/end-game.schema';
 import { GameRoom } from '@app/model/schema/game-room.schema';

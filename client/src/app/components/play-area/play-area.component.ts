@@ -1,9 +1,10 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, ViewChild } from '@angular/core';
+import { DifferenceTry } from '@app/interfaces/difference-try';
 import { GameRoom } from '@app/interfaces/game';
 import { Vec2 } from '@app/interfaces/vec2';
 import { ChatService } from '@app/services/chat/chat.service';
-import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
 import { DetectionDifferenceService } from '@app/services/detection-difference/detection-difference.service';
+import { GameService } from '@app/services/game/game.service';
 import { HelpService } from '@app/services/help/help.service';
 import { MouseService } from '@app/services/mouse/mouse.service';
 import { Color } from 'src/assets/variables/color';
@@ -42,7 +43,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     constructor(
         private mouseService: MouseService,
         private detectionService: DetectionDifferenceService,
-        private classicModeService: ClassicModeService,
+        private gameService: GameService,
         private chatService: ChatService,
         private helpService: HelpService,
     ) {}
@@ -71,10 +72,11 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     }
 
     ngAfterViewInit() {
-        this.classicModeService.serverValidateResponse$.subscribe((difference) => {
+        this.gameService.serverValidate();
+        this.gameService.serverValidateResponse$.subscribe((difference: DifferenceTry) => {
             if (difference.validated) {
                 this.correctRetroaction(difference.differencePos);
-            } else if (difference.username === this.classicModeService.username) {
+            } else if (difference.username === this.gameService.username) {
                 this.errorRetroaction(this.canvasClicked);
             }
         });
@@ -83,7 +85,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     }
 
     ngOnChanges() {
-        if (this.classicModeService.gameRoom && this.gameRoom?.userGame?.gameData) {
+        if (this.gameService.gameRoom && this.gameRoom?.userGame?.gameData) {
             this.differenceMatrix = this.gameRoom.userGame.gameData.differenceMatrix;
             this.original.src = this.gameRoom.userGame.gameData.gameForm.image1url;
             this.modified.src = this.gameRoom.userGame.gameData.gameForm.image2url;
@@ -106,7 +108,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
             this.mousePosition = this.mouseService.mouseClick(event, this.mousePosition);
             const isValidated = this.differenceMatrix[this.mousePosition.y][this.mousePosition.x] !== PossibleColor.EMPTYPIXEL;
             if (isValidated) {
-                this.classicModeService.validateDifference(this.mousePosition);
+                this.gameService.sendServerValidate(this.mousePosition);
                 this.canvasClicked = canvas;
             } else {
                 this.errorRetroaction(canvas);

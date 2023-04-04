@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { DifferenceTry } from '@app/interfaces/difference-try';
 import { EndGame, GameRoom, NewBestTime } from '@app/interfaces/game';
 import { Vec2 } from '@app/interfaces/vec2';
-import { ChatService } from '@app/services/chat/chat.service';
 import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
 import { ConfigHttpService } from '@app/services/config-http/config-http.service';
@@ -22,9 +21,6 @@ export class ClassicModeService {
     gameFinished$ = new Subject<boolean>();
     gameRoom$ = new Subject<GameRoom>();
     serverValidateResponse$ = new Subject<DifferenceTry>();
-    rejected$ = new Subject<boolean>();
-    accepted$ = new Subject<boolean>();
-    gameCanceled$ = new Subject<boolean>();
     gameDeleted$ = new Subject<boolean>();
     abandoned$ = new Subject<string>();
     timePosition$ = new Subject<number>();
@@ -36,10 +32,9 @@ export class ClassicModeService {
         private readonly socketService: CommunicationSocketService,
         private communicationService: CommunicationHttpService,
         private configHttpService: ConfigHttpService,
-        private chatService: ChatService,
     ) {}
 
-    initClassicMode(gameName: string, username: string, started: boolean): void {
+    initGameMode(gameName: string, username: string, started: boolean): void {
         this.communicationService.getGame(gameName).subscribe((res) => {
             if (res && Object.keys(res).length !== 0) {
                 this.gameRoom = {
@@ -51,6 +46,7 @@ export class ClassicModeService {
                     },
                     roomId: '',
                     started,
+                    gameMode: 'classic-mode',
                 };
                 this.username = username;
                 this.disconnectSocket();
@@ -62,7 +58,7 @@ export class ClassicModeService {
         });
     }
 
-    joinWaitingRoomClassicModeMulti(gameName: string, username: string): void {
+    joinWaitingRoom(gameName: string, username: string): void {
         this.communicationService.getGame(gameName).subscribe((res) => {
             if (res && Object.keys(res).length !== 0) {
                 this.gameRoom = undefined as unknown as GameRoom;
@@ -92,7 +88,6 @@ export class ClassicModeService {
         if (this.gameRoom.userGame.username1 === this.username) {
             this.socketService.send('start', this.gameRoom.roomId);
         }
-        this.chatService.handleMessage();
         this.socketService.off('gameInfo');
         this.socketService.off('gameCreated');
         this.socketService.off('playerAccepted');
@@ -141,12 +136,6 @@ export class ClassicModeService {
         }
     }
 
-    connectSocket(): void {
-        if (!this.socketService.isSocketAlive()) {
-            this.socketService.connect();
-        }
-    }
-
     reset() {
         this.gameRoom = undefined as unknown as GameRoom;
         this.canSendValidate = true;
@@ -158,9 +147,6 @@ export class ClassicModeService {
         this.gameFinished$ = new Subject<boolean>();
         this.gameRoom$ = new Subject<GameRoom>();
         this.serverValidateResponse$ = new Subject<DifferenceTry>();
-        this.rejected$ = new Subject<boolean>();
-        this.accepted$ = new Subject<boolean>();
-        this.gameCanceled$ = new Subject<boolean>();
         this.abandoned$ = new Subject<string>();
     }
 
@@ -220,35 +206,6 @@ export class ClassicModeService {
         this.socketService.on('GameFinished', () => {
             this.gameFinished$.next(true);
             this.disconnectSocket();
-        });
-
-        this.socketService.on('playerAccepted', (gameRoom: GameRoom) => {
-            if (gameRoom && (gameRoom.userGame.username1 === this.username || gameRoom.userGame.username2 === this.username)) {
-                this.gameRoom = gameRoom;
-                this.accepted$.next(true);
-            } else if (gameRoom) {
-                this.gameRoom = gameRoom;
-                this.rejected$.next(true);
-            }
-        });
-
-        this.socketService.on('playerRejected', (gameRoom: GameRoom) => {
-            if (
-                gameRoom &&
-                gameRoom.userGame.username1 !== this.username &&
-                gameRoom.userGame.username2 !== this.username &&
-                !gameRoom.userGame.potentialPlayers?.includes(this.username)
-            ) {
-                this.rejected$.next(true);
-            } else if (gameRoom) {
-                this.gameRoom = gameRoom;
-            }
-        });
-
-        this.socketService.on('gameCanceled', (gameName) => {
-            if (this.gameRoom?.userGame.gameData.gameForm.name === gameName) {
-                this.gameCanceled$.next(true);
-            }
         });
 
         this.socketService.on('abandoned', (userName: string) => {

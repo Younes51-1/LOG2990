@@ -1,9 +1,7 @@
 import { Component, Inject, Input, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
+import { GameService } from '@app/services/game/game.service';
 import { Time } from 'src/assets/variables/time';
-
-const NOT_TOP3 = -1;
 
 @Component({
     selector: 'app-endgame-modal-dialog',
@@ -17,12 +15,13 @@ export class EndgameDialogComponent implements OnInit {
     timePosition: string;
 
     constructor(
-        public classicModeService: ClassicModeService,
+        public gameService: GameService,
         private dialogRef: MatDialogRef<EndgameDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: { gameFinished: boolean; gameWinner: boolean; time?: number },
     ) {}
 
     ngOnInit() {
+        this.gameService.topScore();
         if (this.data.gameWinner) {
             if (this.data.time) {
                 this.time = `${Math.floor(this.data.time / Time.MinInSec)}:${(this.data.time % Time.MinInSec).toLocaleString('en-US', {
@@ -30,8 +29,7 @@ export class EndgameDialogComponent implements OnInit {
                     useGrouping: false,
                 })}`;
             }
-            this.classicModeService.timePosition$.subscribe((timePosition: number) => {
-                if (timePosition === NOT_TOP3) return;
+            this.gameService.timePosition$.subscribe((timePosition: number) => {
                 timePosition++;
                 if (timePosition === 1) this.timePosition = `${timePosition}er`;
                 else this.timePosition = `${timePosition}eme`;

@@ -4,8 +4,8 @@ import { Router } from '@angular/router';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
 import { GameRoom } from '@app/interfaces/game';
 import { ChatService } from '@app/services/chat/chat.service';
-import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
 import { ConfigHttpService } from '@app/services/config-http/config-http.service';
+import { GameService } from '@app/services/game/game.service';
 import { HelpService } from '@app/services/help/help.service';
 import { Subscription } from 'rxjs';
 import { Time } from 'src/assets/variables/time';
@@ -40,7 +40,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     // eslint-disable-next-line max-params
     constructor(
         private dialog: MatDialog,
-        private classicModeService: ClassicModeService,
+        private gameService: GameService,
         private chatService: ChatService,
         private router: Router,
         private helpService: HelpService,
@@ -48,16 +48,21 @@ export class GamePageComponent implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit() {
-        this.timerSubscription = this.classicModeService.timer$.subscribe((timer: number) => {
+        this.gameService.timerUpdate();
+        this.gameService.differencesUpdate();
+        this.gameService.gameFinishedUpdate();
+        this.gameService.gameRoomUpdate();
+        this.gameService.abandonedGameUpdate();
+        this.timerSubscription = this.gameService.timer$.subscribe((timer: number) => {
             this.timer = timer;
         });
         this.configService.getConstants().subscribe((res) => {
             this.penaltyTime = res.penaltyTime;
         });
-        this.differencesFoundSubscription = this.classicModeService.totalDifferencesFound$.subscribe((count) => {
+        this.differencesFoundSubscription = this.gameService.totalDifferencesFound$.subscribe((count) => {
             this.totalDifferencesFound = count;
         });
-        this.userDifferencesFoundSubscription = this.classicModeService.userDifferencesFound$.subscribe((count) => {
+        this.userDifferencesFoundSubscription = this.gameService.userDifferencesFound$.subscribe((count) => {
             this.userDifferencesFound = count;
             this.sendEvent('success');
             if (this.userDifferencesFound >= this.differenceThreshold) {
@@ -65,14 +70,14 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 this.endGame();
             }
         });
-        this.gameFinishedSubscription = this.classicModeService.gameFinished$.subscribe(() => {
+        this.gameFinishedSubscription = this.gameService.gameFinished$.subscribe(() => {
             this.gameFinished = true;
             this.endGame();
         });
-        this.gameRoomSubscription = this.classicModeService.gameRoom$.subscribe((gameRoom) => {
+        this.gameRoomSubscription = this.gameService.gameRoom$.subscribe((gameRoom) => {
             this.gameRoom = gameRoom;
             this.gameName = gameRoom.userGame.gameData.gameForm.name;
-            this.username = this.classicModeService.username;
+            this.username = this.gameService.username;
             if (gameRoom.userGame.username2) {
                 this.opponentUsername = gameRoom.userGame.username1 === this.username ? gameRoom.userGame.username2 : gameRoom.userGame.username1;
                 this.differenceThreshold = Math.ceil(gameRoom.userGame.gameData.gameForm.nbDifference / 2);
@@ -81,13 +86,13 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 this.differenceThreshold = gameRoom.userGame.gameData.gameForm.nbDifference;
             }
         });
-        this.abandonedGameSubscription = this.classicModeService.abandoned$.subscribe((userName: string) => {
+        this.abandonedGameSubscription = this.gameService.abandoned$.subscribe((userName: string) => {
             if (userName !== this.username) {
                 this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
                 this.helpService.startConfetti(undefined);
             }
             this.unsubscribe();
-            this.classicModeService.endGame(true, true);
+            this.gameService.endGame(true, true);
         });
     }
 
@@ -99,7 +104,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             } else {
                 this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: false } });
             }
-            this.classicModeService.endGame(this.gameFinished, this.userDifferencesFound === this.differenceThreshold);
+            this.gameService.endGame(this.gameFinished, this.userDifferencesFound === this.differenceThreshold);
             this.unsubscribe();
         } else {
             this.abandonConfirmation();
@@ -111,7 +116,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.helpService.isHintModeOn = !this.helpService.isHintModeOn;
             this.helpService.hintMode(this.hintNum);
             this.sendEvent('hint');
-            this.classicModeService.changeTime(this.penaltyTime);
+            this.gameService.changeTime(this.penaltyTime);
             this.hintNum += 1;
         }
     }
@@ -134,7 +139,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.classicModeService.reset();
+        this.gameService.reset();
         this.dialog.closeAll();
         clearInterval(this.helpService.intervalId);
     }
@@ -145,10 +150,10 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.dialogRef.afterClosed().subscribe((abandon) => {
                 if (abandon) {
                     this.sendEvent('abandon');
-                    this.classicModeService.abandonGame();
+                    this.gameService.abandonGame();
                     this.unsubscribe();
                     setTimeout(() => {
-                        this.classicModeService.disconnectSocket();
+                        this.gameService.disconnectSocket();
                         this.router.navigate(['/home']);
                     }, Time.SecInMil);
                 }

@@ -1,7 +1,7 @@
 import { DIFFICULTY_THRESHOLD, NOT_TOP3 } from '@app/constants';
 import { environment } from '@app/environments/environment';
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
-import { ClassicModeGateway } from '@app/gateways/classic-mode/classic-mode.gateway';
+import { ClassicModeGateway } from '@app/gateways/game-mode/game-mode.gateway';
 import { Game, GameDocument } from '@app/model/database/game';
 import { GameData } from '@app/model/dto/game/game-data.dto';
 import { GameForm } from '@app/model/dto/game/game-form.dto';
