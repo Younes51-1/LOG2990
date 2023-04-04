@@ -3,9 +3,9 @@ import { DifferenceTry } from '@app/interfaces/difference-try';
 import { EndGame, GameRoom, NewBestTime } from '@app/interfaces/game';
 import { Vec2 } from '@app/interfaces/vec2';
 import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
-import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
 import { ConfigHttpService } from '@app/services/config-http/config-http.service';
 import { Subject } from 'rxjs';
+import { GameService } from '@app/services/game/game.service';
 
 @Injectable({
     providedIn: 'root',
@@ -24,15 +24,14 @@ export class ClassicModeService {
     gameDeleted$ = new Subject<boolean>();
     abandoned$ = new Subject<string>();
     timePosition$ = new Subject<number>();
-
+    private gameService: GameService;
     private canSendValidate = true;
 
-    // eslint-disable-next-line max-params
-    constructor(
-        private readonly socketService: CommunicationSocketService,
-        private communicationService: CommunicationHttpService,
-        private configHttpService: ConfigHttpService,
-    ) {}
+    constructor(private communicationService: CommunicationHttpService, private configHttpService: ConfigHttpService) {}
+
+    setGameService(gameService: GameService) {
+        this.gameService = gameService;
+    }
 
     initGameMode(gameName: string, username: string, started: boolean): void {
         this.communicationService.getGame(gameName).subscribe((res) => {
@@ -49,9 +48,9 @@ export class ClassicModeService {
                     gameMode: 'classic-mode',
                 };
                 this.username = username;
-                this.disconnectSocket();
+                this.gameService.disconnectSocket();
                 this.connect();
-                this.socketService.send('createGame', this.gameRoom);
+                this.gameService.socketService.send('createGame', this.gameRoom);
             } else {
                 alert('Jeu introuvable');
             }
@@ -63,9 +62,9 @@ export class ClassicModeService {
             if (res && Object.keys(res).length !== 0) {
                 this.gameRoom = undefined as unknown as GameRoom;
                 this.username = username;
-                this.disconnectSocket();
+                this.gameService.disconnectSocket();
                 this.connect();
-                this.socketService.send('askingToJoinGame', { gameName, username });
+                this.gameService.socketService.send('askingToJoinGame', { gameName, username });
             } else {
                 alert('Jeu introuvable');
             }
@@ -73,67 +72,61 @@ export class ClassicModeService {
     }
 
     playerRejected(player: string): void {
-        if (this.socketService.isSocketAlive()) {
-            this.socketService.send('rejectPlayer', { roomId: this.gameRoom.roomId, username: player });
+        if (this.gameService.socketService.isSocketAlive()) {
+            this.gameService.socketService.send('rejectPlayer', { roomId: this.gameRoom.roomId, username: player });
         }
     }
 
     playerAccepted(player: string): void {
-        if (this.socketService.isSocketAlive()) {
-            this.socketService.send('acceptPlayer', { roomId: this.gameRoom.roomId, username: player });
+        if (this.gameService.socketService.isSocketAlive()) {
+            this.gameService.socketService.send('acceptPlayer', { roomId: this.gameRoom.roomId, username: player });
         }
     }
 
     startGame(): void {
         if (this.gameRoom.userGame.username1 === this.username) {
-            this.socketService.send('start', this.gameRoom.roomId);
+            this.gameService.socketService.send('start', this.gameRoom.roomId);
         }
-        this.socketService.off('gameInfo');
-        this.socketService.off('gameCreated');
-        this.socketService.off('playerAccepted');
-        this.socketService.off('playerRejected');
-        this.socketService.off('gameCanceled');
+        this.gameService.socketService.off('gameInfo');
+        this.gameService.socketService.off('gameCreated');
+        this.gameService.socketService.off('playerAccepted');
+        this.gameService.socketService.off('playerRejected');
+        this.gameService.socketService.off('gameCanceled');
     }
 
     validateDifference(differencePos: Vec2) {
         if (!this.canSendValidate) {
             return;
         }
-        this.socketService.send('validate', { differencePos, roomId: this.gameRoom.roomId, username: this.username });
+        this.gameService.socketService.send('validate', { differencePos, roomId: this.gameRoom.roomId, username: this.username });
         this.canSendValidate = false;
     }
 
     endGame(gameFinished: boolean, winner: boolean): void {
-        if (this.socketService.isSocketAlive()) {
+        if (this.gameService.socketService.isSocketAlive()) {
             const endGame = {} as EndGame;
             endGame.gameFinished = gameFinished;
             endGame.winner = winner;
             endGame.roomId = this.gameRoom.roomId;
             endGame.username = this.username;
-            this.socketService.send('endGame', endGame);
+            this.gameService.socketService.send('endGame', endGame);
             this.updateBestTime(gameFinished, winner);
         }
     }
 
     abandonGame() {
-        if (this.socketService.isSocketAlive()) {
-            this.socketService.send('abandoned', { roomId: this.gameRoom.roomId, username: this.username });
+        if (this.gameService.socketService.isSocketAlive()) {
+            this.gameService.socketService.send('abandoned', { roomId: this.gameRoom.roomId, username: this.username });
         }
     }
 
     abortGame(): void {
-        if (this.socketService.isSocketAlive() && this.gameRoom?.userGame.username1 === this.username) {
-            this.socketService.send('abortGameCreation', this.gameRoom.roomId);
-        } else if (this.socketService.isSocketAlive() && this.gameRoom) {
-            this.socketService.send('leaveGame', { roomId: this.gameRoom.roomId, username: this.username });
+        if (this.gameService.socketService.isSocketAlive() && this.gameRoom?.userGame.username1 === this.username) {
+            this.gameService.socketService.send('abortGameCreation', this.gameRoom.roomId);
+        } else if (this.gameService.socketService.isSocketAlive() && this.gameRoom) {
+            this.gameService.socketService.send('leaveGame', { roomId: this.gameRoom.roomId, username: this.username });
         }
-        this.disconnectSocket();
-    }
-
-    disconnectSocket(): void {
-        if (this.socketService.isSocketAlive()) {
-            this.socketService.disconnect();
-        }
+        this.gameService.disconnectSocket();
     }
 
     reset() {
@@ -151,14 +144,14 @@ export class ClassicModeService {
     }
 
     changeTime(timeToApply: number): void {
-        if (this.socketService.isSocketAlive()) {
-            this.socketService.send('changeTime', { roomId: this.gameRoom.roomId, time: timeToApply });
+        if (this.gameService.socketService.isSocketAlive()) {
+            this.gameService.socketService.send('changeTime', { roomId: this.gameRoom.roomId, time: timeToApply });
         }
     }
 
     private connect(): void {
-        if (!this.socketService.isSocketAlive()) {
-            this.socketService.connect();
+        if (!this.gameService.socketService.isSocketAlive()) {
+            this.gameService.socketService.connect();
             this.handleSocket();
         } else {
             alert('Problème de connexion');
@@ -166,8 +159,12 @@ export class ClassicModeService {
     }
 
     private handleSocket(): void {
-        this.socketService.on('gameInfo', (gameRoom: GameRoom) => {
-            if (gameRoom && (!this.gameRoom || this.gameRoom.userGame.gameData.gameForm.name === gameRoom.userGame.gameData.gameForm.name)) {
+        this.gameService.socketService.on('gameInfo', (gameRoom: GameRoom) => {
+            if (
+                gameRoom &&
+                (!this.gameRoom || this.gameRoom.userGame.gameData.gameForm.name === gameRoom.userGame.gameData.gameForm.name) &&
+                this.gameService.gameMode === gameRoom.gameMode
+            ) {
                 this.gameRoom = gameRoom;
                 this.gameRoom$.next(this.gameRoom);
             } else if (!gameRoom) {
@@ -175,23 +172,23 @@ export class ClassicModeService {
             }
         });
 
-        this.socketService.on('gameCreated', (gameRoom: GameRoom) => {
-            if (gameRoom) {
+        this.gameService.socketService.on('gameCreated', (gameRoom: GameRoom) => {
+            if (gameRoom && gameRoom.gameMode === this.gameService.gameMode) {
                 this.gameRoom = gameRoom;
                 this.gameRoom$.next(this.gameRoom);
                 if (gameRoom.started) {
-                    this.startGame();
+                    this.gameService.startGame();
                 }
             } else if (!gameRoom) {
                 alert('Nous avons eu un problème pour obtenir les informations de jeu du serveur');
             }
         });
 
-        this.socketService.on('started', () => {
+        this.gameService.socketService.on('started', () => {
             this.gameRoom$.next(this.gameRoom);
         });
 
-        this.socketService.on('validated', (differenceTry: DifferenceTry) => {
+        this.gameService.socketService.on('validated', (differenceTry: DifferenceTry) => {
             if (differenceTry.validated) {
                 this.gameRoom.userGame.nbDifferenceFound++;
                 this.totalDifferencesFound$.next(this.gameRoom.userGame.nbDifferenceFound);
@@ -200,20 +197,20 @@ export class ClassicModeService {
                     this.userDifferencesFound$.next(this.userDifferencesFound);
                 }
             }
-            this.serverValidateResponse$.next(differenceTry);
+            this.gameService.serverValidateResponse$.next(differenceTry);
         });
 
-        this.socketService.on('GameFinished', () => {
+        this.gameService.socketService.on('GameFinished', () => {
             this.gameFinished$.next(true);
-            this.disconnectSocket();
+            this.gameService.disconnectSocket();
         });
 
-        this.socketService.on('abandoned', (userName: string) => {
+        this.gameService.socketService.on('abandoned', (userName: string) => {
             this.isAbandoned = true;
             this.abandoned$.next(userName);
         });
 
-        this.socketService.on('timer', (timer: number) => {
+        this.gameService.socketService.on('timer', (timer: number) => {
             this.gameRoom.userGame.timer = timer;
             this.timer$.next(timer);
             this.canSendValidate = true;

@@ -17,7 +17,6 @@ export class GameScoreboardComponent implements OnChanges {
     @Input() gameRoom: GameRoom;
     @Input() penaltyTime: number;
 
-    gameMode: string = 'mode classique';
     difficulty: string;
     totalNumber: number;
 

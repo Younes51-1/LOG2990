@@ -69,17 +69,17 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
 
     @SubscribeMessage(ClassicModeEvents.CheckGame)
     checkGame(socket: Socket, data: { gameName: string; gameMode: string }): void {
-        if (this.gameModeService.getGameRoom(data.gameName)) {
+        if (this.gameModeService.getGameRoom(undefined, data.gameName, data.gameMode)) {
             this.logger.log(`Game ${data.gameName} found`);
-            this.server.to(socket.id).emit(ClassicModeEvents.GameFound, data.gameName);
+            this.server.to(socket.id).emit(ClassicModeEvents.GameFound, { gameName: data.gameName, gameMode: data.gameMode });
         }
     }
 
     @SubscribeMessage(ClassicModeEvents.CreateGame)
     createGame(socket: Socket, gameRoom: GameRoom): void {
-        const newRoom = this.gameModeService.initNewRoom(socket, gameRoom);
+        this.gameModeService.initNewRoom(socket, gameRoom);
         this.logger.log(`Create the game: ${gameRoom.userGame.gameData.gameForm.name}`);
-        this.server.to(gameRoom.roomId).emit(ClassicModeEvents.GameCreated, newRoom);
+        this.server.to(gameRoom.roomId).emit(ClassicModeEvents.GameCreated, gameRoom);
         this.server.emit(ClassicModeEvents.GameFound, gameRoom.userGame.gameData.gameForm.name);
     }
 

@@ -16,8 +16,11 @@ export class GameModeService {
         this.classicModeService.setGameModeService(this);
     }
 
-    getGameRoom(roomId: string): GameRoom {
-        return this.gameRooms.get(roomId);
+    getGameRoom(roomId?: string, gameName?: string, gameMode?: string): GameRoom {
+        if (roomId) return this.gameRooms.get(roomId);
+        for (const gameRoom of this.gameRooms.values()) {
+            if (gameRoom.userGame.gameData.gameForm.name === gameName && gameRoom.gameMode === gameMode) return gameRoom;
+        }
     }
 
     setGameRoom(gameRoom: GameRoom): void {
@@ -108,6 +111,7 @@ export class GameModeService {
     }
 
     initNewRoom(socket: Socket, gameRoom: GameRoom): void {
+        gameRoom.roomId = socket.id;
         this.setGameRoom(gameRoom);
         socket.join(gameRoom.roomId);
     }

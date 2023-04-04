@@ -72,7 +72,6 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     }
 
     ngAfterViewInit() {
-        this.gameService.serverValidate();
         this.gameService.serverValidateResponse$.subscribe((difference: DifferenceTry) => {
             if (difference.validated) {
                 this.correctRetroaction(difference.differencePos);

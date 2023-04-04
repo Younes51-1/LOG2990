@@ -29,11 +29,11 @@ export class GameService {
     abandoned$ = new Subject<string>();
     gameRoom: GameRoom;
     username: string;
+    gameMode: string;
     private gameManager: ClassicModeService;
-    private gameMode: string;
 
     constructor(
-        private readonly socketService: CommunicationSocketService,
+        readonly socketService: CommunicationSocketService,
         private classicModeService: ClassicModeService,
         private chatService: ChatService,
     ) {}
@@ -41,11 +41,17 @@ export class GameService {
     setGameMode(mode: string) {
         this.gameMode = mode;
         this.setGameManager();
+        this.timerUpdate();
+        this.differencesUpdate();
+        this.gameFinishedUpdate();
+        this.gameRoomUpdate();
+        this.abandonedGameUpdate();
     }
 
     setGameManager() {
         if (this.gameMode === 'classic-mode') {
             this.gameManager = this.classicModeService;
+            this.classicModeService.setGameService(this);
         }
     }
 
@@ -82,16 +88,18 @@ export class GameService {
     }
 
     startSoloGame(gameName: string, username: string): void {
+        this.username = username;
         this.gameManager.initGameMode(gameName, username, true);
-        this.handleWaitingRoomSocket();
     }
 
     createGame(gameName: string, username: string): void {
+        this.username = username;
         this.gameManager.initGameMode(gameName, username, false);
         this.handleWaitingRoomSocket();
     }
 
     joinGame(gameName: string, username: string): void {
+        this.username = username;
         this.gameManager.joinWaitingRoom(gameName, username);
         this.handleWaitingRoomSocket();
     }
@@ -161,12 +169,6 @@ export class GameService {
         });
     }
 
-    serverValidate(): void {
-        this.gameManager.serverValidateResponse$.subscribe((difference) => {
-            this.serverValidateResponse$.next(difference);
-        });
-    }
-
     sendServerValidate(mousePosition: Vec2): void {
         this.gameManager.validateDifference(mousePosition);
     }
@@ -195,6 +197,7 @@ export class GameService {
     gameRoomUpdate(): void {
         this.gameManager.gameRoom$.subscribe((gameRoom) => {
             this.gameRoom$.next(gameRoom);
+            this.gameRoom = gameRoom;
         });
     }
 
