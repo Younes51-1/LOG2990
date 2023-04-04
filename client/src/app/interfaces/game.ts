@@ -43,29 +43,3 @@ export interface NewGame {
     nbDifference: number;
     differenceMatrix: number[][];
 }
-
-export class NewBestTime {
-    gameName: string;
-    isSolo: boolean;
-    name: string;
-    time: number;
-}
-
-export interface GameHistory {
-    _id?: string;
-    name: string;
-    startTime: number;
-    timer: number;
-    username1: string;
-    username2?: string;
-    gameMode: string;
-    abandonned?: string;
-    winner: string;
-}
-
-export interface EndGame {
-    winner: boolean;
-    roomId: string;
-    username: string;
-    gameFinished: boolean;
-}

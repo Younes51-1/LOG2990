@@ -2,7 +2,6 @@
 // We need it to access private methods and properties in the test
 import { CommonModule, Location } from '@angular/common';
 import { HttpClientModule, HttpResponse } from '@angular/common/http';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule, NgZone } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -67,7 +66,7 @@ describe('ConfigSelectPageComponent', () => {
         communicationServiceSpy.deleteGame.and.returnValue(of(new HttpResponse({ status: 200 }) as HttpResponse<string>));
         dialog = jasmine.createSpyObj('MatDialog', ['open']);
         TestBed.configureTestingModule({
-            imports: [DynamicTestModule, RouterTestingModule, AppRoutingModule, CommonModule, HttpClientTestingModule],
+            imports: [DynamicTestModule, RouterTestingModule, AppRoutingModule, CommonModule],
             schemas: [CUSTOM_ELEMENTS_SCHEMA],
             declarations: [ConfigSelectPageComponent, ConfigParamsComponent, GameCardComponent],
             providers: [
@@ -188,7 +187,7 @@ describe('ConfigSelectPageComponent', () => {
         });
         component.pageType = PageKeys.Config;
         component.deleteNotify('Find the Differences 1');
-        expect(dialog.open).toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true, data: { action: 'delete' } });
+        expect(dialog.open).toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true, data: { deleted: false } });
         expect(dialogRefSpy.afterClosed).toHaveBeenCalled();
         expect((component as any).removeSlide).toHaveBeenCalledWith('Find the Differences 1');
     });
@@ -202,7 +201,7 @@ describe('ConfigSelectPageComponent', () => {
         });
         component.pageType = PageKeys.Config;
         component.deleteNotify('Find the Differences 1');
-        expect(dialog.open).toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true, data: { action: 'delete' } });
+        expect(dialog.open).toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true, data: { deleted: false } });
         expect(dialogRefSpy.afterClosed).toHaveBeenCalled();
         expect((component as any).removeSlide).not.toHaveBeenCalledWith('Find the Differences 1');
     });

@@ -5,5 +5,5 @@ export class BestTime {
     name: string;
 
     @ApiProperty()
-    time: number;
+    time: string;
 }

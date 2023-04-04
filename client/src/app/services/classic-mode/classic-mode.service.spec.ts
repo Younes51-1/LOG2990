@@ -372,7 +372,7 @@ describe('ClassicModeService', () => {
             return true;
         });
         service.gameRoom = gameRoom;
-        service.endGame(true, true);
+        service.endGame();
         expect(spy).toHaveBeenCalled();
         expect(spy2).toHaveBeenCalled();
     });

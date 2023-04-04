@@ -22,9 +22,7 @@ export enum ClassicModeEvents {
     PlayerAccepted = 'playerAccepted',
     AcceptPlayer = 'acceptPlayer',
     RejectPlayer = 'rejectPlayer',
-    NewBestTimeScore = 'newBestTimeScore',
     Timer = 'timer',
-    ChangeTime = 'changeTime',
 }
 
 export enum DelayBeforeEmittingTime {

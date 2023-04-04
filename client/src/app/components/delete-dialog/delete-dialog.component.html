@@ -1,24 +1,9 @@
-<div *ngIf="data.action === 'deleted'">
+<div *ngIf="data.deleted">
     <p>Votre jeu a été supprimer</p>
     <button mat-button (click)="close()">Ok</button>
 </div>
-<div *ngIf="data.action === 'delete'">
+<div *ngIf="!data.deleted">
     <p>Êtes-vous sûr de vouloir supprimer ?</p>
-    <button mat-button (click)="emitSupp(true)">Oui</button>
-    <button mat-button (click)="emitSupp(false)">Non</button>
-</div>
-<div *ngIf="data.action === 'deleteAll'">
-    <p>Êtes-vous sûr de vouloir supprimer <b>tous</b> les jeux ?</p>
-    <button mat-button (click)="emitSupp(true)">Oui</button>
-    <button mat-button (click)="emitSupp(false)">Non</button>
-</div>
-<div *ngIf="data.action === 'reset'">
-    <p>Êtes-vous sûr de vouloir réinitialiser les meilleurs temps du jeu ?</p>
-    <button mat-button (click)="emitSupp(true)">Oui</button>
-    <button mat-button (click)="emitSupp(false)">Non</button>
-</div>
-<div *ngIf="data.action === 'resetAll'">
-    <p>Êtes-vous sûr de vouloir réinitialiser <b>tous</b> les meilleurs temps ?</p>
     <button mat-button (click)="emitSupp(true)">Oui</button>
     <button mat-button (click)="emitSupp(false)">Non</button>
 </div>

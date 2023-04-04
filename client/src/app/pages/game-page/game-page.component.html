@@ -10,12 +10,10 @@
         [differencesFound]="userDifferencesFound"
         [opponentDifferencesFound]="totalDifferencesFound - userDifferencesFound"
         [gameRoom]="gameRoom"
-        [penaltyTime]="penaltyTime"
         (sendDifferencesFound)="getDifferencesFound($event)"
         (sendOpponentDifferencesFound)="getOpponentDifferencesFound($event)"
     ></app-game-scoreboard>
 </section>
-<button *ngIf="!opponentUsername" class="hint" (click)="toggleHint()">Indices - il vous en reste {{ 3 - hintNum }}</button>
 <section class="gameplay">
     <app-play-area
         class="play-area"
@@ -28,7 +26,6 @@
         (sendSource)="getSource($event)"
         (sendCheatStart)="getCheatStart($event)"
         (sendCheatEnd)="getCheatEnd()"
-        (toggleHint)="toggleHint()"
     ></app-play-area>
     <app-chat-box [gameRoom]="gameRoom" [username]="username" (sendChatMessage)="getChatMessage($event)"></app-chat-box>
 </section>

@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // We need it to access private methods and properties in the test
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { NgZone } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { DeleteDialogComponent } from '@app/components/delete-dialog/delete-dialog.component';
-import { WaitingRoomComponent } from '@app/components/waiting-room-dialog/waiting-room-dialog.component';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
+import { WaitingRoomComponent } from '@app/components/waiting-room-dialog/waiting-room-dialog.component';
+import { DeleteDialogComponent } from '@app/components/delete-dialog/delete-dialog.component';
 import { of } from 'rxjs';
+import { NgZone } from '@angular/core';
 
 describe('WaitingRoomComponent', () => {
     let component: WaitingRoomComponent;
@@ -66,7 +66,7 @@ describe('WaitingRoomComponent', () => {
         component.gameCanceled = false;
         component.ngOnInit();
         classicModeServiceSpy.gameCanceled$.next(true);
-        expect(dialog.open).toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true, data: { action: 'deleted' } });
+        expect(dialog.open).toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true, data: { deleted: true } });
         expect(dialogRefSpy.afterClosed).toHaveBeenCalled();
         expect(component.close).toHaveBeenCalled();
     });

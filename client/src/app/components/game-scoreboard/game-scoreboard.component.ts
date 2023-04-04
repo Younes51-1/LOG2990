@@ -15,7 +15,6 @@ export class GameScoreboardComponent implements OnChanges {
     @Input() username: string;
     @Input() opponentUsername: string;
     @Input() gameRoom: GameRoom;
-    @Input() penaltyTime: number;
 
     @Output() sendDifferencesFound = new EventEmitter<number>();
     @Output() sendOpponentDifferencesFound = new EventEmitter<number>();

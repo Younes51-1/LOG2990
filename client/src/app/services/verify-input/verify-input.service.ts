@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Constants } from 'src/assets/variables/constants';
 
 @Injectable({
     providedIn: 'root',
@@ -41,27 +40,5 @@ export class VerifyInputService {
             }
         }
         return true;
-    }
-
-    verifyNotNumber(input: string): boolean {
-        if (!/^\d+$/.test(input)) {
-            return true;
-        }
-        return false;
-    }
-
-    verifyConstantsInBounds(input: number | undefined, type: string): boolean {
-        if (!input) return false;
-
-        switch (type) {
-            case 'initialTime':
-                return input >= Constants.MinInitialTime && input <= Constants.MaxInitialTime;
-            case 'penaltyTime':
-                return input >= Constants.MinPenaltyTime && input <= Constants.MaxPenaltyTime;
-            case 'bonusTime':
-                return input >= Constants.MinBonusTime && input <= Constants.MaxBonusTime;
-            default:
-                return false;
-        }
     }
 }

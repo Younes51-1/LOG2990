@@ -2,9 +2,8 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 // eslint-disable-next-line max-classes-per-file
 import { HttpClientModule } from '@angular/common/http';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { NgModule } from '@angular/core';
-import { ComponentFixture, fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, discardPeriodicTasks, fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatToolbar } from '@angular/material/toolbar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -71,7 +70,7 @@ describe('GamePageComponent', () => {
         });
         await TestBed.configureTestingModule({
             declarations: [GamePageComponent, GameScoreboardComponent, MatToolbar, EndgameDialogComponent, ChatBoxComponent, PlayAreaComponent],
-            imports: [DynamicTestModule, RouterTestingModule, MatDialogModule, HttpClientTestingModule],
+            imports: [DynamicTestModule, RouterTestingModule, MatDialogModule],
             providers: [
                 ChatService,
                 ClassicModeService,
@@ -240,10 +239,7 @@ describe('GamePageComponent', () => {
         component.totalDifferencesFound = component.gameRoom.userGame.gameData.gameForm.nbDifference;
         const matDialogSpy = spyOn((component as any).dialog, 'open').and.callThrough();
         component.endGame();
-        expect(matDialogSpy).toHaveBeenCalledWith(EndgameDialogComponent, {
-            disableClose: true,
-            data: { gameFinished: true, gameWinner: true },
-        });
+        expect(matDialogSpy).toHaveBeenCalledWith(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
     });
 
     it('should open EndgameDialogComponent with correct data if in multiplayer mode and winner', () => {
@@ -253,11 +249,18 @@ describe('GamePageComponent', () => {
         component.userDifferencesFound = (component as any).differenceThreshold;
         const matDialogSpy = spyOn((component as any).dialog, 'open').and.callThrough();
         component.endGame();
-        expect(matDialogSpy).toHaveBeenCalledWith(EndgameDialogComponent, {
-            disableClose: true,
-            data: { gameFinished: true, gameWinner: true },
-        });
+        expect(matDialogSpy).toHaveBeenCalledWith(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
     });
+
+    it('should call startConfetti() if the game is won', fakeAsync(() => {
+        (component as any).gameFinished = true;
+        component.userDifferencesFound = (component as any).differenceThreshold;
+        const mockConfetti = spyOn(component as any, 'startConfetti').and.callThrough();
+        component.endGame();
+        tick(1001);
+        expect(mockConfetti).toHaveBeenCalled();
+        discardPeriodicTasks();
+    }));
 
     it('should open EndgameDialogComponent with correct data if in multiplayer mode and looser', () => {
         (component as any).gameFinished = true;
@@ -308,13 +311,13 @@ describe('GamePageComponent', () => {
         expect(chatServiceSpy.sendMessage).toHaveBeenCalledWith(`${component.username} a abandonné la partie`, 'Système', component.gameRoom.roomId);
     });
 
-    // it('should have a button to quit the game', fakeAsync(() => {
-    //     const quitBtn = fixture.debugElement.nativeElement.querySelector('button');
-    //     const endGameSpy = spyOn(component, 'endGame');
-    //     quitBtn.click();
-    //     tick();
-    //     expect(endGameSpy).toHaveBeenCalled();
-    // }));
+    it('should have a button to quit the game', fakeAsync(() => {
+        const quitBtn = fixture.debugElement.nativeElement.querySelector('button');
+        const endGameSpy = spyOn(component, 'endGame');
+        quitBtn.click();
+        tick();
+        expect(endGameSpy).toHaveBeenCalled();
+    }));
 
     it('should unsubscribe from all subscriptions on unsubscribe', () => {
         spyOn((component as any).timerSubscription, 'unsubscribe');

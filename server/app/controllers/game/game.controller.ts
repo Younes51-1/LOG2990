@@ -77,20 +77,4 @@ export class GameController {
             response.status(HttpStatus.NOT_FOUND).send(error.message);
         }
     }
-
-    @ApiOkResponse({
-        description: 'Delete all games',
-    })
-    @ApiNotFoundResponse({
-        description: 'Return NOT_FOUND http status when request fails',
-    })
-    @Delete('/')
-    async deleteAllGames(@Res() response: Response) {
-        try {
-            await this.gameService.deleteAllGames();
-            response.status(HttpStatus.OK).send();
-        } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
-        }
-    }
 }
