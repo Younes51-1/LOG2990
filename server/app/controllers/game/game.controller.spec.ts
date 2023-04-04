@@ -144,4 +144,30 @@ describe.only('GameController', () => {
 
         await controller.deleteGame('', res);
     });
+
+    it('deleteAllGames should return OK when service successfully delete all games', async () => {
+        gameService.deleteAllGames.resolves();
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.deleteAllGames(res);
+    });
+
+    it('deleteAllGames should return NOT_FOUND when service unable to delete all games', async () => {
+        gameService.deleteAllGames.rejects();
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.deleteAllGames(res);
+    });
 });

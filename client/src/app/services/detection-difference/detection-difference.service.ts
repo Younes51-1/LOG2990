@@ -113,6 +113,42 @@ export class DetectionDifferenceService {
         return result;
     }
 
+    findRandomDifference(matrix: number[][]) {
+        const xCoord = Math.floor(Math.random() * (matrix.length + 1));
+        const yCoord = Math.floor(Math.random() * (matrix[0].length + 1));
+
+        const numRows = matrix.length;
+        const numCols = matrix[0].length;
+        const visited = new Array(numRows).fill(false).map(() => new Array(numCols).fill(false));
+        const queue: Vec2[] = [{ x: xCoord, y: yCoord }];
+        visited[xCoord][yCoord] = true;
+
+        while (queue.length > 0) {
+            const currCoord = queue.shift();
+            if (!currCoord) continue;
+            if (matrix[currCoord.x][currCoord.y] !== PossibleColor.EMPTYPIXEL) {
+                return currCoord;
+            }
+            const neighbors = this.getNeighbors(currCoord, numRows, numCols);
+            for (const neighbor of neighbors) {
+                const { x, y } = neighbor;
+                if (!visited[x][y]) {
+                    visited[x][y] = true;
+                    queue.push(neighbor);
+                }
+            }
+        }
+        return null;
+    }
+
+    createEmptyMatrix(height: number, width: number, filler: number | boolean) {
+        const matrix = [];
+        for (let i = 0; i < height; i++) {
+            matrix[i] = new Array(width).fill(filler);
+        }
+        return matrix;
+    }
+
     private applyRadius(matrix: number[][], radius: number, diffCoordinates: number[]) {
         const radiusCoordinates = this.computeRadiusRelativeCoordinates(radius);
 
@@ -150,14 +186,6 @@ export class DetectionDifferenceService {
         return false;
     }
 
-    private createEmptyMatrix(height: number, width: number, filler: number | boolean) {
-        const matrix = [];
-        for (let i = 0; i < height; i++) {
-            matrix[i] = new Array(width).fill(filler);
-        }
-        return matrix;
-    }
-
     private deleteDifference(matrix: number[][], pos: Vec2) {
         const stack: Vec2[] = [];
         this.pushNeighborsToStack(stack, pos);
@@ -171,6 +199,16 @@ export class DetectionDifferenceService {
                 }
             }
         }
+    }
+
+    private getNeighbors(coords: Vec2, numRows: number, numCols: number) {
+        const { x, y } = coords;
+        const neighbors: Vec2[] = [];
+        if (x > 0) neighbors.push({ x: x - 1, y });
+        if (x < numRows - 1) neighbors.push({ x: x + 1, y });
+        if (y > 0) neighbors.push({ x, y: y - 1 });
+        if (y < numCols - 1) neighbors.push({ x, y: y + 1 });
+        return neighbors;
     }
 
     private pushNeighborsToStack(stack: Vec2[], pos: Vec2) {

@@ -46,7 +46,8 @@ img {
     margin-right: 0.1%;
 }
 
-.slick-prev:before, .slick-next:before {
+.slick-prev:before,
+.slick-next:before {
     width: 25px;
     height: 25px;
     // Need important to override slick's default styling
@@ -59,11 +60,11 @@ img {
     display: inline-block;
     text-align: center;
     padding: 0.7em 2em;
-    border: 3px solid #8200FF;
+    border: 3px solid #8200ff;
     border-radius: 5px;
     position: relative;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.1);
-    color: #8200FF;
+    color: #8200ff;
     text-decoration: none;
     transition: 0.3s ease all;
     z-index: 1;
@@ -79,15 +80,17 @@ img {
     bottom: 0;
     opacity: 0;
     content: '';
-    background-color: #8200FF;
+    background-color: #8200ff;
     z-index: -1;
 }
 
-.btn:hover, btn:focus {
+.btn:hover,
+btn:focus {
     color: white;
 }
 
-.btn:hover:before, btn:focus:before {
+.btn:hover:before,
+btn:focus:before {
     left: 0;
     right: 0;
     opacity: 1;
@@ -95,4 +98,28 @@ img {
 
 .btn:active {
     transform: scale(0.9);
+}
+
+.winner {
+    font-weight: bold;
+}
+
+.abandoned {
+    text-decoration: line-through;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th,
+td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #ccc;
 }

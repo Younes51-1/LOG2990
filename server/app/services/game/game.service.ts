@@ -1,9 +1,11 @@
-import { DIFFICULTY_THRESHOLD } from '@app/constants';
-import { environment } from '@app/environments/environment.prod';
+import { DIFFICULTY_THRESHOLD, NOT_TOP3 } from '@app/constants';
+import { environment } from '@app/environments/environment';
+import { ChatGateway } from '@app/gateways/chat/chat.gateway';
 import { ClassicModeGateway } from '@app/gateways/classic-mode/classic-mode.gateway';
 import { Game, GameDocument } from '@app/model/database/game';
 import { GameData } from '@app/model/dto/game/game-data.dto';
 import { GameForm } from '@app/model/dto/game/game-form.dto';
+import { NewBestTime } from '@app/model/dto/game/new-best-times.dto';
 import { NewGame } from '@app/model/dto/game/new-game.dto';
 import { BestTime } from '@app/model/schema/best-times.schema';
 import { Injectable } from '@nestjs/common';
@@ -13,7 +15,11 @@ import { Model } from 'mongoose';
 
 @Injectable()
 export class GameService {
-    constructor(@InjectModel(Game.name) public gameModel: Model<GameDocument>, private readonly classicModeGateway: ClassicModeGateway) {}
+    constructor(
+        @InjectModel(Game.name) public gameModel: Model<GameDocument>,
+        private readonly classicModeGateway: ClassicModeGateway,
+        private readonly chatGateway: ChatGateway,
+    ) {}
 
     async getAllGames(): Promise<GameForm[]> {
         const games = await this.gameModel.find({});
@@ -24,6 +30,12 @@ export class GameService {
         const game = await this.gameModel.findOne({ name });
         if (!game) return new GameData();
         return await this.convertGameToGameData(game);
+    }
+
+    async getBestTime(name: string): Promise<{ soloBestTimes: BestTime[]; vsBestTimes: BestTime[] }> {
+        const game = await this.gameModel.findOne({ name });
+        if (!game) return Promise.reject('Failed to get best time');
+        return await { soloBestTimes: game.soloBestTimes, vsBestTimes: game.vsBestTimes };
     }
 
     async createNewGame(newGame: NewGame): Promise<void> {
@@ -51,6 +63,45 @@ export class GameService {
         }
     }
 
+    async deleteAllGames(): Promise<void> {
+        try {
+            const games = await this.gameModel.find({});
+            games.forEach(async (game) => {
+                await this.gameModel.deleteOne({
+                    name: game.name,
+                });
+                this.deleteImages(game.name);
+                this.classicModeGateway.cancelDeletedGame(game.name);
+            });
+        } catch (error) {
+            return Promise.reject(`Failed to delete all games: ${error}`);
+        }
+    }
+
+    async deleteBestTimes(): Promise<void> {
+        try {
+            const games = await this.gameModel.find({});
+            games.forEach(async (game) => {
+                game.soloBestTimes = this.newBestTimes();
+                game.vsBestTimes = this.newBestTimes();
+                await game.save();
+            });
+        } catch (error) {
+            return Promise.reject(`Failed to delete best times: ${error}`);
+        }
+    }
+
+    async deleteBestTime(name: string): Promise<void> {
+        try {
+            const game = await this.gameModel.findOne({ name });
+            game.soloBestTimes = this.newBestTimes();
+            game.vsBestTimes = this.newBestTimes();
+            await game.save();
+        } catch (error) {
+            return Promise.reject(`Failed to delete best time: ${error}`);
+        }
+    }
+
     async saveImage(bufferObj: Buffer, name: string, index: string): Promise<void> {
         const dirName = `./assets/${name}`;
         if (!fs.existsSync(dirName)) fs.mkdirSync(dirName);
@@ -73,6 +124,51 @@ export class GameService {
         fs.writeFile(`${dirName}/differenceMatrix.txt`, matrixToString, () => {
             return; // folder already exists
         });
+    }
+
+    async updateBestTime(name: string, newBestTime: NewBestTime): Promise<number> {
+        try {
+            const game = await this.gameModel.findOne({ name });
+            if (!game) return Promise.reject('Could not find game');
+            let position;
+            if (newBestTime.isSolo) {
+                const { newBestTimes, position: newPosition } = this.insertNewBestTime(game.soloBestTimes, newBestTime);
+                game.soloBestTimes = newBestTimes;
+                position = newPosition;
+            } else {
+                const { newBestTimes, position: newPosition } = this.insertNewBestTime(game.vsBestTimes, newBestTime);
+                game.vsBestTimes = newBestTimes;
+                position = newPosition;
+            }
+            await game.save();
+            if (position !== NOT_TOP3) {
+                if (newBestTime.isSolo) {
+                    this.chatGateway.newBestTimeScore(
+                        `${newBestTime.name} obtient la ${position + 1} place dans les meilleurs temps du jeu ${newBestTime.gameName} en mode solo`,
+                    );
+                } else {
+                    this.chatGateway.newBestTimeScore(
+                        `${newBestTime.name} obtient la ${position + 1} place dans les meilleurs temps du jeu ${
+                            newBestTime.gameName
+                        } en mode un contre un`,
+                    );
+                }
+            }
+            return position;
+        } catch (error) {
+            return Promise.reject(`Failed to update best time: ${error}`);
+        }
+    }
+
+    private insertNewBestTime(bestTimes: BestTime[], newBestTime: NewBestTime): { newBestTimes: BestTime[]; position: number } {
+        const newBestTimes = bestTimes;
+        const newBestTimeToInsert = new BestTime();
+        newBestTimeToInsert.name = newBestTime.name;
+        newBestTimeToInsert.time = newBestTime.time;
+        newBestTimes.push(newBestTimeToInsert);
+        newBestTimes.sort((a, b) => a.time - b.time);
+        newBestTimes.pop();
+        return { newBestTimes, position: newBestTimes.findIndex((bestTime) => bestTime.name === newBestTime.name) };
     }
 
     private async convertNewGameToGame(newGame: NewGame): Promise<Game> {
@@ -122,9 +218,9 @@ export class GameService {
 
     private newBestTimes(): BestTime[] {
         return [
-            { name: 'Player 1', time: '1:00' },
-            { name: 'Player 2', time: '2:00' },
-            { name: 'Player 3', time: '3:00' },
+            { name: 'Player 1', time: 60 },
+            { name: 'Player 2', time: 120 },
+            { name: 'Player 3', time: 180 },
         ];
     }
 
