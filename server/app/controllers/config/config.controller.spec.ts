@@ -1,4 +1,4 @@
-import { GameConstants } from '@app/model/database/game-constants';
+import { GameConstants } from '@app/model/dto/game-history/game-constants.dto';
 import { GameHistory } from '@app/model/dto/game-history/game-history.dto';
 import { NewBestTime } from '@app/model/dto/game/new-best-times.dto';
 import { BestTime } from '@app/model/schema/best-times.schema';
@@ -77,7 +77,7 @@ describe.only('ConfigController', () => {
     });
 
     it('getConstants should return the game constants', async () => {
-        const fakeConstants = new GameConstants();
+        const fakeConstants = getFakeGameConstants();
         gameConstantsService.getGameConstants.resolves(fakeConstants);
 
         const res = {} as unknown as Response;
@@ -295,4 +295,10 @@ describe.only('ConfigController', () => {
 
         await controller.deleteBestTime('', res);
     });
+});
+
+const getFakeGameConstants = (): GameConstants => ({
+    initialTime: 30,
+    penaltyTime: 5,
+    bonusTime: 5,
 });
