@@ -6,7 +6,8 @@ import { GameForm } from '@app/interfaces/game';
 import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
 import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
 import { VerifyInputService } from '@app/services/verify-input/verify-input.service';
-import { PageKeys, options } from 'src/assets/variables/game-card-options';
+import { options, PageKeys } from 'src/assets/variables/game-card-options';
+import { Time } from 'src/assets/variables/time';
 
 @Component({
     selector: 'app-game-card',
@@ -18,6 +19,8 @@ export class GameCardComponent implements OnInit, OnDestroy {
     @Input() slide: GameForm;
 
     @Output() notify = new EventEmitter();
+    @Output() deleteNotify = new EventEmitter();
+    @Output() resetNotify = new EventEmitter();
     @Output() notifySelected = new EventEmitter<string>();
 
     routeOne: string;
@@ -31,6 +34,8 @@ export class GameCardComponent implements OnInit, OnDestroy {
     inputValue1: string;
     inputValue2: string;
     gameExists = false;
+    soloBestTime: { name: string; time: string }[];
+    vsBestTime: { name: string; time: string }[];
     private dialogRef: MatDialogRef<WaitingRoomComponent>;
 
     // We need to disable the max-params rule because we need to inject all the services
@@ -49,6 +54,26 @@ export class GameCardComponent implements OnInit, OnDestroy {
         this.btnOne = btnOne;
         this.routeTwo = routeTwo;
         this.btnTwo = btnTwo;
+        this.soloBestTime = [];
+        this.vsBestTime = [];
+        this.slide.soloBestTimes.forEach((time) => {
+            this.soloBestTime.push({
+                name: time.name,
+                time: `${Math.floor(time.time / Time.Sixty)}:${(time.time % Time.Sixty).toLocaleString('en-US', {
+                    minimumIntegerDigits: 2,
+                    useGrouping: false,
+                })}`,
+            });
+        });
+        this.slide.vsBestTimes.forEach((time) => {
+            this.vsBestTime.push({
+                name: time.name,
+                time: `${Math.floor(time.time / Time.Sixty)}:${(time.time % Time.Sixty).toLocaleString('en-US', {
+                    minimumIntegerDigits: 2,
+                    useGrouping: false,
+                })}`,
+            });
+        });
     }
 
     focusInput() {
@@ -85,7 +110,11 @@ export class GameCardComponent implements OnInit, OnDestroy {
     }
 
     deleteCard() {
-        this.notify.emit(this.slide.name);
+        this.deleteNotify.emit(this.slide.name);
+    }
+
+    resetCard() {
+        this.resetNotify.emit(this.slide.name);
     }
 
     verifySoloInput() {

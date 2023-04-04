@@ -194,6 +194,19 @@ describe('ClassicModeService', () => {
     it('getGameRoom should not return undefined if no game is found', () => {
         expect(testClassicModeService.getGameRoom('notaRealGame')).toEqual(undefined);
     });
+
+    it('applyTimeToTimer should correctly add time to userGame timer', () => {
+        const fakeGameRoom = getFakeGameRoom();
+        jest.spyOn(service, 'getRoom').mockImplementation(() => {
+            return fakeGameRoom;
+        });
+        jest.spyOn(service, 'setRoom').mockImplementation(() => {
+            return;
+        });
+        const time = 10;
+        service.applyTimeToTimer(fakeGameRoom.roomId, time);
+        expect(fakeGameRoom.userGame.timer).toEqual(time);
+    });
 });
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */

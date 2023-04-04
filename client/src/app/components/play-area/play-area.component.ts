@@ -4,6 +4,7 @@ import { Vec2 } from '@app/interfaces/vec2';
 import { ChatService } from '@app/services/chat/chat.service';
 import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
 import { DetectionDifferenceService } from '@app/services/detection-difference/detection-difference.service';
+import { HelpService } from '@app/services/help/help.service';
 import { MouseService } from '@app/services/mouse/mouse.service';
 import { Color } from 'src/assets/variables/color';
 import { PossibleColor } from 'src/assets/variables/images-values';
@@ -21,6 +22,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     @ViewChild('canvas2', { static: false }) canvas2: ElementRef<HTMLCanvasElement>;
 
     @Input() gameRoom: GameRoom;
+    @Output() toggleHint = new EventEmitter();
     @Output() userError = new EventEmitter();
     @Output() sendImage = new EventEmitter<{ src: string; first: boolean }>();
     @Output() sendDiff = new EventEmitter<{ diff: number[][] }>();
@@ -29,23 +31,23 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     @Output() sendCheatStart = new EventEmitter<{ layer: HTMLCanvasElement }>();
     @Output() sendCheatEnd = new EventEmitter();
 
+    context1: CanvasRenderingContext2D;
+    context2: CanvasRenderingContext2D;
+    original = new Image();
+    modified = new Image();
+    layer: HTMLCanvasElement;
+    differenceMatrix: number[][];
     private canvasClicked: HTMLCanvasElement;
     private playerIsAllowedToClick = true;
-    private context1: CanvasRenderingContext2D;
-    private context2: CanvasRenderingContext2D;
     private mousePosition: Vec2 = { x: 0, y: 0 };
     private buttonPressed = '';
-    private original = new Image();
-    private modified = new Image();
     private audioValid = new Audio('assets/sounds/valid_sound.mp3');
     private audioInvalid = new Audio('assets/sounds/invalid_sound.mp3');
-    private differenceMatrix: number[][];
     private currentDifferenceMatrix: number[][];
-    private isCheatModeOn = false;
-    private layer: HTMLCanvasElement;
     private differenceIntervalId: ReturnType<typeof setInterval>;
-    private cheatIntervalId: ReturnType<typeof setInterval>;
     private canvasSize = { x: Dimensions.DEFAULT_WIDTH, y: Dimensions.DEFAULT_HEIGHT };
+    // private cheatIntervalId: ReturnType<typeof setInterval>;
+    // private isCheatModeOn: ReturnType<typeof setInterval>;
 
     // eslint-disable-next-line max-params
     constructor(
@@ -53,6 +55,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         private detectionService: DetectionDifferenceService,
         private classicModeService: ClassicModeService,
         private chatService: ChatService,
+        private helpService: HelpService,
     ) {}
 
     get width(): number {
@@ -70,8 +73,11 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         }
         this.buttonPressed = event.key;
         if (this.buttonPressed === 't') {
-            this.isCheatModeOn = !this.isCheatModeOn;
-            this.cheatMode();
+            this.helpService.isCheatModeOn = !this.helpService.isCheatModeOn;
+            this.helpService.cheatMode();
+        }
+        if (this.buttonPressed === 'i' && !this.gameRoom.userGame.username2) {
+            this.toggleHint.emit();
         }
     }
 
@@ -84,6 +90,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
             }
         });
         this.setContexts();
+        this.helpService.setComponent(this);
     }
 
     ngOnChanges() {
@@ -118,6 +125,36 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
                 this.errorRetroaction(canvas);
             }
         }
+    }
+
+    verifyDifferenceMatrix(option: string, matrix?: number[][]) {
+        if (option === 'cheat') {
+            this.layer = this.createAndFillNewLayer(Color.Cheat, true, false, this.differenceMatrix);
+        } else if (option === 'hint' && matrix) {
+            this.layer = this.createAndFillNewLayer(Color.Hint, false, true, matrix);
+        }
+    }
+
+    // eslint-disable-next-line max-params
+    createAndFillNewLayer(color: Color, isCheat: boolean, isHint: boolean, matrix: number[][]): HTMLCanvasElement {
+        const helpAlphaValue = 0.5;
+        const layer = document.createElement('canvas');
+        layer.width = this.width;
+        layer.height = this.height;
+        const context = layer.getContext('2d');
+        if (!context) {
+            return layer;
+        }
+        context.globalAlpha = isCheat || isHint ? helpAlphaValue : 1;
+        context.fillStyle = color;
+        for (let i = 0; i < matrix.length; i++) {
+            for (let j = 0; j < matrix[0].length; j++) {
+                if (matrix[i][j] !== PossibleColor.EMPTYPIXEL) {
+                    context.fillRect(j, i, 1, 1);
+                }
+            }
+        }
+        return layer;
     }
 
     private setContexts() {
@@ -182,7 +219,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         if (!this.context1 || !this.context2) {
             return;
         }
-        const layer = this.createAndFillNewLayer(Color.Luigi, false, difference);
+        const layer = this.createAndFillNewLayer(Color.Luigi, false, false, difference);
         let isFlashing = false;
         this.differenceIntervalId = setInterval(() => {
             if (isFlashing) {
@@ -232,59 +269,56 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         this.context2.clearRect(0, 0, this.width, this.height);
         this.context2.putImageData(image2, 0, 0);
         this.modified.src = this.canvas2.nativeElement.toDataURL();
-        this.verifyDifferenceMatrix();
         this.sendSource.emit({ src: this.modified.src, layer: this.layer });
+        this.verifyDifferenceMatrix('cheat');
     }
 
-    private verifyDifferenceMatrix() {
-        this.layer = this.createAndFillNewLayer(Color.Cheat, true, this.differenceMatrix);
-    }
+    // private cheatMode() {
+    //     if (!this.context1 || !this.context2) {
+    //         return;
+    //     }
+    //     if (!this.isCheatModeOn) {
+    //         this.sendCheatEnd.emit();
+    //         clearInterval(this.cheatIntervalId);
+    //         this.context1.drawImage(this.original, 0, 0, this.width, this.height);
+    //         this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
+    //         return;
+    //     }
+    //     let isFlashing = true;
+    //     this.verifyDifferenceMatrix('cheat');
 
-    private cheatMode() {
-        if (!this.context1 || !this.context2) {
-            return;
-        }
-        if (!this.isCheatModeOn) {
-            this.sendCheatEnd.emit();
-            clearInterval(this.cheatIntervalId);
-            this.context1.drawImage(this.original, 0, 0, this.width, this.height);
-            this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
-            return;
-        }
-        let isFlashing = true;
-        this.verifyDifferenceMatrix();
+    //     this.sendCheatStart.emit({ layer: this.layer });
+    //     this.cheatIntervalId = setInterval(() => {
+    //         if (isFlashing) {
+    //             this.context1.drawImage(this.original, 0, 0, this.width, this.height);
+    //             this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
+    //         } else {
+    //             this.context1.drawImage(this.layer, 0, 0, this.width, this.height);
+    //             this.context2.drawImage(this.layer, 0, 0, this.width, this.height);
+    //         }
+    //         isFlashing = !isFlashing;
+    //     }, Time.OneHundredTwentyFive);
+    // }
 
-        this.sendCheatStart.emit({ layer: this.layer });
-        this.cheatIntervalId = setInterval(() => {
-            if (isFlashing) {
-                this.context1.drawImage(this.original, 0, 0, this.width, this.height);
-                this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
-            } else {
-                this.context1.drawImage(this.layer, 0, 0, this.width, this.height);
-                this.context2.drawImage(this.layer, 0, 0, this.width, this.height);
-            }
-            isFlashing = !isFlashing;
-        }, Time.OneHundredTwentyFive);
-    }
-
-    private createAndFillNewLayer(color: Color, isCheat: boolean, matrix: number[][]): HTMLCanvasElement {
-        const cheatAlphaValue = 0.7;
-        const layer = document.createElement('canvas');
-        layer.width = this.width;
-        layer.height = this.height;
-        const context = layer.getContext('2d');
-        if (!context) {
-            return layer;
-        }
-        context.globalAlpha = isCheat ? cheatAlphaValue : 1;
-        context.fillStyle = color;
-        for (let i = 0; i < matrix.length; i++) {
-            for (let j = 0; j < matrix[0].length; j++) {
-                if (matrix[i][j] !== PossibleColor.EMPTYPIXEL) {
-                    context.fillRect(j, i, 1, 1);
-                }
-            }
-        }
-        return layer;
-    }
+    // private createAndFillNewLayer(color: Color, isCheat: boolean, matrix: number[][]): HTMLCanvasElement {
+    //     const cheatAlphaValue = 0.7;
+    //     const layer = document.createElement('canvas');
+    //     layer.width = this.width;
+    //     layer.height = this.height;
+    //     const context = layer.getContext('2d');
+    //     if (!context) {
+    //         return layer;
+    //     }
+    //     context.globalAlpha = isCheat ? cheatAlphaValue : 1;
+    //     context.fillStyle = color;
+    //     for (let i = 0; i < matrix.length; i++) {
+    //         for (let j = 0; j < matrix[0].length; j++) {
+    //             if (matrix[i][j] !== PossibleColor.EMPTYPIXEL) {
+    //                 context.fillRect(j, i, 1, 1);
+    //             }
+    //         }
+    //     }
+    //     return layer;
+    //     // this.verifyDifferenceMatrix('cheat');
+    // }
 }

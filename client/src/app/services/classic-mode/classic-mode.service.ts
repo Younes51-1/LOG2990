@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { DifferenceTry } from '@app/interfaces/difference-try';
-import { GameRoom } from '@app/interfaces/game';
+import { EndGame, GameRoom, NewBestTime } from '@app/interfaces/game';
 import { Vec2 } from '@app/interfaces/vec2';
 import { ChatService } from '@app/services/chat/chat.service';
 import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
+import { ConfigHttpService } from '@app/services/config-http/config-http.service';
 import { Subject } from 'rxjs';
 
 @Injectable({
@@ -14,6 +15,7 @@ export class ClassicModeService {
     gameRoom: GameRoom;
     username: string;
     userDifferencesFound = 0;
+    isAbandoned = false;
     totalDifferencesFound$ = new Subject<number>();
     userDifferencesFound$ = new Subject<number>();
     timer$ = new Subject<number>();
@@ -25,12 +27,15 @@ export class ClassicModeService {
     gameCanceled$ = new Subject<boolean>();
     gameDeleted$ = new Subject<boolean>();
     abandoned$ = new Subject<string>();
+    timePosition$ = new Subject<number>();
 
     private canSendValidate = true;
 
+    // eslint-disable-next-line max-params
     constructor(
         private readonly socketService: CommunicationSocketService,
         private communicationService: CommunicationHttpService,
+        private configHttpService: ConfigHttpService,
         private chatService: ChatService,
     ) {}
 
@@ -103,9 +108,15 @@ export class ClassicModeService {
         this.canSendValidate = false;
     }
 
-    endGame(): void {
+    endGame(gameFinished: boolean, winner: boolean): void {
         if (this.socketService.isSocketAlive()) {
-            this.socketService.send('endGame', { roomId: this.gameRoom.roomId, username: this.username });
+            const endGame = {} as EndGame;
+            endGame.gameFinished = gameFinished;
+            endGame.winner = winner;
+            endGame.roomId = this.gameRoom.roomId;
+            endGame.username = this.username;
+            this.socketService.send('endGame', endGame);
+            this.updateBestTime(gameFinished, winner);
         }
     }
 
@@ -151,6 +162,12 @@ export class ClassicModeService {
         this.accepted$ = new Subject<boolean>();
         this.gameCanceled$ = new Subject<boolean>();
         this.abandoned$ = new Subject<string>();
+    }
+
+    changeTime(timeToApply: number): void {
+        if (this.socketService.isSocketAlive()) {
+            this.socketService.send('changeTime', { roomId: this.gameRoom.roomId, time: timeToApply });
+        }
     }
 
     private connect(): void {
@@ -235,6 +252,7 @@ export class ClassicModeService {
         });
 
         this.socketService.on('abandoned', (userName: string) => {
+            this.isAbandoned = true;
             this.abandoned$.next(userName);
         });
 
@@ -242,6 +260,23 @@ export class ClassicModeService {
             this.gameRoom.userGame.timer = timer;
             this.timer$.next(timer);
             this.canSendValidate = true;
+        });
+    }
+
+    private updateBestTime(gameFinished: boolean, winner: boolean): void {
+        this.configHttpService.getBestTime(this.gameRoom.userGame.gameData.gameForm.name).subscribe((bestTimes) => {
+            if (!bestTimes) return;
+            const actualBestTime = this.gameRoom.userGame.username2 ? bestTimes.vsBestTimes[2].time : bestTimes.soloBestTimes[2].time;
+            if (this.gameRoom.userGame.timer < actualBestTime && winner && gameFinished && !this.isAbandoned) {
+                const newBestTime = new NewBestTime();
+                newBestTime.gameName = this.gameRoom.userGame.gameData.gameForm.name;
+                newBestTime.time = this.gameRoom.userGame.timer;
+                newBestTime.name = this.username;
+                newBestTime.isSolo = !this.gameRoom.userGame.username2;
+                this.configHttpService.updateBestTime(this.gameRoom.userGame.gameData.gameForm.name, newBestTime).subscribe((position) => {
+                    this.timePosition$.next(position);
+                });
+            }
         });
     }
 }

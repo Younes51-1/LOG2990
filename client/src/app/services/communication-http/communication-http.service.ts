@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { GameData, GameForm, NewGame } from '@app/interfaces/game';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
     providedIn: 'root',
@@ -23,6 +23,10 @@ export class CommunicationHttpService {
 
     createNewGame(newGame: NewGame): Observable<HttpResponse<string>> {
         return this.http.post(`${this.baseUrl}/game`, newGame, { observe: 'response', responseType: 'text' });
+    }
+
+    deleteAllGames(): Observable<HttpResponse<string>> {
+        return this.http.delete(`${this.baseUrl}/game/`, { observe: 'response', responseType: 'text' });
     }
 
     deleteGame(name: string): Observable<HttpResponse<string>> {
