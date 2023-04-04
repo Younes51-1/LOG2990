@@ -39,11 +39,11 @@ export class GameModeService {
         this.gameRooms.delete(roomId);
     }
 
-    joinGame(socket: Socket, gameName: string, username: string): boolean {
-        const gameRoom = this.getGameRoom(gameName);
+    joinGame(socket: Socket, data: { gameName: string; username: string; gameMode: string }): boolean {
+        const gameRoom = this.getGameRoom(undefined, data.gameName, data.gameMode);
         if (!gameRoom) return false;
         if (gameRoom.gameMode === 'classic-mode') {
-            return this.classicModeService.joinGame(socket, gameRoom, username);
+            return this.classicModeService.joinGame(socket, gameRoom, data.username);
         }
     }
 
@@ -126,7 +126,7 @@ export class GameModeService {
 
     getGameModeRoom(gameName: string, gameMode: string): GameRoom {
         for (const gameRoom of this.gameRooms.values()) {
-            if (gameRoom.userGame.gameData.gameForm.name === gameName && gameRoom.gameMode === gameMode) {
+            if (gameRoom.userGame.gameData.gameForm.name === gameName && gameRoom.gameMode === gameMode && !gameRoom.started) {
                 return gameRoom;
             }
         }

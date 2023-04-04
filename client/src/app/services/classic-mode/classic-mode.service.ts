@@ -50,6 +50,7 @@ export class ClassicModeService {
                 this.username = username;
                 this.gameService.disconnectSocket();
                 this.connect();
+                if (!started) this.gameService.handleWaitingRoomSocket();
                 this.gameService.socketService.send('createGame', this.gameRoom);
             } else {
                 alert('Jeu introuvable');
@@ -64,23 +65,12 @@ export class ClassicModeService {
                 this.username = username;
                 this.gameService.disconnectSocket();
                 this.connect();
-                this.gameService.socketService.send('askingToJoinGame', { gameName, username });
+                this.gameService.handleWaitingRoomSocket();
+                this.gameService.socketService.send('askingToJoinGame', { gameName, username, gameMode: 'classic-mode' });
             } else {
                 alert('Jeu introuvable');
             }
         });
-    }
-
-    playerRejected(player: string): void {
-        if (this.gameService.socketService.isSocketAlive()) {
-            this.gameService.socketService.send('rejectPlayer', { roomId: this.gameRoom.roomId, username: player });
-        }
-    }
-
-    playerAccepted(player: string): void {
-        if (this.gameService.socketService.isSocketAlive()) {
-            this.gameService.socketService.send('acceptPlayer', { roomId: this.gameRoom.roomId, username: player });
-        }
     }
 
     startGame(): void {
@@ -184,8 +174,9 @@ export class ClassicModeService {
             }
         });
 
-        this.gameService.socketService.on('started', () => {
-            this.gameRoom$.next(this.gameRoom);
+        this.gameService.socketService.on('started', (gameRoom: GameRoom) => {
+            this.gameRoom = gameRoom;
+            this.gameRoom$.next(gameRoom);
         });
 
         this.gameService.socketService.on('validated', (differenceTry: DifferenceTry) => {

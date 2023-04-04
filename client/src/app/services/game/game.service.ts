@@ -95,13 +95,11 @@ export class GameService {
     createGame(gameName: string, username: string): void {
         this.username = username;
         this.gameManager.initGameMode(gameName, username, false);
-        this.handleWaitingRoomSocket();
     }
 
     joinGame(gameName: string, username: string): void {
         this.username = username;
         this.gameManager.joinWaitingRoom(gameName, username);
-        this.handleWaitingRoomSocket();
     }
 
     canJoinGame(gameName: string, username: string, gameCard: GameCardComponent): void {
@@ -114,12 +112,17 @@ export class GameService {
             gameCard.joinGame();
         });
     }
+
     playerRejected(player: string): void {
-        this.gameManager.playerRejected(player);
+        if (this.socketService.isSocketAlive()) {
+            this.socketService.send('rejectPlayer', { roomId: this.gameRoom.roomId, username: player });
+        }
     }
 
     playerAccepted(player: string): void {
-        this.gameManager.playerAccepted(player);
+        if (this.socketService.isSocketAlive()) {
+            this.socketService.send('acceptPlayer', { roomId: this.gameRoom.roomId, username: player });
+        }
     }
 
     startGame(): void {

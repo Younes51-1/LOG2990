@@ -24,7 +24,7 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
         const gameRoom = this.gameModeService.getGameRoom(roomId);
         this.gameModeService.saveGameHistory(gameRoom);
         this.logger.log(`Launching the game: ${gameRoom.userGame.gameData.gameForm.name}`);
-        this.server.to(roomId).emit(ClassicModeEvents.Started);
+        this.server.to(roomId).emit(ClassicModeEvents.Started, gameRoom);
     }
 
     @SubscribeMessage(ClassicModeEvents.ValidateDifference)
@@ -95,10 +95,10 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
     }
 
     @SubscribeMessage(ClassicModeEvents.AskingToJoinGame)
-    joinGame(socket: Socket, data: { gameName: string; username: string }): void {
-        if (this.gameModeService.joinGame(socket, data.gameName, data.username)) {
+    joinGame(socket: Socket, data: { gameName: string; username: string; gameMode: string }): void {
+        if (this.gameModeService.joinGame(socket, data)) {
             this.logger.log(`${data.username} joined the game: ${data.gameName}`);
-            this.server.emit(ClassicModeEvents.GameInfo, this.gameModeService.getGameRoom(data.gameName));
+            this.server.emit(ClassicModeEvents.GameInfo, this.gameModeService.getGameRoom(undefined, data.gameName, data.gameMode));
         } else {
             this.logger.log(`Jeu: ${data.gameName} not found`);
             this.server.emit(ClassicModeEvents.GameInfo, undefined);
@@ -129,7 +129,7 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
     playerRejected(socket: Socket, playerInfo: { roomId: string; username: string }): void {
         const gameRoom = this.gameModeService.getGameRoom(playerInfo.roomId);
         if (gameRoom) {
-            this.logger.log(`${playerInfo.roomId} rejected from game: ${gameRoom.userGame.gameData.gameForm.name}`);
+            this.logger.log(`${playerInfo.username} rejected from game: ${gameRoom.userGame.gameData.gameForm.name}`);
             gameRoom.userGame.potentialPlayers = gameRoom.userGame.potentialPlayers.filter((player) => player !== playerInfo.username);
             this.gameModeService.setGameRoom(gameRoom);
             this.server.to(gameRoom.roomId).emit(ClassicModeEvents.PlayerRejected, gameRoom);

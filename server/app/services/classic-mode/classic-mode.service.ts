@@ -11,14 +11,14 @@ export class ClassicModeService {
         this.gameModeService = gameModeService;
     }
 
-    canJoinGame(socket: Socket, gameRoom: GameRoom, userName: string): GameRoom {
+    canJoinGame(socket: Socket, gameRoom: GameRoom, username: string): GameRoom {
         if (!gameRoom.userGame.potentialPlayers) {
             gameRoom.userGame.potentialPlayers = [];
         }
-        if (gameRoom.userGame.username1.toLowerCase() === userName.toLowerCase()) {
+        if (gameRoom.userGame.username1.toLowerCase() === username.toLowerCase()) {
             return undefined;
         }
-        if (gameRoom.userGame.potentialPlayers.some((player) => player.toLowerCase() === userName.toLowerCase())) {
+        if (gameRoom.userGame.potentialPlayers.some((player) => player.toLowerCase() === username.toLowerCase())) {
             return undefined;
         }
         return gameRoom;
