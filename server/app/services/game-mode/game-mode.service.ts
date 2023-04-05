@@ -39,6 +39,11 @@ export class GameModeService {
         this.gameRooms.delete(roomId);
     }
 
+    nextGame(gameRoom: GameRoom): void {
+        if (gameRoom.gameMode === 'classic-mode') return;
+        this.setGameRoom(gameRoom);
+    }
+
     joinGame(socket: Socket, data: { gameName: string; username: string; gameMode: string }): boolean {
         const gameRoom = this.getGameRoom(undefined, data.gameName, data.gameMode);
         if (!gameRoom) return false;
@@ -59,6 +64,12 @@ export class GameModeService {
                 newGameHistory.gameMode = 'Mode classique Multi-joueur';
             } else {
                 newGameHistory.gameMode = 'Mode classique Solo';
+            }
+        } else {
+            if (gameRoom.userGame.username2) {
+                newGameHistory.gameMode = 'Mode Temps Limité  Multi-joueur';
+            } else {
+                newGameHistory.gameMode = 'Mode Temps Limité  Solo';
             }
         }
 
@@ -144,7 +155,11 @@ export class GameModeService {
     }
 
     updateTimer(gameRoom: GameRoom): void {
-        gameRoom.userGame.timer++;
+        if (gameRoom.gameMode === 'classic-mode') {
+            gameRoom.userGame.timer++;
+        } else {
+            gameRoom.userGame.timer--;
+        }
         this.setGameRoom(gameRoom);
     }
 }

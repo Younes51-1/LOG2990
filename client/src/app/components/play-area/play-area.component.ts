@@ -123,6 +123,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         }
     }
 
+    // TODO: refactor this function
     // eslint-disable-next-line max-params
     createAndFillNewLayer(color: Color, isCheat: boolean, isHint: boolean, matrix: number[][]): HTMLCanvasElement {
         const helpAlphaValue = 0.5;
@@ -170,6 +171,11 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         this.audioValid.pause();
         this.audioValid.currentTime = 0;
         this.audioValid.play();
+        if (this.gameService.gameMode === 'limited-time-mode') {
+            this.gameService.nextGame();
+            this.ngOnChanges();
+            this.gameService.changeTime(this.gameService.gameConstans.bonusTime);
+        }
     }
 
     private errorRetroaction(canvas: HTMLCanvasElement) {
@@ -177,6 +183,9 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         this.audioInvalid.play();
         this.errorAnswerVisuals(canvas);
         this.userError.emit();
+        if (this.gameService.gameMode === 'limited-time-mode') {
+            this.gameService.changeTime(-this.gameService.gameConstans.penaltyTime);
+        }
     }
 
     private errorAnswerVisuals(canvas: HTMLCanvasElement) {

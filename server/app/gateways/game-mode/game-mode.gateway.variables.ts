@@ -25,6 +25,7 @@ export enum ClassicModeEvents {
     NewBestTimeScore = 'newBestTimeScore',
     Timer = 'timer',
     ChangeTime = 'changeTime',
+    NextGame = 'nextGame',
 }
 
 export enum DelayBeforeEmittingTime {

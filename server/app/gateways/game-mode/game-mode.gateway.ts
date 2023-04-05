@@ -151,7 +151,13 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
 
     @SubscribeMessage(ClassicModeEvents.ChangeTime)
     changeTime(socket: Socket, data: { roomId: string; time: number }): void {
+        this.logger.log(`Time changed by ${data.time} in game: ${data.roomId}`);
         this.gameModeService.applyTimeToTimer(data.roomId, data.time);
+    }
+
+    @SubscribeMessage(ClassicModeEvents.NextGame)
+    nextGame(socket: Socket, gameRoom: GameRoom): void {
+        this.gameModeService.nextGame(gameRoom);
     }
 
     afterInit(): void {

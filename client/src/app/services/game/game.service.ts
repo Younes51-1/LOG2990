@@ -7,6 +7,9 @@ import { GameCardComponent } from '@app/components/game-card/game-card.component
 import { ChatService } from '@app/services/chat/chat.service';
 import { DifferenceTry } from '@app/interfaces/difference-try';
 import { Vec2 } from '@app/interfaces/vec2';
+import { LimitedTimeModeService } from '@app/services/limited-time-mode/limited-time-mode.service';
+import { ConfigHttpService } from '@app/services/config-http/config-http.service';
+import { GameConstants } from '@app/interfaces/game-constants';
 
 const NOT_TOP3 = -1;
 
@@ -30,13 +33,21 @@ export class GameService {
     gameRoom: GameRoom;
     username: string;
     gameMode: string;
-    private gameManager: ClassicModeService;
+    gameManager: ClassicModeService | LimitedTimeModeService;
+    gameConstans: GameConstants;
 
+    // eslint-disable-next-line max-params
     constructor(
         readonly socketService: CommunicationSocketService,
         private classicModeService: ClassicModeService,
+        private limitedTimeModeService: LimitedTimeModeService,
         private chatService: ChatService,
-    ) {}
+        readonly configHttpService: ConfigHttpService,
+    ) {
+        this.configHttpService.getConstants().subscribe((res) => {
+            this.gameConstans = res;
+        });
+    }
 
     setGameMode(mode: string) {
         this.gameMode = mode;
@@ -52,6 +63,9 @@ export class GameService {
         if (this.gameMode === 'classic-mode') {
             this.gameManager = this.classicModeService;
             this.classicModeService.setGameService(this);
+        } else {
+            this.gameManager = this.limitedTimeModeService;
+            this.limitedTimeModeService.setGameService(this);
         }
     }
 
@@ -224,5 +238,11 @@ export class GameService {
 
     abandonGame(): void {
         this.gameManager.abandonGame();
+    }
+
+    nextGame(): void {
+        if (this.gameManager instanceof LimitedTimeModeService) {
+            this.gameManager.nextGame();
+        }
     }
 }
