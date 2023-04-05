@@ -1,0 +1,49 @@
+<div id="title">
+    <p>REPRISE VIDEO</p>
+</div>
+<div id="mainContainer">
+    <div id="replaySection">
+        <div id="div0">
+            <div id="scoreBoard">
+                <app-replay-score-board
+                    [gameRoom]="this.data.videoReplay.scoreboardParams.gameRoom"
+                    [gameName]="this.data.videoReplay.scoreboardParams.gameName"
+                    [opponentUsername]="this.data.videoReplay.scoreboardParams.opponentUsername"
+                    [username]="this.data.videoReplay.scoreboardParams.username"
+                    [time]="this.time"
+                    [actions]="this.scoreBoardActions"
+                    [timeEnd]="this.actions[this.actions.length - 1].timeStart"
+                    [restartSignal]="this.restartSignal"
+                ></app-replay-score-board>
+            </div>
+            <app-replay-play-area
+                [original]="this.data.videoReplay.images.original"
+                [modified]="this.data.videoReplay.images.modified"
+                [time]="this.time"
+                [actions]="this.playAreaActions"
+                [speed]="this.speed"
+                [sources]="this.data.videoReplay.sources"
+                [cheatLayers]="this.data.videoReplay.cheatLayers"
+                [pauseSignal]="this.pauseSignal"
+                [continueSignal]="this.continueSignal"
+                [restartSignal]="this.restartSignal"
+            ></app-replay-play-area>
+        </div>
+        <div id="div1">
+            <app-replay-chat-box [time]="this.time" [actions]="this.chatBoxActions" [restartSignal]="this.restartSignal"> </app-replay-chat-box>
+        </div>
+    </div>
+
+    <div id="options">
+        <button mat-button (click)="pause()">Pause</button>
+        <button mat-button (click)="continue()">Reprendre</button>
+        <button mat-button (click)="restart()">Recommencer</button>
+        <select [(ngModel)]="speed" (change)="startTimer()">
+            <option value="1">x1</option>
+            <option value="2">x2</option>
+            <option value="4">x4</option>
+        </select>
+
+        <button mat-button routerLink="/home">Terminer</button>
+    </div>
+</div>

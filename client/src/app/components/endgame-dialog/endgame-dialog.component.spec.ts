@@ -2,7 +2,7 @@
 // We need it to access private methods and properties in the test
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { ConfigHttpService } from '@app/services/config-http/config-http.service';
@@ -15,7 +15,7 @@ describe('EndgameDialogComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [EndgameDialogComponent],
-            imports: [AppRoutingModule, HttpClientTestingModule],
+            imports: [AppRoutingModule, HttpClientTestingModule, MatDialogModule],
             providers: [
                 { provide: MatDialogRef, useValue: {} },
                 { provide: MAT_DIALOG_DATA, useValue: { gameFinished: true, gameWinner: true, time: 0 } },
