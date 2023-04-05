@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { FakeChatBoxComponent } from './replay-chat-box.component';
+import { ReplayChatBoxComponent } from './replay-chat-box.component';
 
-describe('FakeChatBoxComponent', () => {
-    let component: FakeChatBoxComponent;
-    let fixture: ComponentFixture<FakeChatBoxComponent>;
+describe('ReplayChatBoxComponent', () => {
+    let component: ReplayChatBoxComponent;
+    let fixture: ComponentFixture<ReplayChatBoxComponent>;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [FakeChatBoxComponent],
+            declarations: [ReplayChatBoxComponent],
         }).compileComponents();
 
-        fixture = TestBed.createComponent(FakeChatBoxComponent);
+        fixture = TestBed.createComponent(ReplayChatBoxComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });

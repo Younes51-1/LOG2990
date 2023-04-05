@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { FakePlayAreaComponent } from './replay-play-area.component';
+import { ReplayPlayAreaComponent } from './replay-play-area.component';
 
-describe('FakePlayAreaComponent', () => {
-    let component: FakePlayAreaComponent;
-    let fixture: ComponentFixture<FakePlayAreaComponent>;
+describe('ReplayPlayAreaComponent', () => {
+    let component: ReplayPlayAreaComponent;
+    let fixture: ComponentFixture<ReplayPlayAreaComponent>;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [FakePlayAreaComponent],
+            declarations: [ReplayPlayAreaComponent],
         }).compileComponents();
 
-        fixture = TestBed.createComponent(FakePlayAreaComponent);
+        fixture = TestBed.createComponent(ReplayPlayAreaComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });

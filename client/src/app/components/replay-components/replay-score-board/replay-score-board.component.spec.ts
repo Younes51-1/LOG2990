@@ -1,17 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ReplayScoreBoardComponent } from './replay-score-board.component';
 
-import { FakeScoreBoardComponent } from './replay-score-board.component';
-
-describe('FakeScoreBoardComponent', () => {
-    let component: FakeScoreBoardComponent;
-    let fixture: ComponentFixture<FakeScoreBoardComponent>;
+describe('ReplayScoreBoardComponent', () => {
+    let component: ReplayScoreBoardComponent;
+    let fixture: ComponentFixture<ReplayScoreBoardComponent>;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [FakeScoreBoardComponent],
+            declarations: [ReplayScoreBoardComponent],
         }).compileComponents();
 
-        fixture = TestBed.createComponent(FakeScoreBoardComponent);
+        fixture = TestBed.createComponent(ReplayScoreBoardComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });

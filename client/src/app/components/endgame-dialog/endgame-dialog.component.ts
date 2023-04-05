@@ -1,5 +1,5 @@
 import { Component, Inject, Input, OnInit } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { VideoReplayDialogComponent } from '@app/components/video-replay-dialog/video-replay-dialog.component';
 import { VideoReplay } from '@app/interfaces/video-replay';
 import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
