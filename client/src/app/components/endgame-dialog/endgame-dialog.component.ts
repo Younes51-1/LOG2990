@@ -18,6 +18,7 @@ export class EndgameDialogComponent implements OnInit {
     time: string;
     timePosition: string;
 
+    // eslint-disable-next-line max-params
     constructor(
         private videoReplayDialog: MatDialog,
         private dialogRef: MatDialogRef<EndgameDialogComponent>,
