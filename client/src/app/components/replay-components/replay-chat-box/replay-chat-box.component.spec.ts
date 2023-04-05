@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { Instruction } from '@app/interfaces/video-replay';
 import { ReplayChatBoxComponent } from './replay-chat-box.component';
 
 describe('ReplayChatBoxComponent', () => {
@@ -13,6 +13,7 @@ describe('ReplayChatBoxComponent', () => {
 
         fixture = TestBed.createComponent(ReplayChatBoxComponent);
         component = fixture.componentInstance;
+        component.actions = [{ type: Instruction.Error, timeStart: 0 }];
         fixture.detectChanges();
     });
 
