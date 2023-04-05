@@ -23,6 +23,7 @@ export class EndgameDialogComponent implements OnInit {
     ) {}
 
     ngOnInit() {
+        if (!this.data.gameFinished) return;
         if (this.data.gameWinner) {
             if (this.data.time) {
                 this.time = `${Math.floor(this.data.time / Time.MinInSec)}:${(this.data.time % Time.MinInSec).toLocaleString('en-US', {

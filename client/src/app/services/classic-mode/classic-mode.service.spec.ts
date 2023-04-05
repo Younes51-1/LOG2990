@@ -5,11 +5,12 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { DifferenceTry } from '@app/interfaces/difference-try';
-import { GameData, GameRoom } from '@app/interfaces/game';
+import { BestTime, GameData, GameRoom } from '@app/interfaces/game';
 import { ChatService } from '@app/services/chat/chat.service';
 import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
 import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
+import { ConfigHttpService } from '@app/services/config-http/config-http.service';
 import { of } from 'rxjs';
 import { Socket } from 'socket.io-client';
 
@@ -31,10 +32,12 @@ describe('ClassicModeService', () => {
     let gameData: GameData;
     let gameRoom: GameRoom;
     let differenceTry: DifferenceTry;
+    let newBestTimes: BestTime[];
 
     let service: ClassicModeService;
     let communicationSocketService: CommunicationSocketService;
     let communicationService: CommunicationHttpService;
+    let configHttpService: ConfigHttpService;
     let socketServiceMock: SocketClientServiceMock;
     let socketHelper: SocketTestHelper;
     let chatServiceMock: ChatServiceMock;
@@ -43,6 +46,11 @@ describe('ClassicModeService', () => {
         differenceMatrix = [[]];
         gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulty: '', soloBestTimes: [], vsBestTimes: [] };
         gameData = { gameForm, differenceMatrix };
+        newBestTimes = [
+            { name: 'Player 1', time: 60 },
+            { name: 'Player 2', time: 120 },
+            { name: 'Player 3', time: 180 },
+        ];
         gameRoom = { userGame: { gameData, nbDifferenceFound: 0, timer: 0, username1: 'Test' }, roomId: 'fakeId', started: false };
         differenceTry = { validated: true, differencePos: { x: 0, y: 0 }, username: 'Test' };
         socketHelper = new SocketTestHelper();
@@ -55,6 +63,7 @@ describe('ClassicModeService', () => {
                 ChatService,
                 CommunicationSocketService,
                 CommunicationHttpService,
+                ConfigHttpService,
                 { provide: CommunicationSocketService, useValue: socketServiceMock },
                 { provide: ChatService, useValue: chatServiceMock },
             ],
@@ -363,18 +372,28 @@ describe('ClassicModeService', () => {
         expect(spy).not.toHaveBeenCalled();
     });
 
-    it('should end the game', () => {
+    it('should end the game and update constants if its a new best time', () => {
         communicationSocketService = TestBed.inject(CommunicationSocketService);
+        configHttpService = TestBed.inject(ConfigHttpService);
+        const number = 0;
         const spy = spyOn(communicationSocketService, 'send').and.callFake(() => {
             return;
         });
         const spy2 = spyOn(communicationSocketService, 'isSocketAlive').and.callFake(() => {
             return true;
         });
+        const spy3 = spyOn(configHttpService, 'getBestTime').and.callFake(() => {
+            return of({ soloBestTimes: newBestTimes, vsBestTimes: newBestTimes });
+        });
+        const spy4 = spyOn(configHttpService, 'updateBestTime').and.returnValue(of(number));
         service.gameRoom = gameRoom;
+        service.gameRoom.userGame.timer = 1;
         service.endGame(true, true);
         expect(spy).toHaveBeenCalled();
         expect(spy2).toHaveBeenCalled();
+        expect(spy3).toHaveBeenCalled();
+        expect(spy4).toHaveBeenCalled();
+        expect(service.timePosition$).toBeTruthy();
     });
 
     it('should abandon the game', () => {

@@ -268,6 +268,14 @@ describe('GameCardComponent', () => {
         expect(spy).toHaveBeenCalledWith(component.slide.name);
     });
 
+    it('should emit the correct object when resetCard is called', () => {
+        const spy = spyOn(component.resetNotify, 'emit');
+        // needed to call private method
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (component as any).resetCard();
+        expect(spy).toHaveBeenCalledWith(component.slide.name);
+    });
+
     it("should call 'initClassicMode' by startSoloGame", fakeAsync(() => {
         // needed to call private property
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
