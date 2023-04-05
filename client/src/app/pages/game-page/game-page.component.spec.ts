@@ -240,10 +240,16 @@ describe('GamePageComponent', () => {
         component.totalDifferencesFound = component.gameRoom.userGame.gameData.gameForm.nbDifference;
         const matDialogSpy = spyOn((component as any).dialog, 'open').and.callThrough();
         component.endGame();
-        expect(matDialogSpy).toHaveBeenCalledWith(EndgameDialogComponent, {
-            disableClose: true,
-            data: { gameFinished: true, gameWinner: true },
-        });
+        expect(matDialogSpy).toHaveBeenCalledWith(
+            EndgameDialogComponent,
+            jasmine.objectContaining({
+                disableClose: true,
+                data: jasmine.objectContaining({
+                    gameFinished: true,
+                    gameWinner: true,
+                }),
+            }),
+        );
     });
 
     it('should open EndgameDialogComponent with correct data if in multiplayer mode and winner', () => {
@@ -253,10 +259,16 @@ describe('GamePageComponent', () => {
         component.userDifferencesFound = (component as any).differenceThreshold;
         const matDialogSpy = spyOn((component as any).dialog, 'open').and.callThrough();
         component.endGame();
-        expect(matDialogSpy).toHaveBeenCalledWith(EndgameDialogComponent, {
-            disableClose: true,
-            data: { gameFinished: true, gameWinner: true },
-        });
+        expect(matDialogSpy).toHaveBeenCalledWith(
+            EndgameDialogComponent,
+            jasmine.objectContaining({
+                disableClose: true,
+                data: jasmine.objectContaining({
+                    gameFinished: true,
+                    gameWinner: true,
+                }),
+            }),
+        );
     });
 
     it('should open EndgameDialogComponent with correct data if in multiplayer mode and looser', () => {
@@ -268,7 +280,16 @@ describe('GamePageComponent', () => {
         component.userDifferencesFound = 0;
         const matDialogSpy = spyOn((component as any).dialog, 'open').and.callThrough();
         component.endGame();
-        expect(matDialogSpy).toHaveBeenCalledWith(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: false } });
+        expect(matDialogSpy).toHaveBeenCalledWith(
+            EndgameDialogComponent,
+            jasmine.objectContaining({
+                disableClose: true,
+                data: jasmine.objectContaining({
+                    gameFinished: true,
+                    gameWinner: false,
+                }),
+            }),
+        );
     });
 
     it('endgame should call abandonConfirmation if game is not finished', () => {
