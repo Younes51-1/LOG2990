@@ -1,17 +1,17 @@
 import { DELAY_BEFORE_CLOSING_CONNECTION } from '@app/constants';
-import { environment } from '@app/environments/environment';
+import { environment } from '@app/environments/environment.prod';
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
 import { GameModeGateway } from '@app/gateways/game-mode/game-mode.gateway';
 import { Game, GameDocument, gameSchema } from '@app/model/database/game';
 import { GameData } from '@app/model/dto/game/game-data.dto';
 import { BestTime } from '@app/model/schema/best-times.schema';
 import { GameService } from '@app/services/game/game.service';
-import { getConnectionToken, getModelToken, MongooseModule } from '@nestjs/mongoose';
+import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import * as fs from 'fs';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Model } from 'mongoose';
-import { createStubInstance, SinonStubbedInstance } from 'sinon';
+import { SinonStubbedInstance, createStubInstance } from 'sinon';
 
 describe('GameService', () => {
     let service: GameService;
