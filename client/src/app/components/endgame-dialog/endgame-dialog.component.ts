@@ -3,7 +3,6 @@ import { GameService } from '@app/services/game/game.service';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { VideoReplayDialogComponent } from '@app/components/video-replay-dialog/video-replay-dialog.component';
 import { VideoReplay } from '@app/interfaces/video-replay';
-import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
 import { Time } from 'src/assets/variables/time';
 
 @Component({
@@ -22,8 +21,8 @@ export class EndgameDialogComponent implements OnInit {
         public gameService: GameService,
         private videoReplayDialog: MatDialog,
         private dialogRef: MatDialogRef<EndgameDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: { gameFinished: boolean; gameWinner: boolean; videoReplay?: VideoReplay; time?: number; limitedTimeMode?: boolean },
-        public classicModeService: ClassicModeService,
+        @Inject(MAT_DIALOG_DATA)
+        public data: { gameFinished: boolean; gameWinner: boolean; videoReplay?: VideoReplay; time?: number; limitedTimeMode?: boolean },
     ) {}
 
     ngOnInit() {

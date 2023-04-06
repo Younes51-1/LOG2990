@@ -153,7 +153,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             opponentUsername: this.opponentUsername,
             username: this.username,
         };
-        
+
         if (this.gameFinished) {
             this.gameService.endGame(this.gameFinished, this.userDifferencesFound === this.differenceThreshold);
             this.unsubscribe();
