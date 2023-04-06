@@ -35,7 +35,8 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     context2: CanvasRenderingContext2D;
     original = new Image();
     modified = new Image();
-    layer: HTMLCanvasElement;
+    cheatLayer: HTMLCanvasElement;
+    hintLayer: HTMLCanvasElement;
     differenceMatrix: number[][];
     private canvasClicked: HTMLCanvasElement;
     private playerIsAllowedToClick = true;
@@ -129,9 +130,9 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
 
     verifyDifferenceMatrix(option: string, matrix?: number[][]) {
         if (option === 'cheat') {
-            this.layer = this.createAndFillNewLayer(Color.Cheat, true, false, this.differenceMatrix);
+            this.cheatLayer = this.createAndFillNewLayer(Color.Cheat, true, false, this.differenceMatrix);
         } else if (option === 'hint' && matrix) {
-            this.layer = this.createAndFillNewLayer(Color.Hint, false, true, matrix);
+            this.hintLayer = this.createAndFillNewLayer(Color.Hint, false, true, matrix);
         }
     }
 
@@ -269,7 +270,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         this.context2.clearRect(0, 0, this.width, this.height);
         this.context2.putImageData(image2, 0, 0);
         this.modified.src = this.canvas2.nativeElement.toDataURL();
-        this.sendSource.emit({ src: this.modified.src, layer: this.layer });
+        this.sendSource.emit({ src: this.modified.src, layer: this.cheatLayer });
         this.verifyDifferenceMatrix('cheat');
     }
 }
