@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { DifferenceTry } from '@app/interfaces/difference-try';
-import { EndGame, GameData, GameRoom, NewBestTime } from '@app/interfaces/game';
+import { EndGame, GameData, GameRoom } from '@app/interfaces/game';
 import { Vec2 } from '@app/interfaces/vec2';
 import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 import { GameService } from '@app/services/game/game.service';
@@ -13,7 +13,6 @@ export class LimitedTimeModeService {
     gameRoom: GameRoom;
     username: string;
     userDifferencesFound = 0;
-    isAbandoned = false;
     totalDifferencesFound$ = new Subject<number>();
     userDifferencesFound$ = new Subject<number>();
     timer$ = new Subject<number>();
@@ -78,7 +77,7 @@ export class LimitedTimeModeService {
                 this.gameService.disconnectSocket();
                 this.connect();
                 this.gameService.handleWaitingRoomSocket();
-                this.gameService.socketService.send('askingToJoinGame', { gameName, username, gameMode: 'classic-mode' });
+                this.gameService.socketService.send('askingToJoinGame', { gameName, username, gameMode: 'limited-time-mode' });
             } else {
                 alert('Jeu introuvable');
             }
@@ -112,7 +111,6 @@ export class LimitedTimeModeService {
             endGame.roomId = this.gameRoom.roomId;
             endGame.username = this.username;
             this.gameService.socketService.send('endGame', endGame);
-            this.updateBestTime(gameFinished, winner);
         }
     }
 
@@ -157,6 +155,8 @@ export class LimitedTimeModeService {
             this.gameRoom.userGame.gameData = game ? game : this.gameRoom.userGame.gameData;
             this.gameRoom$.next(this.gameRoom);
             this.gameService.socketService.send('nextGame', this.gameRoom);
+        } else {
+            this.gameFinished$.next(true);
         }
     }
 
@@ -217,33 +217,23 @@ export class LimitedTimeModeService {
             this.gameService.disconnectSocket();
         });
 
-        this.gameService.socketService.on('abandoned', (userName: string) => {
-            this.isAbandoned = true;
-            this.abandoned$.next(userName);
+        this.gameService.socketService.on('abandoned', (gameRoom: GameRoom) => {
+            this.gameRoom = gameRoom;
+            this.gameService.limitedTimeGameAbandoned();
         });
 
         this.gameService.socketService.on('timer', (timer: number) => {
+            const twoMin = 120;
+            if (timer > twoMin) {
+                timer = twoMin;
+            } else if (timer < 0) {
+                timer = 0;
+            }
             this.gameRoom.userGame.timer = timer;
             this.timer$.next(this.gameRoom.userGame.timer);
             this.canSendValidate = true;
-        });
-    }
-
-    private updateBestTime(gameFinished: boolean, winner: boolean): void {
-        this.gameService.configHttpService.getBestTime(this.gameRoom.userGame.gameData.gameForm.name).subscribe((bestTimes) => {
-            if (!bestTimes) return;
-            const actualBestTime = this.gameRoom.userGame.username2 ? bestTimes.vsBestTimes[2].time : bestTimes.soloBestTimes[2].time;
-            if (this.gameRoom.userGame.timer < actualBestTime && winner && gameFinished && !this.isAbandoned) {
-                const newBestTime = new NewBestTime();
-                newBestTime.gameName = this.gameRoom.userGame.gameData.gameForm.name;
-                newBestTime.time = this.gameRoom.userGame.timer;
-                newBestTime.name = this.username;
-                newBestTime.isSolo = !this.gameRoom.userGame.username2;
-                this.gameService.configHttpService
-                    .updateBestTime(this.gameRoom.userGame.gameData.gameForm.name, newBestTime)
-                    .subscribe((position) => {
-                        this.timePosition$.next(position);
-                    });
+            if (this.gameRoom.userGame.timer <= 0) {
+                this.gameFinished$.next(true);
             }
         });
     }

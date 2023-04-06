@@ -17,7 +17,7 @@ export class EndgameDialogComponent implements OnInit {
     constructor(
         public gameService: GameService,
         private dialogRef: MatDialogRef<EndgameDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: { gameFinished: boolean; gameWinner: boolean; time?: number },
+        @Inject(MAT_DIALOG_DATA) public data: { gameFinished: boolean; gameWinner: boolean; time?: number; limitedTimeMode?: boolean },
     ) {}
 
     ngOnInit() {

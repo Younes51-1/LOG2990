@@ -31,6 +31,10 @@ export class ClassicModeService {
 
     setGameService(gameService: GameService) {
         this.gameService = gameService;
+        if (!this.gameRoom && this.gameService.gameRoom) {
+            this.gameRoom = this.gameService.gameRoom;
+            this.handleSocket();
+        }
     }
 
     initGameMode(gameName: string, username: string, started: boolean): void {

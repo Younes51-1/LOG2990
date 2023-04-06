@@ -3,7 +3,6 @@ import { ChatGateway } from '@app/gateways/chat/chat.gateway';
 import { ClassicModeGateway } from '@app/gateways/game-mode/game-mode.gateway';
 import { Game, gameSchema } from '@app/model/database/game';
 import { gameHistorySchema } from '@app/model/database/game-history';
-import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
 import { GameHistoryService } from '@app/services/game-history/game-history.service';
 import { GameService } from '@app/services/game/game.service';
 import { Logger, Module } from '@nestjs/common';
@@ -31,16 +30,6 @@ import { GameModeService } from '@app/services/game-mode/game-mode.service';
         ]),
     ],
     controllers: [GameController, ConfigController],
-    providers: [
-        ConfigService,
-        Logger,
-        GameHistoryService,
-        GameService,
-        ClassicModeService,
-        GameConstantsService,
-        ClassicModeGateway,
-        ChatGateway,
-        GameModeService,
-    ],
+    providers: [ConfigService, Logger, GameHistoryService, GameService, GameConstantsService, ClassicModeGateway, ChatGateway, GameModeService],
 })
 export class AppModule {}

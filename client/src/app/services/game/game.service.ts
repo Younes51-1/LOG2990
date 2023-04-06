@@ -47,10 +47,16 @@ export class GameService {
         this.configHttpService.getConstants().subscribe((res) => {
             this.gameConstans = res;
         });
+        if (!this.gameMode) {
+            const gameMode = localStorage.getItem('gameMode');
+            if (gameMode) {
+                this.setGameMode(gameMode);
+            }
+        }
     }
 
     setGameMode(mode: string) {
-        this.gameMode = mode;
+        localStorage.setItem('gameMode', mode);
         this.setGameManager();
         this.timerUpdate();
         this.differencesUpdate();
@@ -60,6 +66,10 @@ export class GameService {
     }
 
     setGameManager() {
+        const gameMode = localStorage.getItem('gameMode');
+        if (gameMode) {
+            this.gameMode = gameMode;
+        }
         if (this.gameMode === 'classic-mode') {
             this.gameManager = this.classicModeService;
             this.classicModeService.setGameService(this);
@@ -244,5 +254,11 @@ export class GameService {
         if (this.gameManager instanceof LimitedTimeModeService) {
             this.gameManager.nextGame();
         }
+    }
+
+    limitedTimeGameAbandoned() {
+        this.gameRoom = this.gameManager.gameRoom;
+        this.setGameMode(this.gameRoom.gameMode);
+        this.gameRoom$.next(this.gameRoom);
     }
 }

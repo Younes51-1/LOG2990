@@ -82,16 +82,26 @@ export class GamePageComponent implements OnInit, OnDestroy {
             }
         });
         this.abandonedGameSubscription = this.gameService.abandoned$.subscribe((username: string) => {
-            if (username !== this.username) {
-                this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
-                this.helpService.startConfetti(undefined);
+            if (this.gameService.gameMode === 'classic-mode') {
+                if (username !== this.username) {
+                    this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
+                    this.helpService.startConfetti(undefined);
+                }
+                this.unsubscribe();
+                this.gameService.endGame(true, true);
             }
-            this.unsubscribe();
-            this.gameService.endGame(true, true);
         });
     }
 
     endGame() {
+        if (this.gameRoom.gameMode === 'classic-mode') {
+            this.endGameClassicMode();
+        } else {
+            this.endGameLimitedTimeMode();
+        }
+    }
+
+    endGameClassicMode() {
         if (this.gameFinished) {
             if (this.userDifferencesFound === this.differenceThreshold) {
                 this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
@@ -101,6 +111,19 @@ export class GamePageComponent implements OnInit, OnDestroy {
             }
             this.gameService.endGame(this.gameFinished, this.userDifferencesFound === this.differenceThreshold);
             this.unsubscribe();
+        } else {
+            this.abandonConfirmation();
+        }
+    }
+
+    endGameLimitedTimeMode() {
+        if (this.gameFinished) {
+            this.gameService.endGame(this.gameFinished, this.userDifferencesFound === this.differenceThreshold);
+            this.unsubscribe();
+            this.dialogRef = this.dialog.open(EndgameDialogComponent, {
+                disableClose: true,
+                data: { gameFinished: true, gameWinner: true, limitedTimeMode: true },
+            });
         } else {
             this.abandonConfirmation();
         }

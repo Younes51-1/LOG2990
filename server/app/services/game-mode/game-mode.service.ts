@@ -2,7 +2,6 @@ import { GameHistory } from '@app/model/database/game-history';
 import { GameRoom } from '@app/model/schema/game-room.schema';
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
-import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
 import { Vector2D } from '@app/model/schema/vector2d.schema';
 import { EndGame } from '@app/model/schema/end-game.schema';
 import { EMPTY_PIXEL_VALUE } from '@app/constants';
@@ -11,10 +10,6 @@ import { EMPTY_PIXEL_VALUE } from '@app/constants';
 export class GameModeService {
     gameRooms: Map<string, GameRoom> = new Map<string, GameRoom>();
     private gameHistory: Map<string, GameHistory> = new Map<string, GameHistory>();
-
-    constructor(private classicModeService: ClassicModeService) {
-        this.classicModeService.setGameModeService(this);
-    }
 
     getGameRoom(roomId?: string, gameName?: string, gameMode?: string): GameRoom {
         if (roomId) return this.gameRooms.get(roomId);
@@ -35,6 +30,10 @@ export class GameModeService {
         this.gameHistory.set(roomId, gameHistory);
     }
 
+    deleteGameHistory(roomId: string): void {
+        this.gameHistory.delete(roomId);
+    }
+
     deleteRoom(roomId: string): void {
         this.gameRooms.delete(roomId);
     }
@@ -47,9 +46,10 @@ export class GameModeService {
     joinGame(socket: Socket, data: { gameName: string; username: string; gameMode: string }): boolean {
         const gameRoom = this.getGameRoom(undefined, data.gameName, data.gameMode);
         if (!gameRoom) return false;
-        if (gameRoom.gameMode === 'classic-mode') {
-            return this.classicModeService.joinGame(socket, gameRoom, data.username);
-        }
+        gameRoom.userGame.potentialPlayers.push(data.username);
+        this.setGameRoom(gameRoom);
+        socket.join(gameRoom.roomId);
+        return true;
     }
 
     saveGameHistory(gameRoom: GameRoom): void {
@@ -91,7 +91,9 @@ export class GameModeService {
         const gameRoom = this.getGameRoom(gameId);
         if (!gameRoom) return false;
         if (gameRoom.gameMode === 'classic-mode') {
-            return this.classicModeService.isGameFinished(gameRoom);
+            return gameRoom.userGame.nbDifferenceFound === gameRoom.userGame.gameData.gameForm.nbDifference;
+        } else {
+            return gameRoom.userGame.timer <= 0;
         }
     }
 
@@ -130,9 +132,16 @@ export class GameModeService {
     canJoinGame(socket: Socket, data: { gameName: string; username: string; gameMode: string }): GameRoom {
         const gameRoom = this.getGameModeRoom(data.gameName, data.gameMode);
         if (!gameRoom) return null;
-        if (data.gameMode === 'classic-mode') {
-            return this.classicModeService.canJoinGame(socket, gameRoom, data.username);
+        if (!gameRoom.userGame.potentialPlayers) {
+            gameRoom.userGame.potentialPlayers = [];
         }
+        if (gameRoom.userGame.username1.toLowerCase() === data.username.toLowerCase()) {
+            return undefined;
+        }
+        if (gameRoom.userGame.potentialPlayers.some((player) => player.toLowerCase() === data.username.toLowerCase())) {
+            return undefined;
+        }
+        return gameRoom;
     }
 
     getGameModeRoom(gameName: string, gameMode: string): GameRoom {
@@ -146,6 +155,7 @@ export class GameModeService {
 
     applyTimeToTimer(roomId: string, time: number): void {
         const gameRoom = this.getGameRoom(roomId);
+        if (!gameRoom) return;
         gameRoom.userGame.timer += time;
         this.setGameRoom(gameRoom);
     }

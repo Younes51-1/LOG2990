@@ -46,7 +46,7 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
     @SubscribeMessage(ClassicModeEvents.EndGame)
     endGame(socket: Socket, endGame: EndGame): void {
         const gameRoom = this.gameModeService.getGameRoom(endGame.roomId);
-        if (!gameRoom) return;
+        if (!gameRoom || !endGame) return;
         this.logger.log(`End of game: ${gameRoom.userGame.gameData.gameForm.name}`);
         this.server.to(endGame.roomId).emit(ClassicModeEvents.GameFinished);
         this.gameModeService.updateGameHistory(endGame);
@@ -57,14 +57,38 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
 
     @SubscribeMessage(ClassicModeEvents.Abandoned)
     abandoned(socket: Socket, data: { roomId: string; username: string }): void {
-        this.gameModeService.abandonGameHistory(data.roomId, data.username);
         const gameRoom = this.gameModeService.getGameRoom(data.roomId);
         if (!gameRoom) return;
-        if (!gameRoom.userGame.username2) {
-            const gameHistory = this.gameModeService.getGameHistory(data.roomId);
-            this.gameHistoryService.saveGameHistory(gameHistory);
+        if (gameRoom.gameMode === 'classic-mode') {
+            this.gameModeService.abandonGameHistory(data.roomId, data.username);
+
+            if (!gameRoom.userGame.username2) {
+                const gameHistory = this.gameModeService.getGameHistory(data.roomId);
+                this.gameHistoryService.saveGameHistory(gameHistory);
+            }
+            this.server.to(data.roomId).emit(ClassicModeEvents.Abandoned, data.username);
+        } else {
+            if (gameRoom.userGame.username1 === data.username) {
+                gameRoom.userGame.username1 = gameRoom.userGame.username2;
+                gameRoom.userGame.username2 = '';
+            } else {
+                gameRoom.userGame.username2 = '';
+            }
+            const sockets = this.server.sockets.adapter.rooms.get(data.roomId);
+            if (socket.id === gameRoom.roomId) {
+                sockets.delete(gameRoom.roomId);
+                gameRoom.roomId = Array.from(sockets.keys())[0];
+                const gameHistory = this.gameModeService.getGameHistory(data.roomId);
+                this.gameModeService.deleteGameHistory(socket.id);
+                this.gameModeService.setGameHistory(gameRoom.roomId, gameHistory);
+            } else {
+                sockets.delete(socket.id);
+            }
+            gameRoom.gameMode = 'classic-mode';
+            this.gameModeService.deleteRoom(socket.id);
+            this.gameModeService.setGameRoom(gameRoom);
+            this.server.to(gameRoom.roomId).emit(ClassicModeEvents.Abandoned, gameRoom);
         }
-        this.server.to(data.roomId).emit(ClassicModeEvents.Abandoned, data.username);
     }
 
     @SubscribeMessage(ClassicModeEvents.CheckGame)
@@ -184,7 +208,7 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
         for (const gameRoom of this.gameModeService.getRoomsValues()) {
             if (gameRoom.started) {
                 this.gameModeService.updateTimer(gameRoom);
-                this.server.to(gameRoom.roomId).emit(ClassicModeEvents.Timer, this.gameModeService.getGameRoom(gameRoom.roomId).userGame.timer);
+                this.server.to(gameRoom.roomId).emit(ClassicModeEvents.Timer, gameRoom.userGame.timer);
             }
         }
     }
