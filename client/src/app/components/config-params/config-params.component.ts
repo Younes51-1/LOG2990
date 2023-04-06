@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { ConfigHttpService } from '@app/services/config-http/config-http.service';
 import { VerifyInputService } from '@app/services/verify-input/verify-input.service';
 import { Constants } from 'src/assets/variables/constants';
-import { ConfigHttpService } from '@app/services/config-http/config-http.service';
 import { Time } from 'src/assets/variables/time';
 
 @Component({
@@ -16,7 +16,7 @@ export class ConfigParamsComponent implements OnInit {
 
     isInvalidInput: boolean = false;
     feedbackMessage: string = '';
-    private timeout: number = Time.SecInMil * 3;
+    private timeout: number = Time.Thousand * 3;
 
     constructor(private verifyInput: VerifyInputService, private readonly configCommunicationService: ConfigHttpService) {}
 
@@ -75,7 +75,7 @@ export class ConfigParamsComponent implements OnInit {
             this.initialTime = Constants.MinInitialTime;
         } else {
             const maxInitialTime = Constants.MaxInitialTime;
-            this.initialTime = this.initialTime + Time.FiveSeconds <= maxInitialTime ? this.initialTime + Time.FiveSeconds : maxInitialTime;
+            this.initialTime = this.initialTime + Time.Five <= maxInitialTime ? this.initialTime + Time.Five : maxInitialTime;
         }
         this.validateAllInputs();
     }
@@ -85,7 +85,7 @@ export class ConfigParamsComponent implements OnInit {
             this.initialTime = Constants.MaxInitialTime;
         } else {
             const minInitialTime = Constants.MinInitialTime;
-            this.initialTime = this.initialTime - Time.FiveSeconds >= minInitialTime ? this.initialTime - Time.FiveSeconds : minInitialTime;
+            this.initialTime = this.initialTime - Time.Five >= minInitialTime ? this.initialTime - Time.Five : minInitialTime;
         }
         this.validateAllInputs();
     }
@@ -144,9 +144,9 @@ export class ConfigParamsComponent implements OnInit {
     }
 
     resetConstants() {
-        this.initialTime = Time.HalfMinute;
-        this.penaltyTime = Time.FiveSeconds;
-        this.bonusTime = Time.FiveSeconds;
+        this.initialTime = Time.Thirty;
+        this.penaltyTime = Time.Five;
+        this.bonusTime = Time.Five;
         const constants = {
             initialTime: this.initialTime,
             penaltyTime: this.penaltyTime,

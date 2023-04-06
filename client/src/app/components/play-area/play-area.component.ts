@@ -10,6 +10,8 @@ import { MouseService } from '@app/services/mouse/mouse.service';
 import { Color } from 'src/assets/variables/color';
 import { PossibleColor } from 'src/assets/variables/images-values';
 import { Dimensions } from 'src/assets/variables/picture-dimension';
+import { ErrorText } from 'src/assets/variables/text';
+import { Time } from 'src/assets/variables/time';
 
 @Component({
     selector: 'app-play-area',
@@ -23,11 +25,19 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     @Input() gameRoom: GameRoom;
     @Output() toggleHint = new EventEmitter();
     @Output() userError = new EventEmitter();
+    @Output() sendImage = new EventEmitter<{ src: string; first: boolean }>();
+    @Output() sendDiff = new EventEmitter<{ diff: number[][] }>();
+    @Output() sendError = new EventEmitter<{ pos: Vec2; leftCanvas: boolean }>();
+    @Output() sendSource = new EventEmitter<{ src: string; layer: HTMLCanvasElement }>();
+    @Output() sendCheatStart = new EventEmitter<{ layer: HTMLCanvasElement }>();
+    @Output() sendCheatEnd = new EventEmitter();
+
     context1: CanvasRenderingContext2D;
     context2: CanvasRenderingContext2D;
     original = new Image();
     modified = new Image();
-    layer: HTMLCanvasElement;
+    cheatLayer: HTMLCanvasElement;
+    hintLayer: HTMLCanvasElement;
     differenceMatrix: number[][];
     private canvasClicked: HTMLCanvasElement;
     private playerIsAllowedToClick = true;
@@ -38,6 +48,8 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     private currentDifferenceMatrix: number[][];
     private differenceIntervalId: ReturnType<typeof setInterval>;
     private canvasSize = { x: Dimensions.DEFAULT_WIDTH, y: Dimensions.DEFAULT_HEIGHT };
+    // private cheatIntervalId: ReturnType<typeof setInterval>;
+    // private isCheatModeOn: ReturnType<typeof setInterval>;
 
     // eslint-disable-next-line max-params
     constructor(
@@ -88,6 +100,8 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
             this.differenceMatrix = this.gameRoom.userGame.gameData.differenceMatrix;
             this.original.src = this.gameRoom.userGame.gameData.gameForm.image1url;
             this.modified.src = this.gameRoom.userGame.gameData.gameForm.image2url;
+            this.sendImage.emit({ src: this.original.src, first: true });
+            this.sendImage.emit({ src: this.modified.src, first: false });
         }
 
         this.original.crossOrigin = 'Anonymous'; // needed to get access to images of server
@@ -117,9 +131,9 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
 
     verifyDifferenceMatrix(option: string, matrix?: number[][]) {
         if (option === 'cheat') {
-            this.layer = this.createAndFillNewLayer(Color.Cheat, true, false, this.differenceMatrix);
+            this.cheatLayer = this.createAndFillNewLayer(Color.Cheat, true, false, this.differenceMatrix);
         } else if (option === 'hint' && matrix) {
-            this.layer = this.createAndFillNewLayer(Color.Hint, false, true, matrix);
+            this.hintLayer = this.createAndFillNewLayer(Color.Hint, false, true, matrix);
         }
     }
 
@@ -150,12 +164,12 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         const context1 = this.canvas1.nativeElement.getContext('2d');
         if (context1) {
             this.context1 = context1;
-            this.context1.font = '30px comic sans ms';
+            this.context1.font = '50px MarioFont';
         }
         const context2 = this.canvas2.nativeElement.getContext('2d');
         if (context2) {
             this.context2 = context2;
-            this.context2.font = '30px comic sans ms';
+            this.context2.font = '50px MarioFont';
         }
     }
 
@@ -189,14 +203,14 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     }
 
     private errorAnswerVisuals(canvas: HTMLCanvasElement) {
-        const textDimensions = { x: 50, y: 30 };
         const nMilliseconds = 1000;
 
         const context = canvas.getContext('2d');
         const image = canvas === this.canvas1.nativeElement ? this.original : this.modified;
+        this.sendError.emit({ pos: this.mousePosition, leftCanvas: image === this.original });
         if (context) {
             context.fillStyle = Color.Mario;
-            context.fillText('ERREUR', this.mousePosition.x - textDimensions.x / 2, this.mousePosition.y + textDimensions.y / 2, textDimensions.x);
+            context.fillText('ERREUR', this.mousePosition.x - ErrorText.Width / 2, this.mousePosition.y + ErrorText.Height / 2, ErrorText.Width);
             setTimeout(() => {
                 context.drawImage(image, 0, 0, this.width, this.height);
                 this.playerIsAllowedToClick = true;
@@ -212,11 +226,10 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     }
 
     private flashDifference(difference: number[][]) {
+        this.sendDiff.emit({ diff: difference });
         if (!this.context1 || !this.context2) {
             return;
         }
-        const timeOut = 100;
-        const totalDuration = 1000;
         const layer = this.createAndFillNewLayer(Color.Luigi, false, false, difference);
         let isFlashing = false;
         this.differenceIntervalId = setInterval(() => {
@@ -228,14 +241,14 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
                 this.context2.drawImage(layer, 0, 0, this.width, this.height);
             }
             isFlashing = !isFlashing;
-        }, timeOut);
+        }, Time.Fifty);
         setTimeout(() => {
             this.removeDifference(this.currentDifferenceMatrix);
             this.playerIsAllowedToClick = true;
             clearInterval(this.differenceIntervalId);
             this.context1.drawImage(this.original, 0, 0, this.width, this.height);
             this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
-        }, totalDuration);
+        }, Time.Thousand / 2);
     }
 
     private removeDifference(differenceMatrix: number[][]) {
@@ -267,6 +280,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         this.context2.clearRect(0, 0, this.width, this.height);
         this.context2.putImageData(image2, 0, 0);
         this.modified.src = this.canvas2.nativeElement.toDataURL();
+        this.sendSource.emit({ src: this.modified.src, layer: this.cheatLayer });
         this.verifyDifferenceMatrix('cheat');
     }
 }

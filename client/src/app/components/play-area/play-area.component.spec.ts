@@ -77,7 +77,7 @@ describe('PlayAreaComponent', () => {
     });
 
     it('should draw ERREUR on canvas1', () => {
-        const textDimensions = { x: 50, y: 30 };
+        const textDimensions = { x: 76, y: 30 };
         (component as any).context1 = component.canvas1.nativeElement.getContext('2d') as CanvasRenderingContext2D;
         const spy = spyOn((component as any).context1, 'fillText');
         (component as any).errorAnswerVisuals(component.canvas1.nativeElement);
@@ -90,7 +90,7 @@ describe('PlayAreaComponent', () => {
     });
 
     it('should draw ERREUR on canvas2', () => {
-        const textDimensions = { x: 50, y: 30 };
+        const textDimensions = { x: 76, y: 30 };
         (component as any).context2 = component.canvas2.nativeElement.getContext('2d') as CanvasRenderingContext2D;
         const spy = spyOn((component as any).context2, 'fillText');
         (component as any).errorAnswerVisuals(component.canvas2.nativeElement);
@@ -348,8 +348,8 @@ describe('PlayAreaComponent', () => {
         (component as any).setContexts();
         expect((component as any).context1).toEqual((component as any).canvas1.nativeElement.getContext('2d'));
         expect((component as any).context2).toEqual((component as any).canvas2.nativeElement.getContext('2d'));
-        expect((component as any).context1.font).toEqual('30px "comic sans ms"');
-        expect((component as any).context2.font).toEqual('30px "comic sans ms"');
+        expect((component as any).context1.font).toEqual('50px MarioFont');
+        expect((component as any).context2.font).toEqual('50px MarioFont');
     });
 
     it('verifyDifferenceMatrix should call createAndFillNewLayer', () => {

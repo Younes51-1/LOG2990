@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { Message } from '@app/interfaces/chat';
 import { GameRoom } from '@app/interfaces/game';
 import { ChatService } from '@app/services/chat/chat.service';
@@ -13,6 +13,7 @@ export class ChatBoxComponent implements OnInit {
     @ViewChild('chatbox', { static: true }) chatbox: ElementRef;
     @Input() gameRoom: GameRoom;
     @Input() username: string;
+    @Output() sendChatMessage = new EventEmitter<Message>();
 
     applyBorder = false;
     message = '';
@@ -23,6 +24,7 @@ export class ChatBoxComponent implements OnInit {
     ngOnInit() {
         this.chatService.message$.subscribe((message: Message) => {
             this.messages.push(message);
+            this.sendChatMessage.emit({ username: message.username, message: message.message });
             setTimeout(() => {
                 this.chatbox.nativeElement.scrollTop = this.chatbox.nativeElement.scrollHeight;
             }, 0);

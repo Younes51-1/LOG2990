@@ -2,7 +2,10 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
+import { Message } from '@app/interfaces/chat';
 import { GameRoom } from '@app/interfaces/game';
+import { Vec2 } from '@app/interfaces/vec2';
+import { Instruction, VideoReplay } from '@app/interfaces/video-replay';
 import { ChatService } from '@app/services/chat/chat.service';
 import { ConfigHttpService } from '@app/services/config-http/config-http.service';
 import { GameService } from '@app/services/game/game.service';
@@ -23,6 +26,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     totalDifferencesFound = 0;
     userDifferencesFound = 0;
     gameRoom: GameRoom;
+    videoReplay: VideoReplay;
     hintNum = 0;
     penaltyTime: number;
 
@@ -91,6 +95,19 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 this.gameService.endGame(true, true);
             }
         });
+
+        this.videoReplay = {
+            images: { original: '', modified: '' },
+            scoreboardParams: {
+                gameRoom: this.gameRoom,
+                gameName: this.gameName,
+                opponentUsername: this.opponentUsername,
+                username: this.username,
+            },
+            actions: [],
+            sources: [],
+            cheatLayers: [],
+        };
     }
 
     endGame() {
@@ -102,12 +119,25 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     endGameClassicMode() {
+        this.videoReplay.scoreboardParams = {
+            gameRoom: this.gameRoom,
+            gameName: this.gameName,
+            opponentUsername: this.opponentUsername,
+            username: this.username,
+        };
+
         if (this.gameFinished) {
             if (this.userDifferencesFound === this.differenceThreshold) {
-                this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
+                this.dialogRef = this.dialog.open(EndgameDialogComponent, {
+                    disableClose: true,
+                    data: { gameFinished: true, gameWinner: true, videoReplay: this.videoReplay },
+                });
                 this.helpService.startConfetti(undefined);
             } else {
-                this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: false } });
+                this.dialogRef = this.dialog.open(EndgameDialogComponent, {
+                    disableClose: true,
+                    data: { gameFinished: true, gameWinner: false, videoReplay: this.videoReplay },
+                });
             }
             this.gameService.endGame(this.gameFinished, this.userDifferencesFound === this.differenceThreshold);
             this.unsubscribe();
@@ -117,6 +147,13 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     endGameLimitedTimeMode() {
+        this.videoReplay.scoreboardParams = {
+            gameRoom: this.gameRoom,
+            gameName: this.gameName,
+            opponentUsername: this.opponentUsername,
+            username: this.username,
+        };
+        
         if (this.gameFinished) {
             this.gameService.endGame(this.gameFinished, this.userDifferencesFound === this.differenceThreshold);
             this.unsubscribe();
@@ -156,6 +193,47 @@ export class GamePageComponent implements OnInit, OnDestroy {
         }
     }
 
+    getImage(data: { src: string; first: boolean }) {
+        if (data.first) {
+            this.videoReplay.images.original = data.src;
+        } else {
+            this.videoReplay.images.modified = data.src;
+        }
+    }
+
+    getDiff(data: { diff: number[][] }) {
+        this.videoReplay.actions.push({ type: Instruction.DiffFound, timeStart: this.timer, difference: data.diff });
+    }
+
+    getError(data: { pos: Vec2; leftCanvas: boolean }) {
+        this.videoReplay.actions.push({ type: Instruction.Error, timeStart: this.timer, mousePosition: data.pos, leftCanvas: data.leftCanvas });
+    }
+
+    getSource(data: { src: string; layer: HTMLCanvasElement }) {
+        this.videoReplay.sources.push(data.src);
+        this.videoReplay.cheatLayers.push(data.layer);
+    }
+
+    getCheatStart(data: { layer: HTMLCanvasElement }) {
+        this.videoReplay.actions.push({ type: Instruction.CheatModeStart, timeStart: this.timer, cheatLayer: data.layer });
+    }
+
+    getCheatEnd() {
+        this.videoReplay.actions.push({ type: Instruction.CheatModeEnd, timeStart: this.timer });
+    }
+
+    getChatMessage(data: Message) {
+        this.videoReplay.actions.push({ type: Instruction.ChatMessage, timeStart: this.timer, message: data });
+    }
+
+    getDifferencesFound(data: number) {
+        this.videoReplay.actions.push({ type: Instruction.Score, timeStart: this.timer, nbDifferences: data, username: this.username });
+    }
+
+    getOpponentDifferencesFound(data: number) {
+        this.videoReplay.actions.push({ type: Instruction.Score, timeStart: this.timer, nbDifferences: data, username: this.opponentUsername });
+    }
+
     ngOnDestroy() {
         this.gameService.reset();
         this.dialog.closeAll();
@@ -173,7 +251,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
                     setTimeout(() => {
                         this.gameService.disconnectSocket();
                         this.router.navigate(['/home']);
-                    }, Time.SecInMil);
+                    }, Time.Thousand);
                 }
             });
         }

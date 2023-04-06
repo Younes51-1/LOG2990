@@ -3,6 +3,7 @@
     <p *ngIf="!data.limitedTimeMode && data.gameWinner">Félicitation, vous avez gagné ce jeu ! {{ bestTimeMessage }}</p>
     <p *ngIf="!data.limitedTimeMode && !data.gameWinner">Oh non, vous avez perdu ce jeu !</p>
     <button mat-button routerLink="/home">Terminer</button>
+    <button mat-button (click)="openVideoReplay()">Reprise Vidéo</button>
 </div>
 <div *ngIf="!data.gameFinished">
     <p>Êtes-vous sûr de vouloir abandonner ?</p>
