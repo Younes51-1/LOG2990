@@ -5,13 +5,11 @@ import { Vec2 } from '@app/interfaces/vec2';
 import { ChatService } from '@app/services/chat/chat.service';
 import { DetectionDifferenceService } from '@app/services/detection-difference/detection-difference.service';
 import { GameService } from '@app/services/game/game.service';
-import { HelpService } from '@app/services/help/help.service';
 import { MouseService } from '@app/services/mouse/mouse.service';
+import { PlayAreaService } from '@app/services/play-area/play-area.service';
 import { Color } from 'src/assets/variables/color';
 import { PossibleColor } from 'src/assets/variables/images-values';
 import { Dimensions } from 'src/assets/variables/picture-dimension';
-import { ErrorText } from 'src/assets/variables/text';
-import { Time } from 'src/assets/variables/time';
 
 @Component({
     selector: 'app-play-area',
@@ -31,6 +29,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     @Output() sendSource = new EventEmitter<{ src: string; layer: HTMLCanvasElement }>();
     @Output() sendCheatStart = new EventEmitter<{ layer: HTMLCanvasElement }>();
     @Output() sendCheatEnd = new EventEmitter();
+    @Output() sendHint = new EventEmitter<{ hintNum: number; diffPos: Vec2; layer: HTMLCanvasElement }>();
 
     context1: CanvasRenderingContext2D;
     context2: CanvasRenderingContext2D;
@@ -39,14 +38,14 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     cheatLayer: HTMLCanvasElement;
     hintLayer: HTMLCanvasElement;
     differenceMatrix: number[][];
+    playerIsAllowedToClick = true;
+    currentDifferenceMatrix: number[][];
+    mousePosition: Vec2 = { x: 0, y: 0 };
     private canvasClicked: HTMLCanvasElement;
-    private playerIsAllowedToClick = true;
-    private mousePosition: Vec2 = { x: 0, y: 0 };
     private buttonPressed = '';
     private audioValid = new Audio('assets/sounds/valid_sound.mp3');
     private audioInvalid = new Audio('assets/sounds/invalid_sound.mp3');
-    private currentDifferenceMatrix: number[][];
-    private differenceIntervalId: ReturnType<typeof setInterval>;
+    // private differenceIntervalId: ReturnType<typeof setInterval>;
     private canvasSize = { x: Dimensions.DEFAULT_WIDTH, y: Dimensions.DEFAULT_HEIGHT };
     // private cheatIntervalId: ReturnType<typeof setInterval>;
     // private isCheatModeOn: ReturnType<typeof setInterval>;
@@ -57,7 +56,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         private detectionService: DetectionDifferenceService,
         private gameService: GameService,
         private chatService: ChatService,
-        private helpService: HelpService,
+        private playAreaService: PlayAreaService,
     ) {}
 
     get width(): number {
@@ -75,8 +74,8 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         }
         this.buttonPressed = event.key;
         if (this.buttonPressed === 't') {
-            this.helpService.isCheatModeOn = !this.helpService.isCheatModeOn;
-            this.helpService.cheatMode();
+            this.playAreaService.isCheatModeOn = !this.playAreaService.isCheatModeOn;
+            this.playAreaService.cheatMode();
         }
         if (this.buttonPressed === 'i' && !this.gameRoom.userGame.username2) {
             this.toggleHint.emit();
@@ -84,6 +83,9 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     }
 
     ngAfterViewInit() {
+        this.playAreaService.setSpeed(1);
+        this.playAreaService.setComponent(this, false);
+        this.playAreaService.setContexts();
         this.gameService.serverValidateResponse$.subscribe((difference: DifferenceTry) => {
             if (difference.validated) {
                 this.correctRetroaction(difference.differencePos);
@@ -91,8 +93,6 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
                 this.errorRetroaction(this.canvasClicked);
             }
         });
-        this.setContexts();
-        this.helpService.setComponent(this);
     }
 
     ngOnChanges() {
@@ -108,11 +108,11 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         this.modified.crossOrigin = 'Anonymous';
 
         this.original.onload = () => {
-            this.handleImageLoad(this.context1, this.original);
+            this.playAreaService.handleImageLoad(this.context1, this.original);
         };
 
         this.modified.onload = () => {
-            this.handleImageLoad(this.context2, this.modified);
+            this.playAreaService.handleImageLoad(this.context2, this.modified);
         };
     }
 
@@ -131,60 +131,18 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
 
     verifyDifferenceMatrix(option: string, matrix?: number[][]) {
         if (option === 'cheat') {
-            this.cheatLayer = this.createAndFillNewLayer(Color.Cheat, true, false, this.differenceMatrix);
+            this.cheatLayer = this.playAreaService.createAndFillNewLayer(Color.Cheat, true, false, this.differenceMatrix);
         } else if (option === 'hint' && matrix) {
-            this.hintLayer = this.createAndFillNewLayer(Color.Hint, false, true, matrix);
-        }
-    }
-
-    // TODO: refactor this function
-    // eslint-disable-next-line max-params
-    createAndFillNewLayer(color: Color, isCheat: boolean, isHint: boolean, matrix: number[][]): HTMLCanvasElement {
-        const helpAlphaValue = 0.5;
-        const layer = document.createElement('canvas');
-        layer.width = this.width;
-        layer.height = this.height;
-        const context = layer.getContext('2d');
-        if (!context) {
-            return layer;
-        }
-        context.globalAlpha = isCheat || isHint ? helpAlphaValue : 1;
-        context.fillStyle = color;
-        for (let i = 0; i < matrix.length; i++) {
-            for (let j = 0; j < matrix[0].length; j++) {
-                if (matrix[i][j] !== PossibleColor.EMPTYPIXEL) {
-                    context.fillRect(j, i, 1, 1);
-                }
-            }
-        }
-        return layer;
-    }
-
-    private setContexts() {
-        const context1 = this.canvas1.nativeElement.getContext('2d');
-        if (context1) {
-            this.context1 = context1;
-            this.context1.font = '50px MarioFont';
-        }
-        const context2 = this.canvas2.nativeElement.getContext('2d');
-        if (context2) {
-            this.context2 = context2;
-            this.context2.font = '50px MarioFont';
-        }
-    }
-
-    private handleImageLoad(context: CanvasRenderingContext2D, image: HTMLImageElement) {
-        if (context) {
-            context.drawImage(image, 0, 0, this.width, this.height);
+            this.hintLayer = this.playAreaService.createAndFillNewLayer(Color.Hint, false, true, matrix);
         }
     }
 
     private correctRetroaction(differencePos: Vec2) {
         this.playerIsAllowedToClick = false;
-        this.correctAnswerVisuals(differencePos);
         this.audioValid.pause();
         this.audioValid.currentTime = 0;
         this.audioValid.play();
+        this.correctAnswerVisuals(differencePos);
         if (this.gameService.gameMode === 'limited-time-mode') {
             this.gameService.changeTime(this.gameService.gameConstans.bonusTime);
             this.gameService.nextGame();
@@ -195,92 +153,17 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     private errorRetroaction(canvas: HTMLCanvasElement) {
         this.playerIsAllowedToClick = false;
         this.audioInvalid.play();
-        this.errorAnswerVisuals(canvas);
+        this.playAreaService.errorAnswerVisuals(canvas, this.mousePosition);
         this.userError.emit();
         if (this.gameService.gameMode === 'limited-time-mode') {
             this.gameService.changeTime(-this.gameService.gameConstans.penaltyTime);
         }
     }
 
-    private errorAnswerVisuals(canvas: HTMLCanvasElement) {
-        const nMilliseconds = 1000;
-
-        const context = canvas.getContext('2d');
-        const image = canvas === this.canvas1.nativeElement ? this.original : this.modified;
-        this.sendError.emit({ pos: this.mousePosition, leftCanvas: image === this.original });
-        if (context) {
-            context.fillStyle = Color.Mario;
-            context.fillText('ERREUR', this.mousePosition.x - ErrorText.Width / 2, this.mousePosition.y + ErrorText.Height / 2, ErrorText.Width);
-            setTimeout(() => {
-                context.drawImage(image, 0, 0, this.width, this.height);
-                this.playerIsAllowedToClick = true;
-            }, nMilliseconds);
-        }
-    }
-
     private correctAnswerVisuals(coords: Vec2) {
         if (this.differenceMatrix) {
             this.currentDifferenceMatrix = this.detectionService.extractDifference(JSON.parse(JSON.stringify(this.differenceMatrix)), coords);
-            this.flashDifference(this.currentDifferenceMatrix);
+            this.playAreaService.flashDifference(this.currentDifferenceMatrix);
         }
-    }
-
-    private flashDifference(difference: number[][]) {
-        this.sendDiff.emit({ diff: difference });
-        if (!this.context1 || !this.context2) {
-            return;
-        }
-        const layer = this.createAndFillNewLayer(Color.Luigi, false, false, difference);
-        let isFlashing = false;
-        this.differenceIntervalId = setInterval(() => {
-            if (isFlashing) {
-                this.context1.drawImage(this.original, 0, 0, this.width, this.height);
-                this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
-            } else {
-                this.context1.drawImage(layer, 0, 0, this.width, this.height);
-                this.context2.drawImage(layer, 0, 0, this.width, this.height);
-            }
-            isFlashing = !isFlashing;
-        }, Time.Fifty);
-        setTimeout(() => {
-            this.removeDifference(this.currentDifferenceMatrix);
-            this.playerIsAllowedToClick = true;
-            clearInterval(this.differenceIntervalId);
-            this.context1.drawImage(this.original, 0, 0, this.width, this.height);
-            this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
-        }, Time.Thousand / 2);
-    }
-
-    private removeDifference(differenceMatrix: number[][]) {
-        const differencePositions: Vec2[] = [];
-        this.context1.drawImage(this.original, 0, 0, this.width, this.height);
-        this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
-        const image1 = this.context1.getImageData(0, 0, this.width, this.height);
-        const image2 = this.context2.getImageData(0, 0, this.width, this.height);
-
-        for (let i = 0; i < differenceMatrix.length; i++) {
-            for (let j = 0; j < differenceMatrix[0].length; j++) {
-                if (differenceMatrix[i][j] !== PossibleColor.EMPTYPIXEL) {
-                    differencePositions.push({ x: j, y: i });
-                    this.differenceMatrix[i][j] = PossibleColor.EMPTYPIXEL;
-                }
-            }
-        }
-        const pixelDataSize = 4;
-        for (const i of differencePositions) {
-            const x = i.x;
-            const y = i.y;
-            const index = (y * this.width + x) * pixelDataSize;
-
-            image2.data[index] = image1.data[index];
-            image2.data[index + 1] = image1.data[index + 1];
-            image2.data[index + 2] = image1.data[index + 2];
-            image2.data[index + 3] = image1.data[index + 3];
-        }
-        this.context2.clearRect(0, 0, this.width, this.height);
-        this.context2.putImageData(image2, 0, 0);
-        this.modified.src = this.canvas2.nativeElement.toDataURL();
-        this.sendSource.emit({ src: this.modified.src, layer: this.cheatLayer });
-        this.verifyDifferenceMatrix('cheat');
     }
 }

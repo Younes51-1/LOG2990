@@ -34,12 +34,26 @@ app-fake-chat-box {
     padding: 0 30px 5px 30px;
 }
 
-#options button {
-    margin-right: 10px;
+#options * {
+    margin: 5px 5px 5px 5px;
 }
 
-#options button:last-child {
-    margin-right: 0;
+#options i {
+    font-size: 30px;
+}
+
+::ng-deep .mat-progress-bar-fill::after {
+    background-color: #8200ff;
+}
+
+::ng-deep .mat-progress-bar-buffer {
+    background: #e4e8eb;
+}
+
+.mat-progress-bar {
+    border-radius: 10px;
+    height: 15px;
+    width: 1000px;
 }
 
 #mainContainer {

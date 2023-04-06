@@ -6,8 +6,16 @@
     <div class="chatbox clearfix" #chatbox>
         <ul>
             <li
-                [ngClass]="message.username === 'Système' ? 'system' : message.username === this.username ? 'player' : 'opponent'"
-                *ngFor="let message of messages"
+                [ngClass]="
+                    message.username === 'Système'
+                        ? 'system'
+                        : message.username === 'Événement'
+                        ? 'event'
+                        : message.username === this.username
+                        ? 'player'
+                        : 'opponent'
+                "
+                *ngFor="let message of this.messages"
             >
                 <strong>{{ message.username }}</strong>
                 <span class="time"> {{ message.time | date: 'HH:mm:ss' }}</span>
