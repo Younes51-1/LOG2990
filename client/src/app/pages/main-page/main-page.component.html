@@ -9,8 +9,9 @@
     <span>MODES DE JEU</span>
     <section>
         <div class="modes">
-            <p class="solo-mode"><button class="solo-mode" routerLink="/selection">CLASSIQUE</button></p>
-            <p class="timer-mode"><button class="chrono-mode" routerLink="/home">TEMPS LIMITÉ</button></p>
+            <p class="solo-mode"><button class="solo-mode" (click)="setGameMode('classic-mode')">CLASSIQUE</button></p>
+            <p class="timer-mode"><button class="chrono-mode" (click)="setGameMode('limited-time-mode')">TEMPS
+                    LIMITÉ</button></p>
         </div>
     </section>
     <footer>

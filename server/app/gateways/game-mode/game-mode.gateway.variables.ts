@@ -1,4 +1,4 @@
-export enum ClassicModeEvents {
+export enum GameModeEvents {
     Start = 'start',
     Started = 'started',
     ValidateDifference = 'validate',
@@ -25,6 +25,7 @@ export enum ClassicModeEvents {
     NewBestTimeScore = 'newBestTimeScore',
     Timer = 'timer',
     ChangeTime = 'changeTime',
+    NextGame = 'nextGame',
 }
 
 export enum DelayBeforeEmittingTime {

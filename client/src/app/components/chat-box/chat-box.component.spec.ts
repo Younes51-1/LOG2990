@@ -35,7 +35,12 @@ describe('ChatBoxComponent', () => {
         differenceMatrix = [[]];
         gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulty: '', soloBestTimes: [], vsBestTimes: [] };
         gameData = { gameForm, differenceMatrix };
-        gameRoom = { userGame: { gameData, nbDifferenceFound: 0, timer: 0, username1: 'Test' }, roomId: 'fakeId', started: false };
+        gameRoom = {
+            userGame: { gameData, nbDifferenceFound: 0, timer: 0, username1: 'Test' },
+            roomId: 'fakeId',
+            started: false,
+            gameMode: 'classic-mode',
+        };
         messageStub = { message: 'message', username: 'username', time: 0 };
         fixture = TestBed.createComponent(ChatBoxComponent);
         component = fixture.componentInstance;

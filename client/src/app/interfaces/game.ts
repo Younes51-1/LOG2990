@@ -33,6 +33,7 @@ export interface GameRoom {
     userGame: UserGame;
     roomId: string;
     started: boolean;
+    gameMode: string;
 }
 
 export interface NewGame {
@@ -68,4 +69,9 @@ export interface EndGame {
     roomId: string;
     username: string;
     gameFinished: boolean;
+}
+
+export interface GameContext {
+    gameName: string;
+    gameMode: string;
 }

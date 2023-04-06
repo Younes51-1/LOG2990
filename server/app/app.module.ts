@@ -1,9 +1,8 @@
 import { GameController } from '@app/controllers/game/game.controller';
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
-import { ClassicModeGateway } from '@app/gateways/classic-mode/classic-mode.gateway';
+import { GameModeGateway } from '@app/gateways/game-mode/game-mode.gateway';
 import { Game, gameSchema } from '@app/model/database/game';
 import { gameHistorySchema } from '@app/model/database/game-history';
-import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
 import { GameHistoryService } from '@app/services/game-history/game-history.service';
 import { GameService } from '@app/services/game/game.service';
 import { Logger, Module } from '@nestjs/common';
@@ -12,6 +11,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigController } from './controllers/config/config.controller';
 import { gameConstantsSchema } from './model/database/game-constants';
 import { GameConstantsService } from './services/game-constant/game-constants.service';
+import { GameModeService } from '@app/services/game-mode/game-mode.service';
 
 @Module({
     imports: [
@@ -30,6 +30,6 @@ import { GameConstantsService } from './services/game-constant/game-constants.se
         ]),
     ],
     controllers: [GameController, ConfigController],
-    providers: [ConfigService, Logger, GameHistoryService, GameService, ClassicModeService, GameConstantsService, ClassicModeGateway, ChatGateway],
+    providers: [ConfigService, Logger, GameHistoryService, GameService, GameConstantsService, GameModeGateway, ChatGateway, GameModeService],
 })
 export class AppModule {}

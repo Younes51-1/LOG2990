@@ -7,13 +7,13 @@ import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dial
 import { DeleteDialogComponent } from '@app/components/delete-dialog/delete-dialog.component';
 import { WaitingRoomComponent } from '@app/components/waiting-room-dialog/waiting-room-dialog.component';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
-import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
+import { GameService } from '@app/services/game/game.service';
 import { of } from 'rxjs';
 
 describe('WaitingRoomComponent', () => {
     let component: WaitingRoomComponent;
     let fixture: ComponentFixture<WaitingRoomComponent>;
-    let classicModeServiceSpy: ClassicModeService;
+    let gameServiceSpy: GameService;
     let dialog: MatDialog;
     let dialogRefSpy: jasmine.SpyObj<MatDialogRef<DeleteDialogComponent>>;
     let zone: NgZone;
@@ -24,14 +24,14 @@ describe('WaitingRoomComponent', () => {
         dialog = jasmine.createSpyObj('MatDialog', ['open']);
         await TestBed.configureTestingModule({
             declarations: [WaitingRoomComponent],
-            providers: [ClassicModeService, { provide: MatDialogRef, useValue: dialogRefSpy }, { provide: MatDialog, useValue: dialog }],
+            providers: [GameService, { provide: MatDialogRef, useValue: dialogRefSpy }, { provide: MatDialog, useValue: dialog }],
             imports: [AppRoutingModule, HttpClientTestingModule, MatDialogModule],
         }).compileComponents();
     });
     beforeEach(() => {
         fixture = TestBed.createComponent(WaitingRoomComponent);
         component = fixture.componentInstance;
-        classicModeServiceSpy = TestBed.inject(ClassicModeService);
+        gameServiceSpy = TestBed.inject(GameService);
     });
 
     it('should create', () => {
@@ -40,20 +40,20 @@ describe('WaitingRoomComponent', () => {
 
     it('should set the rejected property when rejected$ event is triggered', () => {
         fixture.detectChanges();
-        classicModeServiceSpy.rejected$.next(true);
+        gameServiceSpy.rejected$.next(true);
 
         expect(component.rejected).toBe(true);
     });
 
     it('should start the game and navigate to /game when accepted$ event is triggered', () => {
-        spyOn(classicModeServiceSpy, 'startGame');
+        spyOn(gameServiceSpy, 'startGame');
         spyOn((component as any).router, 'navigate');
 
         fixture.detectChanges();
-        classicModeServiceSpy.accepted$.next(true);
+        gameServiceSpy.accepted$.next(true);
 
         expect(component.accepted).toBe(true);
-        expect(classicModeServiceSpy.startGame).toHaveBeenCalled();
+        expect(gameServiceSpy.startGame).toHaveBeenCalled();
         expect((component as any).router.navigate).toHaveBeenCalledWith(['/game']);
     });
 
@@ -65,24 +65,24 @@ describe('WaitingRoomComponent', () => {
         dialogRefSpy.afterClosed.and.returnValue(of(true));
         component.gameCanceled = false;
         component.ngOnInit();
-        classicModeServiceSpy.gameCanceled$.next(true);
+        gameServiceSpy.gameCanceled$.next(true);
         expect(dialog.open).toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true, data: { action: 'deleted' } });
         expect(dialogRefSpy.afterClosed).toHaveBeenCalled();
         expect(component.close).toHaveBeenCalled();
     });
 
     it('should call classicModeService.playerAccepted with the given player', () => {
-        spyOn(classicModeServiceSpy, 'playerAccepted');
+        spyOn(gameServiceSpy, 'playerAccepted');
         const player = 'ABC';
         component.playerAccepted(player);
-        expect(classicModeServiceSpy.playerAccepted).toHaveBeenCalledWith(player);
+        expect(gameServiceSpy.playerAccepted).toHaveBeenCalledWith(player);
     });
 
     it('should call classicModeService.playerRejected with the given player', () => {
-        spyOn(classicModeServiceSpy, 'playerRejected');
+        spyOn(gameServiceSpy, 'playerRejected');
         const player = 'ABC';
         component.playerRejected(player);
-        expect(classicModeServiceSpy.playerRejected).toHaveBeenCalledWith(player);
+        expect(gameServiceSpy.playerRejected).toHaveBeenCalledWith(player);
     });
 
     it('should unsubscribe from all subscriptions and close the dialog', () => {
@@ -91,6 +91,7 @@ describe('WaitingRoomComponent', () => {
         const rejectedSubscription = of(null).subscribe();
         const gameCanceledSubscription = of(null).subscribe();
         spyOn((component as any).router, 'navigateByUrl').and.callThrough();
+        spyOn((component as any).gameService, 'abortGame').and.stub();
         (component as any).acceptedSubscription = acceptedSubscription;
         (component as any).rejectedSubscription = rejectedSubscription;
         (component as any).gameCanceledSubscription = gameCanceledSubscription;
