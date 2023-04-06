@@ -42,7 +42,7 @@
         <button mat-button (click)="restart()"><i class="fas fa-step-backward"></i></button>
         <button *ngIf="!this.paused" mat-button (click)="pause()"><i class="fas fa-pause-circle"></i></button>
         <button *ngIf="this.paused" mat-button (click)="continue()"><i class="fas fa-play-circle"></i></button>
-        <mat-progress-bar mode="determinate" [value]="(this.time / this.actions[this.actions.length - 1].timeStart) * 100"></mat-progress-bar>
+        <mat-progress-bar mode="determinate" [value]="(this.time / (this.actions[this.actions.length - 1].timeStart + 1)) * 100"></mat-progress-bar>
         <select [(ngModel)]="speed" (change)="startTimer()">
             <option value="1">x1</option>
             <option value="2">x2</option>

@@ -84,6 +84,8 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
 
     ngAfterViewInit() {
         this.playAreaService.setSpeed(1);
+        this.playAreaService.setComponent(this, false);
+        this.playAreaService.setContexts();
         this.classicModeService.serverValidateResponse$.subscribe((difference) => {
             if (difference.validated) {
                 this.correctRetroaction(difference.differencePos);
@@ -91,8 +93,6 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
                 this.errorRetroaction(this.canvasClicked);
             }
         });
-        this.playAreaService.setComponent(this, false);
-        this.playAreaService.setContexts();
     }
 
     ngOnChanges() {
@@ -139,10 +139,10 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
 
     private correctRetroaction(differencePos: Vec2) {
         this.playerIsAllowedToClick = false;
-        this.correctAnswerVisuals(differencePos);
         this.audioValid.pause();
         this.audioValid.currentTime = 0;
         this.audioValid.play();
+        this.correctAnswerVisuals(differencePos);
     }
 
     private errorRetroaction(canvas: HTMLCanvasElement) {
