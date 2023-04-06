@@ -1,4 +1,4 @@
-export enum ClassicModeEvents {
+export enum GameModeEvents {
     Start = 'start',
     Started = 'started',
     ValidateDifference = 'validate',

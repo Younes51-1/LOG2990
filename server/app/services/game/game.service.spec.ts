@@ -1,7 +1,7 @@
 import { DELAY_BEFORE_CLOSING_CONNECTION } from '@app/constants';
 import { environment } from '@app/environments/environment';
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
-import { ClassicModeGateway } from '@app/gateways/game-mode/game-mode.gateway';
+import { GameModeGateway } from '@app/gateways/game-mode/game-mode.gateway';
 import { Game, GameDocument, gameSchema } from '@app/model/database/game';
 import { GameData } from '@app/model/dto/game/game-data.dto';
 import { BestTime } from '@app/model/schema/best-times.schema';
@@ -18,11 +18,11 @@ describe('GameService', () => {
     let gameModel: Model<GameDocument>;
     let mongoServer: MongoMemoryServer;
     let connection: Connection;
-    let classicModeGateway: SinonStubbedInstance<ClassicModeGateway>;
+    let gameModeGateway: SinonStubbedInstance<GameModeGateway>;
     let chatGateway: SinonStubbedInstance<ChatGateway>;
 
     beforeEach(async () => {
-        classicModeGateway = createStubInstance(ClassicModeGateway);
+        gameModeGateway = createStubInstance(GameModeGateway);
         chatGateway = createStubInstance(ChatGateway);
         mongoServer = await MongoMemoryServer.create();
         const module = await Test.createTestingModule({
@@ -38,8 +38,8 @@ describe('GameService', () => {
             providers: [
                 GameService,
                 {
-                    provide: ClassicModeGateway,
-                    useValue: classicModeGateway,
+                    provide: GameModeGateway,
+                    useValue: gameModeGateway,
                 },
                 {
                     provide: ChatGateway,
@@ -157,13 +157,13 @@ describe('GameService', () => {
     });
 
     it('deleteGame should delete the game', async () => {
-        jest.spyOn(classicModeGateway, 'cancelDeletedGame').mockImplementation();
+        jest.spyOn(gameModeGateway, 'cancelDeletedGame').mockImplementation();
         await gameModel.deleteMany({});
         const game = getFakeGame();
         await gameModel.create(game);
         await service.deleteGame(game.name);
         expect(await gameModel.countDocuments()).toEqual(0);
-        expect(classicModeGateway.cancelDeletedGame).toHaveBeenCalledWith(game.name);
+        expect(gameModeGateway.cancelDeletedGame).toHaveBeenCalledWith(game.name);
     });
 
     it('deleteGame should fail if the game does not exist', async () => {

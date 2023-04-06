@@ -1,6 +1,6 @@
 import { GameController } from '@app/controllers/game/game.controller';
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
-import { ClassicModeGateway } from '@app/gateways/game-mode/game-mode.gateway';
+import { GameModeGateway } from '@app/gateways/game-mode/game-mode.gateway';
 import { Game, gameSchema } from '@app/model/database/game';
 import { gameHistorySchema } from '@app/model/database/game-history';
 import { GameHistoryService } from '@app/services/game-history/game-history.service';
@@ -30,6 +30,6 @@ import { GameModeService } from '@app/services/game-mode/game-mode.service';
         ]),
     ],
     controllers: [GameController, ConfigController],
-    providers: [ConfigService, Logger, GameHistoryService, GameService, GameConstantsService, ClassicModeGateway, ChatGateway, GameModeService],
+    providers: [ConfigService, Logger, GameHistoryService, GameService, GameConstantsService, GameModeGateway, ChatGateway, GameModeService],
 })
 export class AppModule {}
