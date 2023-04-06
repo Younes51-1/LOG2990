@@ -11,9 +11,9 @@ export class ReplayChatBoxComponent implements OnChanges, OnInit {
     @Input() time: number;
     @Input() actions: InstructionReplay[];
     @Input() restartSignal: boolean;
+    @Input() username: string;
     messages: Message[] = [];
     counter: number = 0;
-    username: string;
     private currentAction: InstructionReplay | undefined;
     private firstChange = true;
 
