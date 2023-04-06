@@ -4,8 +4,8 @@ import { Vec2 } from '@app/interfaces/vec2';
 import { ChatService } from '@app/services/chat/chat.service';
 import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
 import { DetectionDifferenceService } from '@app/services/detection-difference/detection-difference.service';
-import { HelpService } from '@app/services/help/help.service';
 import { MouseService } from '@app/services/mouse/mouse.service';
+import { PlayAreaService } from '@app/services/play-area/play-area.service';
 import { Color } from 'src/assets/variables/color';
 import { PossibleColor } from 'src/assets/variables/images-values';
 import { Dimensions } from 'src/assets/variables/picture-dimension';
@@ -57,7 +57,8 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         private detectionService: DetectionDifferenceService,
         private classicModeService: ClassicModeService,
         private chatService: ChatService,
-        private helpService: HelpService,
+        // private helpService: HelpService,
+        private playAreaService: PlayAreaService,
     ) {}
 
     get width(): number {
@@ -75,8 +76,8 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         }
         this.buttonPressed = event.key;
         if (this.buttonPressed === 't') {
-            this.helpService.isCheatModeOn = !this.helpService.isCheatModeOn;
-            this.helpService.cheatMode();
+            this.playAreaService.isCheatModeOn = !this.playAreaService.isCheatModeOn;
+            this.playAreaService.cheatMode();
         }
         if (this.buttonPressed === 'i' && !this.gameRoom.userGame.username2) {
             this.toggleHint.emit();
@@ -92,7 +93,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
             }
         });
         this.setContexts();
-        this.helpService.setComponent(this);
+        this.playAreaService.setComponent(this, false);
     }
 
     ngOnChanges() {

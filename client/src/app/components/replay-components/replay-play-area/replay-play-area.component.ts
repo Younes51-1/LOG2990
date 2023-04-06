@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable max-lines */
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
-import { Vec2 } from '@app/interfaces/vec2';
 import { Instruction, InstructionReplay } from '@app/interfaces/video-replay';
-import confetti from 'canvas-confetti';
+import { PlayAreaService } from '@app/services/play-area/play-area.service';
 import { Color } from 'src/assets/variables/color';
 import { PossibleColor } from 'src/assets/variables/images-values';
 import { Dimensions } from 'src/assets/variables/picture-dimension';
@@ -16,8 +15,8 @@ import { Time } from 'src/assets/variables/time';
     styleUrls: ['./replay-play-area.component.scss'],
 })
 export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit {
-    @Input() original: string;
-    @Input() modified: string;
+    @Input() image1: string;
+    @Input() image2: string;
     @Input() time: number;
     @Input() speed: number;
     @Input() actions: InstructionReplay[];
@@ -29,27 +28,29 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
     @Output() hintEvent = new EventEmitter();
     @ViewChild('canvas1') canvas1: ElementRef<HTMLCanvasElement>;
     @ViewChild('canvas2') canvas2: ElementRef<HTMLCanvasElement>;
+    context1: CanvasRenderingContext2D;
+    context2: CanvasRenderingContext2D;
+    original = new Image();
+    modified = new Image();
+    cheatLayer: HTMLCanvasElement;
     private canvasSize = { x: Dimensions.DEFAULT_WIDTH, y: Dimensions.DEFAULT_HEIGHT };
-    private context1: CanvasRenderingContext2D;
-    private context2: CanvasRenderingContext2D;
     private pauseCanvas1: HTMLCanvasElement;
     private pauseCanvas2: HTMLCanvasElement;
-    private image1 = new Image();
-    private image2 = new Image();
     private differenceInterval: ReturnType<typeof setInterval>;
     private cheatInterval: ReturnType<typeof setInterval>;
     private errorTimeout: ReturnType<typeof setTimeout>;
     private layerTimeout: ReturnType<typeof setTimeout>;
-    private hintInterval: ReturnType<typeof setInterval>;
-    private hintTimeout: ReturnType<typeof setInterval>;
+    // private hintInterval: ReturnType<typeof setInterval>;
+    // private hintTimeout: ReturnType<typeof setInterval>;
     private currentAction: InstructionReplay | undefined;
     private audioValid = new Audio('assets/sounds/valid_sound.mp3');
     private audioInvalid = new Audio('assets/sounds/invalid_sound.mp3');
     private counter = 0;
     private srcCounter = 0;
-    private cheatLayer: HTMLCanvasElement;
     private firstChange = true;
     private paused = false;
+
+    constructor(private playAreaService: PlayAreaService) {}
 
     get width(): number {
         return this.canvasSize.x;
@@ -60,19 +61,20 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
     }
 
     ngOnInit() {
+        this.playAreaService.setComponent(this, true);
         this.currentAction = this.actions[this.counter++];
     }
 
     ngAfterViewInit(): void {
         this.setContexts();
         this.initializePauseCanvas();
-        this.image1.src = this.original;
-        this.image2.src = this.modified;
-        this.image1.onload = () => {
-            this.handleImageLoad(this.context1, this.image1);
+        this.original.src = this.image1;
+        this.modified.src = this.image2;
+        this.original.onload = () => {
+            this.handleImageLoad(this.context1, this.original);
         };
-        this.image2.onload = () => {
-            this.handleImageLoad(this.context2, this.image2);
+        this.modified.onload = () => {
+            this.handleImageLoad(this.context2, this.modified);
         };
     }
 
@@ -85,7 +87,7 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
         this.firstChange = false;
 
         if (!this.currentAction) {
-            this.endCheatMode();
+            this.playAreaService.endCheatMode();
             return;
         }
         if (this.currentAction.timeStart <= this.time) {
@@ -103,8 +105,8 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
         this.audioValid.pause();
         this.counter = 0;
         this.srcCounter = 0;
-        this.image1.src = this.original;
-        this.image2.src = this.modified;
+        this.original.src = this.image1;
+        this.modified.src = this.image2;
         this.currentAction = this.actions[this.counter++];
     }
 
@@ -141,21 +143,17 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
             case Instruction.CheatModeStart: {
                 if (!this.currentAction.cheatLayer) return;
                 this.cheatLayer = this.currentAction.cheatLayer;
-                this.startCheatMode();
+                this.playAreaService.startCheatMode();
                 break;
             }
-            case Instruction.CheatModeEnd || undefined: {
-                this.endCheatMode();
+            case Instruction.CheatModeEnd: {
+                this.playAreaService.endCheatMode();
                 break;
             }
             case Instruction.Hint: {
                 this.hintEvent.emit();
-                // if (this.currentAction.nbDifferences === 2) {
-                //    this.startConfetti(this.currentAction.mousePosition);
-                // }
-                // console.log(this.currentAction.nbDifferences, this.currentAction.cheatLayer, this.currentAction.mousePosition);
                 if (!this.currentAction.cheatLayer || !this.currentAction.mousePosition) return;
-                this.playHint(this.currentAction.nbDifferences, this.currentAction.cheatLayer, this.currentAction.mousePosition);
+                this.playAreaService.playHint(this.currentAction.nbDifferences, this.currentAction.cheatLayer, this.currentAction.mousePosition);
             }
         }
     }
@@ -200,7 +198,7 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
         this.layerTimeout = setTimeout(() => {
             clearInterval(this.differenceInterval);
             this.cheatLayer = this.cheatLayers[this.srcCounter];
-            this.image2.src = this.sources[this.srcCounter++];
+            this.modified.src = this.sources[this.srcCounter++];
             this.updateContexts();
         }, totalDuration);
     }
@@ -249,110 +247,6 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
         }
     }
 
-    private startCheatMode() {
-        const flashDuration = Time.OneHundredTwentyFive / this.speed;
-        let isFlashing = true;
-        this.cheatInterval = setInterval(() => {
-            if (isFlashing) {
-                this.updateContexts();
-            } else {
-                this.context1.drawImage(this.cheatLayer, 0, 0, this.width, this.height);
-                this.context2.drawImage(this.cheatLayer, 0, 0, this.width, this.height);
-            }
-            isFlashing = !isFlashing;
-        }, flashDuration);
-    }
-
-    private playHint(hintNum: number | undefined, layer: HTMLCanvasElement, pos: Vec2) {
-        if (hintNum === 2) {
-            this.startConfetti(pos);
-        } else {
-            let isFlashing = true;
-            clearTimeout(this.hintTimeout);
-            clearInterval(this.hintInterval);
-            this.hintInterval = setInterval(() => {
-                if (isFlashing) {
-                    this.context1.drawImage(this.image1, 0, 0, this.width, this.height);
-                    this.context2.drawImage(this.image2, 0, 0, this.width, this.height);
-                } else {
-                    this.context1.drawImage(layer, 0, 0, this.width, this.height);
-                    this.context2.drawImage(layer, 0, 0, this.width, this.height);
-                }
-                isFlashing = !isFlashing;
-            }, Time.OneHundredTwentyFive);
-            this.hintTimeout = setTimeout(() => {
-                clearInterval(this.hintInterval);
-                this.context1.drawImage(this.image1, 0, 0, this.width, this.height);
-                this.context2.drawImage(this.image2, 0, 0, this.width, this.height);
-                return;
-            }, 2 * Time.Thousand);
-        }
-    }
-
-    private startConfetti(coords: Vec2 | undefined) {
-        clearTimeout(this.hintTimeout);
-        clearInterval(this.hintInterval);
-        if (coords) {
-            const layer = document.createElement('canvas');
-            layer.width = this.width;
-            layer.height = this.height;
-            let isFlashing = false;
-            const defaults = {
-                origin: {
-                    x: coords.y / 640,
-                    y: coords.x / 480,
-                },
-                spread: 360,
-                ticks: 50,
-                gravity: 0,
-                decay: 0.94,
-                startVelocity: 30,
-                shapes: ['star'],
-                colors: ['FFE400', 'FFBD00', 'E89400', 'FFCA6C', 'FDFFB8'],
-                zIndex: -1,
-            };
-            const confettiGenerator = confetti.create(layer, {});
-            confettiGenerator({ ...defaults, particleCount: 40, scalar: 1.2, shapes: ['star'] });
-            confettiGenerator({ ...defaults, particleCount: 10, scalar: 0.75, shapes: ['circle'] });
-            setTimeout(() => {
-                confettiGenerator({ ...defaults, particleCount: 40, scalar: 1.2, shapes: ['star'] });
-                confettiGenerator({ ...defaults, particleCount: 10, scalar: 0.75, shapes: ['circle'] });
-            }, 100);
-            setTimeout(() => {
-                confettiGenerator({ ...defaults, particleCount: 40, scalar: 1.2, shapes: ['star'] });
-                confettiGenerator({ ...defaults, particleCount: 10, scalar: 0.75, shapes: ['circle'] });
-            }, 200);
-            const confettiInterval = setInterval(() => {
-                if (isFlashing) {
-                    this.context1.drawImage(this.image1, 0, 0, this.width, this.height);
-                    this.context2.drawImage(this.image2, 0, 0, this.width, this.height);
-                } else {
-                    this.context1.drawImage(layer, 0, 0, this.width, this.height);
-                    this.context2.drawImage(layer, 0, 0, this.width, this.height);
-                }
-                isFlashing = !isFlashing;
-            }, 0.000001);
-            setTimeout(() => {
-                clearInterval(confettiInterval);
-                this.context1.drawImage(this.image1, 0, 0, this.width, this.height);
-                this.context2.drawImage(this.image2, 0, 0, this.width, this.height);
-            }, 600);
-        } else {
-            const duration = 15 * 1000;
-            const animationEnd = Date.now() + duration;
-            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-            this.hintInterval = setInterval(() => {
-                const timeLeft = animationEnd - Date.now();
-                if (timeLeft <= 0) {
-                    return clearInterval(this.hintInterval);
-                }
-                const particleCount = 50 * (timeLeft / duration);
-                confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * (0.3 - 0.1) + 0.1, y: Math.random() - 0.2 } }));
-                confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * (0.9 - 0.7) + 0.7, y: Math.random() - 0.2 } }));
-            }, 250);
-        }
-    }
-
     private initializePauseCanvas() {
         this.pauseCanvas1 = document.createElement('canvas');
         this.pauseCanvas1.width = this.width;
@@ -377,14 +271,9 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
         clearTimeout(this.layerTimeout);
     }
 
-    private endCheatMode() {
-        clearInterval(this.cheatInterval);
-        this.updateContexts();
-    }
-
     private updateContexts() {
-        this.context1.drawImage(this.image1, 0, 0, this.width, this.height);
-        this.context2.drawImage(this.image2, 0, 0, this.width, this.height);
+        this.context1.drawImage(this.original, 0, 0, this.width, this.height);
+        this.context2.drawImage(this.modified, 0, 0, this.width, this.height);
     }
 
     private playAudio(audio: HTMLAudioElement) {

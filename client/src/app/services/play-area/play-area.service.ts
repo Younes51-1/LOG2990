@@ -1,33 +1,41 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Injectable } from '@angular/core';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
+import { ReplayPlayAreaComponent } from '@app/components/replay-components/replay-play-area/replay-play-area.component';
 import { Vec2 } from '@app/interfaces/vec2';
 import { DetectionDifferenceService } from '@app/services/detection-difference/detection-difference.service';
 import confetti from 'canvas-confetti';
 import { PossibleColor } from 'src/assets/variables/images-values';
+import { Time } from 'src/assets/variables/time';
 
 @Injectable({
     providedIn: 'root',
 })
-export class HelpService {
+export class PlayAreaService {
     isCheatModeOn = false;
     isHintModeOn = false;
     intervalId: ReturnType<typeof setInterval>;
     confettiInterval: ReturnType<typeof setInterval>;
-    private component: PlayAreaComponent;
-    private cheatIntervalId: ReturnType<typeof setInterval>;
-    private hintIntervalId: ReturnType<typeof setInterval>;
+    private cheatInterval: ReturnType<typeof setInterval>;
+    private hintInterval: ReturnType<typeof setInterval>;
     private hintTimeout: ReturnType<typeof setTimeout>;
+
+    private component: PlayAreaComponent | ReplayPlayAreaComponent;
+    private normalComponent: PlayAreaComponent;
+    private replay: boolean;
+    private speed = 1;
 
     constructor(private detectionDifferenceService: DetectionDifferenceService) {}
 
-    setComponent(component: PlayAreaComponent) {
+    setComponent(component: PlayAreaComponent | ReplayPlayAreaComponent, replay: boolean) {
         this.component = component;
+        this.replay = replay;
+        if (!replay) this.normalComponent = component as PlayAreaComponent;
     }
 
     startConfetti(coords: Vec2 | undefined) {
         clearTimeout(this.hintTimeout);
-        clearInterval(this.hintIntervalId);
+        clearInterval(this.hintInterval);
         if (coords) {
             const layer = document.createElement('canvas');
             layer.width = this.component.width;
@@ -94,20 +102,52 @@ export class HelpService {
             return;
         }
         if (!this.isCheatModeOn) {
-            this.component.sendCheatEnd.emit();
-            clearInterval(this.cheatIntervalId);
-            this.component.context1.drawImage(this.component.original, 0, 0, this.component.width, this.component.height);
-            this.component.context2.drawImage(this.component.modified, 0, 0, this.component.width, this.component.height);
+            if (!this.replay) this.normalComponent.sendCheatEnd.emit();
+            this.endCheatMode();
             return;
         }
-        const flashDuration = 125;
+        this.startCheatMode();
+    }
+
+    hintMode(hintNum: number) {
+        if (this.replay) return;
+        const diffCoords = this.detectionDifferenceService.findRandomDifference(JSON.parse(JSON.stringify(this.normalComponent.differenceMatrix)));
+        if (diffCoords) {
+            if (hintNum === 2) {
+                this.startConfetti(diffCoords);
+                this.normalComponent.sendHint.emit({ hintNum, diffPos: diffCoords, layer: this.normalComponent.hintLayer });
+                return;
+            } else {
+                this.normalComponent.verifyDifferenceMatrix('hint', this.chooseDial(diffCoords, hintNum));
+            }
+            this.normalComponent.sendHint.emit({ hintNum, diffPos: diffCoords, layer: this.normalComponent.hintLayer });
+        }
+        this.playNormalHint(this.normalComponent.hintLayer);
+    }
+
+    playHint(hintNum: number | undefined, layer: HTMLCanvasElement, pos: Vec2) {
+        if (hintNum === 2) {
+            this.startConfetti(pos);
+        } else {
+            this.playNormalHint(layer);
+        }
+    }
+
+    endCheatMode() {
+        clearInterval(this.cheatInterval);
+        this.updateContexts();
+    }
+
+    startCheatMode() {
+        const flashDuration = Time.OneHundredTwentyFive / this.speed;
         let isFlashing = true;
-        this.component.verifyDifferenceMatrix('cheat');
-        this.component.sendCheatStart.emit({ layer: this.component.cheatLayer });
-        this.cheatIntervalId = setInterval(() => {
+        if (!this.replay) {
+            this.normalComponent.verifyDifferenceMatrix('cheat');
+            this.normalComponent.sendCheatStart.emit({ layer: this.component.cheatLayer });
+        }
+        this.cheatInterval = setInterval(() => {
             if (isFlashing) {
-                this.component.context1.drawImage(this.component.original, 0, 0, this.component.width, this.component.height);
-                this.component.context2.drawImage(this.component.modified, 0, 0, this.component.width, this.component.height);
+                this.updateContexts();
             } else {
                 this.component.context1.drawImage(this.component.cheatLayer, 0, 0, this.component.width, this.component.height);
                 this.component.context2.drawImage(this.component.cheatLayer, 0, 0, this.component.width, this.component.height);
@@ -116,42 +156,24 @@ export class HelpService {
         }, flashDuration);
     }
 
-    hintMode(hintNum: number) {
-        if (!this.component.context1 || !this.component.context2) {
-            return;
-        }
-        const flashDuration = 125;
+    private playNormalHint(layer: HTMLCanvasElement) {
         let isFlashing = true;
-        const totalDuration = 2000;
-        const diffCoords = this.detectionDifferenceService.findRandomDifference(JSON.parse(JSON.stringify(this.component.differenceMatrix)));
-        if (diffCoords) {
-            if (hintNum === 2) {
-                this.startConfetti(diffCoords);
-                this.component.sendHint.emit({ hintNum, diffPos: diffCoords, layer: this.component.hintLayer });
-                return;
-            } else {
-                this.component.verifyDifferenceMatrix('hint', this.chooseDial(diffCoords, hintNum));
-            }
-            this.component.sendHint.emit({ hintNum, diffPos: diffCoords, layer: this.component.hintLayer });
-        }
         clearTimeout(this.hintTimeout);
-        clearInterval(this.hintIntervalId);
-        this.hintIntervalId = setInterval(() => {
+        clearInterval(this.hintInterval);
+        this.hintInterval = setInterval(() => {
             if (isFlashing) {
-                this.component.context1.drawImage(this.component.original, 0, 0, this.component.width, this.component.height);
-                this.component.context2.drawImage(this.component.modified, 0, 0, this.component.width, this.component.height);
+                this.updateContexts();
             } else {
-                this.component.context1.drawImage(this.component.hintLayer, 0, 0, this.component.width, this.component.height);
-                this.component.context2.drawImage(this.component.hintLayer, 0, 0, this.component.width, this.component.height);
+                this.component.context1.drawImage(layer, 0, 0, this.component.width, this.component.height);
+                this.component.context2.drawImage(layer, 0, 0, this.component.width, this.component.height);
             }
             isFlashing = !isFlashing;
-        }, flashDuration);
+        }, Time.OneHundredTwentyFive);
         this.hintTimeout = setTimeout(() => {
-            clearInterval(this.hintIntervalId);
-            this.component.context1.drawImage(this.component.original, 0, 0, this.component.width, this.component.height);
-            this.component.context2.drawImage(this.component.modified, 0, 0, this.component.width, this.component.height);
+            clearInterval(this.hintInterval);
+            this.updateContexts();
             return;
-        }, totalDuration);
+        }, 2 * Time.Thousand);
     }
 
     private chooseDial(coords: Vec2, hintNum: number): number[][] {
@@ -197,5 +219,10 @@ export class HelpService {
             }
         }
         return differenceMatrix;
+    }
+
+    private updateContexts() {
+        this.component.context1.drawImage(this.component.original, 0, 0, this.component.width, this.component.height);
+        this.component.context2.drawImage(this.component.modified, 0, 0, this.component.width, this.component.height);
     }
 }

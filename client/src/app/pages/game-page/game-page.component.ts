@@ -9,7 +9,7 @@ import { Instruction, VideoReplay } from '@app/interfaces/video-replay';
 import { ChatService } from '@app/services/chat/chat.service';
 import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
 import { ConfigHttpService } from '@app/services/config-http/config-http.service';
-import { HelpService } from '@app/services/help/help.service';
+import { PlayAreaService } from '@app/services/play-area/play-area.service';
 import { Subscription } from 'rxjs';
 import { Time } from 'src/assets/variables/time';
 
@@ -47,7 +47,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
         private classicModeService: ClassicModeService,
         private chatService: ChatService,
         private router: Router,
-        private helpService: HelpService,
+        // private helpService: HelpService,
+        private playAreaService: PlayAreaService,
         private configService: ConfigHttpService,
     ) {}
 
@@ -88,7 +89,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.abandonedGameSubscription = this.classicModeService.abandoned$.subscribe((userName: string) => {
             if (userName !== this.username) {
                 this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
-                this.helpService.startConfetti(undefined);
+                this.playAreaService.startConfetti(undefined);
             }
             this.unsubscribe();
             this.classicModeService.endGame(true, true);
@@ -122,7 +123,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
                     disableClose: true,
                     data: { gameFinished: true, gameWinner: true, videoReplay: this.videoReplay },
                 });
-                this.helpService.startConfetti(undefined);
+                this.playAreaService.startConfetti(undefined);
             } else {
                 this.dialogRef = this.dialog.open(EndgameDialogComponent, {
                     disableClose: true,
@@ -138,8 +139,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     toggleHint() {
         if (this.hintNum < 3) {
-            this.helpService.isHintModeOn = !this.helpService.isHintModeOn;
-            this.helpService.hintMode(this.hintNum);
+            this.playAreaService.isHintModeOn = !this.playAreaService.isHintModeOn;
+            this.playAreaService.hintMode(this.hintNum);
             this.sendEvent('hint');
             this.classicModeService.changeTime(this.penaltyTime);
             this.hintNum += 1;
@@ -217,7 +218,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.classicModeService.reset();
         this.dialog.closeAll();
-        clearInterval(this.helpService.intervalId);
+        clearInterval(this.playAreaService.intervalId);
     }
 
     private abandonConfirmation() {
