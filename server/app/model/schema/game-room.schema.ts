@@ -10,4 +10,7 @@ export class GameRoom {
 
     @ApiProperty()
     started: boolean;
+
+    @ApiProperty()
+    gameMode: string;
 }

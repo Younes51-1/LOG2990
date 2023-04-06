@@ -1,4 +1,5 @@
 import { Location } from '@angular/common';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
@@ -11,7 +12,7 @@ describe('MainPageComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [MainPageComponent],
-            imports: [AppRoutingModule],
+            imports: [AppRoutingModule, HttpClientTestingModule],
         }).compileComponents();
     });
 
@@ -90,6 +91,6 @@ describe('MainPageComponent', () => {
         const chronoBtn = fixture.debugElement.query(By.css('.chrono-mode')).nativeElement;
         chronoBtn.click();
         tick();
-        expect(location.path()).toEqual('/home');
+        expect(location.path()).toEqual('/selection');
     }));
 });

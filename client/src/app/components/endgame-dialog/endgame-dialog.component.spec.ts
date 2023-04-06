@@ -6,25 +6,27 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { ConfigHttpService } from '@app/services/config-http/config-http.service';
+import { GameService } from '@app/services/game/game.service';
 
 describe('EndgameDialogComponent', () => {
     let component: EndgameDialogComponent;
     let fixture: ComponentFixture<EndgameDialogComponent>;
-    let configHttpService: jasmine.SpyObj<ConfigHttpService>;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [EndgameDialogComponent],
             imports: [AppRoutingModule, HttpClientTestingModule, MatDialogModule],
             providers: [
+                GameService,
+                ConfigHttpService,
                 { provide: MatDialogRef, useValue: {} },
                 { provide: MAT_DIALOG_DATA, useValue: { gameFinished: true, gameWinner: true, time: 0 } },
-                { provide: ConfigHttpService, useValue: configHttpService },
             ],
         }).compileComponents();
 
         fixture = TestBed.createComponent(EndgameDialogComponent);
         component = fixture.componentInstance;
+        spyOn((component as any).gameService, 'topScore').and.stub();
         fixture.detectChanges();
     });
 

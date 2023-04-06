@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { DeleteDialogComponent } from '@app/components/delete-dialog/delete-dialog.component';
-import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
+import { GameService } from '@app/services/game/game.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -21,26 +21,26 @@ export class WaitingRoomComponent implements OnInit {
     // Need all services in constructor
     // eslint-disable-next-line max-params
     constructor(
-        public classicModeService: ClassicModeService,
+        public gameService: GameService,
         private dialog: MatDialog,
         private router: Router,
         private dialogRef: MatDialogRef<WaitingRoomComponent>,
     ) {}
 
     ngOnInit() {
-        this.rejectedSubscription = this.classicModeService.rejected$.subscribe((rejected) => {
+        this.rejectedSubscription = this.gameService.rejected$.subscribe((rejected) => {
             this.rejected = rejected;
         });
 
-        this.acceptedSubscription = this.classicModeService.accepted$.subscribe((accepted) => {
+        this.acceptedSubscription = this.gameService.accepted$.subscribe((accepted) => {
             if (accepted) {
                 this.accepted = true;
-                this.classicModeService.startGame();
+                this.gameService.startGame();
                 this.router.navigate(['/game']);
             }
         });
 
-        this.gameCanceledSubscription = this.classicModeService.gameCanceled$.subscribe((finished) => {
+        this.gameCanceledSubscription = this.gameService.gameCanceled$.subscribe((finished) => {
             if (!this.gameCanceled && finished) {
                 this.gameCanceled = true;
                 const dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { action: 'deleted' } });
@@ -54,11 +54,11 @@ export class WaitingRoomComponent implements OnInit {
     }
 
     playerAccepted(player: string): void {
-        this.classicModeService.playerAccepted(player);
+        this.gameService.playerAccepted(player);
     }
 
     playerRejected(player: string): void {
-        this.classicModeService.playerRejected(player);
+        this.gameService.playerRejected(player);
     }
 
     close() {
@@ -67,7 +67,7 @@ export class WaitingRoomComponent implements OnInit {
         this.gameCanceledSubscription.unsubscribe();
         this.dialogRef.close();
         if (!this.accepted) {
-            this.classicModeService.abortGame();
+            this.gameService.abortGame();
             this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
                 this.router.navigate(['/selection']);
             });

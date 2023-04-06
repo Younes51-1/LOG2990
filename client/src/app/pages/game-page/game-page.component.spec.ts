@@ -18,12 +18,13 @@ import { PlayAreaComponent } from '@app/components/play-area/play-area.component
 import { GameData, GameRoom } from '@app/interfaces/game';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { ChatService } from '@app/services/chat/chat.service';
-import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
 import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
 import { of } from 'rxjs';
 import { Socket } from 'socket.io-client';
 import SpyObj = jasmine.SpyObj;
+import { GameService } from '@app/services/game/game.service';
+import { ConfigHttpService } from '@app/services/config-http/config-http.service';
 
 @NgModule({
     imports: [MatDialogModule, HttpClientModule, BrowserAnimationsModule],
@@ -44,7 +45,7 @@ describe('GamePageComponent', () => {
     let component: GamePageComponent;
     let fixture: ComponentFixture<GamePageComponent>;
     let communicationServiceSpy: SpyObj<CommunicationHttpService>;
-    let classicModeServiceSpy: ClassicModeService;
+    let gameServiceSpy: GameService;
     let socketServiceMock: SocketClientServiceMock;
     let socketHelper: SocketTestHelper;
     let chatServiceSpy: ChatService;
@@ -58,10 +59,15 @@ describe('GamePageComponent', () => {
         differenceMatrix = [[]];
         gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulty: '', soloBestTimes: [], vsBestTimes: [] };
         gameData = { gameForm, differenceMatrix };
-        gameRoom = { userGame: { gameData, nbDifferenceFound: 0, timer: 0, username1: 'Test' }, roomId: 'fakeId', started: false };
+        gameRoom = {
+            userGame: { gameData, nbDifferenceFound: 0, timer: 0, username1: 'Test' },
+            roomId: 'fakeId',
+            started: false,
+            gameMode: 'classic-mode',
+        };
         communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getGame']);
         communicationServiceSpy.getGame.and.returnValue(of(gameData));
-        classicModeServiceSpy = jasmine.createSpyObj('ClassicModeService', ['timer$', 'differencesFound$', 'gameFinished$', 'userGame$']);
+        gameServiceSpy = jasmine.createSpyObj('GameService', ['timer$', 'differencesFound$', 'gameFinished$', 'userGame$']);
         socketHelper = new SocketTestHelper();
         socketServiceMock = new SocketClientServiceMock();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -75,9 +81,10 @@ describe('GamePageComponent', () => {
             imports: [DynamicTestModule, RouterTestingModule, MatDialogModule, HttpClientTestingModule],
             providers: [
                 ChatService,
-                ClassicModeService,
+                GameService,
                 CommunicationSocketService,
                 CommunicationHttpService,
+                ConfigHttpService,
                 { provide: CommunicationSocketService, useValue: socketServiceMock },
                 { provide: ChatService, useValue: chatServiceSpy },
             ],
@@ -88,6 +95,7 @@ describe('GamePageComponent', () => {
         fixture = TestBed.createComponent(GamePageComponent);
         component = fixture.componentInstance;
         component.gameRoom = gameRoom;
+        spyOn((component as any).gameService, 'reset').and.stub();
         fixture.detectChanges();
     });
 
@@ -103,20 +111,20 @@ describe('GamePageComponent', () => {
 
     it('should subscribe to timer$ observable', () => {
         const testingValue = 5;
-        classicModeServiceSpy = TestBed.inject(ClassicModeService);
-        const spyTimer = spyOn(classicModeServiceSpy.timer$, 'subscribe').and.callThrough();
+        gameServiceSpy = TestBed.inject(GameService);
+        const spyTimer = spyOn(gameServiceSpy.timer$, 'subscribe').and.callThrough();
         component.ngOnInit();
-        classicModeServiceSpy.timer$.next(testingValue);
+        gameServiceSpy.timer$.next(testingValue);
         expect(spyTimer).toHaveBeenCalled();
         expect(component.timer).toEqual(testingValue);
     });
 
     it('should subscribe to totalDifferencesFound $ observable', () => {
         const testingValue = 5;
-        classicModeServiceSpy = TestBed.inject(ClassicModeService);
-        const spyDifferencesFound = spyOn(classicModeServiceSpy.totalDifferencesFound$, 'subscribe').and.callThrough();
+        gameServiceSpy = TestBed.inject(GameService);
+        const spyDifferencesFound = spyOn(gameServiceSpy.totalDifferencesFound$, 'subscribe').and.callThrough();
         component.ngOnInit();
-        classicModeServiceSpy.totalDifferencesFound$.next(testingValue);
+        gameServiceSpy.totalDifferencesFound$.next(testingValue);
         expect(spyDifferencesFound).toHaveBeenCalled();
         expect(component.totalDifferencesFound).toEqual(testingValue);
     });
@@ -125,23 +133,23 @@ describe('GamePageComponent', () => {
         const testingValue = 5;
         component.gameRoom.userGame.username2 = 'user2';
         (component as any).differenceThreshold = 5;
-        classicModeServiceSpy = TestBed.inject(ClassicModeService);
-        const spyDifferencesFound = spyOn(classicModeServiceSpy.userDifferencesFound$, 'subscribe').and.callThrough();
-        const endGameSpy = spyOn(classicModeServiceSpy, 'endGame');
+        gameServiceSpy = TestBed.inject(GameService);
+        const spyDifferencesFound = spyOn(gameServiceSpy.userDifferencesFound$, 'subscribe').and.callThrough();
+        const endGameSpy = spyOn(gameServiceSpy, 'endGame');
         component.ngOnInit();
-        classicModeServiceSpy.userDifferencesFound$.next(testingValue);
+        gameServiceSpy.userDifferencesFound$.next(testingValue);
         expect(spyDifferencesFound).toHaveBeenCalled();
         expect(component.userDifferencesFound).toEqual(testingValue);
-        expect(classicModeServiceSpy.gameFinished$).toBeTruthy();
+        expect(gameServiceSpy.gameFinished$).toBeTruthy();
         expect(endGameSpy).toHaveBeenCalled();
     });
 
     it('should subscribe to gameFinished$ observable', fakeAsync(() => {
-        classicModeServiceSpy = TestBed.inject(ClassicModeService);
-        const spyGameFinished = spyOn(classicModeServiceSpy.gameFinished$, 'subscribe').and.callThrough();
+        gameServiceSpy = TestBed.inject(GameService);
+        const spyGameFinished = spyOn(gameServiceSpy.gameFinished$, 'subscribe').and.callThrough();
         const endGameSpy = spyOn(component, 'endGame');
         component.ngOnInit();
-        classicModeServiceSpy.gameFinished$.next(true);
+        gameServiceSpy.gameFinished$.next(true);
         expect(spyGameFinished).toHaveBeenCalled();
         tick();
         fixture.detectChanges();
@@ -149,95 +157,96 @@ describe('GamePageComponent', () => {
     }));
 
     it('should subscribe to gameRoom$ observable', () => {
-        classicModeServiceSpy = TestBed.inject(ClassicModeService);
-        const spyUserGame = spyOn(classicModeServiceSpy.gameRoom$, 'subscribe').and.callThrough();
+        gameServiceSpy = TestBed.inject(GameService);
+        const spyUserGame = spyOn(gameServiceSpy.gameRoom$, 'subscribe').and.callThrough();
         component.ngOnInit();
-        classicModeServiceSpy.gameRoom$.next(gameRoom);
+        gameServiceSpy.gameRoom$.next(gameRoom);
         expect(spyUserGame).toHaveBeenCalled();
         expect(component.gameRoom).toEqual(gameRoom);
         expect(component.gameName).toEqual(gameRoom.userGame.gameData.gameForm.name);
-        expect(component.username).toEqual(classicModeServiceSpy.username);
+        expect(component.username).toEqual(gameServiceSpy.username);
     });
 
     it('should subscribe to gameRoom$ observable and assign opponent username to username2', () => {
-        classicModeServiceSpy = TestBed.inject(ClassicModeService);
-        classicModeServiceSpy.username = gameRoom.userGame.username1;
+        gameServiceSpy = TestBed.inject(GameService);
+        gameServiceSpy.username = gameRoom.userGame.username1;
         gameRoom.userGame.username2 = 'username2';
-        const spyUserGame = spyOn(classicModeServiceSpy.gameRoom$, 'subscribe').and.callThrough();
+        const spyUserGame = spyOn(gameServiceSpy.gameRoom$, 'subscribe').and.callThrough();
         component.ngOnInit();
-        classicModeServiceSpy.gameRoom$.next(gameRoom);
+        gameServiceSpy.gameRoom$.next(gameRoom);
         expect(spyUserGame).toHaveBeenCalled();
         expect(component.gameRoom).toEqual(gameRoom);
         expect(component.gameName).toEqual(gameRoom.userGame.gameData.gameForm.name);
-        expect(component.username).toEqual(classicModeServiceSpy.username);
+        expect(component.username).toEqual(gameServiceSpy.username);
         expect(component.opponentUsername).toEqual(gameRoom.userGame.username2);
     });
 
     it('should subscribe to gameRoom$ observable and assign opponent username to username1', () => {
-        classicModeServiceSpy = TestBed.inject(ClassicModeService);
+        gameServiceSpy = TestBed.inject(GameService);
         gameRoom.userGame.username2 = 'username2';
-        classicModeServiceSpy.username = gameRoom.userGame.username2;
-        const spyUserGame = spyOn(classicModeServiceSpy.gameRoom$, 'subscribe').and.callThrough();
+        gameServiceSpy.username = gameRoom.userGame.username2;
+        const spyUserGame = spyOn(gameServiceSpy.gameRoom$, 'subscribe').and.callThrough();
         component.ngOnInit();
-        classicModeServiceSpy.gameRoom$.next(gameRoom);
+        gameServiceSpy.gameRoom$.next(gameRoom);
         expect(spyUserGame).toHaveBeenCalled();
         expect(component.gameRoom).toEqual(gameRoom);
         expect(component.gameName).toEqual(gameRoom.userGame.gameData.gameForm.name);
-        expect(component.username).toEqual(classicModeServiceSpy.username);
+        expect(component.username).toEqual(gameServiceSpy.username);
         expect(component.opponentUsername).toEqual(gameRoom.userGame.username1);
     });
 
     it('should assign the corresponding threshold from gameRoom$ observable for even differences number in multiplayer mode', () => {
-        classicModeServiceSpy = TestBed.inject(ClassicModeService);
+        gameServiceSpy = TestBed.inject(GameService);
         gameRoom.userGame.username2 = 'username2';
         gameRoom.userGame.gameData.gameForm.nbDifference = 10;
-        const spyUserGame = spyOn(classicModeServiceSpy.gameRoom$, 'subscribe').and.callThrough();
+        const spyUserGame = spyOn(gameServiceSpy.gameRoom$, 'subscribe').and.callThrough();
         component.ngOnInit();
-        classicModeServiceSpy.gameRoom$.next(gameRoom);
+        gameServiceSpy.gameRoom$.next(gameRoom);
         expect(spyUserGame).toHaveBeenCalled();
         expect(component.gameRoom).toEqual(gameRoom);
         expect(component.gameName).toEqual(gameRoom.userGame.gameData.gameForm.name);
-        expect(component.username).toEqual(classicModeServiceSpy.username);
+        expect(component.username).toEqual(gameServiceSpy.username);
         expect((component as any).differenceThreshold).toEqual(gameRoom.userGame.gameData.gameForm.nbDifference / 2);
     });
 
     it('should assign the corresponding threshold from gameRoom$ observable for odd differences number in multiplayer mode', () => {
-        classicModeServiceSpy = TestBed.inject(ClassicModeService);
+        gameServiceSpy = TestBed.inject(GameService);
         gameRoom.userGame.username2 = 'username2';
         gameRoom.userGame.gameData.gameForm.nbDifference = 11;
-        const spyUserGame = spyOn(classicModeServiceSpy.gameRoom$, 'subscribe').and.callThrough();
+        const spyUserGame = spyOn(gameServiceSpy.gameRoom$, 'subscribe').and.callThrough();
         component.ngOnInit();
-        classicModeServiceSpy.gameRoom$.next(gameRoom);
+        gameServiceSpy.gameRoom$.next(gameRoom);
         expect(spyUserGame).toHaveBeenCalled();
         expect(component.gameRoom).toEqual(gameRoom);
         expect(component.gameName).toEqual(gameRoom.userGame.gameData.gameForm.name);
-        expect(component.username).toEqual(classicModeServiceSpy.username);
+        expect(component.username).toEqual(gameServiceSpy.username);
         expect((component as any).differenceThreshold).toEqual((gameRoom.userGame.gameData.gameForm.nbDifference + 1) / 2);
     });
 
     it('should assign the corresponding threshold from gameRoom$ observable solo mode', () => {
-        classicModeServiceSpy = TestBed.inject(ClassicModeService);
+        gameServiceSpy = TestBed.inject(GameService);
         gameRoom.userGame.gameData.gameForm.nbDifference = 11;
-        const spyUserGame = spyOn(classicModeServiceSpy.gameRoom$, 'subscribe').and.callThrough();
+        const spyUserGame = spyOn(gameServiceSpy.gameRoom$, 'subscribe').and.callThrough();
         component.ngOnInit();
-        classicModeServiceSpy.gameRoom$.next(gameRoom);
+        gameServiceSpy.gameRoom$.next(gameRoom);
         expect(spyUserGame).toHaveBeenCalled();
         expect(component.gameRoom).toEqual(gameRoom);
         expect(component.gameName).toEqual(gameRoom.userGame.gameData.gameForm.name);
-        expect(component.username).toEqual(classicModeServiceSpy.username);
+        expect(component.username).toEqual(gameServiceSpy.username);
         expect((component as any).differenceThreshold).toEqual(gameRoom.userGame.gameData.gameForm.nbDifference);
     });
 
     it('should subscribe to abandoned$ observable', () => {
-        classicModeServiceSpy = TestBed.inject(ClassicModeService);
-        const spyAbandonGame = spyOn(classicModeServiceSpy.abandoned$, 'subscribe').and.callThrough();
+        gameServiceSpy = TestBed.inject(GameService);
+        const spyAbandonGame = spyOn(gameServiceSpy.abandoned$, 'subscribe').and.callThrough();
         component.ngOnInit();
-        classicModeServiceSpy.abandoned$.next('test');
+        gameServiceSpy.abandoned$.next('test');
         expect(spyAbandonGame).toHaveBeenCalled();
     });
 
     it('should open EndgameDialogComponent with correct data if all differences found in single player mode', () => {
         (component as any).gameFinished = true;
+        spyOn((component as any).gameService, 'endGame').and.stub();
         component.totalDifferencesFound = component.gameRoom.userGame.gameData.gameForm.nbDifference;
         const matDialogSpy = spyOn((component as any).dialog, 'open').and.callThrough();
         component.endGame();
@@ -257,6 +266,7 @@ describe('GamePageComponent', () => {
         (component as any).gameFinished = true;
         component.totalDifferencesFound = 0;
         component.gameRoom.userGame.username2 = 'test';
+        spyOn((component as any).gameService, 'endGame').and.stub();
         component.userDifferencesFound = (component as any).differenceThreshold;
         const matDialogSpy = spyOn((component as any).dialog, 'open').and.callThrough();
         component.endGame();
@@ -275,6 +285,7 @@ describe('GamePageComponent', () => {
     it('should open EndgameDialogComponent with correct data if in multiplayer mode and looser', () => {
         (component as any).gameFinished = true;
         component.totalDifferencesFound = 0;
+        spyOn((component as any).gameService, 'endGame').and.stub();
         component.gameRoom.userGame.gameData.gameForm.nbDifference = 1;
         component.gameRoom.userGame.username2 = 'test';
         (component as any).differenceThreshold = 1;
@@ -302,13 +313,13 @@ describe('GamePageComponent', () => {
     it('should open EndgameDialogComponent and abandon game if abandon is true', fakeAsync(() => {
         spyOn((component as any).dialog, 'open').and.returnValue(mockDialogRef as MatDialogRef<EndgameDialogComponent>);
         spyOn((component as any).router, 'navigate');
-        spyOn((component as any).classicModeService, 'abandonGame');
-        spyOn((component as any).classicModeService, 'disconnectSocket');
+        spyOn((component as any).gameService, 'abandonGame');
+        spyOn((component as any).gameService, 'disconnectSocket');
         (component as any).abandonConfirmation();
         flush();
         expect((component as any).dialog.open).toHaveBeenCalled();
-        expect((component as any).classicModeService.abandonGame).toHaveBeenCalled();
-        expect((component as any).classicModeService.disconnectSocket).toHaveBeenCalled();
+        expect((component as any).gameService.abandonGame).toHaveBeenCalled();
+        expect((component as any).gameService.disconnectSocket).toHaveBeenCalled();
         expect((component as any).router.navigate).toHaveBeenCalledWith(['/home']);
     }));
 

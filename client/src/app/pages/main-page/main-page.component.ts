@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { GameService } from '@app/services/game/game.service';
 
 @Component({
     selector: 'app-main-page',
@@ -15,4 +17,11 @@ export class MainPageComponent {
         ' Younes Benabbou',
         ' Dumitru Zlotea',
     ];
+
+    constructor(private gameService: GameService, private readonly router: Router) {}
+
+    setGameMode(mode: string) {
+        this.gameService.setGameMode(mode);
+        this.router.navigate(['/selection']);
+    }
 }

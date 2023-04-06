@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { BestTime, GameHistory, NewBestTime } from '@app/interfaces/game';
 import { GameConstants } from '@app/interfaces/game-constants';
 import { catchError, Observable, of } from 'rxjs';
-import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment.prod';
 
 @Injectable({
     providedIn: 'root',
