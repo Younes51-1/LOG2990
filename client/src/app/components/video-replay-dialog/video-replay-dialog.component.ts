@@ -76,6 +76,10 @@ export class VideoReplayDialogComponent implements AfterViewInit, OnInit {
         }, Time.Thousand / this.speed);
     }
 
+    incrementTimer() {
+        this.time += 3;
+    }
+
     stopTimer() {
         clearInterval(this.timer);
     }

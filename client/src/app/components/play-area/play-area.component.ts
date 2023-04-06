@@ -30,6 +30,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     @Output() sendSource = new EventEmitter<{ src: string; layer: HTMLCanvasElement }>();
     @Output() sendCheatStart = new EventEmitter<{ layer: HTMLCanvasElement }>();
     @Output() sendCheatEnd = new EventEmitter();
+    @Output() sendHint = new EventEmitter<{ hintNum: number; diffPos: Vec2; layer: HTMLCanvasElement }>();
 
     context1: CanvasRenderingContext2D;
     context2: CanvasRenderingContext2D;

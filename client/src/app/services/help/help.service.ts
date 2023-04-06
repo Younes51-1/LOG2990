@@ -94,6 +94,7 @@ export class HelpService {
             return;
         }
         if (!this.isCheatModeOn) {
+            this.component.sendCheatEnd.emit();
             clearInterval(this.cheatIntervalId);
             this.component.context1.drawImage(this.component.original, 0, 0, this.component.width, this.component.height);
             this.component.context2.drawImage(this.component.modified, 0, 0, this.component.width, this.component.height);
@@ -102,6 +103,7 @@ export class HelpService {
         const flashDuration = 125;
         let isFlashing = true;
         this.component.verifyDifferenceMatrix('cheat');
+        this.component.sendCheatStart.emit({ layer: this.component.cheatLayer });
         this.cheatIntervalId = setInterval(() => {
             if (isFlashing) {
                 this.component.context1.drawImage(this.component.original, 0, 0, this.component.width, this.component.height);
@@ -125,10 +127,12 @@ export class HelpService {
         if (diffCoords) {
             if (hintNum === 2) {
                 this.startConfetti(diffCoords);
+                this.component.sendHint.emit({ hintNum, diffPos: diffCoords, layer: this.component.hintLayer });
                 return;
             } else {
                 this.component.verifyDifferenceMatrix('hint', this.chooseDial(diffCoords, hintNum));
             }
+            this.component.sendHint.emit({ hintNum, diffPos: diffCoords, layer: this.component.hintLayer });
         }
         clearTimeout(this.hintTimeout);
         clearInterval(this.hintIntervalId);

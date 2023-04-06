@@ -1,5 +1,9 @@
-import { AfterViewInit, Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+/* eslint-disable @typescript-eslint/no-magic-numbers */
+/* eslint-disable max-lines */
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Vec2 } from '@app/interfaces/vec2';
 import { Instruction, InstructionReplay } from '@app/interfaces/video-replay';
+import confetti from 'canvas-confetti';
 import { Color } from 'src/assets/variables/color';
 import { PossibleColor } from 'src/assets/variables/images-values';
 import { Dimensions } from 'src/assets/variables/picture-dimension';
@@ -22,6 +26,7 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
     @Input() pauseSignal: boolean = false;
     @Input() continueSignal: boolean = false;
     @Input() restartSignal: boolean = false;
+    @Output() hintEvent = new EventEmitter();
     @ViewChild('canvas1') canvas1: ElementRef<HTMLCanvasElement>;
     @ViewChild('canvas2') canvas2: ElementRef<HTMLCanvasElement>;
     private canvasSize = { x: Dimensions.DEFAULT_WIDTH, y: Dimensions.DEFAULT_HEIGHT };
@@ -35,6 +40,8 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
     private cheatInterval: ReturnType<typeof setInterval>;
     private errorTimeout: ReturnType<typeof setTimeout>;
     private layerTimeout: ReturnType<typeof setTimeout>;
+    private hintInterval: ReturnType<typeof setInterval>;
+    private hintTimeout: ReturnType<typeof setInterval>;
     private currentAction: InstructionReplay | undefined;
     private audioValid = new Audio('assets/sounds/valid_sound.mp3');
     private audioInvalid = new Audio('assets/sounds/invalid_sound.mp3');
@@ -77,7 +84,10 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
         }
         this.firstChange = false;
 
-        if (!this.currentAction) return;
+        if (!this.currentAction) {
+            this.endCheatMode();
+            return;
+        }
         if (this.currentAction.timeStart <= this.time) {
             this.handleReplay();
             this.currentAction = this.actions[this.counter++];
@@ -134,9 +144,18 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
                 this.startCheatMode();
                 break;
             }
-            case Instruction.CheatModeEnd: {
+            case Instruction.CheatModeEnd || undefined: {
                 this.endCheatMode();
                 break;
+            }
+            case Instruction.Hint: {
+                this.hintEvent.emit();
+                // if (this.currentAction.nbDifferences === 2) {
+                //    this.startConfetti(this.currentAction.mousePosition);
+                // }
+                // console.log(this.currentAction.nbDifferences, this.currentAction.cheatLayer, this.currentAction.mousePosition);
+                if (!this.currentAction.cheatLayer || !this.currentAction.mousePosition) return;
+                this.playHint(this.currentAction.nbDifferences, this.currentAction.cheatLayer, this.currentAction.mousePosition);
             }
         }
     }
@@ -242,6 +261,96 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
             }
             isFlashing = !isFlashing;
         }, flashDuration);
+    }
+
+    private playHint(hintNum: number | undefined, layer: HTMLCanvasElement, pos: Vec2) {
+        if (hintNum === 2) {
+            this.startConfetti(pos);
+        } else {
+            let isFlashing = true;
+            clearTimeout(this.hintTimeout);
+            clearInterval(this.hintInterval);
+            this.hintInterval = setInterval(() => {
+                if (isFlashing) {
+                    this.context1.drawImage(this.image1, 0, 0, this.width, this.height);
+                    this.context2.drawImage(this.image2, 0, 0, this.width, this.height);
+                } else {
+                    this.context1.drawImage(layer, 0, 0, this.width, this.height);
+                    this.context2.drawImage(layer, 0, 0, this.width, this.height);
+                }
+                isFlashing = !isFlashing;
+            }, Time.OneHundredTwentyFive);
+            this.hintTimeout = setTimeout(() => {
+                clearInterval(this.hintInterval);
+                this.context1.drawImage(this.image1, 0, 0, this.width, this.height);
+                this.context2.drawImage(this.image2, 0, 0, this.width, this.height);
+                return;
+            }, 2 * Time.Thousand);
+        }
+    }
+
+    private startConfetti(coords: Vec2 | undefined) {
+        clearTimeout(this.hintTimeout);
+        clearInterval(this.hintInterval);
+        if (coords) {
+            const layer = document.createElement('canvas');
+            layer.width = this.width;
+            layer.height = this.height;
+            let isFlashing = false;
+            const defaults = {
+                origin: {
+                    x: coords.y / 640,
+                    y: coords.x / 480,
+                },
+                spread: 360,
+                ticks: 50,
+                gravity: 0,
+                decay: 0.94,
+                startVelocity: 30,
+                shapes: ['star'],
+                colors: ['FFE400', 'FFBD00', 'E89400', 'FFCA6C', 'FDFFB8'],
+                zIndex: -1,
+            };
+            const confettiGenerator = confetti.create(layer, {});
+            confettiGenerator({ ...defaults, particleCount: 40, scalar: 1.2, shapes: ['star'] });
+            confettiGenerator({ ...defaults, particleCount: 10, scalar: 0.75, shapes: ['circle'] });
+            setTimeout(() => {
+                confettiGenerator({ ...defaults, particleCount: 40, scalar: 1.2, shapes: ['star'] });
+                confettiGenerator({ ...defaults, particleCount: 10, scalar: 0.75, shapes: ['circle'] });
+            }, 100);
+            setTimeout(() => {
+                confettiGenerator({ ...defaults, particleCount: 40, scalar: 1.2, shapes: ['star'] });
+                confettiGenerator({ ...defaults, particleCount: 10, scalar: 0.75, shapes: ['circle'] });
+            }, 200);
+            const confettiInterval = setInterval(() => {
+                if (isFlashing) {
+                    this.context1.drawImage(this.image1, 0, 0, this.width, this.height);
+                    this.context2.drawImage(this.image2, 0, 0, this.width, this.height);
+                } else {
+                    this.context1.drawImage(layer, 0, 0, this.width, this.height);
+                    this.context2.drawImage(layer, 0, 0, this.width, this.height);
+                }
+                isFlashing = !isFlashing;
+            }, 0.000001);
+            setTimeout(() => {
+                clearInterval(confettiInterval);
+                this.context1.drawImage(this.image1, 0, 0, this.width, this.height);
+                this.context2.drawImage(this.image2, 0, 0, this.width, this.height);
+            }, 600);
+        } else {
+            const duration = 15 * 1000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+            this.hintInterval = setInterval(() => {
+                const timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) {
+                    return clearInterval(this.hintInterval);
+                }
+                const particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * (0.3 - 0.1) + 0.1, y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * (0.9 - 0.7) + 0.7, y: Math.random() - 0.2 } }));
+            }, 250);
+        }
     }
 
     private initializePauseCanvas() {
