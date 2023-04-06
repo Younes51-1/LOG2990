@@ -1,7 +1,7 @@
 import { DIFFICULTY_THRESHOLD, NOT_TOP3 } from '@app/constants';
-import { environment } from '@app/environments/environment';
+import { environment } from '@app/environments/environment.prod';
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
-import { ClassicModeGateway } from '@app/gateways/classic-mode/classic-mode.gateway';
+import { GameModeGateway } from '@app/gateways/game-mode/game-mode.gateway';
 import { Game, GameDocument } from '@app/model/database/game';
 import { GameData } from '@app/model/dto/game/game-data.dto';
 import { GameForm } from '@app/model/dto/game/game-form.dto';
@@ -17,7 +17,7 @@ import { Model } from 'mongoose';
 export class GameService {
     constructor(
         @InjectModel(Game.name) public gameModel: Model<GameDocument>,
-        private readonly classicModeGateway: ClassicModeGateway,
+        private readonly gameModeGateway: GameModeGateway,
         private readonly chatGateway: ChatGateway,
     ) {}
 
@@ -58,7 +58,7 @@ export class GameService {
                 return Promise.reject('Could not find game');
             }
             this.deleteImages(name);
-            this.classicModeGateway.cancelDeletedGame(name);
+            this.gameModeGateway.cancelDeletedGame(name);
         } catch (error) {
             return Promise.reject(`Failed to delete game: ${error}`);
         }
@@ -72,7 +72,7 @@ export class GameService {
                     name: game.name,
                 });
                 this.deleteImages(game.name);
-                this.classicModeGateway.cancelDeletedGame(game.name);
+                this.gameModeGateway.cancelDeletedGame(game.name);
             });
         } catch (error) {
             return Promise.reject(`Failed to delete all games: ${error}`);

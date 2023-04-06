@@ -1,6 +1,6 @@
 <div class="container">
     <div class="title">
-        <p>Bienvenue au jeu {{gameName}} en {{gameMode}}</p>
+        <p *ngIf="gameRoom">Bienvenue au jeu {{gameName}} en {{gameRoom.gameMode}}</p>
         <p>Niveau {{difficulty}} - {{totalNumber}} différences à trouver</p>
         <p *ngIf="!opponentUsername">Pénalité pour l'utilisation d'un indice: {{penaltyTime}} s</p>
     </div>

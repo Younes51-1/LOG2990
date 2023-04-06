@@ -7,8 +7,8 @@ import { GameRoom } from '@app/interfaces/game';
 import { Vec2 } from '@app/interfaces/vec2';
 import { Instruction, VideoReplay } from '@app/interfaces/video-replay';
 import { ChatService } from '@app/services/chat/chat.service';
-import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
 import { ConfigHttpService } from '@app/services/config-http/config-http.service';
+import { GameService } from '@app/services/game/game.service';
 import { HelpService } from '@app/services/help/help.service';
 import { Subscription } from 'rxjs';
 import { Time } from 'src/assets/variables/time';
@@ -44,7 +44,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     // eslint-disable-next-line max-params
     constructor(
         private dialog: MatDialog,
-        private classicModeService: ClassicModeService,
+        private gameService: GameService,
         private chatService: ChatService,
         private router: Router,
         private helpService: HelpService,
@@ -52,16 +52,17 @@ export class GamePageComponent implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit() {
-        this.timerSubscription = this.classicModeService.timer$.subscribe((timer: number) => {
+        this.username = this.gameService.username;
+        this.timerSubscription = this.gameService.timer$.subscribe((timer: number) => {
             this.timer = timer;
         });
         this.configService.getConstants().subscribe((res) => {
             this.penaltyTime = res.penaltyTime;
         });
-        this.differencesFoundSubscription = this.classicModeService.totalDifferencesFound$.subscribe((count) => {
+        this.differencesFoundSubscription = this.gameService.totalDifferencesFound$.subscribe((count) => {
             this.totalDifferencesFound = count;
         });
-        this.userDifferencesFoundSubscription = this.classicModeService.userDifferencesFound$.subscribe((count) => {
+        this.userDifferencesFoundSubscription = this.gameService.userDifferencesFound$.subscribe((count) => {
             this.userDifferencesFound = count;
             this.sendEvent('success');
             if (this.userDifferencesFound >= this.differenceThreshold) {
@@ -69,14 +70,13 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 this.endGame();
             }
         });
-        this.gameFinishedSubscription = this.classicModeService.gameFinished$.subscribe(() => {
+        this.gameFinishedSubscription = this.gameService.gameFinished$.subscribe(() => {
             this.gameFinished = true;
             this.endGame();
         });
-        this.gameRoomSubscription = this.classicModeService.gameRoom$.subscribe((gameRoom) => {
+        this.gameRoomSubscription = this.gameService.gameRoom$.subscribe((gameRoom) => {
             this.gameRoom = gameRoom;
             this.gameName = gameRoom.userGame.gameData.gameForm.name;
-            this.username = this.classicModeService.username;
             if (gameRoom.userGame.username2) {
                 this.opponentUsername = gameRoom.userGame.username1 === this.username ? gameRoom.userGame.username2 : gameRoom.userGame.username1;
                 this.differenceThreshold = Math.ceil(gameRoom.userGame.gameData.gameForm.nbDifference / 2);
@@ -85,13 +85,15 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 this.differenceThreshold = gameRoom.userGame.gameData.gameForm.nbDifference;
             }
         });
-        this.abandonedGameSubscription = this.classicModeService.abandoned$.subscribe((userName: string) => {
-            if (userName !== this.username) {
-                this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
-                this.helpService.startConfetti(undefined);
+        this.abandonedGameSubscription = this.gameService.abandoned$.subscribe((username: string) => {
+            if (this.gameService.gameMode === 'classic-mode') {
+                if (username !== this.username) {
+                    this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
+                    this.helpService.startConfetti(undefined);
+                }
+                this.unsubscribe();
+                this.gameService.endGame(true, true);
             }
-            this.unsubscribe();
-            this.classicModeService.endGame(true, true);
         });
 
         this.videoReplay = {
@@ -109,6 +111,14 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     endGame() {
+        if (this.gameRoom.gameMode === 'classic-mode') {
+            this.endGameClassicMode();
+        } else {
+            this.endGameLimitedTimeMode();
+        }
+    }
+
+    endGameClassicMode() {
         this.videoReplay.scoreboardParams = {
             gameRoom: this.gameRoom,
             gameName: this.gameName,
@@ -120,7 +130,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             if (this.userDifferencesFound === this.differenceThreshold) {
                 this.dialogRef = this.dialog.open(EndgameDialogComponent, {
                     disableClose: true,
-                    data: { gameFinished: true, gameWinner: true, videoReplay: this.videoReplay },
+                    data: { gameFinished: true, gameWinner: true, videoReplay: this.videoReplay, time: this.timer },
                 });
                 this.helpService.startConfetti(undefined);
             } else {
@@ -129,8 +139,28 @@ export class GamePageComponent implements OnInit, OnDestroy {
                     data: { gameFinished: true, gameWinner: false, videoReplay: this.videoReplay },
                 });
             }
-            this.classicModeService.endGame(this.gameFinished, this.userDifferencesFound === this.differenceThreshold);
+            this.gameService.endGame(this.gameFinished, this.userDifferencesFound === this.differenceThreshold);
             this.unsubscribe();
+        } else {
+            this.abandonConfirmation();
+        }
+    }
+
+    endGameLimitedTimeMode() {
+        this.videoReplay.scoreboardParams = {
+            gameRoom: this.gameRoom,
+            gameName: this.gameName,
+            opponentUsername: this.opponentUsername,
+            username: this.username,
+        };
+
+        if (this.gameFinished) {
+            this.gameService.endGame(this.gameFinished, this.userDifferencesFound === this.differenceThreshold);
+            this.unsubscribe();
+            this.dialogRef = this.dialog.open(EndgameDialogComponent, {
+                disableClose: true,
+                data: { gameFinished: true, gameWinner: true, limitedTimeMode: true },
+            });
         } else {
             this.abandonConfirmation();
         }
@@ -141,7 +171,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.helpService.isHintModeOn = !this.helpService.isHintModeOn;
             this.helpService.hintMode(this.hintNum);
             this.sendEvent('hint');
-            this.classicModeService.changeTime(this.penaltyTime);
+            this.gameService.changeTime(this.penaltyTime);
             this.hintNum += 1;
         }
     }
@@ -205,7 +235,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.classicModeService.reset();
+        this.gameService.reset();
         this.dialog.closeAll();
         clearInterval(this.helpService.intervalId);
     }
@@ -216,10 +246,10 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.dialogRef.afterClosed().subscribe((abandon) => {
                 if (abandon) {
                     this.sendEvent('abandon');
-                    this.classicModeService.abandonGame();
+                    this.gameService.abandonGame();
                     this.unsubscribe();
                     setTimeout(() => {
-                        this.classicModeService.disconnectSocket();
+                        this.gameService.disconnectSocket();
                         this.router.navigate(['/home']);
                     }, Time.Thousand);
                 }
