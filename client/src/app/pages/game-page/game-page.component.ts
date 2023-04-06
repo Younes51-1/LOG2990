@@ -130,7 +130,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             if (this.userDifferencesFound === this.differenceThreshold) {
                 this.dialogRef = this.dialog.open(EndgameDialogComponent, {
                     disableClose: true,
-                    data: { gameFinished: true, gameWinner: true, videoReplay: this.videoReplay },
+                    data: { gameFinished: true, gameWinner: true, videoReplay: this.videoReplay, time: this.timer },
                 });
                 this.helpService.startConfetti(undefined);
             } else {
