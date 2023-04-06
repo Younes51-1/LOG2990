@@ -105,7 +105,7 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
         this.gameModeService.initNewRoom(socket, gameRoom);
         this.logger.log(`Create the game: ${gameRoom.userGame.gameData.gameForm.name}`);
         this.server.to(gameRoom.roomId).emit(ClassicModeEvents.GameCreated, gameRoom);
-        this.server.emit(ClassicModeEvents.GameFound, gameRoom.userGame.gameData.gameForm.name);
+        this.server.emit(ClassicModeEvents.GameFound, { gameName: gameRoom.userGame.gameData.gameForm.name, gameMode: gameRoom.gameMode });
     }
 
     @SubscribeMessage(ClassicModeEvents.CanJoinGame)
@@ -136,7 +136,7 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
         if (!gameRoom) return;
         this.logger.log(`Game creation aborted: ${gameRoom.userGame.gameData.gameForm.name}`);
         this.gameModeService.deleteRoom(roomId);
-        this.server.emit(ClassicModeEvents.GameDeleted, gameRoom.userGame.gameData.gameForm.name);
+        this.server.emit(ClassicModeEvents.GameDeleted, { gameName: gameRoom.userGame.gameData.gameForm.name, gameMode: gameRoom.gameMode });
         this.server.emit(ClassicModeEvents.GameCanceled, gameRoom.userGame.gameData.gameForm.name);
     }
 
@@ -176,7 +176,6 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
 
     @SubscribeMessage(ClassicModeEvents.ChangeTime)
     changeTime(socket: Socket, data: { roomId: string; time: number }): void {
-        this.logger.log(`Time changed by ${data.time} in game: ${data.roomId}`);
         this.gameModeService.applyTimeToTimer(data.roomId, data.time);
     }
 
@@ -199,8 +198,8 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
         this.logger.log(`${socket.id}: disconnected`);
         const gameRoom = this.gameModeService.getGameRoom(socket.id);
         if (gameRoom && !gameRoom.userGame.username2) {
-            this.logger.log(`Game deleted: ${this.gameModeService.getGameRoom(socket.id).userGame.gameData.gameForm.name}`);
-            this.server.emit(ClassicModeEvents.GameDeleted, this.gameModeService.getGameRoom(socket.id).userGame.gameData.gameForm.name);
+            this.logger.log(`Game deleted: ${gameRoom.userGame.gameData.gameForm.name}`);
+            this.server.emit(ClassicModeEvents.GameDeleted, { gameName: gameRoom.userGame.gameData.gameForm.name, gameMode: gameRoom.gameMode });
             this.gameModeService.deleteRoom(socket.id);
         }
     }
