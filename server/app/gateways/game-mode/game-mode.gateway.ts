@@ -75,14 +75,15 @@ export class ClassicModeGateway implements OnGatewayConnection, OnGatewayDisconn
                 gameRoom.userGame.username2 = '';
             }
             const sockets = this.server.sockets.adapter.rooms.get(data.roomId);
+            sockets.delete(socket.id);
             if (socket.id === gameRoom.roomId) {
-                sockets.delete(gameRoom.roomId);
+                socket.leave(data.roomId);
                 gameRoom.roomId = Array.from(sockets.keys())[0];
                 const gameHistory = this.gameModeService.getGameHistory(data.roomId);
                 this.gameModeService.deleteGameHistory(socket.id);
                 this.gameModeService.setGameHistory(gameRoom.roomId, gameHistory);
             } else {
-                sockets.delete(socket.id);
+                socket.leave(socket.id);
             }
             gameRoom.gameMode = 'classic-mode';
             this.gameModeService.deleteRoom(socket.id);

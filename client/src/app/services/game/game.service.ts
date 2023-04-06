@@ -258,6 +258,7 @@ export class GameService {
 
     limitedTimeGameAbandoned() {
         this.gameRoom = this.gameManager.gameRoom;
+        this.gameManager.turnOffSocket();
         this.setGameMode(this.gameRoom.gameMode);
         this.gameRoom$.next(this.gameRoom);
     }

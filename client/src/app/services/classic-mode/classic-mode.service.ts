@@ -143,6 +143,16 @@ export class ClassicModeService {
         }
     }
 
+    turnOffSocket(): void {
+        this.gameService.socketService.off('gameInfo');
+        this.gameService.socketService.off('gameCreated');
+        this.gameService.socketService.off('validated');
+        this.gameService.socketService.off('GameFinished');
+        this.gameService.socketService.off('abandoned');
+        this.gameService.socketService.off('started');
+        this.gameService.socketService.off('timer');
+    }
+
     private connect(): void {
         if (!this.gameService.socketService.isSocketAlive()) {
             this.gameService.socketService.connect();
