@@ -1,27 +1,26 @@
 <div class="config-container">
-    <p>
-        <label
-            >Début du chronomètre (s) :
-            <button (click)="decreaseValue('initialTime')">-</button>
-            <input value="{{ initialTime }}" />
-            <button (click)="increaseValue('initialTime')">+</button>
-        </label>
-    </p>
-    <p>
-        <label
-            >Pénalité d'utilisation d'indice (s) :
-            <button (click)="decreaseValue('penaltyTime')">-</button>
-            <input value="{{ penaltyTime }}" />
-            <button (click)="increaseValue('penaltyTime')">+</button>
-        </label>
-    </p>
-    <p>
-        <label
-            >Temps bonus pour avoir trouvé une différence (s) :
-            <button (click)="decreaseValue('bonusTime')">-</button>
-            <input value="{{ bonusTime }}" />
-            <button (click)="increaseValue('bonusTime')">+</button>
-        </label>
-    </p>
-    <button class="btn" (click)="resetConstants()">réinitialiser les constantes</button>
+    <div class="label">
+        <p>Début du chronomètre (entre 15 et 120 secondes) : </p>
+        <button class="btn" (click)="buttonDecreaseInitialTime()">-</button>
+        <input #input1 (keyup)="manuallyChangeInitialTime(input1.value)" value="{{ initialTime }}"/>
+        <button class="btn" (click)="buttonIncreaseInitialTime()">+</button>
+    </div>
+    <div class="label">
+        <p>Pénalité d'utilisation d'indice (entre 3 et 10 secondes) : </p>
+        <button class="btn" (click)="buttonDecreasePenalty()">-</button>
+        <input #input2 (keyup)="manuallyChangePenaltyTime(input2.value)" value="{{ penaltyTime }}"/>
+        <button class="btn" (click)="buttonIncreasePenalty()">+</button>
+    </div>
+    <div class="label">
+        <p>Temps bonus pour avoir trouvé une différence (entre 3 et 10 secondes) : </p>
+        <button class="btn" (click)="buttonDecreaseBonus()">-</button>
+        <input #input3 (keyup)="manuallyChangeBonusTime(input3.value)" value="{{ bonusTime }}"/>
+        <button class="btn" (click)="buttonIncreaseBonus()">+</button>
+    </div>
+    <p class="invalidInput" *ngIf="this.isInvalidInput">Veuillez entrer un chiffre dans l'intervale demandée</p>
+    <div class="constantsModification">
+        <button class="btn" (click)="resetConstants()">Réinitialiser les constantes</button>
+        <button *ngIf="!this.isInvalidInput" class="btn" (click)="applyNewConstants()">Appliquer nouvelles constantes</button>
+    </div>
+    <p class="modificationFeedback" *ngIf="feedbackMessage">{{feedbackMessage}}</p>
 </div>

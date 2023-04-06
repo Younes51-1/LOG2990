@@ -352,6 +352,14 @@ describe('ClassicModeGateway', () => {
         expect(classicModeService.getRoom(getFakeGameRoom().roomId).userGame.potentialPlayers).toEqual(room.userGame.potentialPlayers);
     });
 
+    it('changeTime should call applyTimeToTimer', () => {
+        jest.spyOn(classicModeService, 'applyTimeToTimer').mockImplementation(() => {
+            return;
+        });
+        gateway.changeTime(socket, { roomId: getFakeGameRoom().roomId, time: 1 });
+        expect(classicModeService.applyTimeToTimer).toHaveBeenCalledWith(getFakeGameRoom().roomId, 1);
+    });
+
     it('afterInit should have created an interval to emit time', () => {
         const emitTimeSpy = jest.spyOn(gateway, 'emitTime').mockImplementation();
         jest.useFakeTimers();

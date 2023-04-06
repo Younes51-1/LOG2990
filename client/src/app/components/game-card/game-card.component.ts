@@ -59,7 +59,7 @@ export class GameCardComponent implements OnInit, OnDestroy {
         this.slide.soloBestTimes.forEach((time) => {
             this.soloBestTime.push({
                 name: time.name,
-                time: `${Math.floor(time.time / Time.MinInSec)}:${(time.time % Time.MinInSec).toLocaleString('en-US', {
+                time: `${Math.floor(time.time / Time.Sixty)}:${(time.time % Time.Sixty).toLocaleString('en-US', {
                     minimumIntegerDigits: 2,
                     useGrouping: false,
                 })}`,
@@ -68,7 +68,7 @@ export class GameCardComponent implements OnInit, OnDestroy {
         this.slide.vsBestTimes.forEach((time) => {
             this.vsBestTime.push({
                 name: time.name,
-                time: `${Math.floor(time.time / Time.MinInSec)}:${(time.time % Time.MinInSec).toLocaleString('en-US', {
+                time: `${Math.floor(time.time / Time.Sixty)}:${(time.time % Time.Sixty).toLocaleString('en-US', {
                     minimumIntegerDigits: 2,
                     useGrouping: false,
                 })}`,

@@ -2,11 +2,10 @@
 /* eslint-disable max-lines */
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
-import { ComponentFixture, discardPeriodicTasks, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
 import { DifferenceTry } from '@app/interfaces/difference-try';
 import { GameData, GameRoom, UserGame } from '@app/interfaces/game';
-import { ChatService } from '@app/services/chat/chat.service';
 import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
 import { DetectionDifferenceService } from '@app/services/detection-difference/detection-difference.service';
 import { Color } from 'src/assets/variables/color';
@@ -48,7 +47,6 @@ describe('PlayAreaComponent', () => {
     let classicModeService: ClassicModeService;
     let fixture: ComponentFixture<PlayAreaComponent>;
     let detectionDifferenceService: DetectionDifferenceService;
-    let chatService: ChatService;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
@@ -79,7 +77,7 @@ describe('PlayAreaComponent', () => {
     });
 
     it('should draw ERREUR on canvas1', () => {
-        const textDimensions = { x: 50, y: 30 };
+        const textDimensions = { x: 76, y: 30 };
         (component as any).context1 = component.canvas1.nativeElement.getContext('2d') as CanvasRenderingContext2D;
         const spy = spyOn((component as any).context1, 'fillText');
         (component as any).errorAnswerVisuals(component.canvas1.nativeElement);
@@ -92,7 +90,7 @@ describe('PlayAreaComponent', () => {
     });
 
     it('should draw ERREUR on canvas2', () => {
-        const textDimensions = { x: 50, y: 30 };
+        const textDimensions = { x: 76, y: 30 };
         (component as any).context2 = component.canvas2.nativeElement.getContext('2d') as CanvasRenderingContext2D;
         const spy = spyOn((component as any).context2, 'fillText');
         (component as any).errorAnswerVisuals(component.canvas2.nativeElement);
@@ -262,85 +260,6 @@ describe('PlayAreaComponent', () => {
         expect((component as any).context2.drawImage).toHaveBeenCalled();
     });
 
-    it('should set variables and call cheatMode on press of T', () => {
-        const cheatModeSpy = spyOn(component as any, 'cheatMode');
-        const cheatModeKey = 't';
-        const buttonEvent = { key: cheatModeKey } as KeyboardEvent;
-        component.buttonDetect(buttonEvent);
-        expect((component as any).isCheatModeOn).toBeTrue();
-        expect(cheatModeSpy).toHaveBeenCalled();
-    });
-
-    it('should call createAndFillNewLayer when in cheatMode', fakeAsync(() => {
-        const canvasMock = document.createElement('canvas');
-        const canvasContextMock = jasmine.createSpyObj('CanvasRenderingContext2D', ['drawImage']);
-        canvasMock.getContext = jasmine.createSpy('getContext').and.returnValue(canvasContextMock);
-        const spy = spyOn(component as any, 'createAndFillNewLayer').and.returnValue(canvasMock);
-        (component as any).isCheatModeOn = true;
-        (component as any).differenceMatrix = differenceMatrix;
-        (component as any).cheatMode();
-        const ms = 125;
-        tick(ms);
-        expect(spy).toHaveBeenCalledTimes(1);
-        discardPeriodicTasks();
-    }));
-
-    it("shouldn't call createAndFillNewLayer when in cheatMode if context1 or context2 are null", fakeAsync(() => {
-        (component as any).context1 = null as unknown as CanvasRenderingContext2D;
-        (component as any).context2 = null as unknown as CanvasRenderingContext2D;
-        const spy = spyOn(component as any, 'createAndFillNewLayer').and.callFake(() => {
-            return null as unknown as HTMLCanvasElement;
-        });
-        (component as any).isCheatModeOn = true;
-        (component as any).cheatMode();
-        const ms = 125;
-        tick(ms);
-        expect(spy).not.toHaveBeenCalled();
-        discardPeriodicTasks();
-    }));
-
-    it('should call drawImage 8 times per second on both contexts when in cheatMode', fakeAsync(() => {
-        (component as any).differenceMatrix = differenceMatrix;
-        (component as any).isCheatModeOn = true;
-        (component as any).context1 = component.canvas1.nativeElement.getContext('2d') as CanvasRenderingContext2D;
-        (component as any).context2 = component.canvas2.nativeElement.getContext('2d') as CanvasRenderingContext2D;
-        const drawImageSpy1 = spyOn((component as any).context1, 'drawImage');
-        const drawImageSpy2 = spyOn((component as any).context2, 'drawImage');
-        (component as any).cheatMode();
-        const ms = 1000;
-        tick(ms);
-        const timesCalled = 8;
-        expect(drawImageSpy1).toHaveBeenCalledTimes(timesCalled);
-        expect(drawImageSpy2).toHaveBeenCalledTimes(timesCalled);
-        discardPeriodicTasks();
-    }));
-
-    it('should clearInterval if cheatMode is deactivated', () => {
-        (component as any).isCheatModeOn = false;
-        const clearIntervalSpy = spyOn(window, 'clearInterval');
-        (component as any).cheatMode();
-        expect(clearIntervalSpy).toHaveBeenCalledTimes(1);
-    });
-
-    it('should clear flashes from canvases if cheatMode is deactivated', () => {
-        (component as any).isCheatModeOn = false;
-        const context1Spy = spyOn((component as any).context1, 'drawImage');
-        const context2Spy = spyOn((component as any).context2, 'drawImage');
-        (component as any).cheatMode();
-        expect(context1Spy).toHaveBeenCalledTimes(1);
-        expect(context2Spy).toHaveBeenCalledTimes(1);
-    });
-
-    it('should not call cheatMode if player is typing', () => {
-        chatService = TestBed.inject(ChatService);
-        spyOn(chatService, 'getIsTyping').and.returnValue(true);
-        const cheatModeSpy = spyOn(component as any, 'cheatMode');
-        const cheatModeKey = 't';
-        const buttonEvent = { key: cheatModeKey } as KeyboardEvent;
-        component.buttonDetect(buttonEvent);
-        expect(cheatModeSpy).not.toHaveBeenCalled();
-    });
-
     it('correctRetroaction should call audio play and pause and correctAnswerVisuals ', () => {
         (component as any).playerIsAllowedToClick = true;
         spyOn(component as any, 'correctAnswerVisuals');
@@ -429,15 +348,15 @@ describe('PlayAreaComponent', () => {
         (component as any).setContexts();
         expect((component as any).context1).toEqual((component as any).canvas1.nativeElement.getContext('2d'));
         expect((component as any).context2).toEqual((component as any).canvas2.nativeElement.getContext('2d'));
-        expect((component as any).context1.font).toEqual('30px "comic sans ms"');
-        expect((component as any).context2.font).toEqual('30px "comic sans ms"');
+        expect((component as any).context1.font).toEqual('50px MarioFont');
+        expect((component as any).context2.font).toEqual('50px MarioFont');
     });
 
     it('verifyDifferenceMatrix should call createAndFillNewLayer', () => {
         spyOn(component as any, 'createAndFillNewLayer').and.callFake(() => {
             return;
         });
-        (component as any).verifyDifferenceMatrix();
+        (component as any).verifyDifferenceMatrix('cheat');
         expect((component as any).createAndFillNewLayer).toHaveBeenCalled();
     });
 
@@ -445,6 +364,6 @@ describe('PlayAreaComponent', () => {
         const result = document.createElement('canvas');
         result.width = component.width;
         result.height = component.height;
-        expect((component as any).createAndFillNewLayer(Color.Cheat, true, differenceMatrix)).toEqual(result);
+        expect((component as any).createAndFillNewLayer(Color.Cheat, true, false, differenceMatrix)).toEqual(result);
     });
 });

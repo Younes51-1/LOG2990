@@ -2,14 +2,34 @@
     <img src="./assets/pictures/jeu.png" />
 </header>
 <section class="infos">
-    <app-game-scoreboard [gameName]="gameName" [username]="username" [opponentUsername]="opponentUsername"
-        [timer]="timer" [differencesFound]="userDifferencesFound"
+    <app-game-scoreboard
+        [gameName]="gameName"
+        [username]="username"
+        [opponentUsername]="opponentUsername"
+        [timer]="timer"
+        [differencesFound]="userDifferencesFound"
         [opponentDifferencesFound]="totalDifferencesFound - userDifferencesFound"
-        [gameRoom]="gameRoom"></app-game-scoreboard>
+        [gameRoom]="gameRoom"
+        [penaltyTime]="penaltyTime"
+        (sendDifferencesFound)="getDifferencesFound($event)"
+        (sendOpponentDifferencesFound)="getOpponentDifferencesFound($event)"
+    ></app-game-scoreboard>
 </section>
+<button *ngIf="!opponentUsername" class="hint" (click)="toggleHint()">Indices - il vous en reste {{ 3 - hintNum }}</button>
 <section class="gameplay">
-    <app-play-area class="play-area" tabindex="0" [gameRoom]="gameRoom"
-        (userError)="sendEvent('error')"></app-play-area>
-    <app-chat-box [gameRoom]="gameRoom" [username]="username"></app-chat-box>
+    <app-play-area
+        class="play-area"
+        tabindex="0"
+        [gameRoom]="gameRoom"
+        (userError)="sendEvent('error')"
+        (sendImage)="getImage($event)"
+        (sendDiff)="getDiff($event)"
+        (sendError)="getError($event)"
+        (sendSource)="getSource($event)"
+        (sendCheatStart)="getCheatStart($event)"
+        (sendCheatEnd)="getCheatEnd()"
+        (toggleHint)="toggleHint()"
+    ></app-play-area>
+    <app-chat-box [gameRoom]="gameRoom" [username]="username" (sendChatMessage)="getChatMessage($event)"></app-chat-box>
 </section>
 <button (click)="endGame()">Abandonner la partie</button>

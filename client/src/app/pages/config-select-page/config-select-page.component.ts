@@ -92,8 +92,8 @@ export class ConfigSelectPageComponent implements OnInit {
     }
 
     calculateTime(time: number) {
-        const minutes = Math.floor(time / Time.MinInSec);
-        const seconds = time % Time.MinInSec;
+        const minutes = Math.floor(time / Time.Sixty);
+        const seconds = time % Time.Sixty;
         return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
 
