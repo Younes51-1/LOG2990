@@ -1,5 +1,5 @@
 import { DIFFICULTY_THRESHOLD, NOT_TOP3 } from '@app/constants';
-import { environment } from '@app/environments/environment.prod';
+import { environment } from '@app/environments/environment';
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
 import { GameModeGateway } from '@app/gateways/game-mode/game-mode.gateway';
 import { Game, GameDocument } from '@app/model/database/game';
