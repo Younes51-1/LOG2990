@@ -21,16 +21,16 @@ export class WaitingRoomGateway implements OnGatewayDisconnect {
     startGame(socket: Socket, roomId: string): void {
         const gameRoom = this.gameModeService.getGameRoom(roomId);
         this.gameModeService.saveGameHistory(gameRoom);
-        this.logger.log(`Waiting room gateway: Launching the game: ${gameRoom.userGame.gameData.gameForm.name}`);
+        this.logger.log(`Waiting room gateway: Launching the game: ${gameRoom.userGame.gameData.name}`);
         this.server.to(roomId).emit(WaitingRoomEvents.Started, gameRoom);
     }
 
     @SubscribeMessage(WaitingRoomEvents.CreateGame)
     createGame(socket: Socket, gameRoom: GameRoom): void {
         this.gameModeService.initNewRoom(socket, gameRoom);
-        this.logger.log(`Waiting room gateway: Create the game: ${gameRoom.userGame.gameData.gameForm.name}`);
+        this.logger.log(`Waiting room gateway: Create the game: ${gameRoom.userGame.gameData.name}`);
         this.server.to(gameRoom.roomId).emit(WaitingRoomEvents.GameCreated, gameRoom);
-        this.server.emit(WaitingRoomEvents.GameFound, { gameName: gameRoom.userGame.gameData.gameForm.name, gameMode: gameRoom.gameMode });
+        this.server.emit(WaitingRoomEvents.GameFound, { gameName: gameRoom.userGame.gameData.name, gameMode: gameRoom.gameMode });
     }
 
     @SubscribeMessage(WaitingRoomEvents.AskingToJoinGame)
@@ -48,17 +48,17 @@ export class WaitingRoomGateway implements OnGatewayDisconnect {
     abortGameCreation(socket: Socket, roomId: string): void {
         const gameRoom = this.gameModeService.getGameRoom(roomId);
         if (!gameRoom) return;
-        this.logger.log(`Waiting room gateway: Game creation aborted: ${gameRoom.userGame.gameData.gameForm.name}`);
+        this.logger.log(`Waiting room gateway: Game creation aborted: ${gameRoom.userGame.gameData.name}`);
         this.gameModeService.deleteRoom(roomId);
-        this.server.emit(WaitingRoomEvents.GameDeleted, { gameName: gameRoom.userGame.gameData.gameForm.name, gameMode: gameRoom.gameMode });
-        this.server.emit(WaitingRoomEvents.GameCanceled, gameRoom.userGame.gameData.gameForm.name);
+        this.server.emit(WaitingRoomEvents.GameDeleted, { gameName: gameRoom.userGame.gameData.name, gameMode: gameRoom.gameMode });
+        this.server.emit(WaitingRoomEvents.GameCanceled, gameRoom.userGame.gameData.name);
     }
 
     @SubscribeMessage(WaitingRoomEvents.RejectPlayer)
     playerRejected(socket: Socket, playerInfo: { roomId: string; username: string }): void {
         const gameRoom = this.gameModeService.getGameRoom(playerInfo.roomId);
         if (gameRoom) {
-            this.logger.log(`Waiting room gateway: ${playerInfo.username} rejected from game: ${gameRoom.userGame.gameData.gameForm.name}`);
+            this.logger.log(`Waiting room gateway: ${playerInfo.username} rejected from game: ${gameRoom.userGame.gameData.name}`);
             gameRoom.userGame.potentialPlayers = gameRoom.userGame.potentialPlayers.filter((player) => player !== playerInfo.username);
             this.gameModeService.setGameRoom(gameRoom);
             this.server.to(gameRoom.roomId).emit(WaitingRoomEvents.PlayerRejected, gameRoom);
@@ -69,7 +69,7 @@ export class WaitingRoomGateway implements OnGatewayDisconnect {
     playerAccepted(socket: Socket, playerInfo: { roomId: string; username: string }): void {
         const gameRoom = this.gameModeService.getGameRoom(playerInfo.roomId);
         if (gameRoom) {
-            this.logger.log(`Waiting room gateway: ${playerInfo.username} accepted in game:  ${gameRoom.userGame.gameData.gameForm.name}`);
+            this.logger.log(`Waiting room gateway: ${playerInfo.username} accepted in game:  ${gameRoom.userGame.gameData.name}`);
             gameRoom.userGame.potentialPlayers = [];
             gameRoom.userGame.username2 = playerInfo.username;
             gameRoom.started = true;
@@ -82,7 +82,7 @@ export class WaitingRoomGateway implements OnGatewayDisconnect {
     leaveGame(socket: Socket, playerInfo: { roomId: string; username: string }): void {
         const gameRoom = this.gameModeService.getGameRoom(playerInfo.roomId);
         if (!gameRoom) return;
-        this.logger.log(`Waiting room gateway: ${playerInfo.username} left the game: ${gameRoom.userGame.gameData.gameForm.name}`);
+        this.logger.log(`Waiting room gateway: ${playerInfo.username} left the game: ${gameRoom.userGame.gameData.name}`);
         gameRoom.userGame.potentialPlayers = gameRoom.userGame.potentialPlayers.filter((player) => player !== playerInfo.username);
         this.gameModeService.setGameRoom(gameRoom);
         this.server.to(gameRoom.roomId).emit(WaitingRoomEvents.GameInfo, gameRoom);

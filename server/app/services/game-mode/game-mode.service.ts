@@ -14,7 +14,7 @@ export class GameModeService {
     getGameRoom(roomId?: string, gameName?: string, gameMode?: string): GameRoom {
         if (roomId) return this.gameRooms.get(roomId);
         for (const gameRoom of this.gameRooms.values()) {
-            if (gameRoom.userGame.gameData.gameForm.name === gameName && gameRoom.gameMode === gameMode) return gameRoom;
+            if (gameRoom.userGame.gameData.name === gameName && gameRoom.gameMode === gameMode) return gameRoom;
         }
     }
 
@@ -54,7 +54,7 @@ export class GameModeService {
 
     saveGameHistory(gameRoom: GameRoom): void {
         const newGameHistory = new GameHistory();
-        newGameHistory.name = gameRoom.userGame.gameData.gameForm.name;
+        newGameHistory.name = gameRoom.userGame.gameData.name;
         newGameHistory.username1 = gameRoom.userGame.username1;
         newGameHistory.username2 = gameRoom.userGame?.username2;
         newGameHistory.startTime = Date.now();
@@ -91,7 +91,7 @@ export class GameModeService {
         const gameRoom = this.getGameRoom(gameId);
         if (!gameRoom) return false;
         if (gameRoom.gameMode === 'classic-mode') {
-            return gameRoom.userGame.nbDifferenceFound === gameRoom.userGame.gameData.gameForm.nbDifference;
+            return gameRoom.userGame.nbDifferenceFound === gameRoom.userGame.gameData.nbDifference;
         } else {
             return gameRoom.userGame.timer <= 0;
         }
@@ -146,7 +146,7 @@ export class GameModeService {
 
     getGameModeRoom(gameName: string, gameMode: string): GameRoom {
         for (const gameRoom of this.gameRooms.values()) {
-            if (gameRoom.userGame.gameData.gameForm.name === gameName && gameRoom.gameMode === gameMode && !gameRoom.started) {
+            if (gameRoom.userGame.gameData.name === gameName && gameRoom.gameMode === gameMode && !gameRoom.started) {
                 return gameRoom;
             }
         }

@@ -25,8 +25,16 @@ describe('GameScoreboardComponent', () => {
 
     beforeEach(() => {
         const differenceMatrix: number[][] = [[]];
-        const gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulty: '', soloBestTimes: [], vsBestTimes: [] };
-        const gameData: GameData = { gameForm, differenceMatrix };
+        const gameData: GameData = {
+            name: '',
+            nbDifference: 0,
+            image1url: '',
+            image2url: '',
+            difficulty: '',
+            soloBestTimes: [],
+            vsBestTimes: [],
+            differenceMatrix,
+        };
         const gameRoom = {
             userGame: { gameData, nbDifferenceFound: 0, timer: 0, username1: 'Test' },
             roomId: 'fakeId',

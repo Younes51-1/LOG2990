@@ -74,7 +74,7 @@ export class WaitingRoomService {
         this.socketService.on('gameInfo', (gameRoom: GameRoom) => {
             if (
                 gameRoom &&
-                (!this.gameRoom || this.gameRoom.userGame.gameData.gameForm.name === gameRoom.userGame.gameData.gameForm.name) &&
+                (!this.gameRoom || this.gameRoom.userGame.gameData.name === gameRoom.userGame.gameData.name) &&
                 this.gameMode === gameRoom.gameMode
             ) {
                 this.gameRoom = gameRoom;
@@ -118,7 +118,7 @@ export class WaitingRoomService {
         });
 
         this.socketService.on('gameCanceled', (gameName) => {
-            if (this.gameRoom?.userGame.gameData.gameForm.name === gameName) {
+            if (this.gameRoom?.userGame.gameData.name === gameName) {
                 this.gameCanceled$.next(true);
             }
         });

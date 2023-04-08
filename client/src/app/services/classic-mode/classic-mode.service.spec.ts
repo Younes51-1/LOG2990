@@ -42,8 +42,7 @@ describe('ClassicModeService', () => {
 
     beforeEach(() => {
         differenceMatrix = [[]];
-        gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulty: '', soloBestTimes: [], vsBestTimes: [] };
-        gameData = { gameForm, differenceMatrix };
+        gameData = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulty: '', soloBestTimes: [], vsBestTimes: [], differenceMatrix };
         gameRoom = {
             userGame: { gameData, nbDifferenceFound: 0, timer: 0, username1: 'Test' },
             roomId: 'fakeId',

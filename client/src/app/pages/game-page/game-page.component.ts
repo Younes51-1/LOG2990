@@ -77,13 +77,13 @@ export class GamePageComponent implements OnInit, OnDestroy {
         });
         this.gameRoomSubscription = this.gameService.gameRoom$.subscribe((gameRoom) => {
             this.gameRoom = gameRoom;
-            this.gameName = gameRoom.userGame.gameData.gameForm.name;
+            this.gameName = gameRoom.userGame.gameData.name;
             if (gameRoom.userGame.username2) {
                 this.opponentUsername = gameRoom.userGame.username1 === this.username ? gameRoom.userGame.username2 : gameRoom.userGame.username1;
-                this.differenceThreshold = Math.ceil(gameRoom.userGame.gameData.gameForm.nbDifference / 2);
+                this.differenceThreshold = Math.ceil(gameRoom.userGame.gameData.nbDifference / 2);
             } else {
                 this.opponentUsername = '';
-                this.differenceThreshold = gameRoom.userGame.gameData.gameForm.nbDifference;
+                this.differenceThreshold = gameRoom.userGame.gameData.nbDifference;
             }
         });
         this.abandonedGameSubscription = this.gameService.abandoned$.subscribe((username: string) => {

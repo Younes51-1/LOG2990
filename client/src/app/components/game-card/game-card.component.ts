@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { WaitingRoomComponent } from '@app/components/waiting-room-dialog/waiting-room-dialog.component';
-import { GameForm } from '@app/interfaces/game';
+import { GameData } from '@app/interfaces/game';
 import { GameFinderService } from '@app/services/game-finder/game-finder.service';
 import { GameSetupService } from '@app/services/game-setup/game-setup.service';
 import { VerifyInputService } from '@app/services/verify-input/verify-input.service';
@@ -15,7 +15,7 @@ import { Time } from 'src/assets/variables/time';
 })
 export class GameCardComponent implements OnInit, OnDestroy {
     @Input() page: PageKeys;
-    @Input() slide: GameForm;
+    @Input() slide: GameData;
 
     @Output() notify = new EventEmitter();
     @Output() deleteNotify = new EventEmitter();

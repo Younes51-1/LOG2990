@@ -36,12 +36,8 @@ export class ConfigHttpService {
         return this.http.put(`${this.baseUrl}/config/constants`, constants, { observe: 'response', responseType: 'text' });
     }
 
-    deleteHistory(id?: string): Observable<HttpResponse<string>> {
-        if (id) {
-            return this.http.delete(`${this.baseUrl}/config/history/${id}`, { observe: 'response', responseType: 'text' });
-        } else {
-            return this.http.delete(`${this.baseUrl}/config/history`, { observe: 'response', responseType: 'text' });
-        }
+    deleteHistory(): Observable<HttpResponse<string>> {
+        return this.http.delete(`${this.baseUrl}/config/history`, { observe: 'response', responseType: 'text' });
     }
 
     deleteBestTimes(): Observable<HttpResponse<string>> {

@@ -90,7 +90,7 @@ export class ImageLoadService {
             differenceMatrix: this.component.differenceMatrix,
         };
         this.component.getCommunicationService.getGame(newGame.name).subscribe((res) => {
-            if (!res.gameForm) {
+            if (!res || Object.keys(res).length === 0) {
                 this.component.getCommunicationService.createNewGame(newGame).subscribe({
                     next: () => {
                         this.component.getRouter.navigate(['/config']);

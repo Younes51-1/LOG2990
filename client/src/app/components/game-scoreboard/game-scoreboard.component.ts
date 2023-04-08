@@ -31,8 +31,8 @@ export class GameScoreboardComponent implements OnChanges {
 
     ngOnChanges() {
         if (this.gameRoom) {
-            this.totalNumber = this.gameRoom.userGame.gameData.gameForm.nbDifference;
-            this.difficulty = this.gameRoom.userGame.gameData.gameForm.difficulty;
+            this.totalNumber = this.gameRoom.userGame.gameData.nbDifference;
+            this.difficulty = this.gameRoom.userGame.gameData.difficulty;
             this.minutes = Math.floor(this.timer / Time.Sixty);
             this.seconds = this.timer % Time.Sixty;
         }

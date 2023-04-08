@@ -116,7 +116,7 @@ export class ClassicModeService {
         this.gameService.socketService.on('gameInfo', (gameRoom: GameRoom) => {
             if (
                 gameRoom &&
-                (!this.gameRoom || this.gameRoom.userGame.gameData.gameForm.name === gameRoom.userGame.gameData.gameForm.name) &&
+                (!this.gameRoom || this.gameRoom.userGame.gameData.name === gameRoom.userGame.gameData.name) &&
                 this.gameService.gameMode === gameRoom.gameMode
             ) {
                 this.gameRoom = gameRoom;
@@ -173,16 +173,16 @@ export class ClassicModeService {
     }
 
     private updateBestTime(gameFinished: boolean, winner: boolean): void {
-        this.configHttpService.getBestTime(this.gameRoom.userGame.gameData.gameForm.name).subscribe((bestTimes) => {
+        this.configHttpService.getBestTime(this.gameRoom.userGame.gameData.name).subscribe((bestTimes) => {
             if (!bestTimes) return;
             const actualBestTime = this.gameRoom.userGame.username2 ? bestTimes.vsBestTimes[2].time : bestTimes.soloBestTimes[2].time;
             if (this.gameRoom.userGame.timer < actualBestTime && winner && gameFinished && !this.isAbandoned) {
                 const newBestTime = new NewBestTime();
-                newBestTime.gameName = this.gameRoom.userGame.gameData.gameForm.name;
+                newBestTime.gameName = this.gameRoom.userGame.gameData.name;
                 newBestTime.time = this.gameRoom.userGame.timer;
                 newBestTime.name = this.username;
                 newBestTime.isSolo = !this.gameRoom.userGame.username2;
-                this.configHttpService.updateBestTime(this.gameRoom.userGame.gameData.gameForm.name, newBestTime).subscribe((position) => {
+                this.configHttpService.updateBestTime(this.gameRoom.userGame.gameData.name, newBestTime).subscribe((position) => {
                     this.timePosition$.next(position);
                 });
             }

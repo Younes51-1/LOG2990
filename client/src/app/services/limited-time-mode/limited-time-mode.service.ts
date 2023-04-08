@@ -31,11 +31,7 @@ export class LimitedTimeModeService {
 
     getAllGames() {
         this.communicationService.getAllGames().subscribe((games) => {
-            for (const game of games) {
-                this.communicationService.getGame(game.name).subscribe((res) => {
-                    if (res) this.slides.push(res);
-                });
-            }
+            this.slides = games;
         });
     }
 

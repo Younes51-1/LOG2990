@@ -32,8 +32,16 @@ class SocketClientServiceMock extends CommunicationSocketService {
 
 describe('GameCardComponent', () => {
     const differenceMatrix: number[][] = [[]];
-    const gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulty: '', soloBestTimes: [], vsBestTimes: [] };
-    const gameData: GameData = { gameForm, differenceMatrix };
+    const gameData: GameData = {
+        name: '',
+        nbDifference: 0,
+        image1url: '',
+        image2url: '',
+        difficulty: '',
+        soloBestTimes: [],
+        vsBestTimes: [],
+        differenceMatrix,
+    };
 
     let component: GameCardComponent;
     let fixture: ComponentFixture<GameCardComponent>;
@@ -97,6 +105,7 @@ describe('GameCardComponent', () => {
                 { name: 'player2', time: 150 },
                 { name: 'player3', time: 150 },
             ],
+            differenceMatrix,
         };
         fixture.detectChanges();
     });
