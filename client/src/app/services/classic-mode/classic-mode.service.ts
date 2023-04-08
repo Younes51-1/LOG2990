@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { DifferenceTry } from '@app/interfaces/difference-try';
 import { EndGame, GameRoom, NewBestTime } from '@app/interfaces/game';
 import { Vec2 } from '@app/interfaces/vec2';
-import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 import { ConfigHttpService } from '@app/services/config-http/config-http.service';
 import { Subject } from 'rxjs';
 import { GameService } from '@app/services/game/game.service';
@@ -27,7 +26,7 @@ export class ClassicModeService {
     private gameService: GameService;
     private canSendValidate = true;
 
-    constructor(private communicationService: CommunicationHttpService, private configHttpService: ConfigHttpService) {}
+    constructor(private configHttpService: ConfigHttpService) {}
 
     setGameService(gameService: GameService) {
         this.gameService = gameService;
@@ -35,46 +34,6 @@ export class ClassicModeService {
             this.gameRoom = this.gameService.gameRoom;
             this.handleSocket();
         }
-    }
-
-    initGameMode(gameName: string, username: string, started: boolean): void {
-        this.communicationService.getGame(gameName).subscribe((res) => {
-            if (res && Object.keys(res).length !== 0) {
-                this.gameRoom = {
-                    userGame: {
-                        gameData: res,
-                        nbDifferenceFound: 0,
-                        timer: 0,
-                        username1: username,
-                    },
-                    roomId: '',
-                    started,
-                    gameMode: 'classic-mode',
-                };
-                this.username = username;
-                this.gameService.disconnectSocket();
-                this.connect();
-                if (!started) this.gameService.handleWaitingRoomSocket();
-                this.gameService.socketService.send('createGame', this.gameRoom);
-            } else {
-                alert('Jeu introuvable');
-            }
-        });
-    }
-
-    joinWaitingRoom(gameName: string, username: string): void {
-        this.communicationService.getGame(gameName).subscribe((res) => {
-            if (res && Object.keys(res).length !== 0) {
-                this.gameRoom = undefined as unknown as GameRoom;
-                this.username = username;
-                this.gameService.disconnectSocket();
-                this.connect();
-                this.gameService.handleWaitingRoomSocket();
-                this.gameService.socketService.send('askingToJoinGame', { gameName, username, gameMode: 'classic-mode' });
-            } else {
-                alert('Jeu introuvable');
-            }
-        });
     }
 
     startGame(): void {
@@ -151,15 +110,6 @@ export class ClassicModeService {
         this.gameService.socketService.off('abandoned');
         this.gameService.socketService.off('started');
         this.gameService.socketService.off('timer');
-    }
-
-    private connect(): void {
-        if (!this.gameService.socketService.isSocketAlive()) {
-            this.gameService.socketService.connect();
-            this.handleSocket();
-        } else {
-            alert('Problème de connexion');
-        }
     }
 
     private handleSocket(): void {

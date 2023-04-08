@@ -76,16 +76,15 @@ export class GameModeGateway implements OnGatewayConnection, OnGatewayDisconnect
             }
             const sockets = this.server.sockets.adapter.rooms.get(data.roomId);
             sockets.delete(socket.id);
+            const gameHistory = this.gameModeService.getGameHistory(data.roomId);
             if (socket.id === gameRoom.roomId) {
                 socket.leave(data.roomId);
                 gameRoom.roomId = Array.from(sockets.keys())[0];
-                const gameHistory = this.gameModeService.getGameHistory(data.roomId);
-                this.gameModeService.deleteGameHistory(socket.id);
-                this.gameModeService.setGameHistory(gameRoom.roomId, gameHistory);
             } else {
                 socket.leave(socket.id);
             }
-            gameRoom.gameMode = 'classic-mode';
+            this.gameModeService.deleteGameHistory(socket.id);
+            this.gameModeService.setGameHistory(gameRoom.roomId, gameHistory);
             this.gameModeService.deleteRoom(socket.id);
             this.gameModeService.setGameRoom(gameRoom);
             this.server.to(gameRoom.roomId).emit(GameModeEvents.Abandoned, gameRoom);

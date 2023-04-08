@@ -97,12 +97,8 @@
                 (click)="showColorPicker = false; showPencilThicknessPicker = false; showEraserThicknessPicker = true">
                 <i class="fa fa-eraser"></i>
             </button>
-            <button class="button"
-                (click)="ctrlZ(); showColorPicker = false; showPencilThicknessPicker = false; showEraserThicknessPicker = false"><i
-                    class="fas fa-undo"></i></button>
-            <button class="button"
-                (click)="ctrlShiftZ(); showColorPicker = false; showPencilThicknessPicker = false; showEraserThicknessPicker = false"><i
-                    class="fas fa-redo"></i></button>
+            <button class="button" (click)="ctrlZ()"><i class="fas fa-undo"></i></button>
+            <button class="button" (click)="ctrlShiftZ()"><i class="fas fa-redo"></i></button>
         </div>
     </div>
     <section class="footer">

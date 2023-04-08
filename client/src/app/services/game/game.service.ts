@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { GameContext, GameRoom } from '@app/interfaces/game';
+import { GameRoom } from '@app/interfaces/game';
 import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
 import { Subject } from 'rxjs';
 import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
@@ -18,9 +18,6 @@ const NOT_TOP3 = -1;
 })
 export class GameService {
     gameExists$ = new Subject<boolean>();
-    rejected$ = new Subject<boolean>();
-    accepted$ = new Subject<boolean>();
-    gameCanceled$ = new Subject<boolean>();
     timePosition$ = new Subject<number>();
     serverValidateResponse$ = new Subject<DifferenceTry>();
     totalDifferencesFound$ = new Subject<number>();
@@ -95,37 +92,6 @@ export class GameService {
         }
     }
 
-    checkGame(gameName: string): void {
-        this.connectSocket();
-        this.socketService.send('checkGame', { gameName, gameMode: this.gameMode });
-        this.socketService.on('gameFound', (gameContext: GameContext) => {
-            if (gameName === gameContext.gameName && this.gameMode === gameContext.gameMode) {
-                this.gameExists$.next(true);
-            }
-        });
-
-        this.socketService.on('gameDeleted', (gameContext: GameContext) => {
-            if (gameName === gameContext.gameName && this.gameMode === gameContext.gameMode) {
-                this.gameExists$.next(false);
-            }
-        });
-    }
-
-    startSoloGame(gameName: string, username: string): void {
-        this.username = username;
-        this.gameManager.initGameMode(gameName, username, true);
-    }
-
-    createGame(gameName: string, username: string): void {
-        this.username = username;
-        this.gameManager.initGameMode(gameName, username, false);
-    }
-
-    joinGame(gameName: string, username: string): void {
-        this.username = username;
-        this.gameManager.joinWaitingRoom(gameName, username);
-    }
-
     canJoinGame(gameName: string, username: string, gameCard: GameCardComponent): void {
         this.socketService.send('canJoinGame', { gameName, username, gameMode: this.gameMode });
         this.socketService.on('cannotJoinGame', () => {
@@ -137,18 +103,6 @@ export class GameService {
         });
     }
 
-    playerRejected(player: string): void {
-        if (this.socketService.isSocketAlive()) {
-            this.socketService.send('rejectPlayer', { roomId: this.gameRoom.roomId, username: player });
-        }
-    }
-
-    playerAccepted(player: string): void {
-        if (this.socketService.isSocketAlive()) {
-            this.socketService.send('acceptPlayer', { roomId: this.gameRoom.roomId, username: player });
-        }
-    }
-
     startGame(): void {
         this.gameManager.startGame();
         this.chatService.handleMessage();
@@ -156,37 +110,6 @@ export class GameService {
 
     abortGame(): void {
         this.gameManager.abortGame();
-    }
-
-    handleWaitingRoomSocket(): void {
-        this.socketService.on('playerAccepted', (gameRoom: GameRoom) => {
-            if (gameRoom && (gameRoom.userGame.username1 === this.username || gameRoom.userGame.username2 === this.username)) {
-                this.gameRoom = gameRoom;
-                this.accepted$.next(true);
-            } else if (gameRoom) {
-                this.gameRoom = gameRoom;
-                this.rejected$.next(true);
-            }
-        });
-
-        this.socketService.on('playerRejected', (gameRoom: GameRoom) => {
-            if (
-                gameRoom &&
-                gameRoom.userGame.username1 !== this.username &&
-                gameRoom.userGame.username2 !== this.username &&
-                !gameRoom.userGame.potentialPlayers?.includes(this.username)
-            ) {
-                this.rejected$.next(true);
-            } else if (gameRoom) {
-                this.gameRoom = gameRoom;
-            }
-        });
-
-        this.socketService.on('gameCanceled', (gameName) => {
-            if (this.gameRoom?.userGame.gameData.gameForm.name === gameName) {
-                this.gameCanceled$.next(true);
-            }
-        });
     }
 
     topScore() {
