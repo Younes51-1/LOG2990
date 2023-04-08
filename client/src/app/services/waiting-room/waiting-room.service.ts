@@ -61,13 +61,14 @@ export class WaitingRoomService {
         this.socketService.send('createGame', this.gameRoom);
     }
 
-    joinGame(gameName: string, username: string): void {
+    joinGame(gameName: string, username: string, gameMode: string): void {
         this.gameRoom = undefined as unknown as GameRoom;
         this.username = username;
+        this.gameMode = gameMode;
         this.disconnectSocket();
         this.connectSocket();
         this.handleWaitingRoomSocket();
-        this.socketService.send('askingToJoinGame', { gameName, username, gameMode: 'classic-mode' });
+        this.socketService.send('askingToJoinGame', { gameName, username, gameMode });
     }
 
     handleWaitingRoomSocket(): void {

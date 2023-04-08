@@ -3,7 +3,6 @@ import { GameRoom } from '@app/interfaces/game';
 import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
 import { Subject } from 'rxjs';
 import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
-import { GameCardComponent } from '@app/components/game-card/game-card.component';
 import { ChatService } from '@app/services/chat/chat.service';
 import { DifferenceTry } from '@app/interfaces/difference-try';
 import { Vec2 } from '@app/interfaces/vec2';
@@ -90,17 +89,6 @@ export class GameService {
         if (this.socketService.isSocketAlive()) {
             this.socketService.disconnect();
         }
-    }
-
-    canJoinGame(gameName: string, username: string, gameCard: GameCardComponent): void {
-        this.socketService.send('canJoinGame', { gameName, username, gameMode: this.gameMode });
-        this.socketService.on('cannotJoinGame', () => {
-            gameCard.applyBorder = true;
-            this.disconnectSocket();
-        });
-        this.socketService.on('canJoinGame', () => {
-            gameCard.joinGame();
-        });
     }
 
     startGame(): void {

@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { CreateJoinGameDialogComponent } from '@app/components/create-join-game-dialog/create-join-game-dialog.component';
 import { GameService } from '@app/services/game/game.service';
 
 @Component({
@@ -17,11 +19,16 @@ export class MainPageComponent {
         ' Younes Benabbou',
         ' Dumitru Zlotea',
     ];
+    dialogRef: MatDialogRef<CreateJoinGameDialogComponent>;
 
-    constructor(private gameService: GameService, private readonly router: Router) {}
+    constructor(private gameService: GameService, private readonly router: Router, private dialog: MatDialog) {}
 
     setGameMode(mode: string) {
         this.gameService.setGameMode(mode);
-        this.router.navigate(['/selection']);
+        if (mode === 'classic-mode') {
+            this.router.navigate(['/selection']);
+        } else {
+            this.dialogRef = this.dialog.open(CreateJoinGameDialogComponent);
+        }
     }
 }

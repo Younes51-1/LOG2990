@@ -12,17 +12,21 @@ export class GameFinderService {
     gameMode: string;
     constructor(private readonly socketService: CommunicationSocketService) {}
 
-    checkGame(gameName: string): void {
+    checkGame(gameName = undefined as unknown as string): void {
         this.connectSocket();
         this.socketService.send('checkGame', { gameName, gameMode: this.gameMode });
         this.socketService.on('gameFound', (gameContext: GameContext) => {
-            if (gameName === gameContext.gameName && this.gameMode === gameContext.gameMode) {
+            if (gameContext.gameMode === 'limited-time-mode' && gameContext.gameMode === this.gameMode) {
+                this.gameExists$.next(true);
+            } else if (gameName === gameContext.gameName && gameContext.gameMode === this.gameMode) {
                 this.gameExists$.next(true);
             }
         });
 
         this.socketService.on('gameDeleted', (gameContext: GameContext) => {
-            if (gameName === gameContext.gameName && this.gameMode === gameContext.gameMode) {
+            if (gameContext.gameMode === 'limited-time-mode' && gameContext.gameMode === this.gameMode) {
+                this.gameExists$.next(false);
+            } else if (gameName === gameContext.gameName && gameContext.gameMode === this.gameMode) {
                 this.gameExists$.next(false);
             }
         });
@@ -40,7 +44,7 @@ export class GameFinderService {
         }
     }
 
-    canJoinGame(gameName: string, username: string, gameCard: GameCardComponent): void {
+    canJoinGame(username: string, gameCard: GameCardComponent, gameName = undefined as unknown as string): void {
         this.socketService.send('canJoinGame', { gameName, username, gameMode: this.gameMode });
         this.socketService.on('cannotJoinGame', () => {
             gameCard.applyBorder = true;

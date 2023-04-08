@@ -13,9 +13,16 @@ export class GameModeService {
 
     getGameRoom(roomId?: string, gameName?: string, gameMode?: string): GameRoom {
         if (roomId) return this.gameRooms.get(roomId);
-        for (const gameRoom of this.gameRooms.values()) {
-            if (gameRoom.userGame.gameData.name === gameName && gameRoom.gameMode === gameMode) return gameRoom;
+        if (gameMode === 'classic-mode') {
+            for (const gameRoom of this.gameRooms.values()) {
+                if (gameRoom.userGame.gameData.name === gameName && gameRoom.gameMode === gameMode) return gameRoom;
+            }
+        } else {
+            for (const gameRoom of this.gameRooms.values()) {
+                if (gameRoom.gameMode === gameMode) return gameRoom;
+            }
         }
+        return undefined;
     }
 
     setGameRoom(gameRoom: GameRoom): void {
@@ -130,7 +137,7 @@ export class GameModeService {
     }
 
     canJoinGame(socket: Socket, data: { gameName: string; username: string; gameMode: string }): GameRoom {
-        const gameRoom = this.getGameModeRoom(data.gameName, data.gameMode);
+        const gameRoom = this.getGameRoom(undefined, data.gameName, data.gameMode);
         if (!gameRoom) return null;
         if (!gameRoom.userGame.potentialPlayers) {
             gameRoom.userGame.potentialPlayers = [];
@@ -142,15 +149,6 @@ export class GameModeService {
             return undefined;
         }
         return gameRoom;
-    }
-
-    getGameModeRoom(gameName: string, gameMode: string): GameRoom {
-        for (const gameRoom of this.gameRooms.values()) {
-            if (gameRoom.userGame.gameData.name === gameName && gameRoom.gameMode === gameMode && !gameRoom.started) {
-                return gameRoom;
-            }
-        }
-        return undefined;
     }
 
     applyTimeToTimer(roomId: string, time: number): void {

@@ -136,7 +136,7 @@ export class GameCardComponent implements OnInit, OnDestroy {
     }
 
     private startSoloGame() {
-        this.gameSetupService.initGameRoom(this.inputValue1, true, 'classic-mode');
+        this.gameSetupService.initGameRoom(this.inputValue1, true);
         this.gameSetupService.initGameMode(this.slide.name);
         this.notify.emit(this.slide.name);
     }
@@ -150,13 +150,13 @@ export class GameCardComponent implements OnInit, OnDestroy {
     }
 
     private createGame() {
-        this.gameSetupService.initGameRoom(this.inputValue2, false, 'classic-mode');
+        this.gameSetupService.initGameRoom(this.inputValue2, false);
         this.gameSetupService.initGameMode(this.slide.name);
         this.notify.emit(this.slide);
         this.dialogRef = this.dialog.open(WaitingRoomComponent, { disableClose: true, width: '80%', height: '80%' });
     }
 
     private canJoinGame() {
-        this.gameFinderService.canJoinGame(this.slide.name, this.inputValue2, this);
+        this.gameFinderService.canJoinGame(this.inputValue2, this, this.slide.name);
     }
 }

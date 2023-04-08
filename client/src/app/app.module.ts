@@ -33,6 +33,7 @@ import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { SlickCarouselModule } from 'ngx-slick-carousel';
 import { GameService } from '@app/services/game/game.service';
+import { CreateJoinGameDialogComponent } from '@app/components/create-join-game-dialog/create-join-game-dialog.component';
 
 /**
  * Main module that is used in main.ts.
@@ -60,6 +61,7 @@ import { GameService } from '@app/services/game/game.service';
         ReplayPlayAreaComponent,
         ReplayScoreBoardComponent,
         ReplayChatBoxComponent,
+        CreateJoinGameDialogComponent,
     ],
     providers: [GameService],
     bootstrap: [AppComponent],

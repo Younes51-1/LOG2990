@@ -29,7 +29,7 @@ export class GameService {
 
     async getGame(name: string): Promise<GameData> {
         const game = await this.gameModel.findOne({ name });
-        if (!game) return new GameData();
+        if (!game) return Promise.reject('Failed to get game');
         return await this.convertGameToGameData(game);
     }
 

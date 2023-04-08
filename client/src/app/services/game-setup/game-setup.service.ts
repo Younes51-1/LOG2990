@@ -38,15 +38,11 @@ export class GameSetupService {
 
     getAllGames() {
         this.communicationService.getAllGames().subscribe((games) => {
-            for (const game of games) {
-                this.communicationService.getGame(game.name).subscribe((res) => {
-                    if (res) this.slides.push(res);
-                });
-            }
+            this.slides = games;
         });
     }
 
-    initGameRoom(username: string, started: boolean, gameMode: string): void {
+    initGameRoom(username: string, started: boolean): void {
         this.gameRoom = {
             userGame: {
                 gameData: undefined as unknown as GameData,
@@ -56,34 +52,70 @@ export class GameSetupService {
             },
             roomId: '',
             started,
-            gameMode,
+            gameMode: this.gameMode,
         };
         this.username = username;
-        this.gameMode = gameMode;
     }
 
-    initGameMode(gameName: string): void {
-        this.communicationService.getGame(gameName).subscribe((res) => {
-            if (res && Object.keys(res).length !== 0) {
-                this.gameRoom.userGame.gameData = res;
-                this.waitingRoomService.createGame(this.gameRoom);
-                if (this.gameRoom.started) {
-                    this.router.navigate(['/game']);
-                }
-            } else {
-                alert('Jeu introuvable');
-            }
-        });
+    initGameMode(gameName = undefined as unknown as string): void {
+        if (gameName) {
+            this.initClassicMode(gameName);
+        } else {
+            this.initLimitedTimeMode();
+        }
+    }
+
+    initClassicMode(gameName: string): void {
+        const slide = this.getGameData(gameName);
+        if (!slide) {
+            alert('Jeu introuvable');
+            return;
+        }
+        this.gameRoom.userGame.gameData = slide;
+        if (this.gameRoom.started) {
+            this.router.navigate(['/game']);
+        } else {
+            this.waitingRoomService.createGame(this.gameRoom);
+        }
+    }
+
+    initLimitedTimeMode(): void {
+        this.gameRoom.userGame.gameData = this.randomSlide();
+        if (this.gameRoom.started) {
+            this.router.navigate(['/game']);
+        } else {
+            this.waitingRoomService.createGame(this.gameRoom);
+        }
     }
 
     joinGame(gameName: string, username: string): void {
-        this.communicationService.getGame(gameName).subscribe((res) => {
-            if (res && Object.keys(res).length !== 0) {
-                this.gameRoom = undefined as unknown as GameRoom;
-                this.waitingRoomService.joinGame(gameName, username);
-            } else {
-                alert('Jeu introuvable');
-            }
-        });
+        this.username = username;
+        if (this.gameMode === 'classic-mode') {
+            this.joinClassicMode(gameName);
+        } else {
+            this.joinLimitedTimeMode();
+        }
+    }
+
+    joinClassicMode(gameName: string): void {
+        const slide = this.getGameData(gameName);
+        if (!slide) {
+            alert('Jeu introuvable');
+            return;
+        }
+        this.waitingRoomService.joinGame(gameName, this.username, this.gameMode);
+    }
+
+    joinLimitedTimeMode(): void {
+        this.gameRoom = undefined as unknown as GameRoom;
+        // this.waitingRoomService.joinGame(, this.username);
+    }
+
+    private randomSlide(): GameData {
+        return this.slides[Math.floor(Math.random() * this.slides.length) + 1];
+    }
+
+    private getGameData(gameName: string): GameData | undefined {
+        return this.slides.find((game) => game.name === gameName);
     }
 }
