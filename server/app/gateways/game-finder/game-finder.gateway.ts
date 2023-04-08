@@ -1,12 +1,12 @@
 import { GameFinderEvents } from '@app/gateways/game-finder/game-finder.gateway.variables';
 import { GameModeService } from '@app/services/game-mode/game-mode.service';
 import { Injectable, Logger } from '@nestjs/common';
-import { OnGatewayConnection, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({ cors: true })
 @Injectable()
-export class GameFinderGateway implements OnGatewayConnection {
+export class GameFinderGateway {
     @WebSocketServer() private server: Server;
 
     constructor(private readonly logger: Logger, private readonly gameModeService: GameModeService) {}
@@ -28,9 +28,5 @@ export class GameFinderGateway implements OnGatewayConnection {
             this.logger.log(`Game finder gateway: ${data.username} cannot join the game: ${data.gameName}`);
             this.server.to(socket.id).emit(GameFinderEvents.CannotJoinGame);
         }
-    }
-
-    handleConnection(socket: Socket): void {
-        this.logger.log(`Game finder gateway: Connection of user with id: ${socket.id}`);
     }
 }

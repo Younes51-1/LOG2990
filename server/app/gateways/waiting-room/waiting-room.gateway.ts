@@ -3,12 +3,12 @@ import { GameRoom } from '@app/model/schema/game-room.schema';
 import { GameHistoryService } from '@app/services/game-history/game-history.service';
 import { GameModeService } from '@app/services/game-mode/game-mode.service';
 import { Injectable, Logger } from '@nestjs/common';
-import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({ cors: true })
 @Injectable()
-export class WaitingRoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class WaitingRoomGateway implements OnGatewayDisconnect {
     @WebSocketServer() private server: Server;
 
     constructor(
@@ -88,16 +88,13 @@ export class WaitingRoomGateway implements OnGatewayConnection, OnGatewayDisconn
         this.server.to(gameRoom.roomId).emit(WaitingRoomEvents.GameInfo, gameRoom);
     }
 
-    handleConnection(socket: Socket): void {
-        this.logger.log(`Waiting room gateway: Connection of user with id: ${socket.id}`);
-    }
-
     handleDisconnect(socket: Socket): void {
-        this.logger.log(`Waiting room gateway: ${socket.id}: disconnected`);
         const gameRoom = this.gameModeService.getGameRoom(socket.id);
-        if (gameRoom && gameRoom.roomId === socket.id && !gameRoom.started) {
+        if (!gameRoom || gameRoom.started) return;
+        this.logger.log(`Waiting room gateway: ${socket.id}: disconnected`);
+        if (gameRoom.roomId === socket.id) {
             this.abortGameCreation(socket, socket.id);
-        } else if (gameRoom && !gameRoom.started) {
+        } else {
             this.leaveGame(socket, { roomId: gameRoom.roomId, username: gameRoom.userGame.username2 });
         }
     }
