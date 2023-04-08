@@ -20,7 +20,6 @@ export class WaitingRoomComponent implements OnInit {
     constructor(public waitingRoomService: WaitingRoomService, private dialog: MatDialog, private dialogRef: MatDialogRef<WaitingRoomComponent>) {}
 
     ngOnInit() {
-        this.waitingRoomService.gameMode = 'classic-mode';
         this.rejectedSubscription = this.waitingRoomService.rejected$.subscribe((rejected) => {
             this.rejected = rejected;
         });
@@ -29,6 +28,7 @@ export class WaitingRoomComponent implements OnInit {
             if (accepted) {
                 this.accepted = true;
                 this.waitingRoomService.startGame();
+                this.close();
             }
         });
 

@@ -36,8 +36,9 @@ export class WaitingRoomGateway implements OnGatewayDisconnect {
     @SubscribeMessage(WaitingRoomEvents.AskingToJoinGame)
     joinGame(socket: Socket, data: { gameName: string; username: string; gameMode: string }): void {
         if (this.gameModeService.joinGame(socket, data)) {
-            this.logger.log(`Waiting room gateway: ${data.username} joined the game: ${data.gameName}`);
-            this.server.emit(WaitingRoomEvents.GameInfo, this.gameModeService.getGameRoom(undefined, data.gameName, data.gameMode));
+            const gameRoom = this.gameModeService.getGameRoom(undefined, data.gameName, data.gameMode);
+            this.logger.log(`Waiting room gateway: ${data.username} joined the game: ${gameRoom.userGame.gameData.name}`);
+            this.server.emit(WaitingRoomEvents.GameInfo, gameRoom);
         } else {
             this.logger.log(`Waiting room gateway: Jeu: ${data.gameName} not found`);
             this.server.emit(WaitingRoomEvents.GameInfo, undefined);
@@ -51,7 +52,7 @@ export class WaitingRoomGateway implements OnGatewayDisconnect {
         this.logger.log(`Waiting room gateway: Game creation aborted: ${gameRoom.userGame.gameData.name}`);
         this.gameModeService.deleteRoom(roomId);
         this.server.emit(WaitingRoomEvents.GameDeleted, { gameName: gameRoom.userGame.gameData.name, gameMode: gameRoom.gameMode });
-        this.server.emit(WaitingRoomEvents.GameCanceled, gameRoom.userGame.gameData.name);
+        this.server.emit(WaitingRoomEvents.GameCanceled, gameRoom);
     }
 
     @SubscribeMessage(WaitingRoomEvents.RejectPlayer)

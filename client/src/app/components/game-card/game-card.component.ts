@@ -130,7 +130,7 @@ export class GameCardComponent implements OnInit, OnDestroy {
     }
 
     joinGame() {
-        this.gameSetupService.joinGame(this.slide.name, this.inputValue2);
+        this.gameSetupService.joinGame(this.inputValue2, this.slide.name);
         this.notify.emit(this.slide);
         this.dialogRef = this.dialog.open(WaitingRoomComponent, { disableClose: true, width: '80%', height: '80%' });
     }

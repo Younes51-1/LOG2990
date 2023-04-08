@@ -26,10 +26,10 @@ export class GameFinderGateway {
     @SubscribeMessage(GameFinderEvents.CanJoinGame)
     canJoinGame(socket: Socket, data: { gameName: string; username: string; gameMode: string }): void {
         if (this.gameModeService.canJoinGame(socket, data)) {
-            this.logger.log(`Game finder gateway: ${data.username} can join the game: ${data.gameName}`);
+            this.logger.log(`Game finder gateway: ${data.username} can join the game`);
             this.server.to(socket.id).emit(GameFinderEvents.CanJoinGame);
         } else {
-            this.logger.log(`Game finder gateway: ${data.username} cannot join the game: ${data.gameName}`);
+            this.logger.log(`Game finder gateway: ${data.username} cannot join the game`);
             this.server.to(socket.id).emit(GameFinderEvents.CannotJoinGame);
         }
     }

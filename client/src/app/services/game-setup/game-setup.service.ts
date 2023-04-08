@@ -47,7 +47,7 @@ export class GameSetupService {
             userGame: {
                 gameData: undefined as unknown as GameData,
                 nbDifferenceFound: 0,
-                timer: this.gameConstans.initialTime,
+                timer: 0,
                 username1: username,
             },
             roomId: '',
@@ -81,6 +81,7 @@ export class GameSetupService {
 
     initLimitedTimeMode(): void {
         this.gameRoom.userGame.gameData = this.randomSlide();
+        this.gameRoom.userGame.timer = this.gameConstans.initialTime;
         if (this.gameRoom.started) {
             this.router.navigate(['/game']);
         } else {
@@ -88,7 +89,7 @@ export class GameSetupService {
         }
     }
 
-    joinGame(gameName: string, username: string): void {
+    joinGame(username: string, gameName = undefined as unknown as string): void {
         this.username = username;
         if (this.gameMode === 'classic-mode') {
             this.joinClassicMode(gameName);
@@ -103,16 +104,15 @@ export class GameSetupService {
             alert('Jeu introuvable');
             return;
         }
-        this.waitingRoomService.joinGame(gameName, this.username, this.gameMode);
+        this.waitingRoomService.joinGame(this.username, this.gameMode, gameName);
     }
 
     joinLimitedTimeMode(): void {
-        this.gameRoom = undefined as unknown as GameRoom;
-        // this.waitingRoomService.joinGame(, this.username);
+        this.waitingRoomService.joinGame(this.username, this.gameMode);
     }
 
     private randomSlide(): GameData {
-        return this.slides[Math.floor(Math.random() * this.slides.length) + 1];
+        return this.slides[Math.floor(Math.random() * this.slides.length)];
     }
 
     private getGameData(gameName: string): GameData | undefined {

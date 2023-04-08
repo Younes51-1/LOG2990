@@ -36,7 +36,7 @@ export class WaitingRoomService {
         }
         this.disconnectSocket();
         this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-            this.router.navigate(['/selection']);
+            this.router.navigate([this.gameMode === 'classic-mode' ? '/selection' : '/home']);
         });
     }
 
@@ -55,13 +55,14 @@ export class WaitingRoomService {
     createGame(gameRoom: GameRoom): void {
         this.gameRoom = gameRoom;
         this.username = this.gameRoom.userGame.username1;
+        this.gameMode = this.gameRoom.gameMode;
         this.disconnectSocket();
         this.connectSocket();
         this.handleWaitingRoomSocket();
         this.socketService.send('createGame', this.gameRoom);
     }
 
-    joinGame(gameName: string, username: string, gameMode: string): void {
+    joinGame(username: string, gameMode: string, gameName = undefined as unknown as string): void {
         this.gameRoom = undefined as unknown as GameRoom;
         this.username = username;
         this.gameMode = gameMode;
@@ -118,8 +119,12 @@ export class WaitingRoomService {
             }
         });
 
-        this.socketService.on('gameCanceled', (gameName) => {
-            if (this.gameRoom?.userGame.gameData.name === gameName) {
+        this.socketService.on('gameCanceled', (gameRoom: GameRoom) => {
+            if (
+                this.gameRoom?.userGame.gameData.name === gameRoom?.userGame.gameData.name &&
+                this.gameRoom.gameMode === this.gameMode &&
+                (gameRoom.userGame.username1 === this.username || gameRoom.userGame.potentialPlayers?.includes(this.username))
+            ) {
                 this.gameCanceled$.next(true);
             }
         });

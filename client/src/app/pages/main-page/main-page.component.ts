@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { CreateJoinGameDialogComponent } from '@app/components/create-join-game-dialog/create-join-game-dialog.component';
@@ -9,7 +9,7 @@ import { GameService } from '@app/services/game/game.service';
     templateUrl: './main-page.component.html',
     styleUrls: ['./main-page.component.scss'],
 })
-export class MainPageComponent {
+export class MainPageComponent implements OnDestroy {
     readonly teamName = '204 : NO CONTENT';
     readonly teamMembers: string[] = [
         'Coralie Brodeur',
@@ -29,6 +29,12 @@ export class MainPageComponent {
             this.router.navigate(['/selection']);
         } else {
             this.dialogRef = this.dialog.open(CreateJoinGameDialogComponent);
+        }
+    }
+
+    ngOnDestroy() {
+        if (this.dialogRef) {
+            this.dialogRef.close();
         }
     }
 }

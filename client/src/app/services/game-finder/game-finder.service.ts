@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { CreateJoinGameDialogComponent } from '@app/components/create-join-game-dialog/create-join-game-dialog.component';
 import { GameCardComponent } from '@app/components/game-card/game-card.component';
 import { GameContext } from '@app/interfaces/game';
 import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
@@ -44,7 +45,7 @@ export class GameFinderService {
         }
     }
 
-    canJoinGame(username: string, gameCard: GameCardComponent, gameName = undefined as unknown as string): void {
+    canJoinGame(username: string, gameCard: GameCardComponent | CreateJoinGameDialogComponent, gameName = undefined as unknown as string): void {
         this.socketService.send('canJoinGame', { gameName, username, gameMode: this.gameMode });
         this.socketService.on('cannotJoinGame', () => {
             gameCard.applyBorder = true;
