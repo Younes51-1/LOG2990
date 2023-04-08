@@ -19,14 +19,6 @@ export class GameModeGateway implements OnGatewayConnection, OnGatewayDisconnect
         private readonly gameHistoryService: GameHistoryService,
     ) {}
 
-    @SubscribeMessage(GameModeEvents.Start)
-    startGame(socket: Socket, roomId: string): void {
-        const gameRoom = this.gameModeService.getGameRoom(roomId);
-        this.gameModeService.saveGameHistory(gameRoom);
-        this.logger.log(`Launching the game: ${gameRoom.userGame.gameData.gameForm.name}`);
-        this.server.to(roomId).emit(GameModeEvents.Started, gameRoom);
-    }
-
     @SubscribeMessage(GameModeEvents.ValidateDifference)
     validateDifference(socket: Socket, data: { differencePos: Vector2D; roomId: string; username: string }): void {
         const validated = this.gameModeService.validateDifference(data.roomId, data.differencePos);
@@ -88,88 +80,6 @@ export class GameModeGateway implements OnGatewayConnection, OnGatewayDisconnect
             this.gameModeService.deleteRoom(socket.id);
             this.gameModeService.setGameRoom(gameRoom);
             this.server.to(gameRoom.roomId).emit(GameModeEvents.Abandoned, gameRoom);
-        }
-    }
-
-    @SubscribeMessage(GameModeEvents.CheckGame)
-    checkGame(socket: Socket, data: { gameName: string; gameMode: string }): void {
-        if (this.gameModeService.getGameRoom(undefined, data.gameName, data.gameMode)) {
-            this.logger.log(`Game ${data.gameName} found`);
-            this.server.to(socket.id).emit(GameModeEvents.GameFound, { gameName: data.gameName, gameMode: data.gameMode });
-        }
-    }
-
-    @SubscribeMessage(GameModeEvents.CreateGame)
-    createGame(socket: Socket, gameRoom: GameRoom): void {
-        this.gameModeService.initNewRoom(socket, gameRoom);
-        this.logger.log(`Create the game: ${gameRoom.userGame.gameData.gameForm.name}`);
-        this.server.to(gameRoom.roomId).emit(GameModeEvents.GameCreated, gameRoom);
-        this.server.emit(GameModeEvents.GameFound, { gameName: gameRoom.userGame.gameData.gameForm.name, gameMode: gameRoom.gameMode });
-    }
-
-    @SubscribeMessage(GameModeEvents.CanJoinGame)
-    canJoinGame(socket: Socket, data: { gameName: string; username: string; gameMode: string }): void {
-        if (this.gameModeService.canJoinGame(socket, data)) {
-            this.logger.log(`${data.username} can join the game: ${data.gameName}`);
-            this.server.to(socket.id).emit(GameModeEvents.CanJoinGame);
-        } else {
-            this.logger.log(`${data.username} cannot join the game: ${data.gameName}`);
-            this.server.to(socket.id).emit(GameModeEvents.CannotJoinGame);
-        }
-    }
-
-    @SubscribeMessage(GameModeEvents.AskingToJoinGame)
-    joinGame(socket: Socket, data: { gameName: string; username: string; gameMode: string }): void {
-        if (this.gameModeService.joinGame(socket, data)) {
-            this.logger.log(`${data.username} joined the game: ${data.gameName}`);
-            this.server.emit(GameModeEvents.GameInfo, this.gameModeService.getGameRoom(undefined, data.gameName, data.gameMode));
-        } else {
-            this.logger.log(`Jeu: ${data.gameName} not found`);
-            this.server.emit(GameModeEvents.GameInfo, undefined);
-        }
-    }
-
-    @SubscribeMessage(GameModeEvents.AbortGameCreation)
-    abortGameCreation(socket: Socket, roomId: string): void {
-        const gameRoom = this.gameModeService.getGameRoom(roomId);
-        if (!gameRoom) return;
-        this.logger.log(`Game creation aborted: ${gameRoom.userGame.gameData.gameForm.name}`);
-        this.gameModeService.deleteRoom(roomId);
-        this.server.emit(GameModeEvents.GameDeleted, { gameName: gameRoom.userGame.gameData.gameForm.name, gameMode: gameRoom.gameMode });
-        this.server.emit(GameModeEvents.GameCanceled, gameRoom.userGame.gameData.gameForm.name);
-    }
-
-    @SubscribeMessage(GameModeEvents.LeaveGame)
-    leaveGame(socket: Socket, playerInfo: { roomId: string; username: string }): void {
-        const gameRoom = this.gameModeService.getGameRoom(playerInfo.roomId);
-        if (!gameRoom) return;
-        this.logger.log(`${playerInfo.username} left the game: ${gameRoom.userGame.gameData.gameForm.name}`);
-        gameRoom.userGame.potentialPlayers = gameRoom.userGame.potentialPlayers.filter((player) => player !== playerInfo.username);
-        this.gameModeService.setGameRoom(gameRoom);
-        this.server.to(gameRoom.roomId).emit(GameModeEvents.GameInfo, gameRoom);
-    }
-
-    @SubscribeMessage(GameModeEvents.RejectPlayer)
-    playerRejected(socket: Socket, playerInfo: { roomId: string; username: string }): void {
-        const gameRoom = this.gameModeService.getGameRoom(playerInfo.roomId);
-        if (gameRoom) {
-            this.logger.log(`${playerInfo.username} rejected from game: ${gameRoom.userGame.gameData.gameForm.name}`);
-            gameRoom.userGame.potentialPlayers = gameRoom.userGame.potentialPlayers.filter((player) => player !== playerInfo.username);
-            this.gameModeService.setGameRoom(gameRoom);
-            this.server.to(gameRoom.roomId).emit(GameModeEvents.PlayerRejected, gameRoom);
-        }
-    }
-
-    @SubscribeMessage(GameModeEvents.AcceptPlayer)
-    playerAccepted(socket: Socket, playerInfo: { roomId: string; username: string }): void {
-        const gameRoom = this.gameModeService.getGameRoom(playerInfo.roomId);
-        if (gameRoom) {
-            this.logger.log(`${playerInfo.username} accepted in game:  ${gameRoom.userGame.gameData.gameForm.name}`);
-            gameRoom.userGame.potentialPlayers = [];
-            gameRoom.userGame.username2 = playerInfo.username;
-            gameRoom.started = true;
-            this.gameModeService.setGameRoom(gameRoom);
-            this.server.to(gameRoom.roomId).emit(GameModeEvents.PlayerAccepted, gameRoom);
         }
     }
 

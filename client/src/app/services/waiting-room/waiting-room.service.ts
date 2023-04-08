@@ -83,6 +83,17 @@ export class WaitingRoomService {
             }
         });
 
+        this.socketService.on('gameCreated', (gameRoom: GameRoom) => {
+            if (gameRoom && gameRoom.gameMode === this.gameMode) {
+                this.gameRoom = gameRoom;
+                if (gameRoom.started) {
+                    this.startGame();
+                }
+            } else if (!gameRoom) {
+                alert('Nous avons eu un problème pour obtenir les informations de jeu du serveur');
+            }
+        });
+
         this.socketService.on('playerAccepted', (gameRoom: GameRoom) => {
             if (gameRoom && (gameRoom.userGame.username1 === this.username || gameRoom.userGame.username2 === this.username)) {
                 this.gameRoom = gameRoom;

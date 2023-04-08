@@ -1,3 +1,4 @@
+import { GameFinderGateway } from '@app/gateways/game-finder/game-finder.gateway';
 import { GameController } from '@app/controllers/game/game.controller';
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
 import { GameModeGateway } from '@app/gateways/game-mode/game-mode.gateway';
@@ -8,10 +9,11 @@ import { GameService } from '@app/services/game/game.service';
 import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ConfigController } from './controllers/config/config.controller';
-import { gameConstantsSchema } from './model/database/game-constants';
-import { GameConstantsService } from './services/game-constant/game-constants.service';
+import { ConfigController } from '@app/controllers/config/config.controller';
+import { gameConstantsSchema } from '@app/model/database/game-constants';
+import { GameConstantsService } from '@app/services/game-constant/game-constants.service';
 import { GameModeService } from '@app/services/game-mode/game-mode.service';
+import { WaitingRoomGateway } from '@app/gateways/waiting-room/waiting-room.gateway';
 
 @Module({
     imports: [
@@ -30,6 +32,17 @@ import { GameModeService } from '@app/services/game-mode/game-mode.service';
         ]),
     ],
     controllers: [GameController, ConfigController],
-    providers: [ConfigService, Logger, GameHistoryService, GameService, GameConstantsService, GameModeGateway, ChatGateway, GameModeService],
+    providers: [
+        GameFinderGateway,
+        ConfigService,
+        Logger,
+        GameHistoryService,
+        GameService,
+        GameConstantsService,
+        GameModeGateway,
+        ChatGateway,
+        GameModeService,
+        WaitingRoomGateway,
+    ],
 })
 export class AppModule {}
