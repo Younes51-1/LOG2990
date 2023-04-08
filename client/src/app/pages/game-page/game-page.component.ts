@@ -248,7 +248,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.gameService.reset();
         this.dialog.closeAll();
-        clearInterval(this.playAreaService.intervalId);
+        this.playAreaService.clearAsync();
     }
 
     private abandonConfirmation() {

@@ -30,15 +30,9 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
     modified = new Image();
     cheatLayer: HTMLCanvasElement;
     srcCounter = 0;
-    layerTimeout: ReturnType<typeof setTimeout>;
-    errorTimeout: ReturnType<typeof setTimeout>;
     private canvasSize = { x: Dimensions.DEFAULT_WIDTH, y: Dimensions.DEFAULT_HEIGHT };
     private pauseCanvas1: HTMLCanvasElement;
     private pauseCanvas2: HTMLCanvasElement;
-    private differenceInterval: ReturnType<typeof setInterval>;
-    private cheatInterval: ReturnType<typeof setInterval>;
-    // private hintInterval: ReturnType<typeof setInterval>;
-    // private hintTimeout: ReturnType<typeof setInterval>;
     private currentAction: InstructionReplay | undefined;
     private audioValid = new Audio('assets/sounds/valid_sound.mp3');
     private audioInvalid = new Audio('assets/sounds/invalid_sound.mp3');
@@ -90,13 +84,14 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
             this.handleReplay();
             this.currentAction = this.actions[this.counter++];
         }
+        this.playAreaService.updateCheatSpeed();
     }
 
     private restart() {
         if (this.paused) {
             this.continue();
         }
-        this.clearAsync();
+        this.playAreaService.clearAsync();
         this.audioInvalid.pause();
         this.audioValid.pause();
         this.counter = 0;
@@ -151,6 +146,7 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
                 this.hintEvent.emit();
                 if (!this.currentAction.cheatLayer || !this.currentAction.mousePosition) return;
                 this.playAreaService.playHint(this.currentAction.nbDifferences, this.currentAction.cheatLayer, this.currentAction.mousePosition);
+                break;
             }
         }
     }
@@ -172,17 +168,18 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
         else this.context2 = context;
     }
 
-    private clearAsync() {
-        clearInterval(this.cheatInterval);
-        clearInterval(this.differenceInterval);
-        clearTimeout(this.errorTimeout);
-        clearTimeout(this.layerTimeout);
-    }
+    // private clearAsync() {
+    //     clearInterval(this.playAreaService.cheatInterval);
+    //     clearInterval(this.playAreaService.differenceInterval);
+    //     clearTimeout(this.playAreaService.errorTimeout);
+    //     clearTimeout(this.playAreaService.layerTimeout);
+    // }
 
     private playAudio(audio: HTMLAudioElement) {
         this.audioValid.pause();
         this.audioInvalid.pause();
         audio.currentTime = 0;
+        audio.playbackRate = this.speed;
         audio.play();
     }
 }
