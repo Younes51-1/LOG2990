@@ -17,17 +17,20 @@ import { Time } from 'src/assets/variables/time';
 export class PlayAreaService {
     isCheatModeOn = false;
     isHintModeOn = false;
-    intervalId: ReturnType<typeof setInterval>;
-    confettiInterval: ReturnType<typeof setInterval>;
+    private intervalId: ReturnType<typeof setInterval>;
+    private confettiInterval: ReturnType<typeof setInterval>;
     private cheatInterval: ReturnType<typeof setInterval>;
+    private layerTimeout: ReturnType<typeof setTimeout>;
+    private differenceInterval: ReturnType<typeof setInterval>;
+    private errorTimeout: ReturnType<typeof setTimeout>;
     private hintInterval: ReturnType<typeof setInterval>;
     private hintTimeout: ReturnType<typeof setTimeout>;
-    private differenceInterval: ReturnType<typeof setInterval>;
 
     private component: PlayAreaComponent | ReplayPlayAreaComponent;
     private replayComponent: ReplayPlayAreaComponent;
     private normalComponent: PlayAreaComponent;
     private replay: boolean;
+    private replayCheatOn: boolean;
     private speed = 1;
 
     constructor(private detectionDifferenceService: DetectionDifferenceService) {}
@@ -41,6 +44,17 @@ export class PlayAreaService {
 
     setSpeed(speed: number) {
         this.speed = speed;
+    }
+
+    clearAsync() {
+        clearInterval(this.intervalId);
+        clearInterval(this.confettiInterval);
+        clearInterval(this.cheatInterval);
+        clearTimeout(this.layerTimeout);
+        clearInterval(this.differenceInterval);
+        clearTimeout(this.errorTimeout);
+        clearInterval(this.hintInterval);
+        clearTimeout(this.hintTimeout);
     }
 
     startConfetti(coords: Vec2 | undefined) {
@@ -71,11 +85,11 @@ export class PlayAreaService {
             setTimeout(() => {
                 confettiGenerator({ ...defaults, particleCount: 40, scalar: 1.2, shapes: ['star'] });
                 confettiGenerator({ ...defaults, particleCount: 10, scalar: 0.75, shapes: ['circle'] });
-            }, 100);
+            }, 100 / this.speed);
             setTimeout(() => {
                 confettiGenerator({ ...defaults, particleCount: 40, scalar: 1.2, shapes: ['star'] });
                 confettiGenerator({ ...defaults, particleCount: 10, scalar: 0.75, shapes: ['circle'] });
-            }, 200);
+            }, 200 / this.speed);
             this.confettiInterval = setInterval(() => {
                 if (isFlashing) {
                     this.component.context1.drawImage(this.component.original, 0, 0, this.component.width, this.component.height);
@@ -90,7 +104,7 @@ export class PlayAreaService {
                 clearInterval(this.confettiInterval);
                 this.component.context1.drawImage(this.component.original, 0, 0, this.component.width, this.component.height);
                 this.component.context2.drawImage(this.component.modified, 0, 0, this.component.width, this.component.height);
-            }, 600);
+            }, 600 / this.speed);
         } else {
             const duration = 15 * 1000;
             const animationEnd = Date.now() + duration;
@@ -103,7 +117,7 @@ export class PlayAreaService {
                 const particleCount = 50 * (timeLeft / duration);
                 confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * (0.3 - 0.1) + 0.1, y: Math.random() - 0.2 } }));
                 confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * (0.9 - 0.7) + 0.7, y: Math.random() - 0.2 } }));
-            }, 250);
+            }, 250 / this.speed);
         }
     }
 
@@ -144,11 +158,13 @@ export class PlayAreaService {
     }
 
     endCheatMode() {
+        if (this.replay) this.replayCheatOn = false;
         clearInterval(this.cheatInterval);
         this.updateContexts();
     }
 
     startCheatMode() {
+        if (this.replay) this.replayCheatOn = true;
         const flashDuration = Time.OneHundredTwentyFive / this.speed;
         let isFlashing = true;
         if (!this.replay) {
@@ -196,7 +212,7 @@ export class PlayAreaService {
             }
             isFlashing = !isFlashing;
         }, Time.Fifty / this.speed);
-        this.replayComponent.layerTimeout = setTimeout(() => {
+        this.layerTimeout = setTimeout(() => {
             if (!this.replay) {
                 this.removeDifference(this.normalComponent.currentDifferenceMatrix);
                 this.normalComponent.playerIsAllowedToClick = true;
@@ -218,7 +234,7 @@ export class PlayAreaService {
             this.normalComponent.sendError.emit({ pos: this.normalComponent.mousePosition, leftCanvas: image === this.component.original });
         if (context) {
             context.fillStyle = Color.Mario;
-            if (this.replay) clearTimeout(this.replayComponent.errorTimeout);
+            clearTimeout(this.errorTimeout);
             this.updateContexts();
             context.fillText('ERREUR', pos.x - ErrorText.Width / 2, pos.y + ErrorText.Height / 2, ErrorText.Width);
             this.errorTimeout = setTimeout(() => {
@@ -257,6 +273,13 @@ export class PlayAreaService {
         }
     }
 
+    updateCheatSpeed() {
+        if (this.replayCheatOn) {
+            this.endCheatMode();
+            this.startCheatMode();
+        }
+    }
+
     private playNormalHint(layer: HTMLCanvasElement) {
         let isFlashing = true;
         clearTimeout(this.hintTimeout);
@@ -273,7 +296,6 @@ export class PlayAreaService {
         this.hintTimeout = setTimeout(() => {
             clearInterval(this.hintInterval);
             this.updateContexts();
-            return;
         }, (2 * Time.Thousand) / this.speed);
     }
 
