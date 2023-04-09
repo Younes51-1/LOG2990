@@ -53,7 +53,7 @@ export class CreateJoinGameDialogComponent implements OnInit {
     }
 
     verifySoloInput() {
-        if (!this.verifyService.verify(this.inputValue1)) {
+        if (!this.verifyService.verify(this.inputValue1) || this.gameSetupService.getSlides().length === 0) {
             this.applyBorder = true;
         } else {
             this.startSoloGame();
@@ -61,7 +61,7 @@ export class CreateJoinGameDialogComponent implements OnInit {
     }
 
     verifyMultiInput() {
-        if (!this.verifyService.verify(this.inputValue2)) {
+        if (!this.verifyService.verify(this.inputValue2) || this.gameSetupService.getSlides().length === 0) {
             this.applyBorder = true;
         } else {
             this.applyBorder = false;

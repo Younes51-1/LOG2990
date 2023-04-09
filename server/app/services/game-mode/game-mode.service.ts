@@ -5,12 +5,14 @@ import { Socket } from 'socket.io';
 import { Vector2D } from '@app/model/schema/vector2d.schema';
 import { EndGame } from '@app/model/schema/end-game.schema';
 import { EMPTY_PIXEL_VALUE } from '@app/constants';
+import { GameHistoryService } from '@app/services/game-history/game-history.service';
 
 @Injectable()
 export class GameModeService {
     gameRooms: Map<string, GameRoom> = new Map<string, GameRoom>();
     private gameHistory: Map<string, GameHistory> = new Map<string, GameHistory>();
 
+    constructor(private gameHistoryService: GameHistoryService) {}
     getGameRoom(roomId?: string, gameName?: string, gameMode?: string): GameRoom {
         if (roomId) return this.gameRooms.get(roomId);
         if (gameMode === 'classic-mode') {
@@ -166,8 +168,42 @@ export class GameModeService {
         if (gameRoom.gameMode === 'classic-mode') {
             gameRoom.userGame.timer++;
         } else {
+            const twoMin = 120;
             gameRoom.userGame.timer--;
+            if (gameRoom.userGame.timer > twoMin) {
+                gameRoom.userGame.timer = twoMin;
+            } else if (gameRoom.userGame.timer < 0) {
+                gameRoom.userGame.timer = 0;
+            }
         }
+        this.setGameRoom(gameRoom);
+    }
+
+    endGame(endGame: EndGame): void {
+        this.updateGameHistory(endGame);
+        const gameHistory = this.getGameHistory(endGame.roomId);
+        this.gameHistoryService.saveGameHistory(gameHistory);
+        this.deleteRoom(endGame.roomId);
+    }
+
+    abandonClassicMode(gameRoom: GameRoom, username: string): void {
+        this.abandonGameHistory(gameRoom.roomId, username);
+
+        if (!gameRoom.userGame.username2) {
+            const gameHistory = this.getGameHistory(gameRoom.roomId);
+            this.gameHistoryService.saveGameHistory(gameHistory);
+        }
+    }
+
+    abandonLimitedTimeMode(gameRoom: GameRoom, username: string, socketId: string): void {
+        if (gameRoom.userGame.username1 === username) {
+            gameRoom.userGame.username1 = gameRoom.userGame.username2;
+        }
+        gameRoom.userGame.username2 = '';
+        const gameHistory = this.getGameHistory(gameRoom.roomId);
+        this.deleteGameHistory(socketId);
+        this.setGameHistory(gameRoom.roomId, gameHistory);
+        this.deleteRoom(socketId);
         this.setGameRoom(gameRoom);
     }
 }

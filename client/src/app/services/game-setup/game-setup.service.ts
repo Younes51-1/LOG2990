@@ -42,6 +42,10 @@ export class GameSetupService {
         });
     }
 
+    getSlides(): GameData[] {
+        return this.slides;
+    }
+
     initGameRoom(username: string, started: boolean): void {
         this.gameRoom = {
             userGame: {
@@ -81,10 +85,9 @@ export class GameSetupService {
     initLimitedTimeMode(): void {
         this.gameRoom.userGame.gameData = this.randomSlide();
         this.gameRoom.userGame.timer = this.gameConstans.initialTime;
+        this.waitingRoomService.createGame(this.gameRoom);
         if (this.gameRoom.started) {
             this.router.navigate(['/game']);
-        } else {
-            this.waitingRoomService.createGame(this.gameRoom);
         }
     }
 

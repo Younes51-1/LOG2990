@@ -112,7 +112,7 @@ export class GameService {
             endGame.roomId = this.gameRoom.roomId;
             endGame.username = this.username;
             this.socketService.send('endGame', endGame);
-            this.updateBestTime(gameFinished, winner);
+            if (this.gameMode === 'classic-mode') this.updateBestTime(gameFinished, winner);
         }
     }
 
@@ -194,15 +194,26 @@ export class GameService {
             this.disconnectSocket();
         });
 
-        this.socketService.on('abandoned', (userName: string) => {
+        this.socketService.on('abandoned', (data: { gameRoom: GameRoom; username: string }) => {
             this.isAbandoned = true;
-            this.abandoned$.next(userName);
+            this.abandoned$.next(data.username);
+            if (this.gameMode === 'limited-time-mode') {
+                this.limitedTimeGameAbandoned(data.gameRoom);
+            }
         });
 
         this.socketService.on('timer', (timer: number) => {
+            if (this.gameRoom.userGame.timer <= 0) {
+                this.gameFinished$.next(true);
+            }
             this.gameRoom.userGame.timer = timer;
             this.timer$.next(timer);
             this.canSendValidate = true;
         });
+    }
+
+    private limitedTimeGameAbandoned(gameRoom: GameRoom): void {
+        this.gameRoom = gameRoom;
+        this.gameRoom$.next(this.gameRoom);
     }
 }
