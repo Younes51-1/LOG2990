@@ -221,7 +221,7 @@ export class PlayAreaService {
             if (this.replay) clearTimeout(this.replayComponent.errorTimeout);
             this.updateContexts();
             context.fillText('ERREUR', pos.x - ErrorText.Width / 2, pos.y + ErrorText.Height / 2, ErrorText.Width);
-            this.replayComponent.errorTimeout = setTimeout(() => {
+            this.errorTimeout = setTimeout(() => {
                 this.updateContexts();
                 if (!this.replay) this.normalComponent.playerIsAllowedToClick = true;
             }, nMilliseconds);

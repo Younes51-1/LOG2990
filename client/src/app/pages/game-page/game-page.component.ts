@@ -47,13 +47,13 @@ export class GamePageComponent implements OnInit, OnDestroy {
         private gameService: GameService,
         private chatService: ChatService,
         private router: Router,
-        // private helpService: HelpService,
         private playAreaService: PlayAreaService,
         private configService: ConfigHttpService,
     ) {}
 
     ngOnInit() {
         this.username = this.gameService.username;
+        this.gameRoom = this.gameService.gameRoom;
         this.timerSubscription = this.gameService.timer$.subscribe((timer: number) => {
             this.timer = timer;
         });

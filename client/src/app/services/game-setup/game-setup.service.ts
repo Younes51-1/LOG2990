@@ -72,10 +72,9 @@ export class GameSetupService {
             return;
         }
         this.gameRoom.userGame.gameData = slide;
+        this.waitingRoomService.createGame(this.gameRoom);
         if (this.gameRoom.started) {
             this.router.navigate(['/game']);
-        } else {
-            this.waitingRoomService.createGame(this.gameRoom);
         }
     }
 

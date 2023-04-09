@@ -30,7 +30,9 @@ export class WaitingRoomGateway implements OnGatewayDisconnect {
         this.gameModeService.initNewRoom(socket, gameRoom);
         this.logger.log(`Waiting room gateway: Create the game: ${gameRoom.userGame.gameData.name}`);
         this.server.to(gameRoom.roomId).emit(WaitingRoomEvents.GameCreated, gameRoom);
-        this.server.emit(WaitingRoomEvents.GameFound, { gameName: gameRoom.userGame.gameData.name, gameMode: gameRoom.gameMode });
+        if (!gameRoom.started) {
+            this.server.emit(WaitingRoomEvents.GameFound, { gameName: gameRoom.userGame.gameData.name, gameMode: gameRoom.gameMode });
+        }
     }
 
     @SubscribeMessage(WaitingRoomEvents.AskingToJoinGame)

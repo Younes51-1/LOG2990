@@ -3,6 +3,7 @@ import { GameRoom } from '@app/interfaces/game';
 import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
 import { Subject } from 'rxjs';
 import { Router } from '@angular/router';
+import { GameService } from '@app/services/game/game.service';
 
 @Injectable({
     providedIn: 'root',
@@ -14,7 +15,7 @@ export class WaitingRoomService {
     gameRoom: GameRoom;
     username: string;
     gameMode: string;
-    constructor(private router: Router, private readonly socketService: CommunicationSocketService) {}
+    constructor(private router: Router, private readonly socketService: CommunicationSocketService, private gameService: GameService) {}
 
     playerRejected(player: string): void {
         if (this.socketService.isSocketAlive()) {
@@ -41,14 +42,7 @@ export class WaitingRoomService {
     }
 
     startGame(): void {
-        if (this.gameRoom.userGame.username1 === this.username) {
-            this.socketService.send('start', this.gameRoom.roomId);
-        }
-        this.socketService.off('gameInfo');
-        this.socketService.off('gameCreated');
-        this.socketService.off('playerAccepted');
-        this.socketService.off('playerRejected');
-        this.socketService.off('gameCanceled');
+        this.gameService.startGame(this.gameRoom, this.username);
         this.router.navigate(['/game']);
     }
 
