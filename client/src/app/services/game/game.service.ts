@@ -41,6 +41,10 @@ export class GameService {
         readonly configHttpService: ConfigHttpService,
         private communicationService: CommunicationHttpService,
     ) {
+        this.getConstant();
+    }
+
+    getConstant(): void {
         this.configHttpService.getConstants().subscribe((res) => {
             this.gameConstans = res;
         });
