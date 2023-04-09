@@ -4,6 +4,19 @@ import { ConfigParamsComponent } from '@app/components/config-params/config-para
 import { Constants } from 'src/assets/variables/constants';
 import { ConfigHttpService } from '@app/services/config-http/config-http.service';
 import { of } from 'rxjs';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { AppRoutingModule } from '@app/modules/app-routing.module';
+import { HttpClientModule } from '@angular/common/http';
+import { OverlayModule } from '@angular/cdk/overlay';
+import { MatDialogModule } from '@angular/material/dialog';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NgModule } from '@angular/core';
+
+@NgModule({
+    imports: [HttpClientModule, OverlayModule, MatDialogModule, BrowserAnimationsModule],
+})
+export class DynamicTestModule {}
 
 describe('ConfigParamsComponent', () => {
     let component: ConfigParamsComponent;
@@ -15,6 +28,7 @@ describe('ConfigParamsComponent', () => {
         configHttpService.getConstants.and.returnValue(of({ initialTime: 30, penaltyTime: 5, bonusTime: 5 }));
         await TestBed.configureTestingModule({
             declarations: [ConfigParamsComponent],
+            imports: [HttpClientTestingModule, RouterTestingModule, AppRoutingModule, DynamicTestModule],
             providers: [{ provide: ConfigHttpService, useValue: configHttpService }],
         }).compileComponents();
 

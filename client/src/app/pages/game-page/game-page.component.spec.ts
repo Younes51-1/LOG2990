@@ -38,7 +38,6 @@ class SocketClientServiceMock extends CommunicationSocketService {
 
 describe('GamePageComponent', () => {
     let differenceMatrix: number[][];
-    let gameForm;
     let gameData: GameData;
     let gameRoom: GameRoom;
 
@@ -57,8 +56,7 @@ describe('GamePageComponent', () => {
 
     beforeEach(async () => {
         differenceMatrix = [[]];
-        gameForm = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulty: '', soloBestTimes: [], vsBestTimes: [] };
-        gameData = { gameForm, differenceMatrix };
+        gameData = { name: '', nbDifference: 0, image1url: '', image2url: '', difficulty: '', soloBestTimes: [], vsBestTimes: [], differenceMatrix };
         gameRoom = {
             userGame: { gameData, nbDifferenceFound: 0, timer: 0, username1: 'Test' },
             roomId: 'fakeId',
@@ -163,7 +161,7 @@ describe('GamePageComponent', () => {
         gameServiceSpy.gameRoom$.next(gameRoom);
         expect(spyUserGame).toHaveBeenCalled();
         expect(component.gameRoom).toEqual(gameRoom);
-        expect(component.gameName).toEqual(gameRoom.userGame.gameData.gameForm.name);
+        expect(component.gameName).toEqual(gameRoom.userGame.gameData.name);
         expect(component.username).toEqual(gameServiceSpy.username);
     });
 
@@ -176,7 +174,7 @@ describe('GamePageComponent', () => {
         gameServiceSpy.gameRoom$.next(gameRoom);
         expect(spyUserGame).toHaveBeenCalled();
         expect(component.gameRoom).toEqual(gameRoom);
-        expect(component.gameName).toEqual(gameRoom.userGame.gameData.gameForm.name);
+        expect(component.gameName).toEqual(gameRoom.userGame.gameData.name);
         expect(component.username).toEqual(gameServiceSpy.username);
         expect(component.opponentUsername).toEqual(gameRoom.userGame.username2);
     });
@@ -190,7 +188,7 @@ describe('GamePageComponent', () => {
         gameServiceSpy.gameRoom$.next(gameRoom);
         expect(spyUserGame).toHaveBeenCalled();
         expect(component.gameRoom).toEqual(gameRoom);
-        expect(component.gameName).toEqual(gameRoom.userGame.gameData.gameForm.name);
+        expect(component.gameName).toEqual(gameRoom.userGame.gameData.name);
         expect(component.username).toEqual(gameServiceSpy.username);
         expect(component.opponentUsername).toEqual(gameRoom.userGame.username1);
     });
@@ -198,42 +196,42 @@ describe('GamePageComponent', () => {
     it('should assign the corresponding threshold from gameRoom$ observable for even differences number in multiplayer mode', () => {
         gameServiceSpy = TestBed.inject(GameService);
         gameRoom.userGame.username2 = 'username2';
-        gameRoom.userGame.gameData.gameForm.nbDifference = 10;
+        gameRoom.userGame.gameData.nbDifference = 10;
         const spyUserGame = spyOn(gameServiceSpy.gameRoom$, 'subscribe').and.callThrough();
         component.ngOnInit();
         gameServiceSpy.gameRoom$.next(gameRoom);
         expect(spyUserGame).toHaveBeenCalled();
         expect(component.gameRoom).toEqual(gameRoom);
-        expect(component.gameName).toEqual(gameRoom.userGame.gameData.gameForm.name);
+        expect(component.gameName).toEqual(gameRoom.userGame.gameData.name);
         expect(component.username).toEqual(gameServiceSpy.username);
-        expect((component as any).differenceThreshold).toEqual(gameRoom.userGame.gameData.gameForm.nbDifference / 2);
+        expect((component as any).differenceThreshold).toEqual(gameRoom.userGame.gameData.nbDifference / 2);
     });
 
     it('should assign the corresponding threshold from gameRoom$ observable for odd differences number in multiplayer mode', () => {
         gameServiceSpy = TestBed.inject(GameService);
         gameRoom.userGame.username2 = 'username2';
-        gameRoom.userGame.gameData.gameForm.nbDifference = 11;
+        gameRoom.userGame.gameData.nbDifference = 11;
         const spyUserGame = spyOn(gameServiceSpy.gameRoom$, 'subscribe').and.callThrough();
         component.ngOnInit();
         gameServiceSpy.gameRoom$.next(gameRoom);
         expect(spyUserGame).toHaveBeenCalled();
         expect(component.gameRoom).toEqual(gameRoom);
-        expect(component.gameName).toEqual(gameRoom.userGame.gameData.gameForm.name);
+        expect(component.gameName).toEqual(gameRoom.userGame.gameData.name);
         expect(component.username).toEqual(gameServiceSpy.username);
-        expect((component as any).differenceThreshold).toEqual((gameRoom.userGame.gameData.gameForm.nbDifference + 1) / 2);
+        expect((component as any).differenceThreshold).toEqual((gameRoom.userGame.gameData.nbDifference + 1) / 2);
     });
 
     it('should assign the corresponding threshold from gameRoom$ observable solo mode', () => {
         gameServiceSpy = TestBed.inject(GameService);
-        gameRoom.userGame.gameData.gameForm.nbDifference = 11;
+        gameRoom.userGame.gameData.nbDifference = 11;
         const spyUserGame = spyOn(gameServiceSpy.gameRoom$, 'subscribe').and.callThrough();
         component.ngOnInit();
         gameServiceSpy.gameRoom$.next(gameRoom);
         expect(spyUserGame).toHaveBeenCalled();
         expect(component.gameRoom).toEqual(gameRoom);
-        expect(component.gameName).toEqual(gameRoom.userGame.gameData.gameForm.name);
+        expect(component.gameName).toEqual(gameRoom.userGame.gameData.name);
         expect(component.username).toEqual(gameServiceSpy.username);
-        expect((component as any).differenceThreshold).toEqual(gameRoom.userGame.gameData.gameForm.nbDifference);
+        expect((component as any).differenceThreshold).toEqual(gameRoom.userGame.gameData.nbDifference);
     });
 
     it('should subscribe to abandoned$ observable', () => {
@@ -247,7 +245,7 @@ describe('GamePageComponent', () => {
     it('should open EndgameDialogComponent with correct data if all differences found in single player mode', () => {
         (component as any).gameFinished = true;
         spyOn((component as any).gameService, 'endGame').and.stub();
-        component.totalDifferencesFound = component.gameRoom.userGame.gameData.gameForm.nbDifference;
+        component.totalDifferencesFound = component.gameRoom.userGame.gameData.nbDifference;
         const matDialogSpy = spyOn((component as any).dialog, 'open').and.callThrough();
         component.endGame();
         expect(matDialogSpy).toHaveBeenCalledWith(
@@ -286,7 +284,7 @@ describe('GamePageComponent', () => {
         (component as any).gameFinished = true;
         component.totalDifferencesFound = 0;
         spyOn((component as any).gameService, 'endGame').and.stub();
-        component.gameRoom.userGame.gameData.gameForm.nbDifference = 1;
+        component.gameRoom.userGame.gameData.nbDifference = 1;
         component.gameRoom.userGame.username2 = 'test';
         (component as any).differenceThreshold = 1;
         component.userDifferencesFound = 0;

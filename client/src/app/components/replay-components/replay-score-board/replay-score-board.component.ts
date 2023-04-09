@@ -29,8 +29,8 @@ export class ReplayScoreBoardComponent implements OnInit, OnChanges {
 
     ngOnInit(): void {
         if (this.gameRoom) {
-            this.nbDiff = this.gameRoom.userGame.gameData.gameForm.nbDifference;
-            this.difficulty = this.gameRoom.userGame.gameData.gameForm.difficulty;
+            this.nbDiff = this.gameRoom.userGame.gameData.nbDifference;
+            this.difficulty = this.gameRoom.userGame.gameData.difficulty;
             this.currentAction = this.actions[this.counter++];
         }
     }

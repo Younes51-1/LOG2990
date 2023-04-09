@@ -28,7 +28,6 @@ describe('EndgameDialogComponent', () => {
 
         fixture = TestBed.createComponent(EndgameDialogComponent);
         component = fixture.componentInstance;
-        spyOn((component as any).gameService, 'topScore').and.stub();
         fixture.detectChanges();
     });
 

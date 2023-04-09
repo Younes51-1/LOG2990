@@ -20,13 +20,9 @@ export class GameHistoryService {
         }
     }
 
-    async deleteGamesHistories(id?: string): Promise<void> {
+    async deleteGamesHistories(): Promise<void> {
         try {
-            if (id) {
-                await this.historyModel.deleteOne({ _id: id });
-            } else {
-                await this.historyModel.deleteMany({});
-            }
+            await this.historyModel.deleteMany({});
         } catch (error) {
             return Promise.reject(`Failed to delete game histories: ${error}`);
         }

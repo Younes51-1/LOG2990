@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { Router } from '@angular/router';
 import { WaitingRoomComponent } from '@app/components/waiting-room-dialog/waiting-room-dialog.component';
-import { GameForm } from '@app/interfaces/game';
-import { GameService } from '@app/services/game/game.service';
+import { GameData } from '@app/interfaces/game';
+import { GameFinderService } from '@app/services/game-finder/game-finder.service';
+import { GameSetupService } from '@app/services/game-setup/game-setup.service';
 import { VerifyInputService } from '@app/services/verify-input/verify-input.service';
 import { options, PageKeys } from 'src/assets/variables/game-card-options';
 import { Time } from 'src/assets/variables/time';
@@ -15,7 +15,7 @@ import { Time } from 'src/assets/variables/time';
 })
 export class GameCardComponent implements OnInit, OnDestroy {
     @Input() page: PageKeys;
-    @Input() slide: GameForm;
+    @Input() slide: GameData;
 
     @Output() notify = new EventEmitter();
     @Output() deleteNotify = new EventEmitter();
@@ -37,11 +37,17 @@ export class GameCardComponent implements OnInit, OnDestroy {
     vsBestTime: { name: string; time: string }[];
     private dialogRef: MatDialogRef<WaitingRoomComponent>;
 
-    // We need to disable the max-params rule because we need to inject all the services
     // eslint-disable-next-line max-params
-    constructor(private gameService: GameService, private router: Router, private dialog: MatDialog, private verifyService: VerifyInputService) {}
+    constructor(
+        private gameSetupService: GameSetupService,
+        private dialog: MatDialog,
+        private gameFinderService: GameFinderService,
+        private verifyService: VerifyInputService,
+    ) {}
 
     ngOnInit() {
+        this.gameFinderService.gameMode = 'classic-mode';
+        this.gameSetupService.gameMode = 'classic-mode';
         const { routeOne, btnOne, routeTwo, btnTwo } = options[this.page];
         this.routeOne = routeOne;
         this.btnOne = btnOne;
@@ -67,7 +73,7 @@ export class GameCardComponent implements OnInit, OnDestroy {
                 })}`,
             });
         });
-        this.gameService.gameExists$.subscribe((gameExists) => {
+        this.gameFinderService.gameExists$.subscribe((gameExists) => {
             this.gameExists = gameExists;
         });
     }
@@ -87,7 +93,7 @@ export class GameCardComponent implements OnInit, OnDestroy {
 
     checkGame() {
         if (!this.gameExists) {
-            this.gameService.checkGame(this.slide.name);
+            this.gameFinderService.checkGame(this.slide.name);
         }
     }
 
@@ -112,7 +118,7 @@ export class GameCardComponent implements OnInit, OnDestroy {
             this.applyBorder = true;
         } else {
             this.applyBorder = false;
-            this.gameService.connectSocket();
+            this.gameFinderService.connectSocket();
             this.createJoinMultiGame();
         }
     }
@@ -124,14 +130,14 @@ export class GameCardComponent implements OnInit, OnDestroy {
     }
 
     joinGame() {
-        this.gameService.joinGame(this.slide.name, this.inputValue2);
+        this.gameSetupService.joinGame(this.inputValue2, this.slide.name);
         this.notify.emit(this.slide);
         this.dialogRef = this.dialog.open(WaitingRoomComponent, { disableClose: true, width: '80%', height: '80%' });
     }
 
     private startSoloGame() {
-        this.gameService.startSoloGame(this.slide.name, this.inputValue1);
-        this.router.navigate([this.routeOne]);
+        this.gameSetupService.initGameRoom(this.inputValue1, true);
+        this.gameSetupService.initGameMode(this.slide.name);
         this.notify.emit(this.slide.name);
     }
 
@@ -144,12 +150,13 @@ export class GameCardComponent implements OnInit, OnDestroy {
     }
 
     private createGame() {
-        this.gameService.createGame(this.slide.name, this.inputValue2);
+        this.gameSetupService.initGameRoom(this.inputValue2, false);
+        this.gameSetupService.initGameMode(this.slide.name);
         this.notify.emit(this.slide);
         this.dialogRef = this.dialog.open(WaitingRoomComponent, { disableClose: true, width: '80%', height: '80%' });
     }
 
     private canJoinGame() {
-        this.gameService.canJoinGame(this.slide.name, this.inputValue2, this);
+        this.gameFinderService.canJoinGame(this.inputValue2, this, this.slide.name);
     }
 }

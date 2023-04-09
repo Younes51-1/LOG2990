@@ -74,15 +74,13 @@ const getFakeUserGame1 = (): UserGame => ({
             [-1, 1, -1],
             [-1, -1, -1],
         ],
-        gameForm: {
-            name: 'FakeGame',
-            nbDifference: 2,
-            image1url: `${environment.serverUrl}/FakeGame/image1.bmp`,
-            image2url: `${environment.serverUrl}/FakeGame/image2.bmp`,
-            difficulty: 'Facile',
-            soloBestTimes: [new BestTime(), new BestTime(), new BestTime()],
-            vsBestTimes: [new BestTime(), new BestTime(), new BestTime()],
-        },
+        name: 'FakeGame',
+        nbDifference: 2,
+        image1url: `${environment.serverUrl}/FakeGame/image1.bmp`,
+        image2url: `${environment.serverUrl}/FakeGame/image2.bmp`,
+        difficulty: 'Facile',
+        soloBestTimes: [new BestTime(), new BestTime(), new BestTime()],
+        vsBestTimes: [new BestTime(), new BestTime(), new BestTime()],
     },
 });
 /* eslint-enable @typescript-eslint/no-magic-numbers */

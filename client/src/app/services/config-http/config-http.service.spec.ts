@@ -24,6 +24,7 @@ describe('ConfigHttpService', () => {
         httpMock.verify();
     });
 
+    // TODO
     it('should be created', () => {
         expect(service).toBeTruthy();
     });
@@ -164,18 +165,6 @@ describe('ConfigHttpService', () => {
         });
 
         const req = httpMock.expectOne(`${baseUrl}/config/history`);
-        expect(req.request.method).toBe('DELETE');
-        req.flush({});
-    });
-
-    it('should delete the gameHistory when calling deleteHistory with specific id', () => {
-        const id = 'FakeId';
-        service.deleteHistory(id).subscribe({
-            // eslint-disable-next-line @typescript-eslint/no-empty-function
-            next: () => {},
-        });
-
-        const req = httpMock.expectOne(`${baseUrl}/config/history/${id}`);
         expect(req.request.method).toBe('DELETE');
         req.flush({});
     });

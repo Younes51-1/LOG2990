@@ -8,7 +8,7 @@ describe('VideoReplayDialogComponent', () => {
     let component: VideoReplayDialogComponent;
     let fixture: ComponentFixture<VideoReplayDialogComponent>;
     const differenceMatrix: number[][] = [[]];
-    const gameForm = {
+    const gameData: GameData = {
         name: '',
         nbDifference: 0,
         image1url: 'https://picsum.photos/402',
@@ -16,8 +16,8 @@ describe('VideoReplayDialogComponent', () => {
         difficulty: '',
         soloBestTimes: [],
         vsBestTimes: [],
+        differenceMatrix,
     };
-    const gameData: GameData = { gameForm, differenceMatrix };
     const userGame: UserGame = { username1: '', gameData, nbDifferenceFound: 0, timer: 0 };
     const gameRoom: GameRoom = { userGame, roomId: 'testRoom', started: false, gameMode: 'classic-mode' };
     let videoReplay: VideoReplay;

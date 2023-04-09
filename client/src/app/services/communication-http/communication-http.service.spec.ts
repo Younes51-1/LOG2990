@@ -1,6 +1,6 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { GameData, GameForm, NewGame } from '@app/interfaces/game';
+import { GameData, NewGame } from '@app/interfaces/game';
 import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 
 describe('CommunicationHttpService', () => {
@@ -27,7 +27,7 @@ describe('CommunicationHttpService', () => {
     });
 
     it('should return all games when calling getAllGames', () => {
-        const expectedGames: GameForm[] = [
+        const expectedGames: GameData[] = [
             {
                 name: 'Find the Differences 1',
                 nbDifference: 10,
@@ -38,6 +38,7 @@ describe('CommunicationHttpService', () => {
                     { name: 'player1', time: 200 },
                     { name: 'player2', time: 150 },
                 ],
+                differenceMatrix: [[]],
                 vsBestTimes: [{ name: 'player1', time: 200 }],
             },
             {
@@ -50,12 +51,13 @@ describe('CommunicationHttpService', () => {
                     { name: 'player3', time: 300 },
                     { name: 'player4', time: 250 },
                 ],
+                differenceMatrix: [[]],
                 vsBestTimes: [{ name: 'player3', time: 200 }],
             },
         ];
 
         service.getAllGames().subscribe({
-            next: (response: GameForm[]) => {
+            next: (response: GameData[]) => {
                 expect(response).toEqual(expectedGames);
             },
             error: fail,
@@ -67,7 +69,7 @@ describe('CommunicationHttpService', () => {
     });
 
     it('should return the game when calling getGame', () => {
-        const gameForm: GameForm = {
+        const expectedGame: GameData = {
             name: 'Find the Differences 1',
             nbDifference: 10,
             image1url: 'https://example.com/image1.jpg',
@@ -77,23 +79,22 @@ describe('CommunicationHttpService', () => {
                 { name: 'player1', time: 200 },
                 { name: 'player2', time: 150 },
             ],
+            differenceMatrix: [
+                [0, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0],
+            ],
             vsBestTimes: [{ name: 'player1', time: 200 }],
         };
-        const differenceMatrix: number[][] = [
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0],
-        ];
-        const expectedGame: GameData = { gameForm, differenceMatrix };
 
-        service.getGame(expectedGame.gameForm.name).subscribe({
+        service.getGame(expectedGame.name).subscribe({
             next: (response: GameData) => {
                 expect(response).toEqual(expectedGame);
             },
             error: fail,
         });
 
-        const req = httpMock.expectOne(`${baseUrl}/game/${expectedGame.gameForm.name}`);
+        const req = httpMock.expectOne(`${baseUrl}/game/${expectedGame.name}`);
         expect(req.request.method).toBe('GET');
         req.flush(expectedGame);
     });
@@ -110,7 +111,7 @@ describe('CommunicationHttpService', () => {
     });
 
     it('should delete the game when calling deleteGame', () => {
-        const gameForm: GameForm = {
+        const expectedGame: GameData = {
             name: 'Find the Differences 1',
             nbDifference: 10,
             image1url: 'https://example.com/image1.jpg',
@@ -120,26 +121,25 @@ describe('CommunicationHttpService', () => {
                 { name: 'player1', time: 200 },
                 { name: 'player2', time: 150 },
             ],
+            differenceMatrix: [
+                [0, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0],
+            ],
             vsBestTimes: [{ name: 'player1', time: 200 }],
         };
-        const differenceMatrix: number[][] = [
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0],
-        ];
-        const expectedGame: GameData = { gameForm, differenceMatrix };
-        service.deleteGame(expectedGame.gameForm.name).subscribe({
+        service.deleteGame(expectedGame.name).subscribe({
             // eslint-disable-next-line @typescript-eslint/no-empty-function
             next: () => {},
         });
 
-        const req = httpMock.expectOne(`${baseUrl}/game/${expectedGame.gameForm.name}`);
+        const req = httpMock.expectOne(`${baseUrl}/game/${expectedGame.name}`);
         expect(req.request.method).toBe('DELETE');
         req.flush(expectedGame);
     });
 
     it('should handle http error safely when calling getGame', () => {
-        const gameForm: GameForm = {
+        const expectedGame: GameData = {
             name: 'Find the Differences 1',
             nbDifference: 10,
             image1url: 'https://example.com/image1.jpg',
@@ -149,21 +149,20 @@ describe('CommunicationHttpService', () => {
                 { name: 'player1', time: 200 },
                 { name: 'player2', time: 150 },
             ],
+            differenceMatrix: [
+                [0, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0],
+            ],
             vsBestTimes: [{ name: 'player1', time: 200 }],
         };
-        const differenceMatrix: number[][] = [
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0],
-        ];
-        const expectedGame: GameData = { gameForm, differenceMatrix };
-        service.getGame(expectedGame.gameForm.name).subscribe({
+        service.getGame(expectedGame.name).subscribe({
             // eslint-disable-next-line @typescript-eslint/no-empty-function
             next: () => {},
             error: fail,
         });
 
-        const req = httpMock.expectOne(`${baseUrl}/game/${expectedGame.gameForm.name}`);
+        const req = httpMock.expectOne(`${baseUrl}/game/${expectedGame.name}`);
         expect(req.request.method).toBe('GET');
         req.error(new ProgressEvent('Random error occurred'));
     });

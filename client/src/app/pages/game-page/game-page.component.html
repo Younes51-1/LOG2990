@@ -29,6 +29,7 @@
         (sendCheatStart)="getCheatStart($event)"
         (sendCheatEnd)="getCheatEnd()"
         (toggleHint)="toggleHint()"
+        (sendHint)="getHint($event)"
     ></app-play-area>
     <app-chat-box [gameRoom]="gameRoom" [username]="username" (sendChatMessage)="getChatMessage($event)"></app-chat-box>
 </section>

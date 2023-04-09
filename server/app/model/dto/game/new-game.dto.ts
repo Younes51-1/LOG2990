@@ -26,4 +26,8 @@ export class NewGame {
 
     @ApiProperty()
     differenceMatrix: number[][];
+
+    @ApiProperty()
+    @IsString()
+    difficulty: string;
 }
