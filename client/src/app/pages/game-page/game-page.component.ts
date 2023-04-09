@@ -168,8 +168,12 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     toggleHint() {
         if (this.hintNum < 3) {
-            this.playAreaService.isHintModeOn = !this.playAreaService.isHintModeOn;
             this.playAreaService.hintMode(this.hintNum);
+            if (this.gameService.gameMode === 'limited-time-mode') {
+                this.gameService.changeTime(-this.gameService.gameConstans.penaltyTime);
+            } else {
+                this.gameService.changeTime(this.gameService.gameConstans.penaltyTime);
+            }
             this.sendEvent('hint');
             this.hintNum += 1;
         }
