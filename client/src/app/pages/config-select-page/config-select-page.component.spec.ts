@@ -46,6 +46,7 @@ describe('ConfigSelectPageComponent', () => {
                         { name: 'player2', time: 150 },
                     ],
                     vsBestTimes: [{ name: 'player1', time: 200 }],
+                    differenceMatrix: [[]],
                     isSelected: false,
                 },
                 {
@@ -59,6 +60,7 @@ describe('ConfigSelectPageComponent', () => {
                         { name: 'player4', time: 250 },
                     ],
                     vsBestTimes: [{ name: 'player3', time: 200 }],
+                    differenceMatrix: [[]],
                     isSelected: false,
                 },
             ]),

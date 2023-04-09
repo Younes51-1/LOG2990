@@ -5,17 +5,26 @@ import { Socket } from 'socket.io';
 import { Vector2D } from '@app/model/schema/vector2d.schema';
 import { EndGame } from '@app/model/schema/end-game.schema';
 import { EMPTY_PIXEL_VALUE } from '@app/constants';
+import { GameHistoryService } from '@app/services/game-history/game-history.service';
 
 @Injectable()
 export class GameModeService {
-    gameRooms: Map<string, GameRoom> = new Map<string, GameRoom>();
+    private gameRooms: Map<string, GameRoom> = new Map<string, GameRoom>();
     private gameHistory: Map<string, GameHistory> = new Map<string, GameHistory>();
 
+    constructor(private gameHistoryService: GameHistoryService) {}
     getGameRoom(roomId?: string, gameName?: string, gameMode?: string): GameRoom {
         if (roomId) return this.gameRooms.get(roomId);
-        for (const gameRoom of this.gameRooms.values()) {
-            if (gameRoom.userGame.gameData.gameForm.name === gameName && gameRoom.gameMode === gameMode) return gameRoom;
+        if (gameMode === 'classic-mode') {
+            for (const gameRoom of this.gameRooms.values()) {
+                if (gameRoom.userGame.gameData.name === gameName && gameRoom.gameMode === gameMode) return gameRoom;
+            }
+        } else {
+            for (const gameRoom of this.gameRooms.values()) {
+                if (gameRoom.gameMode === gameMode) return gameRoom;
+            }
         }
+        return undefined;
     }
 
     setGameRoom(gameRoom: GameRoom): void {
@@ -54,7 +63,7 @@ export class GameModeService {
 
     saveGameHistory(gameRoom: GameRoom): void {
         const newGameHistory = new GameHistory();
-        newGameHistory.name = gameRoom.userGame.gameData.gameForm.name;
+        newGameHistory.name = gameRoom.userGame.gameData.name;
         newGameHistory.username1 = gameRoom.userGame.username1;
         newGameHistory.username2 = gameRoom.userGame?.username2;
         newGameHistory.startTime = Date.now();
@@ -91,7 +100,7 @@ export class GameModeService {
         const gameRoom = this.getGameRoom(gameId);
         if (!gameRoom) return false;
         if (gameRoom.gameMode === 'classic-mode') {
-            return gameRoom.userGame.nbDifferenceFound === gameRoom.userGame.gameData.gameForm.nbDifference;
+            return gameRoom.userGame.nbDifferenceFound === gameRoom.userGame.gameData.nbDifference;
         } else {
             return gameRoom.userGame.timer <= 0;
         }
@@ -130,7 +139,7 @@ export class GameModeService {
     }
 
     canJoinGame(socket: Socket, data: { gameName: string; username: string; gameMode: string }): GameRoom {
-        const gameRoom = this.getGameModeRoom(data.gameName, data.gameMode);
+        const gameRoom = this.getGameRoom(undefined, data.gameName, data.gameMode);
         if (!gameRoom) return null;
         if (!gameRoom.userGame.potentialPlayers) {
             gameRoom.userGame.potentialPlayers = [];
@@ -142,15 +151,6 @@ export class GameModeService {
             return undefined;
         }
         return gameRoom;
-    }
-
-    getGameModeRoom(gameName: string, gameMode: string): GameRoom {
-        for (const gameRoom of this.gameRooms.values()) {
-            if (gameRoom.userGame.gameData.gameForm.name === gameName && gameRoom.gameMode === gameMode && !gameRoom.started) {
-                return gameRoom;
-            }
-        }
-        return undefined;
     }
 
     applyTimeToTimer(roomId: string, time: number): void {
@@ -169,7 +169,41 @@ export class GameModeService {
             gameRoom.userGame.timer++;
         } else {
             gameRoom.userGame.timer--;
+            const twoMin = 120;
+            if (gameRoom.userGame.timer > twoMin) {
+                gameRoom.userGame.timer = twoMin;
+            } else if (gameRoom.userGame.timer < 0) {
+                gameRoom.userGame.timer = 0;
+            }
         }
+        this.setGameRoom(gameRoom);
+    }
+
+    endGame(endGame: EndGame): void {
+        this.updateGameHistory(endGame);
+        const gameHistory = this.getGameHistory(endGame.roomId);
+        this.gameHistoryService.saveGameHistory(gameHistory);
+        this.deleteRoom(endGame.roomId);
+    }
+
+    abandonClassicMode(gameRoom: GameRoom, username: string): void {
+        this.abandonGameHistory(gameRoom.roomId, username);
+
+        if (!gameRoom.userGame.username2) {
+            const gameHistory = this.getGameHistory(gameRoom.roomId);
+            this.gameHistoryService.saveGameHistory(gameHistory);
+        }
+    }
+
+    abandonLimitedTimeMode(gameRoom: GameRoom, username: string, socketId: string): void {
+        if (gameRoom.userGame.username1 === username) {
+            gameRoom.userGame.username1 = gameRoom.userGame.username2;
+        }
+        gameRoom.userGame.username2 = '';
+        const gameHistory = this.getGameHistory(gameRoom.roomId);
+        this.deleteGameHistory(socketId);
+        this.setGameHistory(gameRoom.roomId, gameHistory);
+        this.deleteRoom(socketId);
         this.setGameRoom(gameRoom);
     }
 }

@@ -1,15 +1,13 @@
 import { Injectable } from '@angular/core';
-import { GameContext, GameRoom } from '@app/interfaces/game';
-import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
-import { Subject } from 'rxjs';
-import { ClassicModeService } from '@app/services/classic-mode/classic-mode.service';
-import { GameCardComponent } from '@app/components/game-card/game-card.component';
-import { ChatService } from '@app/services/chat/chat.service';
 import { DifferenceTry } from '@app/interfaces/difference-try';
-import { Vec2 } from '@app/interfaces/vec2';
-import { LimitedTimeModeService } from '@app/services/limited-time-mode/limited-time-mode.service';
-import { ConfigHttpService } from '@app/services/config-http/config-http.service';
+import { EndGame, GameData, GameRoom, NewBestTime } from '@app/interfaces/game';
 import { GameConstants } from '@app/interfaces/game-constants';
+import { Vec2 } from '@app/interfaces/vec2';
+import { ChatService } from '@app/services/chat/chat.service';
+import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
+import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
+import { ConfigHttpService } from '@app/services/config-http/config-http.service';
+import { Subject } from 'rxjs';
 
 const NOT_TOP3 = -1;
 
@@ -18,9 +16,6 @@ const NOT_TOP3 = -1;
 })
 export class GameService {
     gameExists$ = new Subject<boolean>();
-    rejected$ = new Subject<boolean>();
-    accepted$ = new Subject<boolean>();
-    gameCanceled$ = new Subject<boolean>();
     timePosition$ = new Subject<number>();
     serverValidateResponse$ = new Subject<DifferenceTry>();
     totalDifferencesFound$ = new Subject<number>();
@@ -31,56 +26,28 @@ export class GameService {
     gameDeleted$ = new Subject<boolean>();
     abandoned$ = new Subject<string>();
     gameRoom: GameRoom;
+    slides: GameData[];
     username: string;
     gameMode: string;
-    gameManager: ClassicModeService | LimitedTimeModeService;
-    gameConstans: GameConstants;
+    gameConstants: GameConstants;
+    userDifferencesFound = 0;
+    isAbandoned = false;
+    private canSendValidate = true;
 
     // eslint-disable-next-line max-params
     constructor(
         readonly socketService: CommunicationSocketService,
-        private classicModeService: ClassicModeService,
-        private limitedTimeModeService: LimitedTimeModeService,
         private chatService: ChatService,
         readonly configHttpService: ConfigHttpService,
+        private communicationService: CommunicationHttpService,
     ) {
+        this.getConstant();
+    }
+
+    getConstant(): void {
         this.configHttpService.getConstants().subscribe((res) => {
-            this.gameConstans = res;
+            this.gameConstants = res;
         });
-        if (!this.gameMode) {
-            const gameMode = localStorage.getItem('gameMode');
-            if (gameMode) {
-                this.setGameMode(gameMode);
-            }
-        }
-    }
-
-    setGameMode(mode: string) {
-        localStorage.setItem('gameMode', mode);
-        this.setGameManager();
-        this.timerUpdate();
-        this.differencesUpdate();
-        this.gameFinishedUpdate();
-        this.gameRoomUpdate();
-        this.abandonedGameUpdate();
-    }
-
-    setGameManager() {
-        const gameMode = localStorage.getItem('gameMode');
-        if (gameMode) {
-            this.gameMode = gameMode;
-        }
-        if (this.gameMode === 'classic-mode') {
-            this.gameManager = this.classicModeService;
-            this.classicModeService.setGameService(this);
-        } else {
-            this.gameManager = this.limitedTimeModeService;
-            this.limitedTimeModeService.setGameService(this);
-        }
-    }
-
-    getGameMode() {
-        return this.gameMode;
     }
 
     connectSocket(): void {
@@ -95,171 +62,162 @@ export class GameService {
         }
     }
 
-    checkGame(gameName: string): void {
-        this.connectSocket();
-        this.socketService.send('checkGame', { gameName, gameMode: this.gameMode });
-        this.socketService.on('gameFound', (gameContext: GameContext) => {
-            if (gameName === gameContext.gameName && this.gameMode === gameContext.gameMode) {
-                this.gameExists$.next(true);
-            }
-        });
-
-        this.socketService.on('gameDeleted', (gameContext: GameContext) => {
-            if (gameName === gameContext.gameName && this.gameMode === gameContext.gameMode) {
-                this.gameExists$.next(false);
-            }
-        });
-    }
-
-    startSoloGame(gameName: string, username: string): void {
+    startGame(gameRoom: GameRoom, username: string): void {
+        this.gameRoom = gameRoom;
         this.username = username;
-        this.gameManager.initGameMode(gameName, username, true);
-    }
-
-    createGame(gameName: string, username: string): void {
-        this.username = username;
-        this.gameManager.initGameMode(gameName, username, false);
-    }
-
-    joinGame(gameName: string, username: string): void {
-        this.username = username;
-        this.gameManager.joinWaitingRoom(gameName, username);
-    }
-
-    canJoinGame(gameName: string, username: string, gameCard: GameCardComponent): void {
-        this.socketService.send('canJoinGame', { gameName, username, gameMode: this.gameMode });
-        this.socketService.on('cannotJoinGame', () => {
-            gameCard.applyBorder = true;
-            this.disconnectSocket();
-        });
-        this.socketService.on('canJoinGame', () => {
-            gameCard.joinGame();
-        });
-    }
-
-    playerRejected(player: string): void {
-        if (this.socketService.isSocketAlive()) {
-            this.socketService.send('rejectPlayer', { roomId: this.gameRoom.roomId, username: player });
+        this.gameMode = gameRoom.gameMode;
+        this.gameRoom$.next(this.gameRoom);
+        if (this.gameRoom.userGame.username1 === this.username) {
+            this.connectSocket();
+            this.socketService.send('start', this.gameRoom.roomId);
         }
-    }
-
-    playerAccepted(player: string): void {
-        if (this.socketService.isSocketAlive()) {
-            this.socketService.send('acceptPlayer', { roomId: this.gameRoom.roomId, username: player });
-        }
-    }
-
-    startGame(): void {
-        this.gameManager.startGame();
+        if (this.gameMode === 'limited-time-mode') this.getAllGames();
         this.chatService.handleMessage();
+        this.handleSocket();
+    }
+
+    turnOffWaitingSocket(): void {
+        this.socketService.off('gameInfo');
+        this.socketService.off('gameCreated');
+        this.socketService.off('playerAccepted');
+        this.socketService.off('playerRejected');
+        this.socketService.off('gameCanceled');
+    }
+
+    getAllGames() {
+        this.communicationService.getAllGames().subscribe((games) => {
+            this.slides = games;
+            this.slides = this.slides.filter((game) => game.name !== this.gameRoom.userGame.gameData.name);
+        });
     }
 
     abortGame(): void {
-        this.gameManager.abortGame();
+        if (this.socketService.isSocketAlive() && this.gameRoom?.userGame.username1 === this.username) {
+            this.socketService.send('abortGameCreation', this.gameRoom.roomId);
+        } else if (this.socketService.isSocketAlive() && this.gameRoom) {
+            this.socketService.send('leaveGame', { roomId: this.gameRoom.roomId, username: this.username });
+        }
+        this.disconnectSocket();
     }
 
-    handleWaitingRoomSocket(): void {
-        this.socketService.on('playerAccepted', (gameRoom: GameRoom) => {
-            if (gameRoom && (gameRoom.userGame.username1 === this.username || gameRoom.userGame.username2 === this.username)) {
-                this.gameRoom = gameRoom;
-                this.accepted$.next(true);
-            } else if (gameRoom) {
-                this.gameRoom = gameRoom;
-                this.rejected$.next(true);
-            }
-        });
-
-        this.socketService.on('playerRejected', (gameRoom: GameRoom) => {
-            if (
-                gameRoom &&
-                gameRoom.userGame.username1 !== this.username &&
-                gameRoom.userGame.username2 !== this.username &&
-                !gameRoom.userGame.potentialPlayers?.includes(this.username)
-            ) {
-                this.rejected$.next(true);
-            } else if (gameRoom) {
-                this.gameRoom = gameRoom;
-            }
-        });
-
-        this.socketService.on('gameCanceled', (gameName) => {
-            if (this.gameRoom?.userGame.gameData.gameForm.name === gameName) {
-                this.gameCanceled$.next(true);
-            }
-        });
-    }
-
-    topScore() {
-        this.gameManager.timePosition$.subscribe((timePosition: number) => {
-            if (timePosition === NOT_TOP3) return;
-            this.timePosition$.next(timePosition);
-        });
-    }
-
-    sendServerValidate(mousePosition: Vec2): void {
-        this.gameManager.validateDifference(mousePosition);
-    }
-
-    timerUpdate(): void {
-        this.gameManager.timer$.subscribe((timer) => {
-            this.timer$.next(timer);
-        });
-    }
-
-    differencesUpdate(): void {
-        this.gameManager.totalDifferencesFound$.subscribe((totalDifferencesFound) => {
-            this.totalDifferencesFound$.next(totalDifferencesFound);
-        });
-        this.gameManager.userDifferencesFound$.subscribe((userDifferencesFound) => {
-            this.userDifferencesFound$.next(userDifferencesFound);
-        });
-    }
-
-    gameFinishedUpdate(): void {
-        this.gameManager.gameFinished$.subscribe((gameFinished) => {
-            this.gameFinished$.next(gameFinished);
-        });
-    }
-
-    gameRoomUpdate(): void {
-        this.gameManager.gameRoom$.subscribe((gameRoom) => {
-            this.gameRoom$.next(gameRoom);
-            this.gameRoom = gameRoom;
-        });
-    }
-
-    abandonedGameUpdate(): void {
-        this.gameManager.abandoned$.subscribe((abandoned) => {
-            this.abandoned$.next(abandoned);
-        });
+    sendServerValidate(differencePos: Vec2): void {
+        if (!this.canSendValidate) {
+            return;
+        }
+        this.socketService.send('validate', { differencePos, roomId: this.gameRoom.roomId, username: this.username });
+        this.canSendValidate = false;
     }
 
     endGame(gameFinished: boolean, winner: boolean): void {
-        this.gameManager.endGame(gameFinished, winner);
-    }
-
-    changeTime(number: number): void {
-        this.gameManager.changeTime(number);
-    }
-
-    reset(): void {
-        this.gameManager.reset();
-    }
-
-    abandonGame(): void {
-        this.gameManager.abandonGame();
-    }
-
-    nextGame(): void {
-        if (this.gameManager instanceof LimitedTimeModeService) {
-            this.gameManager.nextGame();
+        if (this.socketService.isSocketAlive()) {
+            const endGame = {} as EndGame;
+            endGame.gameFinished = gameFinished;
+            endGame.winner = winner;
+            endGame.roomId = this.gameRoom.roomId;
+            endGame.username = this.username;
+            this.socketService.send('endGame', endGame);
+            if (this.gameMode === 'classic-mode') this.updateBestTime(gameFinished, winner);
         }
     }
 
-    limitedTimeGameAbandoned() {
-        this.gameRoom = this.gameManager.gameRoom;
-        this.gameManager.turnOffSocket();
-        this.setGameMode(this.gameRoom.gameMode);
+    changeTime(number: number): void {
+        if (this.socketService.isSocketAlive()) {
+            this.socketService.send('changeTime', { roomId: this.gameRoom.roomId, time: number });
+        }
+    }
+
+    reset(): void {
+        this.gameRoom = undefined as unknown as GameRoom;
+        this.canSendValidate = true;
+        this.username = '';
+        this.userDifferencesFound = 0;
+        this.totalDifferencesFound$ = new Subject<number>();
+        this.userDifferencesFound$ = new Subject<number>();
+        this.timer$ = new Subject<number>();
+        this.gameFinished$ = new Subject<boolean>();
+        this.gameRoom$ = new Subject<GameRoom>();
+        this.serverValidateResponse$ = new Subject<DifferenceTry>();
+        this.abandoned$ = new Subject<string>();
+    }
+
+    abandonGame(): void {
+        if (this.socketService.isSocketAlive()) {
+            this.socketService.send('abandoned', { roomId: this.gameRoom.roomId, username: this.username });
+        }
+    }
+
+    nextGame(): void {
+        if (this.slides.length > 0) {
+            const game = this.slides.pop();
+            this.gameRoom.userGame.gameData = game ? game : this.gameRoom.userGame.gameData;
+            this.gameRoom$.next(this.gameRoom);
+            this.socketService.send('nextGame', this.gameRoom);
+        } else {
+            this.gameFinished$.next(true);
+        }
+    }
+
+    private updateBestTime(gameFinished: boolean, winner: boolean): void {
+        this.configHttpService.getBestTime(this.gameRoom.userGame.gameData.name).subscribe((bestTimes) => {
+            if (!bestTimes) return;
+            const actualBestTime = this.gameRoom.userGame.username2 ? bestTimes.vsBestTimes[2].time : bestTimes.soloBestTimes[2].time;
+            if (this.gameRoom.userGame.timer < actualBestTime && winner && gameFinished && !this.isAbandoned) {
+                const newBestTime = new NewBestTime();
+                newBestTime.gameName = this.gameRoom.userGame.gameData.name;
+                newBestTime.time = this.gameRoom.userGame.timer;
+                newBestTime.name = this.username;
+                newBestTime.isSolo = !this.gameRoom.userGame.username2;
+                this.configHttpService.updateBestTime(this.gameRoom.userGame.gameData.name, newBestTime).subscribe((position) => {
+                    if (position === NOT_TOP3) return;
+                    this.timePosition$.next(position);
+                });
+            }
+        });
+    }
+
+    private handleSocket(): void {
+        this.socketService.on('started', (gameRoom: GameRoom) => {
+            this.gameRoom = gameRoom;
+            this.gameRoom$.next(gameRoom);
+        });
+
+        this.socketService.on('validated', (differenceTry: DifferenceTry) => {
+            if (differenceTry.validated) {
+                this.gameRoom.userGame.nbDifferenceFound++;
+                this.totalDifferencesFound$.next(this.gameRoom.userGame.nbDifferenceFound);
+                if (differenceTry.username === this.username) {
+                    this.userDifferencesFound++;
+                    this.userDifferencesFound$.next(this.userDifferencesFound);
+                }
+            }
+            this.serverValidateResponse$.next(differenceTry);
+        });
+
+        this.socketService.on('GameFinished', () => {
+            this.gameFinished$.next(true);
+            this.disconnectSocket();
+        });
+
+        this.socketService.on('abandoned', (data: { gameRoom: GameRoom; username: string }) => {
+            this.isAbandoned = true;
+            this.abandoned$.next(data.username);
+            if (this.gameMode === 'limited-time-mode') {
+                this.limitedTimeGameAbandoned(data.gameRoom);
+            }
+        });
+
+        this.socketService.on('timer', (timer: number) => {
+            if (this.gameRoom.userGame.timer <= 0 && this.gameMode === 'limited-time-mode') {
+                this.gameFinished$.next(true);
+            }
+            this.gameRoom.userGame.timer = timer;
+            this.timer$.next(timer);
+            this.canSendValidate = true;
+        });
+    }
+
+    private limitedTimeGameAbandoned(gameRoom: GameRoom): void {
+        this.gameRoom = gameRoom;
         this.gameRoom$.next(this.gameRoom);
     }
 }

@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { Router } from '@angular/router';
 import { DeleteDialogComponent } from '@app/components/delete-dialog/delete-dialog.component';
-import { GameService } from '@app/services/game/game.service';
+import { WaitingRoomService } from '@app/services/waiting-room/waiting-room.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -18,29 +17,22 @@ export class WaitingRoomComponent implements OnInit {
     private acceptedSubscription: Subscription;
     private gameCanceledSubscription: Subscription;
 
-    // Need all services in constructor
-    // eslint-disable-next-line max-params
-    constructor(
-        public gameService: GameService,
-        private dialog: MatDialog,
-        private router: Router,
-        private dialogRef: MatDialogRef<WaitingRoomComponent>,
-    ) {}
+    constructor(public waitingRoomService: WaitingRoomService, private dialog: MatDialog, private dialogRef: MatDialogRef<WaitingRoomComponent>) {}
 
     ngOnInit() {
-        this.rejectedSubscription = this.gameService.rejected$.subscribe((rejected) => {
+        this.rejectedSubscription = this.waitingRoomService.rejected$.subscribe((rejected) => {
             this.rejected = rejected;
         });
 
-        this.acceptedSubscription = this.gameService.accepted$.subscribe((accepted) => {
+        this.acceptedSubscription = this.waitingRoomService.accepted$.subscribe((accepted) => {
             if (accepted) {
                 this.accepted = true;
-                this.gameService.startGame();
-                this.router.navigate(['/game']);
+                this.waitingRoomService.startGame();
+                this.close();
             }
         });
 
-        this.gameCanceledSubscription = this.gameService.gameCanceled$.subscribe((finished) => {
+        this.gameCanceledSubscription = this.waitingRoomService.gameCanceled$.subscribe((finished) => {
             if (!this.gameCanceled && finished) {
                 this.gameCanceled = true;
                 const dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { action: 'deleted' } });
@@ -54,11 +46,11 @@ export class WaitingRoomComponent implements OnInit {
     }
 
     playerAccepted(player: string): void {
-        this.gameService.playerAccepted(player);
+        this.waitingRoomService.playerAccepted(player);
     }
 
     playerRejected(player: string): void {
-        this.gameService.playerRejected(player);
+        this.waitingRoomService.playerRejected(player);
     }
 
     close() {
@@ -67,10 +59,7 @@ export class WaitingRoomComponent implements OnInit {
         this.gameCanceledSubscription.unsubscribe();
         this.dialogRef.close();
         if (!this.accepted) {
-            this.gameService.abortGame();
-            this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-                this.router.navigate(['/selection']);
-            });
+            this.waitingRoomService.abortGame();
         }
     }
 }

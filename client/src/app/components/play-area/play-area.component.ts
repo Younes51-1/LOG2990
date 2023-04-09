@@ -98,8 +98,8 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     ngOnChanges() {
         if (this.gameService.gameRoom && this.gameRoom?.userGame?.gameData) {
             this.differenceMatrix = this.gameRoom.userGame.gameData.differenceMatrix;
-            this.original.src = this.gameRoom.userGame.gameData.gameForm.image1url;
-            this.modified.src = this.gameRoom.userGame.gameData.gameForm.image2url;
+            this.original.src = this.gameRoom.userGame.gameData.image1url;
+            this.modified.src = this.gameRoom.userGame.gameData.image2url;
             this.sendImage.emit({ src: this.original.src, first: true });
             this.sendImage.emit({ src: this.modified.src, first: false });
         }
@@ -144,7 +144,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         this.audioValid.play();
         this.correctAnswerVisuals(differencePos);
         if (this.gameService.gameMode === 'limited-time-mode') {
-            this.gameService.changeTime(this.gameService.gameConstans.bonusTime);
+            this.gameService.changeTime(this.gameService.gameConstants.bonusTime);
             this.gameService.nextGame();
             this.ngOnChanges();
         }
@@ -155,9 +155,6 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         this.audioInvalid.play();
         this.playAreaService.errorAnswerVisuals(canvas, this.mousePosition);
         this.userError.emit();
-        if (this.gameService.gameMode === 'limited-time-mode') {
-            this.gameService.changeTime(-this.gameService.gameConstans.penaltyTime);
-        }
     }
 
     private correctAnswerVisuals(coords: Vec2) {

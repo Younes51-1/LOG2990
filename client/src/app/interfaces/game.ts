@@ -1,5 +1,12 @@
 export interface GameData {
-    gameForm: GameForm;
+    name: string;
+    nbDifference: number;
+    image1url: string;
+    image2url: string;
+    difficulty: string;
+    soloBestTimes: BestTime[];
+    vsBestTimes: BestTime[];
+    isSelected?: boolean;
     differenceMatrix: number[][];
 }
 
@@ -11,17 +18,6 @@ export interface UserGame {
     nbDifferenceFound2?: number;
     timer: number;
     potentialPlayers?: string[];
-}
-
-export interface GameForm {
-    name: string;
-    nbDifference: number;
-    image1url: string;
-    image2url: string;
-    difficulty: string;
-    soloBestTimes: BestTime[];
-    vsBestTimes: BestTime[];
-    isSelected?: boolean;
 }
 
 export interface BestTime {
@@ -53,7 +49,6 @@ export class NewBestTime {
 }
 
 export interface GameHistory {
-    _id?: string;
     name: string;
     startTime: number;
     timer: number;

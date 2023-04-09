@@ -1,0 +1,17 @@
+<div id="container">
+    <p> Mode Temps Limité </p>
+    <button (click)="showInput1 = true; showInput2 = false; focusInput()">Jouer en solo</button>
+    <button (click)="showInput1 = false; showInput2 = true; checkGame(); focusInput()">
+        Option multijoueur
+    </button>
+    <div class="player-name" *ngIf="showInput1">
+        <input type="text" [(ngModel)]="inputValue1" placeholder="Entrez votre nom"
+            [ngClass]="{ 'error-border': applyBorder }" (keyup.enter)="soloButton.click()" />
+        <button #soloButton (click)="verifySoloInput()">{{ 'Jouer' }}</button>
+    </div>
+    <div class="player-name" *ngIf="showInput2">
+        <input type="text" [(ngModel)]="inputValue2" placeholder="Entrez votre nom"
+            [ngClass]="{ 'error-border': applyBorder }" (keyup.enter)="multiButton.click()" />
+        <button #multiButton (click)="verifyMultiInput()">{{ this.gameExists ? 'Joindre' : 'Créer' }}</button>
+    </div>
+</div>

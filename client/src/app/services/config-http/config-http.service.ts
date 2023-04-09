@@ -2,8 +2,8 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BestTime, GameHistory, NewBestTime } from '@app/interfaces/game';
 import { GameConstants } from '@app/interfaces/game-constants';
-import { catchError, Observable, of } from 'rxjs';
-import { environment } from 'src/environments/environment.prod';
+import { Observable, catchError, of } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
     providedIn: 'root',
@@ -36,12 +36,8 @@ export class ConfigHttpService {
         return this.http.put(`${this.baseUrl}/config/constants`, constants, { observe: 'response', responseType: 'text' });
     }
 
-    deleteHistory(id?: string): Observable<HttpResponse<string>> {
-        if (id) {
-            return this.http.delete(`${this.baseUrl}/config/history/${id}`, { observe: 'response', responseType: 'text' });
-        } else {
-            return this.http.delete(`${this.baseUrl}/config/history`, { observe: 'response', responseType: 'text' });
-        }
+    deleteHistory(): Observable<HttpResponse<string>> {
+        return this.http.delete(`${this.baseUrl}/config/history`, { observe: 'response', responseType: 'text' });
     }
 
     deleteBestTimes(): Observable<HttpResponse<string>> {

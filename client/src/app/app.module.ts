@@ -12,6 +12,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { ConfigParamsComponent } from '@app/components/config-params/config-params.component';
+import { CreateJoinGameDialogComponent } from '@app/components/create-join-game-dialog/create-join-game-dialog.component';
 import { CreationDialogComponent } from '@app/components/creation-dialog/creation-dialog.component';
 import { DeleteDialogComponent } from '@app/components/delete-dialog/delete-dialog.component';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
@@ -32,7 +33,6 @@ import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { SlickCarouselModule } from 'ngx-slick-carousel';
-import { GameService } from '@app/services/game/game.service';
 
 /**
  * Main module that is used in main.ts.
@@ -60,8 +60,8 @@ import { GameService } from '@app/services/game/game.service';
         ReplayPlayAreaComponent,
         ReplayScoreBoardComponent,
         ReplayChatBoxComponent,
+        CreateJoinGameDialogComponent,
     ],
-    providers: [GameService],
     bootstrap: [AppComponent],
     imports: [
         AppMaterialModule,

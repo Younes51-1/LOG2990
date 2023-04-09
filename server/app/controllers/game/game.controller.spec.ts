@@ -1,6 +1,5 @@
 import { GameController } from '@app/controllers/game/game.controller';
 import { GameData } from '@app/model/dto/game/game-data.dto';
-import { GameForm } from '@app/model/dto/game/game-form.dto';
 import { NewGame } from '@app/model/dto/game/new-game.dto';
 import { GameService } from '@app/services/game/game.service';
 import { HttpStatus } from '@nestjs/common';
@@ -32,7 +31,7 @@ describe.only('GameController', () => {
     });
 
     it('getAllGames should return all games', async () => {
-        const fakeGames = [new GameForm(), new GameForm()];
+        const fakeGames = [new GameData(), new GameData()];
         gameService.getAllGames.resolves(fakeGames);
 
         const res = {} as unknown as Response;

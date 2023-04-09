@@ -1,10 +1,9 @@
-import { DIFFICULTY_THRESHOLD, NOT_TOP3 } from '@app/constants';
-import { environment } from '@app/environments/environment.prod';
+import { NOT_TOP3 } from '@app/constants';
+import { environment } from '@app/environments/environment';
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
 import { GameModeGateway } from '@app/gateways/game-mode/game-mode.gateway';
 import { Game, GameDocument } from '@app/model/database/game';
 import { GameData } from '@app/model/dto/game/game-data.dto';
-import { GameForm } from '@app/model/dto/game/game-form.dto';
 import { NewBestTime } from '@app/model/dto/game/new-best-times.dto';
 import { NewGame } from '@app/model/dto/game/new-game.dto';
 import { BestTime } from '@app/model/schema/best-times.schema';
@@ -21,14 +20,16 @@ export class GameService {
         private readonly chatGateway: ChatGateway,
     ) {}
 
-    async getAllGames(): Promise<GameForm[]> {
-        const games = await this.gameModel.find({});
-        return games.map((game) => this.convertGameToGameForm(game));
+    async getAllGames(): Promise<GameData[]> {
+        const games = await this.gameModel.find({}).lean();
+        const gameDataPromises = games.map(async (game) => this.convertGameToGameData(game));
+        const gameData = await Promise.all(gameDataPromises);
+        return gameData;
     }
 
     async getGame(name: string): Promise<GameData> {
         const game = await this.gameModel.findOne({ name });
-        if (!game) return new GameData();
+        if (!game) return Promise.reject('Failed to get game');
         return await this.convertGameToGameData(game);
     }
 
@@ -82,8 +83,8 @@ export class GameService {
         try {
             const games = await this.gameModel.find({});
             games.forEach(async (game) => {
-                game.soloBestTimes = this.newBestTimes();
-                game.vsBestTimes = this.newBestTimes();
+                game.soloBestTimes = [];
+                game.vsBestTimes = [];
                 await game.save();
             });
         } catch (error) {
@@ -94,8 +95,8 @@ export class GameService {
     async deleteBestTime(name: string): Promise<void> {
         try {
             const game = await this.gameModel.findOne({ name });
-            game.soloBestTimes = this.newBestTimes();
-            game.vsBestTimes = this.newBestTimes();
+            game.soloBestTimes = [];
+            game.vsBestTimes = [];
             await game.save();
         } catch (error) {
             return Promise.reject(`Failed to delete best time: ${error}`);
@@ -177,7 +178,16 @@ export class GameService {
         game.nbDifference = newGame.nbDifference;
         game.soloBestTimes = this.newBestTimes();
         game.vsBestTimes = this.newBestTimes();
+        game.difficulty = newGame.difficulty;
         return game;
+    }
+
+    private newBestTimes(): BestTime[] {
+        return [
+            { name: 'Joueur 1', time: 60 },
+            { name: 'Joueur 2', time: 120 },
+            { name: 'Joueur 3', time: 180 },
+        ];
     }
 
     private async saveImages(newGame: NewGame): Promise<void> {
@@ -197,34 +207,17 @@ export class GameService {
         return matrix.map((row) => row.map((cell) => parseInt(cell, 10)));
     }
 
-    private convertGameToGameForm(game: Game): GameForm {
-        const gameForm = new GameForm();
-        gameForm.name = game.name;
-        gameForm.nbDifference = game.nbDifference;
-        gameForm.image1url = `${environment.serverUrl}/${game.name}/image1.bmp`;
-        gameForm.image2url = `${environment.serverUrl}/${game.name}/image2.bmp`;
-        gameForm.difficulty = this.calculateDifficulty(game.nbDifference);
-        gameForm.soloBestTimes = game.soloBestTimes;
-        gameForm.vsBestTimes = game.vsBestTimes;
-        return gameForm;
-    }
-
     private async convertGameToGameData(game: Game): Promise<GameData> {
+        const { name, nbDifference, difficulty, soloBestTimes, vsBestTimes } = game;
         const gameData = new GameData();
-        gameData.gameForm = this.convertGameToGameForm(game);
-        gameData.differenceMatrix = await this.getMatrix(game.name);
+        gameData.name = name;
+        gameData.nbDifference = nbDifference;
+        gameData.image1url = `${environment.serverUrl}/${name}/image1.bmp`;
+        gameData.image2url = `${environment.serverUrl}/${name}/image2.bmp`;
+        gameData.difficulty = difficulty;
+        gameData.soloBestTimes = soloBestTimes;
+        gameData.vsBestTimes = vsBestTimes;
+        gameData.differenceMatrix = await this.getMatrix(name);
         return gameData;
-    }
-
-    private newBestTimes(): BestTime[] {
-        return [
-            { name: 'Player 1', time: 60 },
-            { name: 'Player 2', time: 120 },
-            { name: 'Player 3', time: 180 },
-        ];
-    }
-
-    private calculateDifficulty(nbDifference: number): string {
-        return nbDifference <= DIFFICULTY_THRESHOLD ? 'facile' : 'difficile';
     }
 }

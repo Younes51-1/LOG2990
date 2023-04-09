@@ -1,5 +1,4 @@
 import { GameData } from '@app/model/dto/game/game-data.dto';
-import { GameForm } from '@app/model/dto/game/game-form.dto';
 import { NewGame } from '@app/model/dto/game/new-game.dto';
 import { GameService } from '@app/services/game/game.service';
 import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
@@ -13,7 +12,7 @@ export class GameController {
 
     @ApiOkResponse({
         description: 'Returns all games',
-        type: GameForm,
+        type: GameData,
         isArray: true,
     })
     @ApiNotFoundResponse({

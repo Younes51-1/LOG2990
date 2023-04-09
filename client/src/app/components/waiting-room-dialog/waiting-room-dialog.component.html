@@ -1,16 +1,16 @@
 <div class="container">
     <h1>SALLE D'ATTENTE</h1>
-    <h2 *ngIf="gameService.gameRoom?.userGame?.username1 === gameService?.username">CRÉATION DU JEU</h2>
-    <h2 *ngIf="gameService.gameRoom?.userGame?.username1 !== gameService?.username">JOINDRE</h2>
-    <div *ngIf="gameService.gameRoom?.userGame?.username1 === gameService?.username">
-        <p class="waiting" *ngIf="gameService.gameRoom?.userGame?.potentialPlayers">Joueurs en attente : </p>
-        <p class="waiting" *ngFor="let player of gameService.gameRoom?.userGame?.potentialPlayers">
+    <h2 *ngIf="waitingRoomService.gameRoom?.userGame?.username1 === waitingRoomService?.username">CRÉATION DU JEU</h2>
+    <h2 *ngIf="waitingRoomService.gameRoom?.userGame?.username1 !== waitingRoomService?.username">JOINDRE</h2>
+    <div *ngIf="waitingRoomService.gameRoom?.userGame?.username1 === waitingRoomService?.username">
+        <p class="waiting" *ngIf="waitingRoomService.gameRoom?.userGame?.potentialPlayers">Joueurs en attente : </p>
+        <p class="waiting" *ngFor="let player of waitingRoomService.gameRoom?.userGame?.potentialPlayers">
             {{player}}
             <button (click)="playerAccepted(player)">Accepter</button>
             <button (click)="playerRejected(player)">Refuser</button>
         </p>
         <div
-            *ngIf="!gameService.gameRoom?.userGame?.potentialPlayers || gameService.gameRoom?.userGame?.potentialPlayers!.length === 0">
+            *ngIf="!waitingRoomService.gameRoom?.userGame?.potentialPlayers || waitingRoomService.gameRoom?.userGame?.potentialPlayers!.length === 0">
             <div class="wrapper">
                 <div class="circle"></div>
                 <div class="circle"></div>
@@ -22,7 +22,7 @@
             </div>
         </div>
     </div>
-    <div *ngIf="gameService.gameRoom?.userGame?.username1 !== gameService?.username && !this.rejected">
+    <div *ngIf="waitingRoomService.gameRoom?.userGame?.username1 !== waitingRoomService?.username && !this.rejected">
         <div class="wrapper">
             <div class="circle"></div>
             <div class="circle"></div>

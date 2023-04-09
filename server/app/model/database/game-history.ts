@@ -37,9 +37,6 @@ export class GameHistory {
     @ApiProperty()
     @Prop({ required: false })
     winner: string;
-
-    @ApiProperty()
-    _id?: string;
 }
 
 export const gameHistorySchema = SchemaFactory.createForClass(GameHistory);

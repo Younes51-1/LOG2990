@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { DeleteDialogComponent } from '@app/components/delete-dialog/delete-dialog.component';
-import { GameForm, GameHistory } from '@app/interfaces/game';
+import { GameData, GameHistory } from '@app/interfaces/game';
 import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 import { ConfigHttpService } from '@app/services/config-http/config-http.service';
 import { PageKeys } from 'src/assets/variables/game-card-options';
@@ -16,7 +16,7 @@ import { Time } from 'src/assets/variables/time';
 export class ConfigSelectPageComponent implements OnInit {
     pageType: PageKeys;
     imgSource: string;
-    slides: GameForm[];
+    slides: GameData[];
     parties: GameHistory[];
     slideConfig = {
         slidesToShow: 4,
@@ -81,14 +81,9 @@ export class ConfigSelectPageComponent implements OnInit {
         }
     }
 
-    deletePartie(id?: string): void {
-        this.configCommunicationService.deleteHistory(id).subscribe();
-        if (id) {
-            // eslint-disable-next-line no-underscore-dangle
-            this.parties = this.parties.filter((partie) => partie._id !== id);
-        } else {
-            this.parties = [];
-        }
+    deletePartie(): void {
+        this.configCommunicationService.deleteHistory().subscribe();
+        this.parties = [];
     }
 
     calculateTime(time: number) {
