@@ -5,7 +5,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { NgModule } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
@@ -281,7 +281,18 @@ describe('GameCardComponent', () => {
         expect(spy).toHaveBeenCalledWith(component.slide.name);
     });
 
+    // it('should emit the correct object when resetCard is called', () => {
+    //     const spy = spyOn(component.resetNotify, 'emit');
+    //     // needed to call private method
+    //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    //     (component as any).resetCard();
+    //     expect(spy).toHaveBeenCalledWith(component.slide.name);
+    // });
+
     // it("should call 'initClassicMode' by startSoloGame", fakeAsync(() => {
+    //     // needed to call private property
+    //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    //     const routerSpy = spyOn((component as any).router, 'navigate').and.stub();
     //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     //     const classicModespy = spyOn((component as any).gameService, 'startSoloGame').and.stub();
     //     component.page = PageKeys.Selection;
@@ -291,6 +302,7 @@ describe('GameCardComponent', () => {
     //     (component as any).startSoloGame();
     //     tick();
     //     expect(classicModespy).toHaveBeenCalled();
+    //     expect(routerSpy).toHaveBeenCalledWith([options.selection.routeOne]);
     // }));
 
     it("should call 'createGame' when 'createJoinMultiGame' is called and all requirements are met", () => {

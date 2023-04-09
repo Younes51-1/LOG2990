@@ -99,6 +99,17 @@ describe('CommunicationHttpService', () => {
         req.flush(expectedGame);
     });
 
+    it('should delete all the games when calling deleteAllGames', () => {
+        service.deleteAllGames().subscribe({
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            next: () => {},
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/game`);
+        expect(req.request.method).toBe('DELETE');
+        req.flush({});
+    });
+
     it('should delete the game when calling deleteGame', () => {
         const expectedGame: GameData = {
             name: 'Find the Differences 1',

@@ -26,7 +26,7 @@ export class CommunicationHttpService {
     }
 
     deleteAllGames(): Observable<HttpResponse<string>> {
-        return this.http.delete(`${this.baseUrl}/game/`, { observe: 'response', responseType: 'text' });
+        return this.http.delete(`${this.baseUrl}/game`, { observe: 'response', responseType: 'text' });
     }
 
     deleteGame(name: string): Observable<HttpResponse<string>> {

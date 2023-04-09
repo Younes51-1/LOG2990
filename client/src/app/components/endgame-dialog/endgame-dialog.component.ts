@@ -1,8 +1,8 @@
 import { Component, Inject, Input, OnInit } from '@angular/core';
-import { GameService } from '@app/services/game/game.service';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { VideoReplayDialogComponent } from '@app/components/video-replay-dialog/video-replay-dialog.component';
 import { VideoReplay } from '@app/interfaces/video-replay';
+import { GameService } from '@app/services/game/game.service';
 import { Time } from 'src/assets/variables/time';
 
 @Component({
@@ -26,6 +26,7 @@ export class EndgameDialogComponent implements OnInit {
     ) {}
 
     ngOnInit() {
+        if (!this.data.gameFinished) return;
         if (this.data.gameWinner) {
             if (this.data.time) {
                 this.time = `${Math.floor(this.data.time / Time.Sixty)}:${(this.data.time % Time.Sixty).toLocaleString('en-US', {

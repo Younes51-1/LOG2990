@@ -35,7 +35,7 @@ export class GameService {
 
     async getBestTime(name: string): Promise<{ soloBestTimes: BestTime[]; vsBestTimes: BestTime[] }> {
         const game = await this.gameModel.findOne({ name });
-        if (!game) return Promise.reject('Failed to get best time');
+        if (!game) return undefined;
         return await { soloBestTimes: game.soloBestTimes, vsBestTimes: game.vsBestTimes };
     }
 
@@ -49,6 +49,7 @@ export class GameService {
             return Promise.reject(`Failed to insert game: ${error}`);
         }
     }
+
     async deleteGame(name: string): Promise<void> {
         try {
             const res = await this.gameModel.deleteOne({

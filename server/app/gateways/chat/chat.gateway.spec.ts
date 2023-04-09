@@ -50,6 +50,16 @@ describe('ChatGateway', () => {
         } as BroadcastOperator<unknown, unknown>);
         gateway.sendMessage(socket, { message: 'fake message', username: room.userGame.username1, roomId: room.roomId });
     });
+
+    it('newBestScore should send newBestScore to everyone', () => {
+        server.to.returns({
+            emit: (event: string, message: string) => {
+                expect(event).toEqual(ChatEvents.Message);
+                expect(message).toEqual(getFakeNewBestScoreMessage());
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        gateway.newBestTimeScore(getFakeNewBestScoreMessage());
+    });
 });
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
@@ -81,3 +91,5 @@ const getFakeGameRoom = (): GameRoom => ({
     started: true,
     gameMode: 'classic-mode',
 });
+
+const getFakeNewBestScoreMessage = (): string => 'FakePlayer obtient la 2 place dans les meilleurs temps du jeu FakeGame en mode solo';

@@ -31,10 +31,6 @@ export class GameConstantsService {
     }
 
     async updateGameConstants(gameConstants: GameConstants): Promise<void> {
-        try {
-            await this.gameConstantsModel.updateOne({}, gameConstants);
-        } catch (error) {
-            return Promise.reject(`Failed to save game constants: ${error}`);
-        }
+        await this.gameConstantsModel.updateOne({}, gameConstants);
     }
 }
