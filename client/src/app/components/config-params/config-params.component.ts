@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { ConfigHttpService } from '@app/services/config-http/config-http.service';
 import { VerifyInputService } from '@app/services/verify-input/verify-input.service';
 import { Constants } from 'src/assets/variables/constants';
@@ -18,7 +19,7 @@ export class ConfigParamsComponent implements OnInit {
     feedbackMessage: string = '';
     private timeout: number = Time.Thousand * 3;
 
-    constructor(private verifyInput: VerifyInputService, private readonly configCommunicationService: ConfigHttpService) {}
+    constructor(private verifyInput: VerifyInputService, private readonly configCommunicationService: ConfigHttpService, private router: Router) {}
 
     ngOnInit() {
         this.configCommunicationService.getConstants().subscribe((res) => {
@@ -140,6 +141,9 @@ export class ConfigParamsComponent implements OnInit {
         this.feedbackMessage = 'Nouvelles constantes appliquées avec succès!';
         setTimeout(() => {
             this.feedbackMessage = '';
+            this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+                this.router.navigate(['/config']);
+            });
         }, this.timeout);
     }
 

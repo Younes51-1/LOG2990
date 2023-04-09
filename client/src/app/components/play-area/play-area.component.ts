@@ -79,6 +79,11 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         }
         if (this.buttonPressed === 'i' && !this.gameRoom.userGame.username2) {
             this.toggleHint.emit();
+            if (this.gameService.gameMode === 'limited-time-mode') {
+                this.gameService.changeTime(-this.gameService.gameConstans.penaltyTime);
+            } else {
+                this.gameService.changeTime(this.gameService.gameConstans.penaltyTime);
+            }
         }
     }
 
@@ -155,9 +160,6 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         this.audioInvalid.play();
         this.playAreaService.errorAnswerVisuals(canvas, this.mousePosition);
         this.userError.emit();
-        if (this.gameService.gameMode === 'limited-time-mode') {
-            this.gameService.changeTime(-this.gameService.gameConstans.penaltyTime);
-        }
     }
 
     private correctAnswerVisuals(coords: Vec2) {
