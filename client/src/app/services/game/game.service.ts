@@ -203,7 +203,7 @@ export class GameService {
         });
 
         this.socketService.on('timer', (timer: number) => {
-            if (this.gameRoom.userGame.timer <= 0) {
+            if (this.gameRoom.userGame.timer <= 0 && this.gameMode === 'limited-time-mode') {
                 this.gameFinished$.next(true);
             }
             this.gameRoom.userGame.timer = timer;
