@@ -71,7 +71,7 @@ describe('GameHistoryService', () => {
         await expect(service.saveGameHistory(getFakeGameHistory())).rejects.toBeTruthy();
     });
 
-    it('deleteGamesHistories should delete all game histories in database when no id provided', async () => {
+    it('deleteGamesHistories should delete all game histories in database', async () => {
         await gameHistoryModel.deleteMany({});
         await gameHistoryModel.create(getFakeGameHistory());
         await gameHistoryModel.create(getFakeGameHistory2());
@@ -80,18 +80,7 @@ describe('GameHistoryService', () => {
         expect(gameHistories.length).toEqual(0);
     });
 
-    it('deleteGamesHistories should delete the game history in database when id provided', async () => {
-        await gameHistoryModel.deleteMany({});
-        const gameHistory = await gameHistoryModel.create(getFakeGameHistory());
-        await gameHistoryModel.create(getFakeGameHistory2());
-        // eslint-disable-next-line no-underscore-dangle
-        await service.deleteGamesHistories(gameHistory._id);
-        const gameHistories = await service.getGamesHistories();
-        expect(gameHistories.length).toEqual(1);
-        expect(gameHistories[0].name).toEqual(getFakeGameHistory2().name);
-    });
-
-    // it('should have rejected if cannot delete one or many', async () => {
+    // it('should have rejected if cannot delete', async () => {
     //     jest.spyOn(gameHistoryModel, 'deleteMany').mockRejectedValue('');
     //     await gameHistoryModel.deleteMany({});
     //     await expect(service.deleteGamesHistories()).rejects.toBeTruthy();
