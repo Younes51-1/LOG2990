@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
-import { EndGame, GameData, GameRoom, NewBestTime } from '@app/interfaces/game';
-import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
-import { Subject } from 'rxjs';
-import { ChatService } from '@app/services/chat/chat.service';
 import { DifferenceTry } from '@app/interfaces/difference-try';
-import { Vec2 } from '@app/interfaces/vec2';
-import { ConfigHttpService } from '@app/services/config-http/config-http.service';
+import { EndGame, GameData, GameRoom, NewBestTime } from '@app/interfaces/game';
 import { GameConstants } from '@app/interfaces/game-constants';
+import { Vec2 } from '@app/interfaces/vec2';
+import { ChatService } from '@app/services/chat/chat.service';
 import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
+import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
+import { ConfigHttpService } from '@app/services/config-http/config-http.service';
+import { Subject } from 'rxjs';
 
 const NOT_TOP3 = -1;
 
@@ -29,7 +29,7 @@ export class GameService {
     slides: GameData[];
     username: string;
     gameMode: string;
-    gameConstans: GameConstants;
+    gameConstants: GameConstants;
     userDifferencesFound = 0;
     isAbandoned = false;
     private canSendValidate = true;
@@ -46,7 +46,7 @@ export class GameService {
 
     getConstant(): void {
         this.configHttpService.getConstants().subscribe((res) => {
-            this.gameConstans = res;
+            this.gameConstants = res;
         });
     }
 

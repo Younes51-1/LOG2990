@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { GameData, GameRoom } from '@app/interfaces/game';
 import { GameConstants } from '@app/interfaces/game-constants';
 import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 import { ConfigHttpService } from '@app/services/config-http/config-http.service';
-import { Subject } from 'rxjs';
-import { Router } from '@angular/router';
 import { WaitingRoomService } from '@app/services/waiting-room/waiting-room.service';
+import { Subject } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -13,7 +13,7 @@ import { WaitingRoomService } from '@app/services/waiting-room/waiting-room.serv
 export class GameSetupService {
     username: string;
     gameRoom: GameRoom;
-    gameConstans: GameConstants;
+    gameConstants: GameConstants;
     gameMode: string;
     gameRoom$ = new Subject<GameRoom>();
     private slides: GameData[] = [];
@@ -32,7 +32,7 @@ export class GameSetupService {
 
     getConstant(): void {
         this.configHttpService.getConstants().subscribe((res) => {
-            this.gameConstans = res;
+            this.gameConstants = res;
         });
     }
 
@@ -84,7 +84,7 @@ export class GameSetupService {
 
     initLimitedTimeMode(): void {
         this.gameRoom.userGame.gameData = this.randomSlide();
-        this.gameRoom.userGame.timer = this.gameConstans.initialTime;
+        this.gameRoom.userGame.timer = this.gameConstants.initialTime;
         this.waitingRoomService.createGame(this.gameRoom);
         if (this.gameRoom.started) {
             this.router.navigate(['/game']);

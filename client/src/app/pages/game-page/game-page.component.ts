@@ -52,6 +52,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit() {
+        this.gameService.getConstant();
         this.timerSubscription = this.gameService.timer$.subscribe((timer: number) => {
             this.timer = timer;
         });
@@ -170,9 +171,9 @@ export class GamePageComponent implements OnInit, OnDestroy {
         if (this.hintNum < 3) {
             this.playAreaService.hintMode(this.hintNum);
             if (this.gameService.gameMode === 'limited-time-mode') {
-                this.gameService.changeTime(-this.gameService.gameConstans.penaltyTime);
+                this.gameService.changeTime(-this.gameService.gameConstants.penaltyTime);
             } else {
-                this.gameService.changeTime(this.gameService.gameConstans.penaltyTime);
+                this.gameService.changeTime(this.gameService.gameConstants.penaltyTime);
             }
             this.sendEvent('hint');
             this.hintNum += 1;
