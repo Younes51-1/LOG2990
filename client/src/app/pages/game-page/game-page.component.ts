@@ -52,8 +52,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit() {
-        this.username = this.gameService.username;
-        this.gameRoom = this.gameService.gameRoom;
         this.timerSubscription = this.gameService.timer$.subscribe((timer: number) => {
             this.timer = timer;
         });
@@ -77,6 +75,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         });
         this.gameRoomSubscription = this.gameService.gameRoom$.subscribe((gameRoom) => {
             this.gameRoom = gameRoom;
+            this.username = this.gameService.username;
             this.gameName = gameRoom.userGame.gameData.name;
             if (gameRoom.userGame.username2) {
                 this.opponentUsername = gameRoom.userGame.username1 === this.username ? gameRoom.userGame.username2 : gameRoom.userGame.username1;

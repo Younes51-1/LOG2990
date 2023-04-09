@@ -176,10 +176,18 @@ export class GameService {
         const game = new Game();
         game.name = newGame.name;
         game.nbDifference = newGame.nbDifference;
-        game.soloBestTimes = [];
-        game.vsBestTimes = [];
+        game.soloBestTimes = this.newBestTimes();
+        game.vsBestTimes = this.newBestTimes();
         game.difficulty = newGame.difficulty;
         return game;
+    }
+
+    private newBestTimes(): BestTime[] {
+        return [
+            { name: 'Joueur 1', time: 60 },
+            { name: 'Joueur 2', time: 120 },
+            { name: 'Joueur 3', time: 180 },
+        ];
     }
 
     private async saveImages(newGame: NewGame): Promise<void> {

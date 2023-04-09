@@ -62,6 +62,7 @@ export class GameService {
         this.gameRoom = gameRoom;
         this.username = username;
         this.gameMode = gameRoom.gameMode;
+        this.gameRoom$.next(this.gameRoom);
         if (this.gameRoom.userGame.username1 === this.username) {
             this.connectSocket();
             this.socketService.send('start', this.gameRoom.roomId);
@@ -95,11 +96,11 @@ export class GameService {
         this.disconnectSocket();
     }
 
-    sendServerValidate(mousePosition: Vec2): void {
+    sendServerValidate(differencePos: Vec2): void {
         if (!this.canSendValidate) {
             return;
         }
-        this.socketService.send('validate', { mousePosition, roomId: this.gameRoom.roomId, username: this.username });
+        this.socketService.send('validate', { differencePos, roomId: this.gameRoom.roomId, username: this.username });
         this.canSendValidate = false;
     }
 
