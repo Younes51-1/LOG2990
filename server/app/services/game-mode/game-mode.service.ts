@@ -9,7 +9,7 @@ import { GameHistoryService } from '@app/services/game-history/game-history.serv
 
 @Injectable()
 export class GameModeService {
-    gameRooms: Map<string, GameRoom> = new Map<string, GameRoom>();
+    private gameRooms: Map<string, GameRoom> = new Map<string, GameRoom>();
     private gameHistory: Map<string, GameHistory> = new Map<string, GameHistory>();
 
     constructor(private gameHistoryService: GameHistoryService) {}
@@ -168,8 +168,8 @@ export class GameModeService {
         if (gameRoom.gameMode === 'classic-mode') {
             gameRoom.userGame.timer++;
         } else {
-            const twoMin = 120;
             gameRoom.userGame.timer--;
+            const twoMin = 120;
             if (gameRoom.userGame.timer > twoMin) {
                 gameRoom.userGame.timer = twoMin;
             } else if (gameRoom.userGame.timer < 0) {

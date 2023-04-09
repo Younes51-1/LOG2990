@@ -63,6 +63,7 @@ export class GameModeGateway implements OnGatewayConnection, OnGatewayDisconnect
 
     @SubscribeMessage(GameModeEvents.ChangeTime)
     changeTime(socket: Socket, data: { roomId: string; time: number }): void {
+        this.logger.log(`Game mode gateway: Time changed: ${data.time}`);
         this.gameModeService.applyTimeToTimer(data.roomId, data.time);
     }
 

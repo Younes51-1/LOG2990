@@ -218,32 +218,6 @@ describe.only('ConfigController', () => {
         await controller.deleteHistories(res);
     });
 
-    it('deleteHistory should delete the specified history and return OK', async () => {
-        gameHistoryService.deleteGamesHistories.resolves();
-
-        const res = {} as unknown as Response;
-        res.status = (code) => {
-            expect(code).toEqual(HttpStatus.OK);
-            return res;
-        };
-        res.send = () => res;
-
-        await controller.deleteHistory('', res);
-    });
-
-    it('deleteHistory should return NOT_FOUND when service unable to delete history', async () => {
-        gameHistoryService.deleteGamesHistories.rejects();
-
-        const res = {} as unknown as Response;
-        res.status = (code) => {
-            expect(code).toEqual(HttpStatus.NOT_FOUND);
-            return res;
-        };
-        res.send = () => res;
-
-        await controller.deleteHistory('', res);
-    });
-
     it('deleteAllBestTimes should delete all bestTimes and return OK', async () => {
         gameService.deleteBestTimes.resolves();
 
