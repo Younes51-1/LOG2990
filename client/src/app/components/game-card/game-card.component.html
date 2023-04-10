@@ -28,6 +28,7 @@
         <input
             type="text"
             [(ngModel)]="inputValue1"
+            maxlength="20"
             placeholder="Entrez votre nom"
             [ngClass]="{ 'error-border': applyBorder }"
             (keyup.enter)="soloButton.click()"
@@ -38,6 +39,7 @@
         <input
             type="text"
             [(ngModel)]="inputValue2"
+            maxlength="20"
             placeholder="Entrez votre nom"
             [ngClass]="{ 'error-border': applyBorder }"
             (keyup.enter)="multiButton.click()"
