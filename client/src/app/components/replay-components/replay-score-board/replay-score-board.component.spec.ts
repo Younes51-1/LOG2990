@@ -4,7 +4,7 @@ import { ReplayScoreBoardComponent } from './replay-score-board.component';
 import { GameData, GameRoom, UserGame } from '@app/interfaces/game';
 import { SimpleChanges } from '@angular/core';
 
-fdescribe('ReplayScoreBoardComponent', () => {
+describe('ReplayScoreBoardComponent', () => {
     const differenceMatrix: number[][] = [[]];
     const gameData: GameData = {
         name: '',
