@@ -1,14 +1,14 @@
 /* eslint-disable max-lines */
 import { environment } from '@app/environments/environment.prod';
 import { GameModeGateway } from '@app/gateways/game-mode/game-mode.gateway';
-import { GameModeEvents, DelayBeforeEmittingTime } from '@app/gateways/game-mode/game-mode.gateway.variables';
+import { DelayBeforeEmittingTime, GameModeEvents } from '@app/gateways/game-mode/game-mode.gateway.variables';
 import { BestTime } from '@app/model/schema/best-times.schema';
 import { EndGame } from '@app/model/schema/end-game.schema';
 import { GameRoom } from '@app/model/schema/game-room.schema';
 import { UserGame } from '@app/model/schema/user-game.schema';
 import { Vector2D } from '@app/model/schema/vector2d.schema';
-import { GameModeService } from '@app/services/game-mode/game-mode.service';
 import { GameHistoryService } from '@app/services/game-history/game-history.service';
+import { GameModeService } from '@app/services/game-mode/game-mode.service';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { createStubInstance, SinonStubbedInstance } from 'sinon';
@@ -139,21 +139,96 @@ describe('GameModeGateway', () => {
     });
 
     it('Abandoned should emit Abandoned event with the username of the one quitting the game', () => {
+        const getGameRoomSpy = jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
+            return getFakeGameRoom();
+        });
+        const abandonClassicModeSpy = jest.spyOn(gameModeService, 'abandonClassicMode').mockImplementation();
         server.to.returns({
-            emit: (event: string, player: string) => {
+            emit: (event: string, { gameRoom, username }) => {
                 expect(event).toEqual(GameModeEvents.Abandoned);
-                expect(player).toEqual(getFakeGameRoom().userGame.username1);
+                expect(gameRoom).toEqual(getFakeGameRoom());
+                expect(username).toEqual(getFakeGameRoom().userGame.username1);
             },
         } as BroadcastOperator<unknown, unknown>);
         gateway.abandoned(socket, { roomId: getFakeGameRoom().roomId, username: getFakeGameRoom().userGame.username1 });
+        expect(getGameRoomSpy).toHaveBeenCalled();
+        expect(abandonClassicModeSpy).toHaveBeenCalled();
+    });
+
+    it('Abandoned should emit Abandoned event with the username of the one quitting the limited-mode game and if host', () => {
+        const getGameRoomSpy = jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
+            const gameRoom = getFakeGameRoom();
+            gameRoom.gameMode = 'limited-mode';
+            return gameRoom;
+        });
+        const abandonLimitedTimeModeSpy = jest.spyOn(gameModeService, 'abandonLimitedTimeMode').mockImplementation();
+        const gameRoomSent = getFakeGameRoom();
+        gameRoomSent.gameMode = 'limited-mode';
+        const gameRoomExpected = gameRoomSent;
+        gameRoomExpected.roomId = 'socketId2';
+        const roomsMap = new Map<string, Set<string>>();
+        roomsMap.set(gameRoomSent.roomId, new Set<string>([socket.id, 'socketId2']));
+        Object.defineProperty(server, 'sockets', { value: { adapter: { rooms: roomsMap } }, writable: true });
+        socket.join(gameRoomSent.roomId);
+        server.to.returns({
+            emit: (event: string, { gameRoom, username }) => {
+                expect(event).toEqual(GameModeEvents.Abandoned);
+                expect(gameRoom).toEqual(gameRoomExpected);
+                expect(username).toEqual(gameRoomSent.userGame.username1);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        gateway.abandoned(socket, { roomId: gameRoomSent.roomId, username: gameRoomSent.userGame.username1 });
+        expect(getGameRoomSpy).toHaveBeenCalled();
+        expect(abandonLimitedTimeModeSpy).toHaveBeenCalled();
+    });
+
+    it('Abandoned should emit Abandoned event with the username of the one quitting the limited-mode game and if not host', () => {
+        const getGameRoomSpy = jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
+            const gameRoom = getFakeGameRoom();
+            gameRoom.gameMode = 'limited-mode';
+            gameRoom.roomId = 'socketId2';
+            return gameRoom;
+        });
+        const abandonLimitedTimeModeSpy = jest.spyOn(gameModeService, 'abandonLimitedTimeMode').mockImplementation();
+        const gameRoomSent = getFakeGameRoom();
+        gameRoomSent.gameMode = 'limited-mode';
+        gameRoomSent.roomId = 'socketId2';
+        const roomsMap = new Map<string, Set<string>>();
+        roomsMap.set(gameRoomSent.roomId, new Set<string>([socket.id]));
+        Object.defineProperty(server, 'sockets', { value: { adapter: { rooms: roomsMap } }, writable: true });
+        socket.join(gameRoomSent.roomId);
+        server.to.returns({
+            emit: (event: string, { gameRoom, username }) => {
+                expect(event).toEqual(GameModeEvents.Abandoned);
+                expect(gameRoom).toEqual(gameRoomSent);
+                expect(username).toEqual(gameRoomSent.userGame.username1);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        gateway.abandoned(socket, { roomId: gameRoomSent.roomId, username: gameRoomSent.userGame.username1 });
+        expect(getGameRoomSpy).toHaveBeenCalled();
+        expect(abandonLimitedTimeModeSpy).toHaveBeenCalled();
+    });
+
+    it('Abandoned should do nothing if the game doesnt exists', () => {
+        const getGameRoomSpy = jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
+            return undefined;
+        });
+        const abandonClassicModeSpy = jest.spyOn(gameModeService, 'abandonClassicMode').mockImplementation();
+        gateway.abandoned(socket, { roomId: getFakeGameRoom().roomId, username: getFakeGameRoom().userGame.username1 });
+        expect(getGameRoomSpy).toHaveBeenCalled();
+        expect(abandonClassicModeSpy).not.toHaveBeenCalled();
     });
 
     it('changeTime should call applyTimeToTimer', () => {
-        jest.spyOn(gameModeService, 'applyTimeToTimer').mockImplementation(() => {
-            return;
-        });
+        jest.spyOn(gameModeService, 'applyTimeToTimer').mockImplementation();
         gateway.changeTime(socket, { roomId: getFakeGameRoom().roomId, time: 1 });
         expect(gameModeService.applyTimeToTimer).toHaveBeenCalledWith(getFakeGameRoom().roomId, 1);
+    });
+
+    it('nextGame should call nextGame', () => {
+        jest.spyOn(gameModeService, 'nextGame').mockImplementation();
+        gateway.nextGame(socket, getFakeGameRoom());
+        expect(gameModeService.nextGame).toHaveBeenCalledWith(getFakeGameRoom());
     });
 
     it('afterInit should have created an interval to emit time', () => {
@@ -177,6 +252,15 @@ describe('GameModeGateway', () => {
         gateway.handleDisconnect(socket);
         expect(logger.log.called).toBeTruthy();
         expect(deleteRoomSpy).toHaveBeenCalled();
+    });
+
+    it('socket disconnection should just return if the game doesnt exists', () => {
+        const deleteRoomSpy = jest.spyOn(gameModeService, 'deleteRoom').mockImplementation();
+        jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
+            return undefined;
+        });
+        gateway.handleDisconnect(socket);
+        expect(deleteRoomSpy).not.toHaveBeenCalled();
     });
 
     it('emitTime should emit time after 1s to connected socket', () => {
