@@ -143,7 +143,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         this.audioValid.currentTime = 0;
         this.audioValid.play();
         this.correctAnswerVisuals(differencePos);
-        if (this.gameService.gameMode === 'limited-time-mode') {
+        if (this.gameService.isLimitedTimeMode()) {
             this.gameService.changeTime(this.gameService.gameConstants.bonusTime);
             this.gameService.nextGame();
             this.ngOnChanges();

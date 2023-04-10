@@ -4,7 +4,14 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed } from '@angular/core/testing';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
+import { DifferenceTry } from '@app/interfaces/difference-try';
+import { GameData, GameRoom, UserGame } from '@app/interfaces/game';
+import { ChatService } from '@app/services/chat/chat.service';
 import { DetectionDifferenceService } from '@app/services/detection-difference/detection-difference.service';
+import { GameService } from '@app/services/game/game.service';
+import { PlayAreaService } from '@app/services/play-area/play-area.service';
+import { Subject } from 'rxjs';
+import { Color } from 'src/assets/variables/color';
 
 @NgModule({
     imports: [HttpClientModule],
@@ -25,29 +32,51 @@ const createAndPopulateMatrix = (value: number): number[][] => {
 const invalidPixelValue = -1;
 
 describe('PlayAreaComponent', () => {
-    // const differenceMatrix: number[][] = [[]];
-    // const gameForm = {
-    //     name: '',
-    //     nbDifference: 0,
-    //     image1url: 'https://picsum.photos/402',
-    //     image2url: 'https://picsum.photos/204',
-    //     difficulty: '',
-    //     soloBestTimes: [],
-    //     vsBestTimes: [],
-    // };
-    // const gameData: GameData = { gameForm, differenceMatrix };
-    // const userGame: UserGame = { username1: '', gameData, nbDifferenceFound: 0, timer: 0 };
-    // const gameRoom: GameRoom = { userGame, roomId: 'testRoom', started: false, gameMode: 'classic-mode' };
+    const differenceMatrix: number[][] = [[]];
+    const gameData: GameData = {
+        name: '',
+        nbDifference: 0,
+        image1url: 'https://picsum.photos/402',
+        image2url: 'https://picsum.photos/204',
+        difficulty: '',
+        soloBestTimes: [],
+        vsBestTimes: [],
+        differenceMatrix,
+    };
+    const userGame: UserGame = { username1: '', gameData, nbDifferenceFound: 0, timer: 0 };
+    const gameRoom: GameRoom = { userGame, roomId: 'testRoom', started: false, gameMode: 'classic-mode' };
 
     let component: PlayAreaComponent;
     let fixture: ComponentFixture<PlayAreaComponent>;
-    // let detectionDifferenceService: DetectionDifferenceService;
+    let detectionService: jasmine.SpyObj<DetectionDifferenceService>;
+    let gameService: jasmine.SpyObj<GameService>;
+    let chatService: jasmine.SpyObj<ChatService>;
+    let playAreaService: jasmine.SpyObj<PlayAreaService>;
 
     beforeEach(async () => {
+        detectionService = jasmine.createSpyObj('DetectionDifferenceService', ['extractDifference']);
+        gameService = jasmine.createSpyObj('GameService', ['changeTime', 'nextGame', 'sendServerValidate', 'isLimitedTimeMode']);
+        gameService.serverValidateResponse$ = new Subject<DifferenceTry>();
+        chatService = jasmine.createSpyObj('ChatService', ['getIsTyping']);
+        playAreaService = jasmine.createSpyObj('PlayAreaService', [
+            'cheatMode',
+            'flashDifference',
+            'errorAnswerVisuals',
+            'createAndFillNewLayer',
+            'handleImageLoad',
+            'setContexts',
+            'setComponent',
+            'setSpeed',
+        ]);
         await TestBed.configureTestingModule({
             declarations: [PlayAreaComponent],
             imports: [DynamicTestModule],
-            providers: [DetectionDifferenceService],
+            providers: [
+                { provide: DetectionDifferenceService, useValue: detectionService },
+                { provide: GameService, useValue: gameService },
+                { provide: ChatService, useValue: chatService },
+                { provide: PlayAreaService, useValue: playAreaService },
+            ],
         }).compileComponents();
     });
 
@@ -61,6 +90,13 @@ describe('PlayAreaComponent', () => {
         expect(component).toBeTruthy();
     });
 
+    it('shoud return width and height of the canvas', () => {
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        expect(component.width).toEqual(640);
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        expect(component.height).toEqual(480);
+    });
+
     it('buttonDetect should modify the buttonPressed variable', () => {
         const expectedKey = 'a';
         const buttonEvent = {
@@ -70,16 +106,82 @@ describe('PlayAreaComponent', () => {
         expect((component as any).buttonPressed).toEqual(expectedKey);
     });
 
-    // it('mouseClickAttempt should validate the attempt with the server', fakeAsync(async () => {
-    //     (component as any).playerIsAllowedToClick = true;
-    //     (component as any).differenceMatrix = createAndPopulateMatrix(1);
-    //     const mockClick = new MouseEvent('mousedown');
-    //     const spy = spyOn((component as any).classicModeService, 'validateDifference').and.callFake(() => {
-    //         return;
-    //     });
-    //     await component.mouseClickAttempt(mockClick, component.canvas1.nativeElement);
-    //     expect(spy).toHaveBeenCalled();
-    // }));
+    it('should call handleImageLoad when original image is loaded', (done) => {
+        playAreaService.handleImageLoad.and.stub();
+        (component as any).original.src = 'https://picsum.photos/id/88/200/300';
+        component.ngOnChanges();
+        (component as any).original.dispatchEvent(new Event('load'));
+        setTimeout(() => {
+            expect(playAreaService.handleImageLoad).toHaveBeenCalledWith((component as any).context1, (component as any).original);
+            done();
+        }, 0);
+    });
+
+    it('should call handleImageLoad when modified image is loaded', (done) => {
+        playAreaService.handleImageLoad.and.stub();
+        (component as any).modified.src = 'https://picsum.photos/id/88/200/300';
+        component.ngOnChanges();
+        (component as any).modified.dispatchEvent(new Event('load'));
+        setTimeout(() => {
+            expect(playAreaService.handleImageLoad).toHaveBeenCalledWith((component as any).context2, (component as any).modified);
+            done();
+        }, 0);
+    });
+
+    it('buttonDetect should not call cheat mode in user is typing in chat', () => {
+        const expectedKey = 't';
+        const buttonEvent = {
+            key: expectedKey,
+        } as KeyboardEvent;
+        chatService.getIsTyping.and.returnValue(true);
+        const playAreaServiceSpy = playAreaService.cheatMode.and.stub();
+        component.buttonDetect(buttonEvent);
+        expect(playAreaServiceSpy).not.toHaveBeenCalled();
+    });
+
+    it('buttonDetect should call the cheatMode function', () => {
+        const expectedKey = 't';
+        const buttonEvent = {
+            key: expectedKey,
+        } as KeyboardEvent;
+        chatService.getIsTyping.and.returnValue(false);
+        const playAreaServiceSpy = playAreaService.cheatMode.and.stub();
+        component.buttonDetect(buttonEvent);
+        expect(playAreaServiceSpy).toHaveBeenCalled();
+    });
+
+    it('buttonDetect should emit toggleHint', () => {
+        const expectedKey = 'i';
+        const buttonEvent = {
+            key: expectedKey,
+        } as KeyboardEvent;
+        component.gameRoom = gameRoom;
+        const emitSpy = spyOn(component.toggleHint, 'emit');
+        component.buttonDetect(buttonEvent);
+        expect(emitSpy).toHaveBeenCalled();
+    });
+
+    it('buttonDetect should not emit toggleHint in mutlti game', () => {
+        const expectedKey = 'i';
+        const buttonEvent = {
+            key: expectedKey,
+        } as KeyboardEvent;
+        component.gameRoom = gameRoom;
+        component.gameRoom.userGame.username2 = 'test';
+        const emitSpy = spyOn(component.toggleHint, 'emit');
+        component.buttonDetect(buttonEvent);
+        expect(emitSpy).not.toHaveBeenCalled();
+        component.gameRoom.userGame.username2 = '';
+    });
+
+    it('mouseClickAttempt should validate the attempt with the server', fakeAsync(async () => {
+        (component as any).playerIsAllowedToClick = true;
+        (component as any).differenceMatrix = createAndPopulateMatrix(1);
+        const mockClick = new MouseEvent('mousedown');
+        gameService.sendServerValidate.and.stub();
+        await component.mouseClickAttempt(mockClick, component.canvas1.nativeElement);
+        expect(gameService.sendServerValidate).toHaveBeenCalled();
+    }));
 
     it('mouseClickAttempt should call the errorretroaction for a mistake', fakeAsync(async () => {
         (component as any).playerIsAllowedToClick = true;
@@ -92,103 +194,132 @@ describe('PlayAreaComponent', () => {
         expect(spyErrorRetroaction).toHaveBeenCalled();
     }));
 
-    // it('should react accordingly on validated response from the server', () => {
-    //     const serverValidateResponseSpy = spyOn((component as any).classicModeService.serverValidateResponse$, 'subscribe').and.callThrough();
-    //     const correctRetroactionSpy = spyOn(component as any, 'correctRetroaction').and.callFake(() => {
-    //         return;
-    //     });
-    //     const errorRetroactionSpy = spyOn(component as any, 'errorRetroaction').and.callFake(() => {
-    //         return;
-    //     });
-    //     const differenceTry: DifferenceTry = { validated: true, differencePos: { x: 0, y: 0 }, username: 'Test' };
-    //     component.ngAfterViewInit();
-    //     classicModeService.serverValidateResponse$.next(differenceTry);
-    //     expect(serverValidateResponseSpy).toHaveBeenCalled();
-    //     expect(correctRetroactionSpy).toHaveBeenCalledWith(differenceTry.differencePos);
-    //     expect(errorRetroactionSpy).not.toHaveBeenCalled();
-    // });
+    it('should react accordingly on validated response from the server', () => {
+        const correctRetroactionSpy = spyOn(component as any, 'correctRetroaction').and.callFake(() => {
+            return;
+        });
+        const errorRetroactionSpy = spyOn(component as any, 'errorRetroaction').and.callFake(() => {
+            return;
+        });
+        const differenceTry: DifferenceTry = { validated: true, differencePos: { x: 0, y: 0 }, username: 'Test' };
+        component.ngAfterViewInit();
+        gameService.serverValidateResponse$.next(differenceTry);
+        expect(correctRetroactionSpy).toHaveBeenCalledWith(differenceTry.differencePos);
+        expect(errorRetroactionSpy).not.toHaveBeenCalled();
+    });
 
-    // it('should react accordingly on invalid response from server', () => {
-    //     const serverValidateResponseSpy = spyOn((component as any).classicModeService.serverValidateResponse$, 'subscribe').and.callThrough();
-    //     const correctRetroactionSpy = spyOn(component as any, 'correctRetroaction').and.callFake(() => {
-    //         return;
-    //     });
-    //     const errorRetroactionSpy = spyOn(component as any, 'errorRetroaction').and.callFake(() => {
-    //         return;
-    //     });
-    //     const differenceTry: DifferenceTry = { validated: false, differencePos: { x: 0, y: 0 }, username: 'Test' };
-    //     (component as any).classicModeService.username = differenceTry.username;
-    //     component.ngAfterViewInit();
-    //     classicModeService.serverValidateResponse$.next(differenceTry);
-    //     expect(serverValidateResponseSpy).toHaveBeenCalled();
-    //     expect(correctRetroactionSpy).not.toHaveBeenCalled();
-    //     expect(errorRetroactionSpy).toHaveBeenCalledWith((component as any).canvasClicked);
-    // });
+    it('should react accordingly on invalid response from server', () => {
+        const correctRetroactionSpy = spyOn(component as any, 'correctRetroaction').and.callFake(() => {
+            return;
+        });
+        const errorRetroactionSpy = spyOn(component as any, 'errorRetroaction').and.callFake(() => {
+            return;
+        });
+        const differenceTry: DifferenceTry = { validated: false, differencePos: { x: 0, y: 0 }, username: 'Test' };
+        (component as any).gameService.username = differenceTry.username;
+        component.ngAfterViewInit();
+        gameService.serverValidateResponse$.next(differenceTry);
+        expect(correctRetroactionSpy).not.toHaveBeenCalled();
+        expect(errorRetroactionSpy).toHaveBeenCalledWith((component as any).canvasClicked);
+    });
 
-    // it('should correctly set the variables if the desired gameRoom exists', () => {
-    //     (component as any).classicModeService.gameRoom = gameRoom;
-    //     component.gameRoom = gameRoom;
-    //     component.ngOnChanges();
-    //     expect((component as any).differenceMatrix).toEqual(differenceMatrix);
-    //     expect((component as any).original.src).not.toEqual('');
-    //     expect((component as any).modified.src).not.toEqual('');
-    // });
+    it('should correctly set the variables if the desired gameRoom exists', () => {
+        (component as any).gameService.gameRoom = gameRoom;
+        component.gameRoom = gameRoom;
+        component.ngOnChanges();
+        expect((component as any).differenceMatrix).toEqual(differenceMatrix);
+        expect((component as any).original.src).not.toEqual('');
+        expect((component as any).modified.src).not.toEqual('');
+    });
 
-    // it('correctRetroaction should call audio play and pause and correctAnswerVisuals ', () => {
-    //     (component as any).playerIsAllowedToClick = true;
-    //     spyOn(component as any, 'correctAnswerVisuals');
-    //     spyOn((component as any).audioValid, 'pause');
-    //     spyOn((component as any).audioValid, 'play');
+    it('correctRetroaction should call audio play and pause and correctAnswerVisuals ', () => {
+        (component as any).playerIsAllowedToClick = true;
+        spyOn(component as any, 'correctAnswerVisuals');
+        spyOn((component as any).audioValid, 'pause');
+        spyOn((component as any).audioValid, 'play');
 
-    //     (component as any).correctRetroaction({ x: 1, y: 2 });
-    //     expect((component as any).playerIsAllowedToClick).toBeFalsy();
-    //     expect((component as any).correctAnswerVisuals).toHaveBeenCalledWith({ x: 1, y: 2 });
-    //     expect((component as any).audioValid.pause).toHaveBeenCalled();
-    //     expect((component as any).audioValid.currentTime).toEqual(0);
-    //     expect((component as any).audioValid.play).toHaveBeenCalled();
-    // });
+        (component as any).correctRetroaction({ x: 1, y: 2 });
+        expect((component as any).playerIsAllowedToClick).toBeFalsy();
+        expect((component as any).correctAnswerVisuals).toHaveBeenCalledWith({ x: 1, y: 2 });
+        expect((component as any).audioValid.pause).toHaveBeenCalled();
+        expect((component as any).audioValid.currentTime).toEqual(0);
+        expect((component as any).audioValid.play).toHaveBeenCalled();
+    });
 
-    // TODO: to fix
-    // it('errorRetroaction should call audio play and errorAnswerVisuals ', () => {
-    //     (component as any).playerIsAllowedToClick = true;
-    //     spyOn(component as any, 'errorAnswerVisuals').and.callFake(() => {
-    //         return;
-    //     });
-    //     spyOn((component as any).audioInvalid, 'play');
+    it('correctRetroaction should call change Time and switch game in limited game mode', () => {
+        gameService.isLimitedTimeMode.and.returnValue(true);
+        gameService.gameConstants = {
+            initialTime: 1,
+            bonusTime: 2,
+            penaltyTime: 3,
+        };
+        gameService.changeTime.and.stub();
+        gameService.nextGame.and.stub();
+        (component as any).playerIsAllowedToClick = true;
+        spyOn(component as any, 'correctAnswerVisuals');
+        spyOn((component as any).audioValid, 'pause');
+        spyOn((component as any).audioValid, 'play');
+        (component as any).correctRetroaction({ x: 1, y: 2 });
+        expect((component as any).playerIsAllowedToClick).toBeFalsy();
+        expect((component as any).correctAnswerVisuals).toHaveBeenCalledWith({ x: 1, y: 2 });
+        expect((component as any).audioValid.pause).toHaveBeenCalled();
+        expect((component as any).audioValid.currentTime).toEqual(0);
+        expect((component as any).audioValid.play).toHaveBeenCalled();
+        expect(gameService.changeTime).toHaveBeenCalledWith(2);
+        expect(gameService.nextGame).toHaveBeenCalled();
+    });
 
-    //     (component as any).errorRetroaction((component as any).canvasClicked);
-    //     expect((component as any).playerIsAllowedToClick).toBeFalsy();
-    //     expect((component as any).errorAnswerVisuals).toHaveBeenCalledWith((component as any).canvasClicked);
-    //     expect((component as any).audioInvalid.play).toHaveBeenCalled();
-    // });
+    it('errorRetroaction should call audio play and errorAnswerVisuals ', () => {
+        (component as any).playerIsAllowedToClick = true;
+        playAreaService.errorAnswerVisuals.and.stub();
+        spyOn((component as any).audioInvalid, 'play');
+        component.mousePosition = { x: 1, y: 2 };
+        (component as any).errorRetroaction((component as any).canvasClicked);
+        expect((component as any).playerIsAllowedToClick).toBeFalsy();
+        expect(playAreaService.errorAnswerVisuals).toHaveBeenCalledWith((component as any).canvasClicked, component.mousePosition);
+        expect((component as any).audioInvalid.play).toHaveBeenCalled();
+    });
 
-    // it("should change differenceMatrix, original, modified source if gameRoom isn't undefined", () => {
-    //     component.gameRoom = gameRoom;
-    //     (component as any).classicModeService.gameRoom = gameRoom;
-    //     component.ngOnChanges();
+    it("should change differenceMatrix, original, modified source if gameRoom isn't undefined", () => {
+        component.gameRoom = gameRoom;
+        (component as any).gameService.gameRoom = gameRoom;
+        component.ngOnChanges();
 
-    //     expect((component as any).differenceMatrix).toEqual(gameRoom.userGame.gameData.differenceMatrix);
-    //     expect((component as any).original.src).toContain(gameRoom.userGame.gameData.gameForm.image1url);
-    //     expect((component as any).modified.src).toContain(gameRoom.userGame.gameData.gameForm.image2url);
-    // });
+        expect((component as any).differenceMatrix).toEqual(gameRoom.userGame.gameData.differenceMatrix);
+        expect((component as any).original.src).toContain(gameRoom.userGame.gameData.image1url);
+        expect((component as any).modified.src).toContain(gameRoom.userGame.gameData.image2url);
+    });
 
-    // it("shouldn't change differenceMatrix, original, modified source if gameRoom is undefined", () => {
-    //     component.gameRoom = undefined as unknown as GameRoom;
-    //     (component as any).original.src = 'https://picsum.photos/id/88/200/300';
-    //     (component as any).modified.src = 'https://picsum.photos/id/88/200/300';
-    //     (component as any).classicModeService.gameRoom = gameRoom;
-    //     component.ngOnChanges();
-    //     expect((component as any).differenceMatrix).toEqual(undefined as unknown as number[][]);
-    //     expect((component as any).original.src).toContain('https://picsum.photos/id/88/200/300');
-    //     expect((component as any).modified.src).toContain('https://picsum.photos/id/88/200/300');
-    // });
+    it("shouldn't change differenceMatrix, original, modified source if gameRoom is undefined", () => {
+        component.gameRoom = undefined as unknown as GameRoom;
+        (component as any).original.src = 'https://picsum.photos/id/88/200/300';
+        (component as any).modified.src = 'https://picsum.photos/id/88/200/300';
+        (component as any).gameService.gameRoom = gameRoom;
+        component.ngOnChanges();
+        expect((component as any).differenceMatrix).toEqual(undefined as unknown as number[][]);
+        expect((component as any).original.src).toContain('https://picsum.photos/id/88/200/300');
+        expect((component as any).modified.src).toContain('https://picsum.photos/id/88/200/300');
+    });
 
-    // TODO: fix
-    // it('verifyDifferenceMatrix should call createAndFillNewLayer', () => {
-    //     spyOn(component as any, 'createAndFillNewLayer').and.callFake(() => {
-    //         return;
-    //     });
-    //     (component as any).verifyDifferenceMatrix('cheat');
-    //     expect((component as any).createAndFillNewLayer).toHaveBeenCalled();
-    // });
+    it('correctAnswerVisuals should call the flashDifference from playAreaService', () => {
+        component.differenceMatrix = gameRoom.userGame.gameData.differenceMatrix;
+        playAreaService.flashDifference.and.stub();
+        detectionService.extractDifference.and.stub();
+        (component as any).correctAnswerVisuals({ x: 1, y: 2 });
+        expect(playAreaService.flashDifference).toHaveBeenCalled();
+    });
+
+    it('verifyDifferenceMatrix should call createAndFillNewLayer in cheat option', () => {
+        (component as any).differenceMatrix = [[]];
+        playAreaService.createAndFillNewLayer.and.stub();
+        (component as any).verifyDifferenceMatrix('cheat');
+        expect(playAreaService.createAndFillNewLayer).toHaveBeenCalledWith('#fc5603' as Color, true, false, [[]]);
+    });
+
+    it('verifyDifferenceMatrix should call createAndFillNewLayer in hint option', () => {
+        (component as any).differenceMatrix = [[]];
+        playAreaService.createAndFillNewLayer.and.stub();
+        (component as any).verifyDifferenceMatrix('hint', [[]]);
+        expect(playAreaService.createAndFillNewLayer).toHaveBeenCalledWith('#CFB53B' as Color, false, true, [[]]);
+    });
 });

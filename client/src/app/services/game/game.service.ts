@@ -62,6 +62,10 @@ export class GameService {
         }
     }
 
+    isLimitedTimeMode(): boolean {
+        return this.gameMode === 'limited-time-mode';
+    }
+
     startGame(gameRoom: GameRoom, username: string): void {
         this.gameRoom = gameRoom;
         this.username = username;

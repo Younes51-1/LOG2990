@@ -125,14 +125,14 @@ describe('CreateJoinGameDialogComponent', () => {
         expect(component.applyBorder).toBeTruthy();
     });
 
-    it('should apply border if there is not a games in mult', () => {
+    it('should apply border if there is not a games in multi', () => {
         verifyService.verify.and.returnValue(true);
         gameSetupService.getSlides.and.returnValue([]);
         component.verifyMultiInput();
         expect(component.applyBorder).toBeTruthy();
     });
 
-    it('should call createJoinMultiGame if conditions are met in solo', () => {
+    it('should call createJoinMultiGame if conditions are met in multi', () => {
         verifyService.verify.and.returnValue(true);
         gameSetupService.getSlides.and.returnValue([gameData]);
         gameFinderService.connectSocket.and.stub();
