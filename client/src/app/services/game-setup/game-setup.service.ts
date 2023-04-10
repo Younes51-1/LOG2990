@@ -36,6 +36,10 @@ export class GameSetupService {
         });
     }
 
+    setConstants(constants: GameConstants): void {
+        this.gameConstants = constants;
+    }
+
     getAllGames() {
         this.communicationService.getAllGames().subscribe((games) => {
             this.slides = games;
