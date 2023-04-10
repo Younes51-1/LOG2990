@@ -67,6 +67,7 @@ describe('PlayAreaComponent', () => {
             'setContexts',
             'setComponent',
             'setSpeed',
+            'setCheatMode',
         ]);
         await TestBed.configureTestingModule({
             declarations: [PlayAreaComponent],
@@ -193,6 +194,18 @@ describe('PlayAreaComponent', () => {
         await component.mouseClickAttempt(mockClick, component.canvas1.nativeElement);
         expect(spyErrorRetroaction).toHaveBeenCalled();
     }));
+
+    it('should call setSpeed, setComponent, setCheatMode and setContexts from play area service', () => {
+        playAreaService.setSpeed.and.stub();
+        playAreaService.setComponent.and.stub();
+        playAreaService.setCheatMode.and.stub();
+        playAreaService.setContexts.and.stub();
+        component.ngAfterViewInit();
+        expect(playAreaService.setSpeed).toHaveBeenCalledWith(1);
+        expect(playAreaService.setComponent).toHaveBeenCalledWith(component, false);
+        expect(playAreaService.setCheatMode).toHaveBeenCalled();
+        expect(playAreaService.setContexts).toHaveBeenCalled();
+    });
 
     it('should react accordingly on validated response from the server', () => {
         const correctRetroactionSpy = spyOn(component as any, 'correctRetroaction').and.callFake(() => {
