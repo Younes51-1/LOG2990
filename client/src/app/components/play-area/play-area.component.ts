@@ -86,6 +86,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         this.playAreaService.setSpeed(1);
         this.playAreaService.setComponent(this, false);
         this.playAreaService.setContexts();
+        this.playAreaService.setCheatMode();
         this.gameService.serverValidateResponse$.subscribe((difference: DifferenceTry) => {
             if (difference.validated) {
                 this.correctRetroaction(difference.differencePos);
