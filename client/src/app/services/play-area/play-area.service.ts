@@ -42,6 +42,10 @@ export class PlayAreaService {
         else this.normalComponent = component as PlayAreaComponent;
     }
 
+    setCheatMode() {
+        this.isCheatModeOn = false;
+    }
+
     setSpeed(speed: number) {
         this.speed = speed;
     }

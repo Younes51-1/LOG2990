@@ -129,7 +129,7 @@ export class ConfigSelectPageComponent implements OnInit {
     private getPartiesFromServer(): void {
         const component = this;
         this.configCommunicationService.getHistory().subscribe((res) => {
-            component.parties = res;
+            component.parties = res.reverse();
         });
     }
 
