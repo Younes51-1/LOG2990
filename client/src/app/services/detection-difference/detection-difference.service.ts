@@ -114,8 +114,8 @@ export class DetectionDifferenceService {
     }
 
     findRandomDifference(matrix: number[][]) {
-        const xCoord = Math.floor(Math.random() * (matrix.length + 1));
-        const yCoord = Math.floor(Math.random() * (matrix[0].length + 1));
+        const xCoord = Math.floor(Math.random() * matrix.length);
+        const yCoord = Math.floor(Math.random() * matrix[0].length);
 
         const numRows = matrix.length;
         const numCols = matrix[0].length;
@@ -125,7 +125,7 @@ export class DetectionDifferenceService {
 
         while (queue.length > 0) {
             const currCoord = queue.shift();
-            if (!currCoord) continue;
+            if (!currCoord) break;
             if (matrix[currCoord.x][currCoord.y] !== PossibleColor.EMPTYPIXEL) {
                 return currCoord;
             }
@@ -212,14 +212,15 @@ export class DetectionDifferenceService {
     }
 
     private pushNeighborsToStack(stack: Vec2[], pos: Vec2) {
-        this.pushToStack(stack, { x: pos.x, y: pos.y - 1 });
-        this.pushToStack(stack, { x: pos.x, y: pos.y + 1 });
-        this.pushToStack(stack, { x: pos.x + 1, y: pos.y - 1 });
-        this.pushToStack(stack, { x: pos.x + 1, y: pos.y });
-        this.pushToStack(stack, { x: pos.x + 1, y: pos.y + 1 });
-        this.pushToStack(stack, { x: pos.x - 1, y: pos.y - 1 });
-        this.pushToStack(stack, { x: pos.x - 1, y: pos.y });
-        this.pushToStack(stack, { x: pos.x - 1, y: pos.y + 1 });
+        const directions = [
+            [this.negativeDifferenceCoord, 0],
+            [0, this.positiveDifferenceCoord],
+            [this.positiveDifferenceCoord, 0],
+            [0, this.negativeDifferenceCoord],
+        ];
+        for (const [x, y] of directions) {
+            this.pushToStack(stack, { x: pos.x + x, y: pos.y + y });
+        }
     }
 
     private pushToStack(stack: Vec2[], pos: Vec2) {
@@ -241,7 +242,7 @@ export class DetectionDifferenceService {
         const stack = [[coords.y, coords.x]];
         while (stack.length > 0) {
             const curr = stack.shift();
-            if (!curr) continue;
+            if (!curr) break;
             const [x, y] = curr;
             if (!visited[x][y]) {
                 visited[x][y] = 1;
