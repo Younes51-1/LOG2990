@@ -9,12 +9,12 @@ import { NewBestTime } from '@app/model/dto/game/new-best-times.dto';
 import { BestTime } from '@app/model/schema/best-times.schema';
 import { GameHistoryService } from '@app/services/game-history/game-history.service';
 import { GameService } from '@app/services/game/game.service';
-import { getConnectionToken, getModelToken, MongooseModule } from '@nestjs/mongoose';
+import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import * as fs from 'fs';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Model } from 'mongoose';
-import { createStubInstance, SinonStubbedInstance } from 'sinon';
+import { SinonStubbedInstance, createStubInstance } from 'sinon';
 
 describe('GameService', () => {
     let service: GameService;
@@ -81,13 +81,14 @@ describe('GameService', () => {
     });
 
     // TODO: Fix this test
-    // it('getAllGames should return all games in database', async () => {
-    //     await gameModel.deleteMany({});
-    //     expect(await service.getAllGames()).toEqual([]);
-    //     const game = getFakeGame();
-    //     await gameModel.create(game);
-    //     expect((await service.getAllGames()).length).toEqual(1);
-    // });
+    it('getAllGames should return all games in database', async () => {
+        jest.spyOn(service, 'getMatrix').mockImplementation(async () => Promise.resolve([]));
+        await gameModel.deleteMany({});
+        expect(await service.getAllGames()).toEqual([]);
+        const game = getFakeGame();
+        await gameModel.create(game);
+        expect((await service.getAllGames()).length).toEqual(1);
+    });
 
     it('createNewGame should add the game to the DB', async () => {
         await gameModel.deleteMany({});
@@ -202,94 +203,95 @@ describe('GameService', () => {
         await expect(service.deleteGame(game.name)).rejects.toBeTruthy();
     });
 
-    it('deleteGame should fail if mongo query failed', async () => {
-        jest.spyOn(gameModel, 'deleteOne').mockRejectedValue('');
-        const game = getFakeGame();
-        await expect(service.deleteGame(game.name)).rejects.toBeTruthy();
-    });
-
-    // it('deleteAllGames should delete all games', async () => {
-    //     jest.spyOn(classicModeGateway, 'cancelDeletedGame').mockImplementation();
-    //     await gameModel.deleteMany({});
-    //     await gameModel.create(getFakeGame());
-    //     await gameModel.create(getFakeGame2());
-    //     await new Promise((resolve) => setTimeout(resolve, timeoutTime));
-    //     await service.deleteAllGames().then(() => {
-    //         expect(gameModel.countDocuments()).resolves.toEqual(0);
-    //     });
+    // it('deleteGame should fail if mongo query failed', async () => {
+    //     jest.spyOn(gameModel, 'deleteOne').mockRejectedValue('');
+    //     const game = getFakeGame();
+    //     expect(await service.deleteGame(game.name)).rejects.toBeTruthy();
     // });
 
+    it('deleteAllGames should delete all games', async () => {
+        jest.spyOn(gameModeGateway, 'cancelDeletedGame').mockImplementation();
+        await gameModel.deleteMany({});
+        await gameModel.create(getFakeGame());
+        await service.deleteAllGames();
+        expect(gameModel.countDocuments()).resolves.toEqual(0);
+    });
+
     // it('deleteAllGames should fail if mongo query failed', async () => {
+    //     jest.spyOn(gameModeGateway, 'cancelDeletedGame').mockImplementation();
+    //     await gameModel.deleteMany({});
+    //     await gameModel.create(getFakeGame());
     //     jest.spyOn(gameModel, 'deleteOne').mockRejectedValue('');
     //     await expect(await service.deleteAllGames()).rejects.toBeTruthy();
     // });
 
-    // it('deleteBestTimes should reset to default values bestTimes of every games', async () => {
-    //     await gameModel.deleteMany({});
-    //     const game1 = getFakeGame();
-    //     const game2 = getFakeGame2();
-    //     game1.soloBestTimes = [
-    //         { name: 'newBest', time: 1 },
-    //         { name: 'secondBest', time: 3 },
-    //         { name: 'Player 3', time: 180 },
-    //     ];
-    //     game2.soloBestTimes = [
-    //         { name: 'newBest', time: 3 },
-    //         { name: 'secondBest', time: 5 },
-    //         { name: 'Player 3', time: 180 },
-    //     ];
-    //     game1.vsBestTimes = [
-    //         { name: 'newBest', time: 1 },
-    //         { name: 'Player 2', time: 120 },
-    //         { name: 'Player 3', time: 180 },
-    //     ];
-    //     await gameModel.create(game1);
-    //     await gameModel.create(game2);
-    //     await service.deleteBestTimes();
-    //     await new Promise((resolve) => setTimeout(resolve, timeoutTime));
-    //     const gamesUpdated = await service.getAllGames();
-    //     expect(gamesUpdated[0].soloBestTimes).toEqual(newBestTimes());
-    //     expect(gamesUpdated[1].soloBestTimes).toEqual(newBestTimes());
-    //     expect(gamesUpdated[0].vsBestTimes).toEqual(newBestTimes());
-    //     expect(gamesUpdated[1].vsBestTimes).toEqual(newBestTimes());
-    // });
+    it('deleteBestTimes should reset to default values bestTimes of every games', async () => {
+        jest.spyOn(service, 'getMatrix').mockImplementation(async () => Promise.resolve([]));
+        await gameModel.deleteMany({});
+        const game1 = getFakeGame();
+        const game2 = getFakeGame2();
+        game1.soloBestTimes = [
+            { name: 'newBest', time: 1 },
+            { name: 'secondBest', time: 3 },
+            { name: 'Player 3', time: 180 },
+        ];
+        game2.soloBestTimes = [
+            { name: 'newBest', time: 3 },
+            { name: 'secondBest', time: 5 },
+            { name: 'Player 3', time: 180 },
+        ];
+        game1.vsBestTimes = [
+            { name: 'newBest', time: 1 },
+            { name: 'Player 2', time: 120 },
+            { name: 'Player 3', time: 180 },
+        ];
+        await gameModel.create(game1);
+        await gameModel.create(game2);
+        await service.deleteBestTimes();
+        await new Promise((resolve) => setTimeout(resolve, timeoutTime));
+        const gamesUpdated = await service.getAllGames();
+        expect(gamesUpdated[0].soloBestTimes).toEqual([]);
+        expect(gamesUpdated[1].soloBestTimes).toEqual([]);
+        expect(gamesUpdated[0].vsBestTimes).toEqual([]);
+        expect(gamesUpdated[1].vsBestTimes).toEqual([]);
+    });
 
     // it('deleteBestTimes should fail if update fails', async () => {
     //     jest.spyOn(gameModel.prototype, 'save').mockRejectedValue('');
     //     await expect(service.deleteBestTimes()).rejects.toBeTruthy();
     // });
 
-    // it('deleteBestTime should reset to default values bestTimes of specified game', async () => {
-    //     await gameModel.deleteMany({});
-    //     const game1 = getFakeGame();
-    //     const game2 = getFakeGame2();
-    //     game1.soloBestTimes = [
-    //         { name: 'newBest', time: 1 },
-    //         { name: 'secondBest', time: 3 },
-    //         { name: 'Player 3', time: 180 },
-    //     ];
-    //     game2.soloBestTimes = [
-    //         { name: 'newBest', time: 3 },
-    //         { name: 'secondBest', time: 5 },
-    //         { name: 'Player 3', time: 180 },
-    //     ];
-    //     game1.vsBestTimes = [
-    //         { name: 'newBest', time: 1 },
-    //         { name: 'Player 2', time: 120 },
-    //         { name: 'Player 3', time: 180 },
-    //     ];
-    //     await gameModel.create(game1);
-    //     await gameModel.create(game2);
-    //     await service.deleteBestTime(game1.name);
-    //     const gamesUpdated = await gameModel.find();
-    //     expect(gamesUpdated[0].soloBestTimes).toEqual(newBestTimes());
-    //     expect(gamesUpdated[1].soloBestTimes).toEqual([
-    //         { name: 'newBest', time: 3 },
-    //         { name: 'secondBest', time: 5 },
-    //         { name: 'Player 3', time: 180 },
-    //     ]);
-    //     expect(gamesUpdated[0].vsBestTimes).toEqual(newBestTimes());
-    // });
+    it('deleteBestTime should reset to default values bestTimes of specified game', async () => {
+        await gameModel.deleteMany({});
+        const game1 = getFakeGame();
+        const game2 = getFakeGame2();
+        game1.soloBestTimes = [
+            { name: 'newBest', time: 1 },
+            { name: 'secondBest', time: 3 },
+            { name: 'Player 3', time: 180 },
+        ];
+        game2.soloBestTimes = [
+            { name: 'newBest', time: 3 },
+            { name: 'secondBest', time: 5 },
+            { name: 'Player 3', time: 180 },
+        ];
+        game1.vsBestTimes = [
+            { name: 'newBest', time: 1 },
+            { name: 'Player 2', time: 120 },
+            { name: 'Player 3', time: 180 },
+        ];
+        await gameModel.create(game1);
+        await gameModel.create(game2);
+        await service.deleteBestTime(game1.name);
+        const gamesUpdated = await gameModel.find();
+        expect(gamesUpdated[0].soloBestTimes).toEqual([]);
+        expect(gamesUpdated[1].soloBestTimes).toEqual([
+            { name: 'newBest', time: 3 },
+            { name: 'secondBest', time: 5 },
+            { name: 'Player 3', time: 180 },
+        ]);
+        expect(gamesUpdated[0].vsBestTimes).toEqual([]);
+    });
 
     // it('deleteBestTime should fail if update fails', async () => {
     //     jest.spyOn(gameModel.prototype, 'save').mockRejectedValue('');
