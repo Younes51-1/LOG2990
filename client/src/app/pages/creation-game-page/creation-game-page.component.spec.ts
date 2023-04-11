@@ -69,6 +69,16 @@ describe('CreationGamePageComponent', () => {
         expect(component.getCommunicationService).toBe(communicationService);
     });
 
+    it('ngAfterViewInit should call set components to services', () => {
+        const drawingServiceSpy = spyOn(drawingService, 'setComponent').and.stub();
+        const foregroundServiceSpy = spyOn(foregroundService, 'setComponent').and.stub();
+        const imageLoadServiceSpy = spyOn(imageLoadService, 'setComponent').and.stub();
+        component.ngAfterViewInit();
+        expect(drawingServiceSpy).toHaveBeenCalled();
+        expect(foregroundServiceSpy).toHaveBeenCalled();
+        expect(imageLoadServiceSpy).toHaveBeenCalled();
+    });
+
     it('should call verifyImageFormat from imageLoadService', () => {
         const event = new Event('click');
         const img = document.createElement('button') as HTMLInputElement;

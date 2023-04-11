@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DeleteDialogComponent } from '@app/components/delete-dialog/delete-dialog.component';
 import { GameData, GameHistory } from '@app/interfaces/game';
 import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
@@ -34,6 +34,7 @@ export class ConfigSelectPageComponent implements OnInit {
     constructor(
         private readonly gameCommunicationService: CommunicationHttpService,
         private route: ActivatedRoute,
+        private router: Router,
         private dialog: MatDialog,
         private configCommunicationService: ConfigHttpService,
     ) {
@@ -68,7 +69,9 @@ export class ConfigSelectPageComponent implements OnInit {
                 this.dialogRef.afterClosed().subscribe((supp) => {
                     if (supp) {
                         this.configCommunicationService.deleteBestTime(name).subscribe();
-                        window.location.reload();
+                        this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+                            this.router.navigate(['/config']);
+                        });
                     }
                 });
             }
@@ -98,7 +101,9 @@ export class ConfigSelectPageComponent implements OnInit {
             this.dialogRef.afterClosed().subscribe((supp) => {
                 if (supp) {
                     this.configCommunicationService.deleteBestTimes().subscribe();
-                    window.location.reload();
+                    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+                        this.router.navigate(['/config']);
+                    });
                 }
             });
         }
@@ -117,19 +122,17 @@ export class ConfigSelectPageComponent implements OnInit {
     }
 
     private getSlidesFromServer(): void {
-        const component = this;
         this.gameCommunicationService.getAllGames().subscribe((res) => {
-            component.slides = res;
-            for (const slide of component.slides) {
+            this.slides = res;
+            for (const slide of this.slides) {
                 slide.isSelected = false;
             }
         });
     }
 
     private getPartiesFromServer(): void {
-        const component = this;
         this.configCommunicationService.getHistory().subscribe((res) => {
-            component.parties = res.reverse();
+            this.parties = res.reverse();
         });
     }
 
