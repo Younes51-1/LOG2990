@@ -1,11 +1,11 @@
+import { EMPTY_PIXEL_VALUE } from '@app/constants';
 import { GameHistory } from '@app/model/database/game-history';
+import { EndGame } from '@app/model/schema/end-game.schema';
 import { GameRoom } from '@app/model/schema/game-room.schema';
+import { Vector2D } from '@app/model/schema/vector2d.schema';
+import { GameHistoryService } from '@app/services/game-history/game-history.service';
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
-import { Vector2D } from '@app/model/schema/vector2d.schema';
-import { EndGame } from '@app/model/schema/end-game.schema';
-import { EMPTY_PIXEL_VALUE } from '@app/constants';
-import { GameHistoryService } from '@app/services/game-history/game-history.service';
 
 @Injectable()
 export class GameModeService {
@@ -201,9 +201,7 @@ export class GameModeService {
         }
         gameRoom.userGame.username2 = '';
         const gameHistory = this.getGameHistory(gameRoom.roomId);
-        this.deleteGameHistory(socketId);
         this.setGameHistory(gameRoom.roomId, gameHistory);
-        this.deleteRoom(socketId);
         this.setGameRoom(gameRoom);
     }
 }
