@@ -11,7 +11,7 @@ import { GameHistoryService } from '@app/services/game-history/game-history.serv
 import { GameModeService } from '@app/services/game-mode/game-mode.service';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { createStubInstance, SinonStubbedInstance } from 'sinon';
+import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
 
 describe('GameModeGateway', () => {
@@ -260,6 +260,19 @@ describe('GameModeGateway', () => {
             return undefined;
         });
         gateway.handleDisconnect(socket);
+        expect(deleteRoomSpy).not.toHaveBeenCalled();
+    });
+
+    it('socket disconnection should just return if and call abandonned when its multiplayer game', () => {
+        const deleteRoomSpy = jest.spyOn(gameModeService, 'deleteRoom').mockImplementation();
+        const abandonnedSpy = jest.spyOn(gateway, 'abandoned').mockImplementation();
+        jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
+            const gameRoom = getFakeGameRoom();
+            gameRoom.userGame.username2 = 'fakeUser2';
+            return gameRoom;
+        });
+        gateway.handleDisconnect(socket);
+        expect(abandonnedSpy).toHaveBeenCalled();
         expect(deleteRoomSpy).not.toHaveBeenCalled();
     });
 

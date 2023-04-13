@@ -495,21 +495,21 @@ describe('GameModeService', () => {
         expect(saveGameHistorySpy).toHaveBeenCalled();
     });
 
-    // it('abandonLimitedTimeMode should change username if user 1 quit and update gameRoom and history', () => {
-    //     // We need to cast to any because the map is private
-    //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    //     (testGameModeService as any).gameRooms = new Map();
-    //     const newRoom = getFakeGameRoom();
-    //     newRoom.userGame.username2 = 'FakeUser2';
-    //     testGameModeService.addElementToMap(newRoom.roomId, newRoom);
-    //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    //     (testGameModeService as any).gameHistory = new Map();
-    //     const newGameHistory = getFakeGameRoom();
-    //     testGameModeService.addElementToMap(newGameHistory.roomId, newGameHistory);
-    //     testGameModeService.abandonLimitedTimeMode(newRoom, newRoom.userGame.username1, socket.id);
-    //     expect(testGameModeService.getGameRoom(newRoom.roomId).userGame.username1).toEqual('FakeUser2');
-    //     expect(testGameModeService.getGameHistory(newRoom.roomId)).toEqual(newGameHistory);
-    // });
+    it('abandonLimitedTimeMode should change username if user 1 quit and update gameRoom and history', () => {
+        // We need to cast to any because the map is private
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (testGameModeService as any).gameRooms = new Map();
+        const newRoom = getFakeGameRoom();
+        newRoom.userGame.username2 = 'FakeUser2';
+        testGameModeService.addElementToMap(newRoom.roomId, newRoom);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (testGameModeService as any).gameHistory = new Map();
+        const newGameHistory = getFakeGameHistory();
+        testGameModeService.addElementToHistoryMap(newRoom.roomId, newGameHistory);
+        testGameModeService.abandonLimitedTimeMode(newRoom, newRoom.userGame.username1);
+        expect(testGameModeService.getGameRoom(newRoom.roomId).userGame.username1).toEqual('FakeUser2');
+        expect(testGameModeService.getGameHistory(newRoom.roomId).abandonned).toEqual('FakeUser');
+    });
 });
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */

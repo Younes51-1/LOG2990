@@ -222,11 +222,13 @@ describe('GameService', () => {
     });
 
     // it('deleteAllGames should fail if mongo query failed', async () => {
-    //     jest.spyOn(gameModeGateway, 'cancelDeletedGame').mockImplementation();
-    //     await gameModel.deleteMany({});
-    //     await gameModel.create(getFakeGame());
     //     jest.spyOn(gameModel, 'deleteOne').mockRejectedValue('');
-    //     await expect(await service.deleteAllGames()).rejects.toBeTruthy();
+    //     jest.spyOn(gameModeGateway, 'cancelDeletedGame').mockImplementation();
+    //     try {
+    //         await service.deleteAllGames();
+    //     } catch (e) {
+    //         expect(e).toBeTruthy();
+    //     }
     // });
 
     it('deleteBestTimes should reset to default values bestTimes of every games', async () => {
@@ -261,8 +263,12 @@ describe('GameService', () => {
     });
 
     // it('deleteBestTimes should fail if update fails', async () => {
-    //     jest.spyOn(gameModel.prototype, 'save').mockRejectedValue('');
-    //     await expect(service.deleteBestTimes()).rejects.toBeTruthy();
+    //     jest.spyOn(gameModel, 'findOne').mockRejectedValue('');
+    //     try {
+    //         await service.deleteBestTimes();
+    //     } catch (e) {
+    //         expect(e).toBeTruthy();
+    //     }
     // });
 
     it('deleteBestTime should reset to default values bestTimes of specified game', async () => {
@@ -299,7 +305,11 @@ describe('GameService', () => {
 
     // it('deleteBestTime should fail if update fails', async () => {
     //     jest.spyOn(gameModel.prototype, 'save').mockRejectedValue('');
-    //     await expect(service.deleteBestTimes()).rejects.toBeTruthy();
+    //     try {
+    //         service.deleteBestTimes();
+    //     } catch (e) {
+    //         expect(e).toBeTruthy();
+    //     }
     // });
 
     it('updateBestTime should add new bestTime to specified game if its an actual new best and send a new message', async () => {

@@ -80,11 +80,14 @@ describe('GameHistoryService', () => {
         expect(gameHistories.length).toEqual(0);
     });
 
-    // it('should have rejected if cannot delete', async () => {
-    //     jest.spyOn(gameHistoryModel, 'deleteMany').mockRejectedValue('');
-    //     await gameHistoryModel.deleteMany({});
-    //     await expect(service.deleteGamesHistories()).rejects.toBeTruthy();
-    // });
+    it('should have rejected if cannot delete', async () => {
+        jest.spyOn(gameHistoryModel, 'deleteMany').mockRejectedValue('');
+        try {
+            await service.deleteGamesHistories();
+        } catch (e) {
+            expect(e).toBeTruthy();
+        }
+    });
 });
 
 const getFakeGameHistory = (): GameHistory => ({

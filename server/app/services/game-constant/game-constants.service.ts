@@ -17,16 +17,12 @@ export class GameConstantsService {
     async initiateGameConstants(): Promise<void> {
         const constants = await this.gameConstantsModel.findOne({});
         if (!constants) {
-            try {
-                const gameConstants: GameConstants = {
-                    initialTime: 30,
-                    penaltyTime: 5,
-                    bonusTime: 5,
-                };
-                await this.gameConstantsModel.create(gameConstants);
-            } catch (error) {
-                return Promise.reject(`Failed to save game constants: ${error}`);
-            }
+            const gameConstants: GameConstants = {
+                initialTime: 30,
+                penaltyTime: 5,
+                bonusTime: 5,
+            };
+            await this.gameConstantsModel.create(gameConstants);
         }
     }
 
