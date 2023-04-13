@@ -98,6 +98,11 @@ export class GameService {
 
     getAllGames() {
         this.communicationService.getAllGames().subscribe((games) => {
+            games.forEach((game) => {
+                this.communicationService.getGame(game.name).subscribe((gameData) => {
+                    game.differenceMatrix = gameData.differenceMatrix;
+                });
+            });
             this.slides = games;
             this.slides = this.slides.filter((game) => game.name !== this.gameRoom.userGame.gameData.name);
         });

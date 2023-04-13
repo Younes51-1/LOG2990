@@ -22,7 +22,7 @@ export class GameService {
 
     async getAllGames(): Promise<GameData[]> {
         const games = await this.gameModel.find({}).lean();
-        const gameDataPromises = games.map(async (game) => this.convertGameToGameData(game));
+        const gameDataPromises = games.map(async (game) => this.convertGameToGameData(game, false));
         const gameData = await Promise.all(gameDataPromises);
         return gameData;
     }
@@ -30,7 +30,7 @@ export class GameService {
     async getGame(name: string): Promise<GameData> {
         const game = await this.gameModel.findOne({ name });
         if (!game) return Promise.reject('Failed to get game');
-        return await this.convertGameToGameData(game);
+        return await this.convertGameToGameData(game, true);
     }
 
     async getBestTime(name: string): Promise<{ soloBestTimes: BestTime[]; vsBestTimes: BestTime[] }> {
@@ -204,7 +204,7 @@ export class GameService {
         return matrix.map((row) => row.map((cell) => parseInt(cell, 10)));
     }
 
-    private async convertGameToGameData(game: Game): Promise<GameData> {
+    private async convertGameToGameData(game: Game, getMatrix: boolean): Promise<GameData> {
         const { name, nbDifference, difficulty, soloBestTimes, vsBestTimes } = game;
         const gameData = new GameData();
         gameData.name = name;
@@ -214,7 +214,7 @@ export class GameService {
         gameData.difficulty = difficulty;
         gameData.soloBestTimes = soloBestTimes;
         gameData.vsBestTimes = vsBestTimes;
-        gameData.differenceMatrix = await this.getMatrix(name);
+        gameData.differenceMatrix = getMatrix ? await this.getMatrix(name) : undefined;
         return gameData;
     }
 }
