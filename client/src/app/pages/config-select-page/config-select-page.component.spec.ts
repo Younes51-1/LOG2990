@@ -5,7 +5,7 @@ import { CommonModule, Location } from '@angular/common';
 import { HttpClientModule, HttpResponse } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule, NgZone } from '@angular/core';
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -13,14 +13,14 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { ConfigParamsComponent } from '@app/components/config-params/config-params.component';
 import { DeleteDialogComponent } from '@app/components/delete-dialog/delete-dialog.component';
 import { GameCardComponent } from '@app/components/game-card/game-card.component';
+import { GameConstants } from '@app/interfaces/game-constants';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { ConfigSelectPageComponent } from '@app/pages/config-select-page/config-select-page.component';
 import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
+import { ConfigHttpService } from '@app/services/config-http/config-http.service';
 import { of } from 'rxjs';
 import { PageKeys } from 'src/assets/variables/game-card-options';
 import SpyObj = jasmine.SpyObj;
-import { ConfigHttpService } from '@app/services/config-http/config-http.service';
-import { GameConstants } from '@app/interfaces/game-constants';
 
 @NgModule({
     imports: [MatDialogModule, HttpClientModule],
@@ -79,7 +79,7 @@ describe('ConfigSelectPageComponent', () => {
             'getHistory',
         ]);
         configHttpServiceSpy.getHistory.and.returnValue(
-            of([{ name: 'Find the difference 1', startTime: 100, timer: 200, username1: 'user1', gameMode: 'classic-mode solo', winner: 'user1' }]),
+            of([{ name: 'Find the difference 1', startTime: 100, timer: 200, username1: 'user1', gameMode: 'mode classique solo', winner: 'user1' }]),
         );
         configHttpServiceSpy.getConstants.and.returnValue(of({ initialTime: 100, penaltyTime: 10, bonusTime: 5 } as GameConstants));
         zone = new NgZone({ enableLongStackTrace: false });

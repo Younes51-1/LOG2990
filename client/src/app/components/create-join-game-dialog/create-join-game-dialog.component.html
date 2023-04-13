@@ -1,7 +1,7 @@
 <div id="container">
     <p>Choisir un mode en Temps Limité</p>
-    <button (click)="showInput1 = true; showInput2 = false; focusInput()">Jouer en solo</button>
-    <button (click)="showInput1 = false; showInput2 = true; checkGame(); focusInput()">Jouer en coopératif</button>
+    <button tabindex="-1" (click)="showInput1 = true; showInput2 = false; focusInput()">Jouer en solo</button>
+    <button tabindex="-1" (click)="showInput1 = false; showInput2 = true; checkGame(); focusInput()">Jouer en coopératif</button>
     <div class="player-name" *ngIf="showInput1">
         <input
             type="text"

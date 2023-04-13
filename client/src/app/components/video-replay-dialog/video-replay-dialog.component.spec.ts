@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { VideoReplayDialogComponent } from '@app/components/video-replay-dialog/video-replay-dialog.component';
 import { GameData, GameRoom, UserGame } from '@app/interfaces/game';
 import { Instruction, VideoReplay } from '@app/interfaces/video-replay';
-import { VideoReplayDialogComponent } from '@app/components/video-replay-dialog/video-replay-dialog.component';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 describe('VideoReplayDialogComponent', () => {
     let component: VideoReplayDialogComponent;
@@ -20,7 +20,7 @@ describe('VideoReplayDialogComponent', () => {
         differenceMatrix,
     };
     const userGame: UserGame = { username1: '', gameData, nbDifferenceFound: 0, timer: 0 };
-    const gameRoom: GameRoom = { userGame, roomId: 'testRoom', started: false, gameMode: 'classic-mode' };
+    const gameRoom: GameRoom = { userGame, roomId: 'testRoom', started: false, gameMode: 'mode classique' };
     let videoReplay: VideoReplay;
 
     beforeEach(async () => {

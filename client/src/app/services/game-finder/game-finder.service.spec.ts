@@ -1,19 +1,19 @@
 /* eslint-disable max-classes-per-file */
 import { TestBed } from '@angular/core/testing';
 
-import { GameFinderService } from '@app/services/game-finder/game-finder.service';
-import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
-import { Socket } from 'socket.io-client';
-import { SocketTestHelper } from '@app/classes/socket-test-helper';
-import { GameCardComponent } from '@app/components/game-card/game-card.component';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { HttpClientModule } from '@angular/common/http';
-import { NgModule } from '@angular/core';
 import { OverlayModule } from '@angular/cdk/overlay';
+import { HttpClientModule } from '@angular/common/http';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { NgModule } from '@angular/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
+import { SocketTestHelper } from '@app/classes/socket-test-helper';
+import { GameCardComponent } from '@app/components/game-card/game-card.component';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
+import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
+import { GameFinderService } from '@app/services/game-finder/game-finder.service';
+import { Socket } from 'socket.io-client';
 
 @NgModule({
     imports: [HttpClientModule, OverlayModule, MatDialogModule, BrowserAnimationsModule],
@@ -67,9 +67,9 @@ describe('GameFinderService', () => {
 
     it('check game should handle gameFound event for limited-time-mode', () => {
         const gameExistsSpy = spyOn(service.gameExists$, 'next').and.stub();
-        service.gameMode = 'classic-mode';
+        service.gameMode = 'mode classique';
         service.checkGame('test');
-        socketHelper.peerSideEmit('gameFound', { gameName: 'test', gameMode: 'classic-mode' });
+        socketHelper.peerSideEmit('gameFound', { gameName: 'test', gameMode: 'mode classique' });
         expect(gameExistsSpy).toHaveBeenCalledWith(true);
     });
 
@@ -83,9 +83,9 @@ describe('GameFinderService', () => {
 
     it('check game should handle gameDeleted event for limited-time-mode', () => {
         const gameExistsSpy = spyOn(service.gameExists$, 'next').and.stub();
-        service.gameMode = 'classic-mode';
+        service.gameMode = 'mode classique';
         service.checkGame('test');
-        socketHelper.peerSideEmit('gameDeleted', { gameName: 'test', gameMode: 'classic-mode' });
+        socketHelper.peerSideEmit('gameDeleted', { gameName: 'test', gameMode: 'mode classique' });
         expect(gameExistsSpy).toHaveBeenCalledWith(false);
     });
 

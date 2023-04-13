@@ -1,4 +1,4 @@
-import { GameModeEvents, DelayBeforeEmittingTime } from '@app/gateways/game-mode/game-mode.gateway.variables';
+import { DelayBeforeEmittingTime, GameModeEvents } from '@app/gateways/game-mode/game-mode.gateway.variables';
 import { EndGame } from '@app/model/schema/end-game.schema';
 import { GameRoom } from '@app/model/schema/game-room.schema';
 import { Vector2D } from '@app/model/schema/vector2d.schema';
@@ -43,7 +43,7 @@ export class GameModeGateway implements OnGatewayConnection, OnGatewayDisconnect
     abandoned(socket: Socket, data: { roomId: string; username: string }): void {
         const gameRoom = this.gameModeService.getGameRoom(data.roomId);
         if (!gameRoom) return;
-        if (gameRoom.gameMode === 'classic-mode') {
+        if (gameRoom.gameMode === 'mode classique') {
             this.gameModeService.abandonClassicMode(gameRoom, data.username);
             this.logger.log(`Game mode gateway: ${data.username}: abandoned classic mode game`);
             this.server.to(data.roomId).emit(GameModeEvents.Abandoned, { gameRoom, username: data.username });

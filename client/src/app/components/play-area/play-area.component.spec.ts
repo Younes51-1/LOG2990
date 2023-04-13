@@ -44,7 +44,7 @@ describe('PlayAreaComponent', () => {
         differenceMatrix,
     };
     const userGame: UserGame = { username1: '', gameData, nbDifferenceFound: 0, timer: 0 };
-    const gameRoom: GameRoom = { userGame, roomId: 'testRoom', started: false, gameMode: 'classic-mode' };
+    const gameRoom: GameRoom = { userGame, roomId: 'testRoom', started: false, gameMode: 'mode classique' };
 
     let component: PlayAreaComponent;
     let fixture: ComponentFixture<PlayAreaComponent>;

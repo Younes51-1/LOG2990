@@ -1,18 +1,18 @@
 /* eslint-disable max-classes-per-file */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable max-lines */
-import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
+import { SocketTestHelper } from '@app/classes/socket-test-helper';
+import { DifferenceTry } from '@app/interfaces/difference-try';
+import { BestTime, GameData, GameRoom, NewBestTime } from '@app/interfaces/game';
 import { ChatService } from '@app/services/chat/chat.service';
 import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
 import { ConfigHttpService } from '@app/services/config-http/config-http.service';
 import { GameService } from '@app/services/game/game.service';
-import { BestTime, GameData, GameRoom, NewBestTime } from '@app/interfaces/game';
-import { DifferenceTry } from '@app/interfaces/difference-try';
-import { SocketTestHelper } from '@app/classes/socket-test-helper';
-import { Socket } from 'socket.io-client';
 import { of } from 'rxjs';
+import { Socket } from 'socket.io-client';
 class SocketClientServiceMock extends CommunicationSocketService {
     override connect() {
         return;
@@ -51,7 +51,7 @@ describe('GameService', () => {
             userGame: { gameData, nbDifferenceFound: 0, timer: 0, username1: 'Test' },
             roomId: 'fakeId',
             started: false,
-            gameMode: 'classic-mode',
+            gameMode: 'mode classique',
         };
         differenceTry = { validated: true, differencePos: { x: 0, y: 0 }, username: 'Test' };
         socketHelper = new SocketTestHelper();
@@ -134,7 +134,7 @@ describe('GameService', () => {
         service.startGame(gameRoom, 'test');
         expect(service.gameRoom).toEqual(gameRoom);
         expect(service.username).toEqual('test');
-        expect(service.gameMode).toEqual('classic-mode');
+        expect(service.gameMode).toEqual('mode classique');
         expect(handleMessageSpy).toHaveBeenCalled();
         expect(handleSocketSpy).toHaveBeenCalled();
     });
@@ -147,7 +147,7 @@ describe('GameService', () => {
         service.startGame(gameRoom, gameRoom.userGame.username1);
         expect(service.gameRoom).toEqual(gameRoom);
         expect(service.username).toEqual(gameRoom.userGame.username1);
-        expect(service.gameMode).toEqual('classic-mode');
+        expect(service.gameMode).toEqual('mode classique');
         expect(handleMessageSpy).toHaveBeenCalled();
         expect(handleSocketSpy).toHaveBeenCalled();
         expect(connectSocketSpy).toHaveBeenCalled();
@@ -227,7 +227,7 @@ describe('GameService', () => {
         spyOn(service as any, 'updateBestTime').and.callThrough();
         service.gameRoom = gameRoom;
         service.gameRoom.userGame.timer = 1;
-        service.gameMode = 'classic-mode';
+        service.gameMode = 'mode classique';
         service.endGame(true, true);
         expect(sendSpy).toHaveBeenCalled();
         expect(socketAliveSpy).toHaveBeenCalled();

@@ -15,7 +15,7 @@ export class GameModeService {
     constructor(private gameHistoryService: GameHistoryService) {}
     getGameRoom(roomId?: string, gameName?: string, gameMode?: string): GameRoom {
         if (roomId) return this.gameRooms.get(roomId);
-        if (gameMode === 'classic-mode') {
+        if (gameMode === 'mode classique') {
             for (const gameRoom of this.gameRooms.values()) {
                 if (gameRoom.userGame.gameData.name === gameName && gameRoom.gameMode === gameMode) return gameRoom;
             }
@@ -48,7 +48,7 @@ export class GameModeService {
     }
 
     nextGame(gameRoom: GameRoom): void {
-        if (gameRoom.gameMode === 'classic-mode') return;
+        if (gameRoom.gameMode === 'mode classique') return;
         this.setGameRoom(gameRoom);
     }
 
@@ -68,7 +68,7 @@ export class GameModeService {
         newGameHistory.username2 = gameRoom.userGame?.username2;
         newGameHistory.startTime = Date.now();
         newGameHistory.timer = 0;
-        if (gameRoom.gameMode === 'classic-mode') {
+        if (gameRoom.gameMode === 'mode classique') {
             if (gameRoom.userGame.username2) {
                 newGameHistory.gameMode = 'Mode classique Multi-joueur';
             } else {
@@ -99,7 +99,7 @@ export class GameModeService {
     isGameFinished(gameId: string): boolean {
         const gameRoom = this.getGameRoom(gameId);
         if (!gameRoom) return false;
-        if (gameRoom.gameMode === 'classic-mode') {
+        if (gameRoom.gameMode === 'mode classique') {
             return gameRoom.userGame.nbDifferenceFound === gameRoom.userGame.gameData.nbDifference;
         } else {
             return gameRoom.userGame.timer <= 0;
@@ -164,7 +164,7 @@ export class GameModeService {
     }
 
     updateTimer(gameRoom: GameRoom): void {
-        if (gameRoom.gameMode === 'classic-mode') {
+        if (gameRoom.gameMode === 'mode classique') {
             gameRoom.userGame.timer++;
         } else {
             gameRoom.userGame.timer--;

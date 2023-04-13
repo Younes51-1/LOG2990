@@ -87,7 +87,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             }
         });
         this.abandonedGameSubscription = this.gameService.abandoned$.subscribe((username: string) => {
-            if (this.gameService.gameMode === 'classic-mode') {
+            if (this.gameService.gameMode === 'mode classique') {
                 if (username !== this.username) {
                     this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
                     this.playAreaService.startConfetti(undefined);
@@ -112,7 +112,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     endGame() {
-        if (this.gameRoom.gameMode === 'classic-mode') {
+        if (this.gameRoom.gameMode === 'mode classique') {
             this.endGameClassicMode();
         } else {
             this.endGameLimitedTimeMode();

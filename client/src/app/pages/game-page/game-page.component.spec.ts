@@ -16,17 +16,17 @@ import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-d
 import { GameScoreboardComponent } from '@app/components/game-scoreboard/game-scoreboard.component';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
 import { GameData, GameRoom } from '@app/interfaces/game';
+import { GameConstants } from '@app/interfaces/game-constants';
+import { Instruction } from '@app/interfaces/video-replay';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { ChatService } from '@app/services/chat/chat.service';
 import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
+import { ConfigHttpService } from '@app/services/config-http/config-http.service';
+import { GameService } from '@app/services/game/game.service';
 import { of } from 'rxjs';
 import { Socket } from 'socket.io-client';
 import SpyObj = jasmine.SpyObj;
-import { GameService } from '@app/services/game/game.service';
-import { ConfigHttpService } from '@app/services/config-http/config-http.service';
-import { GameConstants } from '@app/interfaces/game-constants';
-import { Instruction } from '@app/interfaces/video-replay';
 
 @NgModule({
     imports: [MatDialogModule, HttpClientModule, BrowserAnimationsModule],
@@ -63,7 +63,7 @@ describe('GamePageComponent', () => {
             userGame: { gameData, nbDifferenceFound: 0, timer: 0, username1: 'Test' },
             roomId: 'fakeId',
             started: false,
-            gameMode: 'classic-mode',
+            gameMode: 'mode classique',
         };
         communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getGame']);
         communicationServiceSpy.getGame.and.returnValue(of(gameData));
@@ -243,13 +243,13 @@ describe('GamePageComponent', () => {
         expect(spyAbandonGame).toHaveBeenCalled();
     });
 
-    it('should call startConfetti on abandoned$ observable in classic-mode', () => {
+    it('should call startConfetti on abandoned$ observable in mode classique', () => {
         gameServiceSpy = TestBed.inject(GameService);
         const consfettiSpy = spyOn((component as any).playAreaService, 'startConfetti').and.stub();
         const abandonGameSpy = spyOn(gameServiceSpy.abandoned$, 'subscribe').and.callThrough();
         const endGameSpy = spyOn((component as any).gameService, 'endGame').and.stub();
         const unsubscribeSpy = spyOn(component as any, 'unsubscribe').and.stub();
-        (component as any).gameService.gameMode = 'classic-mode';
+        (component as any).gameService.gameMode = 'mode classique';
         component.ngOnInit();
         gameServiceSpy.abandoned$.next('test');
         expect(abandonGameSpy).toHaveBeenCalled();

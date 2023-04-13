@@ -3,14 +3,17 @@
     <h2 *ngIf="waitingRoomService.gameRoom?.userGame?.username1 === waitingRoomService?.username">CRÉATION DU JEU</h2>
     <h2 *ngIf="waitingRoomService.gameRoom?.userGame?.username1 !== waitingRoomService?.username">JOINDRE</h2>
     <div *ngIf="waitingRoomService.gameRoom?.userGame?.username1 === waitingRoomService?.username">
-        <p class="waiting" *ngIf="waitingRoomService.gameRoom?.userGame?.potentialPlayers">Joueurs en attente : </p>
+        <p class="waiting" *ngIf="waitingRoomService.gameRoom?.userGame?.potentialPlayers">Joueurs en attente :</p>
         <p class="waiting" *ngFor="let player of waitingRoomService.gameRoom?.userGame?.potentialPlayers">
-            {{player}}
+            {{ player }}
             <button (click)="playerAccepted(player)">Accepter</button>
             <button (click)="playerRejected(player)">Refuser</button>
         </p>
         <div
-            *ngIf="!waitingRoomService.gameRoom?.userGame?.potentialPlayers || waitingRoomService.gameRoom?.userGame?.potentialPlayers!.length === 0">
+            *ngIf="
+                !waitingRoomService.gameRoom?.userGame?.potentialPlayers || (waitingRoomService.gameRoom?.userGame?.potentialPlayers)!.length === 0
+            "
+        >
             <div class="wrapper">
                 <div class="circle"></div>
                 <div class="circle"></div>
@@ -36,5 +39,5 @@
     <div *ngIf="this.rejected">
         <p>Vous avez été rejeté</p>
     </div>
-    <button class="quit" (click)="close()">Quitter</button>
+    <button tabindex="-1" class="quit" (click)="close()">Quitter</button>
 </div>

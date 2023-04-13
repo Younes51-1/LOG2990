@@ -11,7 +11,7 @@ import { GameHistoryService } from '@app/services/game-history/game-history.serv
 import { GameModeService } from '@app/services/game-mode/game-mode.service';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { createStubInstance, SinonStubbedInstance } from 'sinon';
+import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
 
 describe('GameModeGateway', () => {
@@ -319,7 +319,7 @@ const getFakeGameRoom = (): GameRoom => ({
     userGame: getFakeUserGame1(),
     roomId: 'socketId',
     started: true,
-    gameMode: 'classic-mode',
+    gameMode: 'mode classique',
 });
 
 const getFakeEndGame = (): EndGame => ({

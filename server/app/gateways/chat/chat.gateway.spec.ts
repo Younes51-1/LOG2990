@@ -6,7 +6,7 @@ import { GameRoom } from '@app/model/schema/game-room.schema';
 import { UserGame } from '@app/model/schema/user-game.schema';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { createStubInstance, SinonStubbedInstance } from 'sinon';
+import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
 
 describe('ChatGateway', () => {
@@ -89,7 +89,7 @@ const getFakeGameRoom = (): GameRoom => ({
     userGame: getFakeUserGame1(),
     roomId: 'socketId',
     started: true,
-    gameMode: 'classic-mode',
+    gameMode: 'mode classique',
 });
 
 const getFakeNewBestScoreMessage = (): string => 'FakePlayer obtient la 2 place dans les meilleurs temps du jeu FakeGame en mode solo';

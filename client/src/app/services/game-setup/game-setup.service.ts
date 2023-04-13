@@ -97,7 +97,7 @@ export class GameSetupService {
 
     joinGame(username: string, gameName = undefined as unknown as string): void {
         this.username = username;
-        if (this.gameMode === 'classic-mode') {
+        if (this.gameMode === 'mode classique') {
             this.joinClassicMode(gameName);
         } else {
             this.joinLimitedTimeMode();
