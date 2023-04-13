@@ -73,51 +73,6 @@ describe('DetectionDifferenceService', () => {
         }
     });
 
-    it('should apply radius correctly', () => {
-        const spy = spyOn(service as any, 'computeRadiusRelativeCoordinates').and.callThrough();
-        const initialMatrix = [
-            [emptyPixelValue, 1, emptyPixelValue],
-            [emptyPixelValue, emptyPixelValue, emptyPixelValue],
-            [emptyPixelValue, emptyPixelValue, emptyPixelValue],
-        ];
-        const radius = 2;
-        const diffCoordinates = [0, 1];
-        const matrixAfterRadius = (service as any).applyRadius(initialMatrix, radius, diffCoordinates);
-        const expectedMatrix = [
-            [1, 1, 1],
-            [1, 1, 1],
-            [emptyPixelValue, 1, emptyPixelValue],
-        ];
-        expect(matrixAfterRadius).toEqual(expectedMatrix);
-        expect(spy).toHaveBeenCalledWith(radius);
-    });
-
-    it('should compare rgba values correctly', () => {
-        let rgba1 = { r: 0, g: 0, b: 0, a: 0 };
-        const rgba2 = { r: 0, g: 0, b: 0, a: 0 };
-        const result1 = (service as any).areEqual(rgba1, rgba2);
-        expect(result1).toBeTruthy();
-        rgba1 = { r: 1, g: 0, b: 0, a: 0 };
-        const result2 = (service as any).areEqual(rgba1, rgba2);
-        expect(result2).toBeFalsy();
-    });
-
-    it('createEmptyMatix should return a new matrix', () => {
-        const serviceMatrix = (service as any).createEmptyMatrix(matrix.length, matrix[0].length, 1);
-        expect(serviceMatrix).toBeTruthy();
-    });
-
-    it('createEmptyMatix should return a new matrix with dimensions equal to parametre', () => {
-        const serviceMatrix = (service as any).createEmptyMatrix(matrix.length, matrix[0].length, 1);
-        expect(serviceMatrix.length).toEqual(matrix.length);
-        expect(serviceMatrix[0].length).toEqual(matrix[0].length);
-    });
-
-    it("createEmptyMatix should return a new matrix equal to 'matrix' dimensions ", () => {
-        const serviceMatrix = (service as any).createEmptyMatrix(matrix.length, matrix[0].length, 1);
-        expect(serviceMatrix).toEqual(matrix);
-    });
-
     it('should count the number of differences correctly', () => {
         const diffMatrix = (service as any).createEmptyMatrix(height, width, emptyPixelValue);
         diffMatrix[1][1] = 1; // first difference
@@ -127,74 +82,15 @@ describe('DetectionDifferenceService', () => {
         expect(nDiff).toEqual(2);
     });
 
-    it('should delete the difference', () => {
-        const diffMatrix = (service as any).createEmptyMatrix(height, width, emptyPixelValue);
-        diffMatrix[1][1] = 1;
-        const referenceMatrix = JSON.parse(JSON.stringify(diffMatrix));
-        diffMatrix[100][1] = 1;
-        diffMatrix[100][2] = 1; // adding a difference
-        (service as any).deleteDifference(diffMatrix, { x: 100, y: 1 }); // deleting it
-        expect(diffMatrix).toEqual(referenceMatrix);
-    });
-
-    it('should push neighbors to stack', () => {
-        const stack: Vec2[] = [];
-        const pos = { x: 1, y: 1 };
-        const spy = spyOn(service as any, 'pushToStack');
-        (service as any).pushNeighborsToStack(stack, pos);
-        expect(spy).toHaveBeenCalledWith(stack, { x: pos.x, y: pos.y - 1 });
-        expect(spy).toHaveBeenCalledWith(stack, { x: pos.x, y: pos.y + 1 });
-        expect(spy).toHaveBeenCalledWith(stack, { x: pos.x + 1, y: pos.y - 1 });
-        expect(spy).toHaveBeenCalledWith(stack, { x: pos.x + 1, y: pos.y });
-        expect(spy).toHaveBeenCalledWith(stack, { x: pos.x + 1, y: pos.y + 1 });
-        expect(spy).toHaveBeenCalledWith(stack, { x: pos.x - 1, y: pos.y - 1 });
-        expect(spy).toHaveBeenCalledWith(stack, { x: pos.x - 1, y: pos.y });
-        expect(spy).toHaveBeenCalledWith(stack, { x: pos.x - 1, y: pos.y + 1 });
-        const nNeighbors = 8;
-        expect(spy).toHaveBeenCalledTimes(nNeighbors);
-    });
-
-    it('should push to stack if pos is valid', () => {
-        const stack: Vec2[] = [];
-        const pos = { x: 1, y: 1 };
-        const spy = spyOn(stack, 'push');
-        (service as any).pushToStack(stack, pos);
-        expect(spy).toHaveBeenCalledWith(pos);
-    });
-
-    it('should not push to stack if pos is not valid', () => {
-        const stack: Vec2[] = [];
-        const pos = { x: 648, y: 1 };
-        const spy = spyOn(stack, 'push');
-        (service as any).pushToStack(stack, pos);
-        expect(spy).not.toHaveBeenCalled();
-    });
-
-    /* eslint-disable @typescript-eslint/no-magic-numbers */
     it('should create an image of differences', () => {
         const diffMatrix = [
-            [0, 1, -1],
+            [0, 1, emptyPixelValue],
             [0, 0, 0],
-            [-1, -1, -1],
+            [emptyPixelValue, emptyPixelValue, emptyPixelValue],
         ];
         const canvasUrl = service.createDifferencesImage(diffMatrix);
         expect(canvasUrl).toBeDefined();
         expect(canvasUrl).toContain('data:image/png;base64');
-    });
-
-    it('should return empty matrix from extractDifference given invalid coordinates', () => {
-        const differenceMatrix = [
-            [1, emptyPixelValue, 1],
-            [1, emptyPixelValue, 1],
-            [emptyPixelValue, emptyPixelValue, 1],
-        ];
-        const expectedMatrix = [
-            [emptyPixelValue, emptyPixelValue, emptyPixelValue],
-            [emptyPixelValue, emptyPixelValue, emptyPixelValue],
-            [emptyPixelValue, emptyPixelValue, emptyPixelValue],
-        ];
-        const result = service.extractDifference(differenceMatrix, { x: 1, y: 0 });
-        expect(result).toEqual(expectedMatrix);
     });
 
     it('should return an empty string when ctx is null', () => {
@@ -215,20 +111,29 @@ describe('DetectionDifferenceService', () => {
     });
 
     it('should return easy if surface covered by differences is bigger than 0,15', () => {
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        const diffMatrix = (service as any).createEmptyMatrix(480, 640, 0);
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        const difficulty = service.computeLevelDifficulty(7, diffMatrix);
+        const diffMatrix = (service as any).createEmptyMatrix(height, width, 0);
+        const nbDifferences = 7;
+        const difficulty = service.computeLevelDifficulty(nbDifferences, diffMatrix);
         expect(difficulty).toEqual('facile');
     });
 
     it('should return hard if criteria are met', () => {
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        const diffMatrix = (service as any).createEmptyMatrix(480, 640, emptyPixelValue);
+        const diffMatrix = (service as any).createEmptyMatrix(height, width, emptyPixelValue);
         diffMatrix[0][0] = 1;
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        const difficulty = service.computeLevelDifficulty(7, diffMatrix);
+        const nbDifferences = 7;
+        const difficulty = service.computeLevelDifficulty(nbDifferences, diffMatrix);
         expect(difficulty).toEqual('difficile');
+    });
+
+    it('should return empty matrix from extractDifference given invalid coordinates', () => {
+        const differenceMatrix = [
+            [1, emptyPixelValue, 1],
+            [1, emptyPixelValue, 1],
+            [emptyPixelValue, emptyPixelValue, 1],
+        ];
+        const expectedMatrix = service.createEmptyMatrix(3, 3, emptyPixelValue);
+        const result = service.extractDifference(differenceMatrix, { x: 1, y: 0 });
+        expect(result).toEqual(expectedMatrix);
     });
 
     it('should extract the current difference given a valid matrix and coordinates', () => {
@@ -246,22 +151,134 @@ describe('DetectionDifferenceService', () => {
         expect(result).toEqual(expectedMatrix);
     });
 
-    it('should not call addCoordOnValidValue if shift() return null', () => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        spyOn(window.Array.prototype, 'shift').and.callFake(function (this: any[]) {
-            // eslint-disable-next-line no-invalid-this
-            if (!this) return null;
-            // eslint-disable-next-line no-invalid-this
-            if (this.length > 0) {
-                // eslint-disable-next-line no-invalid-this
-                this.splice(0, 1);
-            }
-            return null;
+    it('should return null if shift() returns undefined', () => {
+        spyOn(window.Array.prototype, 'shift').and.callFake(() => {
+            window.Array.prototype.length = 0;
+            return undefined;
         });
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const addCoordOnValidValueSpy = spyOn<any>(service, 'addCoordOnValidValue');
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (service as any).findDifference(matrix, { x: 1, y: 1 });
-        expect(addCoordOnValidValueSpy).not.toHaveBeenCalled();
+        const difference = (service as any).findRandomDifference(matrix);
+        expect(difference).toBeNull();
+    });
+
+    it('should return null if no difference is found', () => {
+        const emptyMatrix = service.createEmptyMatrix(3, 3, emptyPixelValue);
+        const randomDiff = service.findRandomDifference(emptyMatrix);
+        expect(randomDiff).toBeNull();
+    });
+
+    it('should return a random difference', () => {
+        const differenceMatrix = [
+            [emptyPixelValue, emptyPixelValue, emptyPixelValue],
+            [emptyPixelValue, 1, emptyPixelValue],
+            [emptyPixelValue, emptyPixelValue, emptyPixelValue],
+        ];
+        const randomDiff = service.findRandomDifference(differenceMatrix);
+        expect(randomDiff).toEqual({ x: 1, y: 1 });
+    });
+
+    it('createEmptyMatrix should return a new matrix', () => {
+        const serviceMatrix = (service as any).createEmptyMatrix(matrix.length, matrix[0].length, 1);
+        expect(serviceMatrix).toBeTruthy();
+    });
+
+    it('createEmptyMatrix should return a new matrix with dimensions equal to specified parameters', () => {
+        const serviceMatrix = (service as any).createEmptyMatrix(matrix.length, matrix[0].length, 1);
+        expect(serviceMatrix.length).toEqual(matrix.length);
+        expect(serviceMatrix[0].length).toEqual(matrix[0].length);
+    });
+
+    it("createEmptyMatrix should return a new matrix equal to 'matrix' dimensions ", () => {
+        const serviceMatrix = (service as any).createEmptyMatrix(matrix.length, matrix[0].length, 1);
+        expect(serviceMatrix).toEqual(matrix);
+    });
+
+    it('should apply radius correctly', () => {
+        const spy = spyOn(service as any, 'computeRadiusRelativeCoordinates').and.callThrough();
+        const initialMatrix = [
+            [emptyPixelValue, 1, emptyPixelValue],
+            [emptyPixelValue, emptyPixelValue, emptyPixelValue],
+            [emptyPixelValue, emptyPixelValue, emptyPixelValue],
+        ];
+        const radius = 2;
+        const diffCoordinates = [0, 1];
+        const matrixAfterRadius = (service as any).applyRadius(initialMatrix, radius, diffCoordinates);
+        const expectedMatrix = [
+            [1, 1, 1],
+            [1, 1, 1],
+            [emptyPixelValue, 1, emptyPixelValue],
+        ];
+        expect(matrixAfterRadius).toEqual(expectedMatrix);
+        expect(spy).toHaveBeenCalledWith(radius);
+    });
+
+    it('should compute radius relative coordinates correctly', () => {
+        const radius = 1;
+        const result = (service as any).computeRadiusRelativeCoordinates(radius);
+        const expectedResult = [emptyPixelValue, 0, 0, emptyPixelValue, 0, 0, 0, 1, 1, 0];
+        expect(result).toEqual(expectedResult);
+    });
+
+    it('should compare rgba values correctly', () => {
+        let rgba1 = { r: 0, g: 0, b: 0, a: 0 };
+        const rgba2 = { r: 0, g: 0, b: 0, a: 0 };
+        const result1 = (service as any).areEqual(rgba1, rgba2);
+        expect(result1).toBeTruthy();
+        rgba1 = { r: 1, g: 0, b: 0, a: 0 };
+        const result2 = (service as any).areEqual(rgba1, rgba2);
+        expect(result2).toBeFalsy();
+    });
+
+    it('should delete the difference', () => {
+        const diffMatrix = (service as any).createEmptyMatrix(height, width, emptyPixelValue);
+        diffMatrix[1][1] = 1;
+        const referenceMatrix = JSON.parse(JSON.stringify(diffMatrix));
+        diffMatrix[100][1] = 1;
+        diffMatrix[100][2] = 1; // adding a difference
+        (service as any).deleteDifference(diffMatrix, { x: 100, y: 1 }); // deleting it
+        expect(diffMatrix).toEqual(referenceMatrix);
+    });
+
+    it('should push neighbors to stack', () => {
+        const stack: Vec2[] = [];
+        const pos = { x: 1, y: 1 };
+        const spy = spyOn(service as any, 'pushToStack');
+        (service as any).pushNeighborsToStack(stack, pos);
+        expect(spy).toHaveBeenCalledWith(stack, { x: pos.x, y: pos.y - 1 });
+        expect(spy).toHaveBeenCalledWith(stack, { x: pos.x, y: pos.y + 1 });
+        expect(spy).toHaveBeenCalledWith(stack, { x: pos.x + 1, y: pos.y });
+        expect(spy).toHaveBeenCalledWith(stack, { x: pos.x - 1, y: pos.y });
+        const nNeighbors = 4;
+        expect(spy).toHaveBeenCalledTimes(nNeighbors);
+    });
+
+    it('should push to stack if pos is valid', () => {
+        const stack: Vec2[] = [];
+        const pos = { x: 1, y: 1 };
+        const spy = spyOn(stack, 'push');
+        (service as any).pushToStack(stack, pos);
+        expect(spy).toHaveBeenCalledWith(pos);
+    });
+
+    it('should not push to stack if pos is not valid', () => {
+        const stack: Vec2[] = [];
+        const pos = { x: 648, y: 1 };
+        const spy = spyOn(stack, 'push');
+        (service as any).pushToStack(stack, pos);
+        expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('should return empty difference if shift() returns undefined', () => {
+        spyOn(window.Array.prototype, 'shift').and.callFake(() => {
+            window.Array.prototype.length = 0;
+            return undefined;
+        });
+        const difference = (service as any).findDifference(matrix, { x: 1, y: 1 });
+        expect(difference).toEqual([]);
+    });
+
+    it('should add coord on valid value', () => {
+        const stack: number[][] = [];
+        (service as any).addCoordOnValidValue(matrix, stack, { x: 1, y: 1 });
+        expect(stack).toEqual([[1, 1]]);
     });
 });

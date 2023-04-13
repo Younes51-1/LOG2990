@@ -62,6 +62,10 @@ export class GameService {
         }
     }
 
+    isLimitedTimeMode(): boolean {
+        return this.gameMode === 'limited-time-mode';
+    }
+
     startGame(gameRoom: GameRoom, username: string): void {
         this.gameRoom = gameRoom;
         this.username = username;
@@ -92,7 +96,7 @@ export class GameService {
     }
 
     abortGame(): void {
-        if (this.socketService.isSocketAlive() && this.gameRoom?.userGame.username1 === this.username) {
+        if (this.socketService.isSocketAlive() && this.gameRoom.userGame.username1 === this.username) {
             this.socketService.send('abortGameCreation', this.gameRoom.roomId);
         } else if (this.socketService.isSocketAlive() && this.gameRoom) {
             this.socketService.send('leaveGame', { roomId: this.gameRoom.roomId, username: this.username });
@@ -127,6 +131,7 @@ export class GameService {
     }
 
     reset(): void {
+        this.disconnectSocket();
         this.gameRoom = undefined as unknown as GameRoom;
         this.canSendValidate = true;
         this.username = '';
@@ -147,9 +152,9 @@ export class GameService {
     }
 
     nextGame(): void {
-        if (this.slides.length > 0) {
-            const game = this.slides.pop();
-            this.gameRoom.userGame.gameData = game ? game : this.gameRoom.userGame.gameData;
+        const game = this.slides.pop();
+        if (game) {
+            this.gameRoom.userGame.gameData = game;
             this.gameRoom$.next(this.gameRoom);
             this.socketService.send('nextGame', this.gameRoom);
         } else {

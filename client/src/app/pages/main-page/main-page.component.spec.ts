@@ -1,7 +1,7 @@
 import { Location } from '@angular/common';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { By } from '@angular/platform-browser';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
@@ -9,11 +9,14 @@ import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 describe('MainPageComponent', () => {
     let component: MainPageComponent;
     let fixture: ComponentFixture<MainPageComponent>;
+    let dialog: MatDialog;
 
     beforeEach(async () => {
+        dialog = jasmine.createSpyObj('MatDialog', ['open']);
         await TestBed.configureTestingModule({
             declarations: [MainPageComponent],
             imports: [AppRoutingModule, HttpClientTestingModule, MatDialogModule],
+            providers: [{ provide: MatDialog, useValue: dialog }],
         }).compileComponents();
     });
 
@@ -83,12 +86,18 @@ describe('MainPageComponent', () => {
         expect(location.path()).toEqual('/selection');
     }));
 
-    // TODO: fix this test
-    // it('should show the chronoMode-page on click of the chrono mode button', fakeAsync(() => {
-    //     const location = TestBed.inject(Location);
-    //     const chronoBtn = fixture.debugElement.query(By.css('.chrono-mode')).nativeElement;
-    //     chronoBtn.click();
-    //     tick();
-    //     expect(location.path()).toEqual('/');
-    // }));
+    it('should open the dialog on click of the chrono mode button', fakeAsync(() => {
+        const chronoBtn = fixture.debugElement.query(By.css('.chrono-mode')).nativeElement;
+        chronoBtn.click();
+        tick();
+        expect(dialog.open).toHaveBeenCalled();
+    }));
+
+    it('ngOnDestory should close the dialog', () => {
+        const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['close']);
+        (dialog.open as jasmine.Spy).and.returnValue(dialogRefSpy);
+        component.setGameMode('limited-game-mode');
+        component.ngOnDestroy();
+        expect(dialogRefSpy.close).toHaveBeenCalled();
+    });
 });

@@ -1,11 +1,11 @@
+import { EMPTY_PIXEL_VALUE } from '@app/constants';
 import { GameHistory } from '@app/model/database/game-history';
+import { EndGame } from '@app/model/schema/end-game.schema';
 import { GameRoom } from '@app/model/schema/game-room.schema';
+import { Vector2D } from '@app/model/schema/vector2d.schema';
+import { GameHistoryService } from '@app/services/game-history/game-history.service';
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
-import { Vector2D } from '@app/model/schema/vector2d.schema';
-import { EndGame } from '@app/model/schema/end-game.schema';
-import { EMPTY_PIXEL_VALUE } from '@app/constants';
-import { GameHistoryService } from '@app/services/game-history/game-history.service';
 
 @Injectable()
 export class GameModeService {
@@ -108,8 +108,7 @@ export class GameModeService {
 
     updateGameHistory(endGame: EndGame): void {
         const gameHistory = this.getGameHistory(endGame.roomId);
-        const gameRoom = this.getGameRoom(endGame.roomId);
-        gameHistory.timer = gameRoom.userGame.timer;
+        gameHistory.timer = Date.now() - gameHistory.startTime;
         if (endGame.gameFinished) {
             if (endGame.winner) {
                 gameHistory.winner = endGame.username;
@@ -195,15 +194,16 @@ export class GameModeService {
         }
     }
 
-    abandonLimitedTimeMode(gameRoom: GameRoom, username: string, socketId: string): void {
+    abandonLimitedTimeMode(gameRoom: GameRoom, username: string): void {
         if (gameRoom.userGame.username1 === username) {
             gameRoom.userGame.username1 = gameRoom.userGame.username2;
         }
         gameRoom.userGame.username2 = '';
         const gameHistory = this.getGameHistory(gameRoom.roomId);
-        this.deleteGameHistory(socketId);
-        this.setGameHistory(gameRoom.roomId, gameHistory);
-        this.deleteRoom(socketId);
+        if (gameHistory) {
+            gameHistory.abandonned = username;
+            this.setGameHistory(gameRoom.roomId, gameHistory);
+        }
         this.setGameRoom(gameRoom);
     }
 }

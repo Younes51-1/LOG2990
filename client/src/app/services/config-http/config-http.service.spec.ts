@@ -24,7 +24,6 @@ describe('ConfigHttpService', () => {
         httpMock.verify();
     });
 
-    // TODO
     it('should be created', () => {
         expect(service).toBeTruthy();
     });

@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { ConfigParamsComponent } from '@app/components/config-params/config-params.component';
 import { Constants } from 'src/assets/variables/constants';
@@ -11,6 +11,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { MatDialogModule } from '@angular/material/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { GameSetupService } from '@app/services/game-setup/game-setup.service';
 import { NgModule } from '@angular/core';
 
 @NgModule({
@@ -22,14 +23,21 @@ describe('ConfigParamsComponent', () => {
     let component: ConfigParamsComponent;
     let fixture: ComponentFixture<ConfigParamsComponent>;
     let configHttpService: jasmine.SpyObj<ConfigHttpService>;
+    let gameSetUpService: jasmine.SpyObj<GameSetupService>;
 
     beforeEach(async () => {
+        gameSetUpService = jasmine.createSpyObj('GameSetupService', ['setConstants']);
+        gameSetUpService.setConstants.and.stub();
         configHttpService = jasmine.createSpyObj('ConfigHttpService', ['getConstants', 'updateConstants']);
+        configHttpService.updateConstants.and.returnValue(of());
         configHttpService.getConstants.and.returnValue(of({ initialTime: 30, penaltyTime: 5, bonusTime: 5 }));
         await TestBed.configureTestingModule({
             declarations: [ConfigParamsComponent],
             imports: [HttpClientTestingModule, RouterTestingModule, AppRoutingModule, DynamicTestModule],
-            providers: [{ provide: ConfigHttpService, useValue: configHttpService }],
+            providers: [
+                { provide: ConfigHttpService, useValue: configHttpService },
+                { provide: GameSetupService, useValue: gameSetUpService },
+            ],
         }).compileComponents();
 
         fixture = TestBed.createComponent(ConfigParamsComponent);
@@ -248,5 +256,55 @@ describe('ConfigParamsComponent', () => {
         component.bonusTime = tooHigh;
         component.buttonDecreaseBonus();
         expect(component.bonusTime.valueOf()).toEqual(Constants.MaxBonusTime);
+    });
+
+    it('should call updateConstants to saveNewConstants', fakeAsync(() => {
+        const constants = {
+            initialTime: 12,
+            penaltyTime: 2,
+            bonusTime: 3,
+        };
+        component.initialTime = constants.initialTime;
+        component.penaltyTime = constants.penaltyTime;
+        component.bonusTime = constants.bonusTime;
+        component.applyNewConstants();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        tick((component as any).timeout);
+        expect(configHttpService.updateConstants).toHaveBeenCalledWith(constants);
+        expect(gameSetUpService.setConstants).toHaveBeenCalledWith(constants);
+    }));
+
+    it('should call updateConstants to saveNewConstants', fakeAsync(() => {
+        const resetConstants = {
+            initialTime: 30,
+            penaltyTime: 5,
+            bonusTime: 5,
+        };
+        component.initialTime = 12;
+        component.penaltyTime = 2;
+        component.bonusTime = 3;
+        component.resetConstants();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        tick((component as any).timeout);
+        expect(configHttpService.updateConstants).toHaveBeenCalledWith(resetConstants);
+        expect(gameSetUpService.setConstants).toHaveBeenCalledWith(resetConstants);
+    }));
+
+    it('should return true if invalid input', () => {
+        component.initialTime = 300;
+        component.penaltyTime = 300;
+        component.bonusTime = 300;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (component as any).validateAllInputs();
+        expect(component.isInvalidInput).toBe(true);
+    });
+
+    it('should return false if valid input', () => {
+        component.initialTime = 30;
+        component.penaltyTime = 3;
+        component.bonusTime = 3;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (component as any).validateAllInputs();
+        expect(component.isInvalidInput).toBe(false);
     });
 });

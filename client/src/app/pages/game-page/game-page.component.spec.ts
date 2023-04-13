@@ -25,6 +25,8 @@ import { Socket } from 'socket.io-client';
 import SpyObj = jasmine.SpyObj;
 import { GameService } from '@app/services/game/game.service';
 import { ConfigHttpService } from '@app/services/config-http/config-http.service';
+import { GameConstants } from '@app/interfaces/game-constants';
+import { Instruction } from '@app/interfaces/video-replay';
 
 @NgModule({
     imports: [MatDialogModule, HttpClientModule, BrowserAnimationsModule],
@@ -93,7 +95,6 @@ describe('GamePageComponent', () => {
         fixture = TestBed.createComponent(GamePageComponent);
         component = fixture.componentInstance;
         component.gameRoom = gameRoom;
-        spyOn((component as any).gameService, 'reset').and.stub();
         fixture.detectChanges();
     });
 
@@ -242,7 +243,33 @@ describe('GamePageComponent', () => {
         expect(spyAbandonGame).toHaveBeenCalled();
     });
 
-    it('should open EndgameDialogComponent with correct data if all differences found in single player mode', () => {
+    it('should call startConfetti on abandoned$ observable in classic-mode', () => {
+        gameServiceSpy = TestBed.inject(GameService);
+        const consfettiSpy = spyOn((component as any).playAreaService, 'startConfetti').and.stub();
+        const abandonGameSpy = spyOn(gameServiceSpy.abandoned$, 'subscribe').and.callThrough();
+        const endGameSpy = spyOn((component as any).gameService, 'endGame').and.stub();
+        const unsubscribeSpy = spyOn(component as any, 'unsubscribe').and.stub();
+        (component as any).gameService.gameMode = 'classic-mode';
+        component.ngOnInit();
+        gameServiceSpy.abandoned$.next('test');
+        expect(abandonGameSpy).toHaveBeenCalled();
+        expect(consfettiSpy).toHaveBeenCalled();
+        expect(endGameSpy).toHaveBeenCalled();
+        expect(unsubscribeSpy).toHaveBeenCalled();
+    });
+
+    it('should call getConstants and getConstantsFromServer', () => {
+        const gameServiceConstantSpy = spyOn((component as any).gameService, 'getConstant').and.stub();
+        const configServiceConstantSpy = spyOn((component as any).configService, 'getConstants').and.returnValue(
+            of({ initialTime: 100, penaltyTime: 10, bonusTime: 5 } as GameConstants),
+        );
+        component.ngOnInit();
+        expect(gameServiceConstantSpy).toHaveBeenCalled();
+        expect(configServiceConstantSpy).toHaveBeenCalled();
+        expect(component.penaltyTime).toEqual(10);
+    });
+
+    it('should open EndgameDialogComponent with correct data if all differences found in single player mode and classic mode', () => {
         (component as any).gameFinished = true;
         spyOn((component as any).gameService, 'endGame').and.stub();
         component.totalDifferencesFound = component.gameRoom.userGame.gameData.nbDifference;
@@ -260,7 +287,7 @@ describe('GamePageComponent', () => {
         );
     });
 
-    it('should open EndgameDialogComponent with correct data if in multiplayer mode and winner', () => {
+    it('should open EndgameDialogComponent with correct data if in multiplayer mode and winner in classic mode', () => {
         (component as any).gameFinished = true;
         component.totalDifferencesFound = 0;
         component.gameRoom.userGame.username2 = 'test';
@@ -280,7 +307,7 @@ describe('GamePageComponent', () => {
         );
     });
 
-    it('should open EndgameDialogComponent with correct data if in multiplayer mode and looser', () => {
+    it('should open EndgameDialogComponent with correct data if in multiplayer mode and looser in classic mode', () => {
         (component as any).gameFinished = true;
         component.totalDifferencesFound = 0;
         spyOn((component as any).gameService, 'endGame').and.stub();
@@ -304,6 +331,33 @@ describe('GamePageComponent', () => {
 
     it('endgame should call abandonConfirmation if game is not finished', () => {
         const abandonConfirmationSpy = spyOn(component as any, 'abandonConfirmation');
+        component.endGame();
+        expect(abandonConfirmationSpy).toHaveBeenCalled();
+    });
+
+    it('should open EndgameDialogComponent with correct data if all differences found in single player mode and limited time mode', () => {
+        (component as any).gameFinished = true;
+        spyOn((component as any).gameService, 'endGame').and.stub();
+        component.totalDifferencesFound = component.gameRoom.userGame.gameData.nbDifference;
+        const matDialogSpy = spyOn((component as any).dialog, 'open').and.callThrough();
+        component.gameRoom.gameMode = 'limited-time-mode';
+        component.endGame();
+        expect(matDialogSpy).toHaveBeenCalledWith(
+            EndgameDialogComponent,
+            jasmine.objectContaining({
+                disableClose: true,
+                data: jasmine.objectContaining({
+                    gameFinished: true,
+                    gameWinner: true,
+                    limitedTimeMode: true,
+                }),
+            }),
+        );
+    });
+
+    it('endgame should call abandonConfirmation if game is not finished', () => {
+        const abandonConfirmationSpy = spyOn(component as any, 'abandonConfirmation');
+        component.gameRoom.gameMode = 'limited-time-mode';
         component.endGame();
         expect(abandonConfirmationSpy).toHaveBeenCalled();
     });
@@ -339,13 +393,18 @@ describe('GamePageComponent', () => {
         expect(chatServiceSpy.sendMessage).toHaveBeenCalledWith(`${component.username} a abandonné la partie`, 'Système', component.gameRoom.roomId);
     });
 
-    // it('should have a button to quit the game', fakeAsync(() => {
-    //     const quitBtn = fixture.debugElement.nativeElement.querySelector('button');
-    //     const endGameSpy = spyOn(component, 'endGame');
-    //     quitBtn.click();
-    //     tick();
-    //     expect(endGameSpy).toHaveBeenCalled();
-    // }));
+    it('should send hint message in case of hint', () => {
+        component.sendEvent('hint');
+        expect(chatServiceSpy.sendMessage).toHaveBeenCalledWith('Indice utilisé', 'Système', component.gameRoom.roomId);
+    });
+
+    it('should have a button to quit the game', fakeAsync(() => {
+        const quitBtn = fixture.debugElement.nativeElement.getElementsByTagName('button')[1];
+        const endGameSpy = spyOn(component, 'endGame');
+        quitBtn.click();
+        tick();
+        expect(endGameSpy).toHaveBeenCalled();
+    }));
 
     it('should unsubscribe from all subscriptions on unsubscribe', () => {
         spyOn((component as any).timerSubscription, 'unsubscribe');
@@ -354,7 +413,6 @@ describe('GamePageComponent', () => {
         spyOn((component as any).gameFinishedSubscription, 'unsubscribe');
         spyOn((component as any).gameRoomSubscription, 'unsubscribe');
         spyOn((component as any).abandonedGameSubscription, 'unsubscribe');
-
         (component as any).unsubscribe();
         expect((component as any).timerSubscription.unsubscribe).toHaveBeenCalled();
         expect((component as any).differencesFoundSubscription.unsubscribe).toHaveBeenCalled();
@@ -362,5 +420,110 @@ describe('GamePageComponent', () => {
         expect((component as any).gameFinishedSubscription.unsubscribe).toHaveBeenCalled();
         expect((component as any).gameRoomSubscription.unsubscribe).toHaveBeenCalled();
         expect((component as any).abandonedGameSubscription.unsubscribe).toHaveBeenCalled();
+    });
+
+    it('toggleHint should call hintMode, sendEvent and changeTime with penaltyTime in classic mode', () => {
+        (component as any).gameService.gameConstants = { initialTime: 100, penaltyTime: 10, bonusTime: 5 };
+        const changeTimeSpy = spyOn((component as any).gameService, 'changeTime').and.stub();
+        const hintModeSpy = spyOn((component as any).playAreaService, 'hintMode').and.stub();
+        const sendEventSpy = spyOn(component as any, 'sendEvent').and.stub();
+        component.toggleHint();
+        expect(changeTimeSpy).toHaveBeenCalledWith(10);
+        expect(hintModeSpy).toHaveBeenCalled();
+        expect(sendEventSpy).toHaveBeenCalled();
+    });
+
+    it('toggleHint should call hintMode, sendEvent and changeTime with penaltyTime in limited mode', () => {
+        (component as any).gameService.gameConstants = { initialTime: 100, penaltyTime: 10, bonusTime: 5 };
+        const changeTimeSpy = spyOn((component as any).gameService, 'changeTime').and.stub();
+        const hintModeSpy = spyOn((component as any).playAreaService, 'hintMode').and.stub();
+        const sendEventSpy = spyOn(component as any, 'sendEvent').and.stub();
+        (component as any).gameService.gameMode = 'limited-time-mode';
+        component.toggleHint();
+        expect(changeTimeSpy).toHaveBeenCalledWith(-10);
+        expect(hintModeSpy).toHaveBeenCalled();
+        expect(sendEventSpy).toHaveBeenCalled();
+    });
+
+    it('getImage should change url of original if first is true', () => {
+        component.getImage({ src: 'original', first: true });
+        expect(component.videoReplay.images.original).toEqual('original');
+    });
+
+    it('getImage should change url of modified if first is false', () => {
+        component.getImage({ src: 'modified', first: false });
+        expect(component.videoReplay.images.modified).toEqual('modified');
+    });
+
+    it('getDiff should push diff to actions', () => {
+        component.getDiff({ diff: [[]] });
+        expect(component.videoReplay.actions).toEqual([{ type: Instruction.DiffFound, timeStart: component.timer, difference: [[]] }]);
+    });
+
+    it('getError should push error to actions', () => {
+        component.getError({ pos: { x: 1, y: 1 }, leftCanvas: true });
+        expect(component.videoReplay.actions).toEqual([
+            { type: Instruction.Error, timeStart: component.timer, mousePosition: { x: 1, y: 1 }, leftCanvas: true },
+        ]);
+    });
+
+    it('getSource should push src to sources, and cheat layers', () => {
+        const layer = document.createElement('canvas');
+        component.getSource({ src: 'test', layer });
+        expect(component.videoReplay.sources).toEqual(['test']);
+        expect(component.videoReplay.cheatLayers).toEqual([layer]);
+    });
+
+    it('getCheatStart should push layer to actions', () => {
+        const layer = document.createElement('canvas');
+        component.getCheatStart({ layer });
+        expect(component.videoReplay.actions).toEqual([{ type: Instruction.CheatModeStart, timeStart: component.timer, cheatLayer: layer }]);
+    });
+
+    it('getCheatEnd should push cheat end to actions', () => {
+        component.getCheatEnd();
+        expect(component.videoReplay.actions).toEqual([{ type: Instruction.CheatModeEnd, timeStart: component.timer }]);
+    });
+
+    it('getChatMessage should push diff to actions', () => {
+        const message = { message: 'test', username: 'test', roomId: 'test' };
+        component.getChatMessage(message);
+        expect(component.videoReplay.actions).toEqual([{ type: Instruction.ChatMessage, timeStart: component.timer, message }]);
+    });
+
+    it('getDifferencesFound should push score to actions', () => {
+        component.username = 'test';
+        component.getDifferencesFound(10);
+        expect(component.videoReplay.actions).toEqual([{ type: Instruction.Score, timeStart: component.timer, nbDifferences: 10, username: 'test' }]);
+    });
+
+    it('getOpponentDifferencesFound should push score to actions', () => {
+        component.opponentUsername = 'test';
+        component.getOpponentDifferencesFound(10);
+        expect(component.videoReplay.actions).toEqual([{ type: Instruction.Score, timeStart: component.timer, nbDifferences: 10, username: 'test' }]);
+    });
+
+    it('getHint should push score to actions', () => {
+        const layer = document.createElement('canvas');
+        component.getHint({ hintNum: 1, diffPos: { x: 1, y: 1 }, layer });
+        expect(component.videoReplay.actions).toEqual([
+            {
+                type: Instruction.Hint,
+                timeStart: component.timer,
+                mousePosition: { x: 1, y: 1 },
+                nbDifferences: 1,
+                cheatLayer: layer,
+            },
+        ]);
+    });
+
+    it('should reset and clearAsync on ngOnDestroy', () => {
+        const resetSpy = spyOn((component as any).gameService, 'reset').and.stub();
+        const clearAsyncSpy = spyOn((component as any).playAreaService, 'clearAsync').and.stub();
+        const closeAllSpy = spyOn((component as any).dialog, 'closeAll').and.stub();
+        component.ngOnDestroy();
+        expect(closeAllSpy).toHaveBeenCalled();
+        expect(resetSpy).toHaveBeenCalled();
+        expect(clearAsyncSpy).toHaveBeenCalled();
     });
 });

@@ -34,6 +34,13 @@ describe('DrawingService', () => {
         expect(service).toBeTruthy();
     });
 
+    it('should set creatiom game page as component', () => {
+        service.setComponent(component);
+        expect((service as any).component).toEqual(component);
+        expect((service as any).width).toEqual(component.width);
+        expect((service as any).height).toEqual(component.height);
+    });
+
     it('createNewCanvas should create a new canvas', () => {
         const width = 640;
         const height = 480;

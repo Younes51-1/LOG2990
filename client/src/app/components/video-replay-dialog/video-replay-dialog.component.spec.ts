@@ -1,8 +1,9 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { GameData, GameRoom, UserGame } from '@app/interfaces/game';
 import { Instruction, VideoReplay } from '@app/interfaces/video-replay';
-import { VideoReplayDialogComponent } from './video-replay-dialog.component';
+import { VideoReplayDialogComponent } from '@app/components/video-replay-dialog/video-replay-dialog.component';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 describe('VideoReplayDialogComponent', () => {
     let component: VideoReplayDialogComponent;
@@ -40,6 +41,7 @@ describe('VideoReplayDialogComponent', () => {
         };
         await TestBed.configureTestingModule({
             declarations: [VideoReplayDialogComponent],
+            imports: [MatProgressBarModule],
             providers: [{ provide: MAT_DIALOG_DATA, useValue: { videoReplay } }],
         }).compileComponents();
 
@@ -50,5 +52,113 @@ describe('VideoReplayDialogComponent', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('should call sortActions after init', () => {
+        const sortActionsSpy = spyOn(component, 'sortActions').and.stub();
+        component.ngOnInit();
+        expect(component.actions).toEqual(videoReplay.actions);
+        expect(component.username).toEqual(videoReplay.scoreboardParams.username);
+        expect(sortActionsSpy).toHaveBeenCalled();
+    });
+
+    it('should call startTimer after init', () => {
+        const startTimerSpy = spyOn(component, 'startTimer').and.stub();
+        component.ngAfterViewInit();
+        expect(startTimerSpy).toHaveBeenCalled();
+    });
+
+    it('should sort actions', () => {
+        component.actions = [
+            { type: Instruction.ChatMessage, timeStart: 0 },
+            { type: Instruction.Error, timeStart: 0 },
+            { type: Instruction.Score, timeStart: 0 },
+        ];
+        component.playAreaActions = [];
+        component.scoreBoardActions = [];
+        component.chatBoxActions = [];
+        component.counter = 0;
+        component.sortActions();
+        expect(component.playAreaActions).toEqual([{ type: Instruction.Error, timeStart: 0 }]);
+        expect(component.scoreBoardActions).toEqual([{ type: Instruction.Score, timeStart: 0 }]);
+        expect(component.chatBoxActions).toEqual([{ type: Instruction.ChatMessage, timeStart: 0 }]);
+    });
+
+    it('pause should call stopTimer if pause is false', () => {
+        const stopTimerSpy = spyOn(component, 'stopTimer').and.stub();
+        component.paused = false;
+        component.pauseSignal = false;
+        component.pause();
+        expect(stopTimerSpy).toHaveBeenCalled();
+        expect(component.pauseSignal).toBeTrue();
+    });
+
+    it('pause should not call stopTimer if pause is true', () => {
+        const stopTimerSpy = spyOn(component, 'stopTimer').and.stub();
+        component.paused = true;
+        component.pauseSignal = false;
+        component.pause();
+        expect(stopTimerSpy).not.toHaveBeenCalled();
+        expect(component.pauseSignal).toBeFalse();
+    });
+
+    it('continue should call startTimer if pause is true', () => {
+        const startTimerSpy = spyOn(component, 'startTimer').and.stub();
+        component.paused = true;
+        component.continueSignal = false;
+        component.continue();
+        expect(startTimerSpy).toHaveBeenCalled();
+        expect(component.continueSignal).toBeTrue();
+        expect(component.paused).toBeFalse();
+    });
+
+    it('continue should not call startTimer if pause is false', () => {
+        const startTimerSpy = spyOn(component, 'startTimer').and.stub();
+        component.paused = false;
+        component.continueSignal = false;
+        component.continue();
+        expect(startTimerSpy).not.toHaveBeenCalled();
+        expect(component.continueSignal).toBeFalse();
+        expect(component.paused).toBeFalse();
+    });
+
+    it('startTimer should call stopTimer and setTimer if paused is false', fakeAsync(() => {
+        const stopTimerSpy = spyOn(component, 'stopTimer').and.stub();
+        component.paused = false;
+        component.startTimer();
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        tick(1000 / component.speed);
+        expect(stopTimerSpy).toHaveBeenCalled();
+        expect(component.time).toBe(1);
+        clearInterval(component.timer);
+    }));
+
+    it('startTimer should not call stopTimer if paused is true', () => {
+        const stopTimerSpy = spyOn(component, 'stopTimer').and.stub();
+        component.paused = true;
+        component.startTimer();
+        expect(stopTimerSpy).not.toHaveBeenCalled();
+    });
+
+    it('restart should set time to 0 and call startTimer', () => {
+        const startTimerSpy = spyOn(component, 'startTimer').and.stub();
+        component.restartSignal = false;
+        component.restart();
+        expect(component.time).toBe(0);
+        expect(startTimerSpy).toHaveBeenCalled();
+        expect(component.restartSignal).toBeTrue();
+    });
+
+    it('incrementTime should increment time by 3', () => {
+        component.time = 0;
+        component.incrementTimer();
+        expect(component.time).toBe(3);
+    });
+
+    it('stopTimer should clear timer', () => {
+        const clearIntervalSpy = spyOn(window, 'clearInterval');
+        component.startTimer();
+        component.stopTimer();
+        expect(clearIntervalSpy).toHaveBeenCalled();
     });
 });

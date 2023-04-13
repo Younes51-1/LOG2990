@@ -145,7 +145,7 @@ export class ConfigParamsComponent implements OnInit {
         this.feedbackMessage = 'Nouvelles constantes appliquées avec succès !';
         setTimeout(() => {
             this.feedbackMessage = '';
-            this.gameSetUpService.getConstant();
+            this.gameSetUpService.setConstants(constants);
         }, this.timeout);
     }
 
@@ -162,7 +162,7 @@ export class ConfigParamsComponent implements OnInit {
         this.feedbackMessage = 'Constantes réinitialisées avec succès !';
         setTimeout(() => {
             this.feedbackMessage = '';
-            this.gameSetUpService.getConstant();
+            this.gameSetUpService.setConstants(constants);
         }, this.timeout);
     }
 

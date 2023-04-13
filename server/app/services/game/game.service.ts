@@ -84,8 +84,8 @@ export class GameService {
         try {
             const games = await this.gameModel.find({});
             games.forEach(async (game) => {
-                game.soloBestTimes = [];
-                game.vsBestTimes = [];
+                game.soloBestTimes = this.newBestTimes();
+                game.vsBestTimes = this.newBestTimes();
                 await game.save();
             });
         } catch (error) {
@@ -96,8 +96,8 @@ export class GameService {
     async deleteBestTime(name: string): Promise<void> {
         try {
             const game = await this.gameModel.findOne({ name });
-            game.soloBestTimes = [];
-            game.vsBestTimes = [];
+            game.soloBestTimes = this.newBestTimes();
+            game.vsBestTimes = this.newBestTimes();
             await game.save();
         } catch (error) {
             return Promise.reject(`Failed to delete best time: ${error}`);

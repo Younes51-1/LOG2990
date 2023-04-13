@@ -7,8 +7,7 @@ import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-d
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { ConfigHttpService } from '@app/services/config-http/config-http.service';
 import { GameService } from '@app/services/game/game.service';
-
-// const NOT_TOP3 = -1;
+import { VideoReplayDialogComponent } from '@app/components/video-replay-dialog/video-replay-dialog.component';
 
 describe('EndgameDialogComponent', () => {
     let component: EndgameDialogComponent;
@@ -22,7 +21,7 @@ describe('EndgameDialogComponent', () => {
                 GameService,
                 ConfigHttpService,
                 { provide: MatDialogRef, useValue: {} },
-                { provide: MAT_DIALOG_DATA, useValue: { gameFinished: true, gameWinner: true, time: 0 } },
+                { provide: MAT_DIALOG_DATA, useValue: { gameFinished: false, gameWinner: true, time: 0 } },
             ],
         }).compileComponents();
 
@@ -36,8 +35,6 @@ describe('EndgameDialogComponent', () => {
     });
 
     it('ngOnInit should set time and timePosition if new best time is set', () => {
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        (component as any).dialogRef = { close: () => {} } as MatDialogRef<EndgameDialogComponent>;
         component.data = { gameFinished: true, gameWinner: true, time: 100 };
         component.ngOnInit();
         expect(component.time).toEqual('1:40');
@@ -48,8 +45,6 @@ describe('EndgameDialogComponent', () => {
     });
 
     it('ngOnInit should set time and timePosition with a different message if not the first best time', () => {
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        (component as any).dialogRef = { close: () => {} } as MatDialogRef<EndgameDialogComponent>;
         component.data = { gameFinished: true, gameWinner: true, time: 100 };
         component.ngOnInit();
         expect(component.time).toEqual('1:40');
@@ -59,27 +54,13 @@ describe('EndgameDialogComponent', () => {
                                         Vous avez effectué un temps de ${component.time} et prenez la ${component.timePosition} place !`);
     });
 
-    // it('ngOnInit should set time not set any messages if best time is not in the top 3 best scores', () => {
-    //     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    //     (component as any).dialogRef = { close: () => {} } as MatDialogRef<EndgameDialogComponent>;
-    //     component.data = { gameFinished: true, gameWinner: true, time: 600 };
-    //     component.ngOnInit();
-    //     expect(component.time).toEqual('10:00');
-    //     component.gameService.timePosition$.next(NOT_TOP3);
-    //     expect(component.timePosition).toBeUndefined();
-    //     expect(component.bestTimeMessage).toBeUndefined();
-    // });
-
-    // it('ngOnInit should not be done if we are in the case of a abandonning dialog', () => {
-    //     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    //     (component as any).dialogRef = { close: () => {} } as MatDialogRef<EndgameDialogComponent>;
-    //     component.data = { gameFinished: false, gameWinner: false };
-    //     component.ngOnInit();
-    //     expect(component.time).toBeUndefined();
-    //     component.gameService.timePosition$.next(NOT_TOP3);
-    //     expect(component.timePosition).toBeUndefined();
-    //     expect(component.bestTimeMessage).toBeUndefined();
-    // });
+    it('ngOnInit should not be done if we are in the case of a abandonning dialog', () => {
+        component.ngOnInit();
+        expect(component.time).toBeUndefined();
+        component.gameService.timePosition$.next(1);
+        expect(component.timePosition).toBeUndefined();
+        expect(component.bestTimeMessage).toBeUndefined();
+    });
 
     it('should emit true if abandon click', () => {
         // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -95,5 +76,16 @@ describe('EndgameDialogComponent', () => {
         const emitAbandonSpy = spyOn((component as any).dialogRef, 'close').and.callThrough();
         component.emitAbandon(false);
         expect(emitAbandonSpy).toHaveBeenCalledWith(false);
+    });
+
+    it('openVideo should call open videoReplayDialog dialog', () => {
+        const openVideoReplayDialogSpy = spyOn((component as any).videoReplayDialog, 'open').and.stub();
+        component.openVideoReplay();
+        expect(openVideoReplayDialogSpy).toHaveBeenCalledWith(VideoReplayDialogComponent, {
+            data: { videoReplay: component.data.videoReplay },
+            disableClose: true,
+            width: '62%',
+            height: '80%',
+        });
     });
 });

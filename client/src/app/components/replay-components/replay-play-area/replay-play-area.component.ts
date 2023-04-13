@@ -129,7 +129,7 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
                 if (!this.currentAction.mousePosition) return;
                 const canvas = this.currentAction.leftCanvas ? this.canvas1.nativeElement : this.canvas2.nativeElement;
                 this.playAudio(this.audioInvalid);
-                this.playAreaService.errorAnswerVisuals(canvas, this.currentAction?.mousePosition);
+                this.playAreaService.errorAnswerVisuals(canvas, this.currentAction.mousePosition);
                 break;
             }
             case Instruction.CheatModeStart: {

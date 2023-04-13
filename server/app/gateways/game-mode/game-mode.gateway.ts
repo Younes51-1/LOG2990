@@ -56,7 +56,7 @@ export class GameModeGateway implements OnGatewayConnection, OnGatewayDisconnect
             } else {
                 socket.leave(socket.id);
             }
-            this.gameModeService.abandonLimitedTimeMode(gameRoom, data.username, socket.id);
+            this.gameModeService.abandonLimitedTimeMode(gameRoom, data.username);
             this.server.to(gameRoom.roomId).emit(GameModeEvents.Abandoned, { gameRoom, username: data.username });
         }
     }
@@ -84,7 +84,11 @@ export class GameModeGateway implements OnGatewayConnection, OnGatewayDisconnect
 
     handleDisconnect(socket: Socket): void {
         const gameRoom = this.gameModeService.getGameRoom(socket.id);
-        if (!gameRoom || gameRoom.userGame.username2 || !gameRoom.started) return;
+        if (!gameRoom || !gameRoom.started) return;
+        if (gameRoom.userGame.username2) {
+            this.abandoned(socket, { roomId: socket.id, username: gameRoom.userGame.username2 });
+            return;
+        }
         this.logger.log(`Game mode gateway: ${socket.id}: disconnected`);
         this.logger.log(`Game deleted: ${gameRoom.userGame.gameData.name}`);
         this.server.emit(GameModeEvents.GameDeleted, { gameName: gameRoom.userGame.gameData.name, gameMode: gameRoom.gameMode });

@@ -1,18 +1,9 @@
-import { HttpClientModule } from '@angular/common/http';
-import { NgModule } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatDialogModule } from '@angular/material/dialog';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { Message } from '@app/interfaces/chat';
 import { GameData, GameRoom } from '@app/interfaces/game';
-import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { ChatService } from '@app/services/chat/chat.service';
 import { VerifyInputService } from '@app/services/verify-input/verify-input.service';
-
-@NgModule({
-    imports: [MatDialogModule, HttpClientModule],
-})
-export class DynamicTestModule {}
 
 describe('ChatBoxComponent', () => {
     let component: ChatBoxComponent;
@@ -25,7 +16,6 @@ describe('ChatBoxComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [ChatBoxComponent],
-            imports: [DynamicTestModule, AppRoutingModule],
             providers: [ChatService, VerifyInputService],
         }).compileComponents();
     });

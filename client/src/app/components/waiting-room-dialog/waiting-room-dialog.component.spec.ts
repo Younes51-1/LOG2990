@@ -14,7 +14,6 @@ import { of } from 'rxjs';
 describe('WaitingRoomComponent', () => {
     let component: WaitingRoomComponent;
     let fixture: ComponentFixture<WaitingRoomComponent>;
-    let gameServiceSpy: GameService;
     let waitingRoomServiceSpy: WaitingRoomService;
     let dialog: MatDialog;
     let dialogRefSpy: jasmine.SpyObj<MatDialogRef<DeleteDialogComponent>>;
@@ -33,7 +32,6 @@ describe('WaitingRoomComponent', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(WaitingRoomComponent);
         component = fixture.componentInstance;
-        gameServiceSpy = TestBed.inject(GameService);
         waitingRoomServiceSpy = TestBed.inject(WaitingRoomService);
     });
 
@@ -49,19 +47,17 @@ describe('WaitingRoomComponent', () => {
     });
 
     it('should start the game when accepted$ event is triggered', () => {
-        spyOn(gameServiceSpy, 'startGame');
+        spyOn(waitingRoomServiceSpy, 'startGame').and.stub();
 
         fixture.detectChanges();
         waitingRoomServiceSpy.accepted$.next(true);
 
         expect(component.accepted).toBe(true);
-        expect(gameServiceSpy.startGame).toHaveBeenCalled();
+        expect(waitingRoomServiceSpy.startGame).toHaveBeenCalled();
     });
 
     it('should display an alert, abort the game and close the component when gameCanceled$ event is triggered', () => {
-        spyOn(component, 'close').and.callFake(() => {
-            return;
-        });
+        spyOn(component, 'close').and.stub();
         (dialog.open as jasmine.Spy).and.returnValue(dialogRefSpy);
         dialogRefSpy.afterClosed.and.returnValue(of(true));
         component.gameCanceled = false;
