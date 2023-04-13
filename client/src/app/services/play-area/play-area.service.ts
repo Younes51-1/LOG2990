@@ -169,12 +169,12 @@ export class PlayAreaService {
 
     startCheatMode() {
         if (this.replay) this.replayCheatOn = true;
-        const flashDuration = Time.OneHundredTwentyFive / this.speed;
-        let isFlashing = true;
-        if (!this.replay) {
+        else {
             this.normalComponent.verifyDifferenceMatrix('cheat');
             this.normalComponent.sendCheatStart.emit({ layer: this.component.cheatLayer });
         }
+        const flashDuration = Time.OneHundredTwentyFive / this.speed;
+        let isFlashing = true;
         this.cheatInterval = setInterval(() => {
             if (isFlashing) {
                 this.updateContexts();
@@ -201,9 +201,7 @@ export class PlayAreaService {
 
     flashDifference(difference: number[][]) {
         if (!this.replay) this.normalComponent.sendDiff.emit({ diff: difference });
-        if (!this.component.context1 || !this.component.context2) {
-            return;
-        }
+        if (!this.component.context1 || !this.component.context2) return;
         const layer = this.createAndFillNewLayer(Color.Luigi, false, false, difference);
         let isFlashing = false;
         clearInterval(this.differenceInterval);
@@ -256,9 +254,7 @@ export class PlayAreaService {
         layer.width = this.component.width;
         layer.height = this.component.height;
         const context = layer.getContext('2d');
-        if (!context) {
-            return layer;
-        }
+        if (!context) return layer;
         context.globalAlpha = isCheat || isHint ? helpAlphaValue : 1;
         context.fillStyle = color;
         for (let i = 0; i < matrix.length; i++) {
@@ -343,6 +339,7 @@ export class PlayAreaService {
     }
 
     private chooseDial(coords: Vec2, hintNum: number): number[][] {
+        if (hintNum !== 0 && hintNum !== 1) return [];
         const dialDimensions = [
             { width: 320, height: 240 },
             { width: 160, height: 120 },
@@ -368,8 +365,6 @@ export class PlayAreaService {
                 const dialIndex = Math.floor(coords.y / dialWidth) * 4 + Math.floor(coords.x / dialHeight);
                 return dialMatrix[dialIndex];
             }
-            default:
-                return [];
         }
     }
 
