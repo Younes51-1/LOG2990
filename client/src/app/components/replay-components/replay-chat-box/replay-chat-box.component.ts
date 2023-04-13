@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { Message } from '@app/interfaces/chat';
 import { InstructionReplay } from '@app/interfaces/video-replay';
 
@@ -8,6 +8,7 @@ import { InstructionReplay } from '@app/interfaces/video-replay';
     styleUrls: ['./replay-chat-box.component.scss'],
 })
 export class ReplayChatBoxComponent implements OnChanges, OnInit {
+    @ViewChild('chatbox', { static: true }) chatbox: ElementRef;
     @Input() time: number;
     @Input() actions: InstructionReplay[];
     @Input() restartSignal: boolean;
@@ -36,5 +37,8 @@ export class ReplayChatBoxComponent implements OnChanges, OnInit {
                 this.currentAction = this.actions[this.counter++];
             }
         }
+        setTimeout(() => {
+            this.chatbox.nativeElement.scrollTop = this.chatbox.nativeElement.scrollHeight;
+        }, 0);
     }
 }

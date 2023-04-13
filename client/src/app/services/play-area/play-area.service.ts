@@ -84,16 +84,10 @@ export class PlayAreaService {
                 zIndex: -1,
             };
             const confettiGenerator = confetti.create(layer, {});
-            confettiGenerator({ ...defaults, particleCount: 40, scalar: 1.2, shapes: ['star'] });
-            confettiGenerator({ ...defaults, particleCount: 10, scalar: 0.75, shapes: ['circle'] });
-            setTimeout(() => {
-                confettiGenerator({ ...defaults, particleCount: 40, scalar: 1.2, shapes: ['star'] });
-                confettiGenerator({ ...defaults, particleCount: 10, scalar: 0.75, shapes: ['circle'] });
-            }, 100 / this.speed);
-            setTimeout(() => {
-                confettiGenerator({ ...defaults, particleCount: 40, scalar: 1.2, shapes: ['star'] });
-                confettiGenerator({ ...defaults, particleCount: 10, scalar: 0.75, shapes: ['circle'] });
-            }, 200 / this.speed);
+            setTimeout(() => this.lastHint(confettiGenerator, defaults), 0);
+            setTimeout(() => this.lastHint(confettiGenerator, defaults), 100);
+            setTimeout(() => this.lastHint(confettiGenerator, defaults), 200);
+            setTimeout(() => this.lastHint(confettiGenerator, defaults), 300);
             this.confettiInterval = setInterval(() => {
                 if (isFlashing) {
                     this.component.context1.drawImage(this.component.original, 0, 0, this.component.width, this.component.height);
@@ -301,6 +295,21 @@ export class PlayAreaService {
             clearInterval(this.hintInterval);
             this.updateContexts();
         }, (2 * Time.Thousand) / this.speed);
+    }
+
+    private lastHint(confettiGenerator: (options: object) => void, defaults: object) {
+        confettiGenerator({
+            ...defaults,
+            particleCount: 40,
+            scalar: 1.2,
+            shapes: ['star'],
+        });
+        confettiGenerator({
+            ...defaults,
+            particleCount: 10,
+            scalar: 0.75,
+            shapes: ['circle'],
+        });
     }
 
     private removeDifference(differenceMatrix: number[][]) {
