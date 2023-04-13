@@ -1,10 +1,19 @@
+* {
+    margin: auto;
+}
+
+.modal-dialog {
+    width: 200%;
+    height: 200%;
+}
+
 #title {
     font-family: 'MarioFont';
     display: flex;
     justify-content: center;
     font-size: 35px;
     color: white;
-    text-shadow: -2px -2px #8200ff, 2px 2px #8200ff, 2px -2px #8200ff, -2px 2px #8200ff;
+    text-shadow: -2px -2px #006aff, 2px 2px #006aff, 2px -2px #006aff, -2px 2px #006aff;
 }
 
 #replaySection {
@@ -43,7 +52,7 @@ app-fake-chat-box {
 }
 
 ::ng-deep .mat-progress-bar-fill::after {
-    background-color: #8200ff;
+    background-color: #006aff;
 }
 
 ::ng-deep .mat-progress-bar-buffer {
@@ -57,7 +66,7 @@ app-fake-chat-box {
 }
 
 #mainContainer {
-    border: 7px solid #8200ff;
+    border: 7px solid #006aff;
     transform: scale(0.66);
     transform-origin: top left;
     position: fixed;

@@ -10,7 +10,8 @@ body {
 
 body {
     margin: 0;
-    font-family: 'Verdana', sans-serif, monospace;
+    font-family: 'Poppins', sans-serif;
+    text-align: center;
 }
 
 @font-face {
@@ -18,21 +19,18 @@ body {
     src: url('assets/fonts/MarioFont.ttf');
 }
 
-.slick-wrapper {
-    width: 1000px;
-    margin: 20px auto;
-}
-
 .slick-prev.slick-arrow {
     position: fixed;
     left: 2%;
     right: auto;
+    margin-top: 3%;
 }
 
 .slick-next.slick-arrow {
     position: fixed;
     left: auto;
     right: 2%;
+    margin-top: 3%;
 }
 
 .slick-prev.slick-arrow:before,

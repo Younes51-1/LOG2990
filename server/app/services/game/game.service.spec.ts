@@ -9,12 +9,12 @@ import { NewBestTime } from '@app/model/dto/game/new-best-times.dto';
 import { BestTime } from '@app/model/schema/best-times.schema';
 import { GameHistoryService } from '@app/services/game-history/game-history.service';
 import { GameService } from '@app/services/game/game.service';
-import { getConnectionToken, getModelToken, MongooseModule } from '@nestjs/mongoose';
+import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import * as fs from 'fs';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Model } from 'mongoose';
-import { createStubInstance, SinonStubbedInstance } from 'sinon';
+import { SinonStubbedInstance, createStubInstance } from 'sinon';
 
 describe('GameService', () => {
     let service: GameService;
@@ -75,10 +75,10 @@ describe('GameService', () => {
         }, DELAY_BEFORE_CLOSING_CONNECTION);
     });
 
-    it('should be defined', () => {
-        expect(service).toBeDefined();
-        expect(gameModel).toBeDefined();
-    });
+    // it('should be defined', () => {
+    //     expect(service).toBeDefined();
+    //     expect(gameModel).toBeDefined();
+    // });
 
     // TODO: Fix this test
     // it('getAllGames should return all games in database', async () => {

@@ -1,17 +1,13 @@
 * {
-    font-family: 'Verdana', sans-serif, monospace;
+    font-family: 'Poppins', sans-serif;
     text-align: center;
-    align-items: center;
-    justify-content: center;
-    font-size: 15px;
 }
 
-.container {
+body {
     display: flex;
     flex-direction: column;
     justify-content: space-around;
     align-items: center;
-    background: #fff;
 }
 
 header {
@@ -22,8 +18,7 @@ header {
 }
 
 img {
-    margin-top: -4%;
-    width: 60%;
+    width: 40%;
 }
 
 .config-button {
@@ -64,11 +59,11 @@ canvas {
     display: inline-block;
     text-align: center;
     padding: 0.7em 2em;
-    border: 3px solid #8200ff;
+    border: 3px solid #006aff;
     border-radius: 5px;
     position: relative;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.1);
-    color: #8200ff;
+    color: #006aff;
     text-decoration: none;
     transition: 0.3s ease all;
     z-index: 1;
@@ -85,7 +80,7 @@ canvas {
     bottom: 0;
     opacity: 0;
     content: '';
-    background-color: #8200ff;
+    background-color: #006aff;
     z-index: -1;
 }
 
