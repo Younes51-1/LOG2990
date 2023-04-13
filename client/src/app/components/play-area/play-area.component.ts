@@ -2,8 +2,6 @@ import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input
 import { DifferenceTry } from '@app/interfaces/difference-try';
 import { GameRoom } from '@app/interfaces/game';
 import { Vec2 } from '@app/interfaces/vec2';
-import { ChatService } from '@app/services/chat/chat.service';
-import { DetectionDifferenceService } from '@app/services/detection-difference/detection-difference.service';
 import { GameService } from '@app/services/game/game.service';
 import { MouseService } from '@app/services/mouse/mouse.service';
 import { PlayAreaService } from '@app/services/play-area/play-area.service';
@@ -39,25 +37,14 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     hintLayer: HTMLCanvasElement;
     differenceMatrix: number[][];
     playerIsAllowedToClick = true;
-    currentDifferenceMatrix: number[][];
     mousePosition: Vec2 = { x: 0, y: 0 };
     private canvasClicked: HTMLCanvasElement;
     private buttonPressed = '';
     private audioValid = new Audio('assets/sounds/valid_sound.mp3');
     private audioInvalid = new Audio('assets/sounds/invalid_sound.mp3');
-    // private differenceIntervalId: ReturnType<typeof setInterval>;
     private canvasSize = { x: Dimensions.DEFAULT_WIDTH, y: Dimensions.DEFAULT_HEIGHT };
-    // private cheatIntervalId: ReturnType<typeof setInterval>;
-    // private isCheatModeOn: ReturnType<typeof setInterval>;
 
-    // eslint-disable-next-line max-params
-    constructor(
-        private mouseService: MouseService,
-        private detectionService: DetectionDifferenceService,
-        private gameService: GameService,
-        private chatService: ChatService,
-        private playAreaService: PlayAreaService,
-    ) {}
+    constructor(private mouseService: MouseService, private gameService: GameService, private playAreaService: PlayAreaService) {}
 
     get width(): number {
         return this.canvasSize.x;
@@ -69,7 +56,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
 
     @HostListener('document:keydown', ['$event'])
     buttonDetect(event: KeyboardEvent) {
-        if (this.chatService.getIsTyping()) {
+        if (this.gameService.getIsTyping()) {
             return;
         }
         this.buttonPressed = event.key;
@@ -143,7 +130,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         this.audioValid.pause();
         this.audioValid.currentTime = 0;
         this.audioValid.play();
-        this.correctAnswerVisuals(differencePos);
+        this.playAreaService.correctAnswerVisuals(differencePos, this.differenceMatrix);
         if (this.gameService.isLimitedTimeMode()) {
             this.gameService.nextGame();
             this.gameService.changeTime(this.gameService.gameConstants.bonusTime);
@@ -156,12 +143,5 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         this.audioInvalid.play();
         this.playAreaService.errorAnswerVisuals(canvas, this.mousePosition);
         this.userError.emit();
-    }
-
-    private correctAnswerVisuals(coords: Vec2) {
-        if (this.differenceMatrix) {
-            this.currentDifferenceMatrix = this.detectionService.extractDifference(JSON.parse(JSON.stringify(this.differenceMatrix)), coords);
-            this.playAreaService.flashDifference(this.currentDifferenceMatrix);
-        }
     }
 }

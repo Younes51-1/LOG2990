@@ -218,7 +218,7 @@ export class PlayAreaService {
         }, Time.Fifty / this.speed);
         this.layerTimeout = setTimeout(() => {
             if (!this.replay) {
-                this.removeDifference(this.normalComponent.currentDifferenceMatrix);
+                this.removeDifference(difference);
                 this.normalComponent.playerIsAllowedToClick = true;
             }
             clearInterval(this.differenceInterval);
@@ -274,6 +274,13 @@ export class PlayAreaService {
     handleImageLoad(context: CanvasRenderingContext2D, image: HTMLImageElement) {
         if (context) {
             context.drawImage(image, 0, 0, this.component.width, this.component.height);
+        }
+    }
+
+    correctAnswerVisuals(pos: Vec2, differenceMatrix: number[][]) {
+        if (differenceMatrix) {
+            const currentDifferenceMatrix = this.detectionDifferenceService.extractDifference(JSON.parse(JSON.stringify(differenceMatrix)), pos);
+            this.flashDifference(currentDifferenceMatrix);
         }
     }
 

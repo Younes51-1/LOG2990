@@ -6,8 +6,6 @@ import { Message } from '@app/interfaces/chat';
 import { GameRoom } from '@app/interfaces/game';
 import { Vec2 } from '@app/interfaces/vec2';
 import { Instruction, VideoReplay } from '@app/interfaces/video-replay';
-import { ChatService } from '@app/services/chat/chat.service';
-import { ConfigHttpService } from '@app/services/config-http/config-http.service';
 import { GameService } from '@app/services/game/game.service';
 import { PlayAreaService } from '@app/services/play-area/play-area.service';
 import { Subscription } from 'rxjs';
@@ -42,23 +40,14 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     // Need all services in constructor
     // eslint-disable-next-line max-params
-    constructor(
-        private dialog: MatDialog,
-        private gameService: GameService,
-        private chatService: ChatService,
-        private router: Router,
-        private playAreaService: PlayAreaService,
-        private configService: ConfigHttpService,
-    ) {}
+    constructor(private dialog: MatDialog, private gameService: GameService, private router: Router, private playAreaService: PlayAreaService) {}
 
     ngOnInit() {
         this.gameService.getConstant();
         this.timerSubscription = this.gameService.timer$.subscribe((timer: number) => {
             this.timer = timer;
         });
-        this.configService.getConstants().subscribe((res) => {
-            this.penaltyTime = res.penaltyTime;
-        });
+        this.penaltyTime = this.gameService.gameConstants.penaltyTime;
         this.differencesFoundSubscription = this.gameService.totalDifferencesFound$.subscribe((count) => {
             this.totalDifferencesFound = count;
         });
@@ -183,16 +172,16 @@ export class GamePageComponent implements OnInit, OnDestroy {
     sendEvent(event: string) {
         switch (event) {
             case 'error':
-                this.chatService.sendMessage(`Erreur par ${this.username}`, 'Système', this.gameRoom.roomId);
+                this.gameService.sendMessage(`Erreur par ${this.username}`, 'Système');
                 break;
             case 'success':
-                this.chatService.sendMessage(`Différence trouvée par ${this.username}`, 'Système', this.gameRoom.roomId);
+                this.gameService.sendMessage(`Différence trouvée par ${this.username}`, 'Système');
                 break;
             case 'abandon':
-                this.chatService.sendMessage(`${this.username} a abandonné la partie`, 'Système', this.gameRoom.roomId);
+                this.gameService.sendMessage(`${this.username} a abandonné la partie`, 'Système');
                 break;
             case 'hint':
-                this.chatService.sendMessage('Indice utilisé', 'Système', this.gameRoom.roomId);
+                this.gameService.sendMessage('Indice utilisé', 'Système');
                 break;
         }
     }

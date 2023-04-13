@@ -1,10 +1,7 @@
 import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { Router } from '@angular/router';
 import { CreationDialogComponent } from '@app/components/creation-dialog/creation-dialog.component';
 import { Canvas, DrawModes, ForegroundState, Rectangle } from '@app/interfaces/creation-game';
-import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
-import { DetectionDifferenceService } from '@app/services/detection-difference/detection-difference.service';
 import { DrawingService } from '@app/services/drawing/drawing.service';
 import { ForegroundService } from '@app/services/foreground/foreground.service';
 import { ImageLoadService } from '@app/services/image-load/image-load.service';
@@ -64,27 +61,16 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     possibleRadius = [PossibleRadius.ZERO, PossibleRadius.THREE, PossibleRadius.NINE, PossibleRadius.FIFTEEN];
     dialogRef: MatDialogRef<CreationDialogComponent>;
 
-    // eslint-disable-next-line max-params -- needed for constructor
+    // eslint-disable-next-line max-params
     constructor(
-        public detectionService: DetectionDifferenceService,
-        public dialog: MatDialog,
-        private communicationService: CommunicationHttpService,
         private foregroundService: ForegroundService,
         private drawingService: DrawingService,
         private imageLoadService: ImageLoadService,
-        private router: Router,
+        public dialog: MatDialog,
     ) {}
-
-    get getRouter(): Router {
-        return this.router;
-    }
 
     get getForegroundService(): ForegroundService {
         return this.foregroundService;
-    }
-
-    get getCommunicationService(): CommunicationHttpService {
-        return this.communicationService;
     }
 
     @HostListener('document:keydown', ['$event'])

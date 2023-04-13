@@ -1,7 +1,7 @@
 <div id="container">
     <p> Mode Temps Limité </p>
-    <button (click)="showInput1 = true; showInput2 = false; focusInput()">Jouer en solo</button>
-    <button (click)="showInput1 = false; showInput2 = true; checkGame(); focusInput()">
+    <button tabindex="-1" (click)="showInput1 = true; showInput2 = false; focusInput()">Jouer en solo</button>
+    <button tabindex="-1" (click)="showInput1 = false; showInput2 = true; checkGame(); focusInput()">
         Option multijoueur
     </button>
     <div class="player-name" *ngIf="showInput1">
