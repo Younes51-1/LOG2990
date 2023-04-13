@@ -131,6 +131,7 @@ export class GameService {
     }
 
     reset(): void {
+        this.disconnectSocket();
         this.gameRoom = undefined as unknown as GameRoom;
         this.canSendValidate = true;
         this.username = '';

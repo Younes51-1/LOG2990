@@ -108,8 +108,7 @@ export class GameModeService {
 
     updateGameHistory(endGame: EndGame): void {
         const gameHistory = this.getGameHistory(endGame.roomId);
-        const gameRoom = this.getGameRoom(endGame.roomId);
-        gameHistory.timer = gameRoom.userGame.timer;
+        gameHistory.timer = Date.now() - gameHistory.startTime;
         if (endGame.gameFinished) {
             if (endGame.winner) {
                 gameHistory.winner = endGame.username;
@@ -201,8 +200,10 @@ export class GameModeService {
         }
         gameRoom.userGame.username2 = '';
         const gameHistory = this.getGameHistory(gameRoom.roomId);
-        gameHistory.abandonned = username;
-        this.setGameHistory(gameRoom.roomId, gameHistory);
+        if (gameHistory) {
+            gameHistory.abandonned = username;
+            this.setGameHistory(gameRoom.roomId, gameHistory);
+        }
         this.setGameRoom(gameRoom);
     }
 }
