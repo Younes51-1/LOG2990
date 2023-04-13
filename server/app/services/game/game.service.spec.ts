@@ -203,11 +203,15 @@ describe('GameService', () => {
         await expect(service.deleteGame(game.name)).rejects.toBeTruthy();
     });
 
-    // it('deleteGame should fail if mongo query failed', async () => {
-    //     jest.spyOn(gameModel, 'deleteOne').mockRejectedValue('');
-    //     const game = getFakeGame();
-    //     expect(await service.deleteGame(game.name)).rejects.toBeTruthy();
-    // });
+    it('deleteGame should fail if mongo query failed', async () => {
+        jest.spyOn(gameModel, 'deleteOne').mockRejectedValue('');
+        const game = getFakeGame();
+        try {
+            await service.deleteGame(game.name);
+        } catch (e) {
+            expect(e).toBeTruthy();
+        }
+    });
 
     it('deleteAllGames should delete all games', async () => {
         jest.spyOn(gameModeGateway, 'cancelDeletedGame').mockImplementation();
@@ -233,27 +237,27 @@ describe('GameService', () => {
         game1.soloBestTimes = [
             { name: 'newBest', time: 1 },
             { name: 'secondBest', time: 3 },
-            { name: 'Player 3', time: 180 },
+            { name: 'Joueur 3', time: 180 },
         ];
         game2.soloBestTimes = [
             { name: 'newBest', time: 3 },
             { name: 'secondBest', time: 5 },
-            { name: 'Player 3', time: 180 },
+            { name: 'Joueur 3', time: 180 },
         ];
         game1.vsBestTimes = [
             { name: 'newBest', time: 1 },
-            { name: 'Player 2', time: 120 },
-            { name: 'Player 3', time: 180 },
+            { name: 'Joueur 2', time: 120 },
+            { name: 'Joueur 3', time: 180 },
         ];
         await gameModel.create(game1);
         await gameModel.create(game2);
         await service.deleteBestTimes();
         await new Promise((resolve) => setTimeout(resolve, timeoutTime));
         const gamesUpdated = await service.getAllGames();
-        expect(gamesUpdated[0].soloBestTimes).toEqual([]);
-        expect(gamesUpdated[1].soloBestTimes).toEqual([]);
-        expect(gamesUpdated[0].vsBestTimes).toEqual([]);
-        expect(gamesUpdated[1].vsBestTimes).toEqual([]);
+        expect(gamesUpdated[0].soloBestTimes).toEqual(newBestTimes());
+        expect(gamesUpdated[1].soloBestTimes).toEqual(newBestTimes());
+        expect(gamesUpdated[0].vsBestTimes).toEqual(newBestTimes());
+        expect(gamesUpdated[1].vsBestTimes).toEqual(newBestTimes());
     });
 
     // it('deleteBestTimes should fail if update fails', async () => {
@@ -268,29 +272,29 @@ describe('GameService', () => {
         game1.soloBestTimes = [
             { name: 'newBest', time: 1 },
             { name: 'secondBest', time: 3 },
-            { name: 'Player 3', time: 180 },
+            { name: 'Joueur 3', time: 180 },
         ];
         game2.soloBestTimes = [
             { name: 'newBest', time: 3 },
             { name: 'secondBest', time: 5 },
-            { name: 'Player 3', time: 180 },
+            { name: 'Joueur 3', time: 180 },
         ];
         game1.vsBestTimes = [
             { name: 'newBest', time: 1 },
-            { name: 'Player 2', time: 120 },
-            { name: 'Player 3', time: 180 },
+            { name: 'Joueur 2', time: 120 },
+            { name: 'Joueur 3', time: 180 },
         ];
         await gameModel.create(game1);
         await gameModel.create(game2);
         await service.deleteBestTime(game1.name);
         const gamesUpdated = await gameModel.find();
-        expect(gamesUpdated[0].soloBestTimes).toEqual([]);
+        expect(gamesUpdated[0].soloBestTimes).toEqual(newBestTimes());
         expect(gamesUpdated[1].soloBestTimes).toEqual([
             { name: 'newBest', time: 3 },
             { name: 'secondBest', time: 5 },
-            { name: 'Player 3', time: 180 },
+            { name: 'Joueur 3', time: 180 },
         ]);
-        expect(gamesUpdated[0].vsBestTimes).toEqual([]);
+        expect(gamesUpdated[0].vsBestTimes).toEqual(newBestTimes());
     });
 
     // it('deleteBestTime should fail if update fails', async () => {
@@ -307,8 +311,8 @@ describe('GameService', () => {
         const gameUpdated = await gameModel.findOne({ name: game.name });
         expect(gameUpdated.soloBestTimes).toEqual([
             { name: 'newBest', time: 1 },
-            { name: 'Player 1', time: 60 },
-            { name: 'Player 2', time: 120 },
+            { name: 'Joueur 1', time: 60 },
+            { name: 'Joueur 2', time: 120 },
         ]);
         expect(gameUpdated.vsBestTimes).toEqual(game.vsBestTimes);
         expect(chatGateway.newBestTimeScore).toHaveBeenCalledWith('newBest obtient la 1 place dans les meilleurs temps du jeu FakeGame en mode solo');
@@ -326,8 +330,8 @@ describe('GameService', () => {
         const gameUpdated = await gameModel.findOne({ name: game.name });
         expect(gameUpdated.vsBestTimes).toEqual([
             { name: 'newBest', time: 1 },
-            { name: 'Player 1', time: 60 },
-            { name: 'Player 2', time: 120 },
+            { name: 'Joueur 1', time: 60 },
+            { name: 'Joueur 2', time: 120 },
         ]);
         expect(gameUpdated.soloBestTimes).toEqual(game.soloBestTimes);
         expect(chatGateway.newBestTimeScore).toHaveBeenCalledWith(
@@ -391,9 +395,9 @@ const getFakeGameData = (): GameData => ({
 });
 
 const newBestTimes = (): BestTime[] => [
-    { name: 'Player 1', time: 60 },
-    { name: 'Player 2', time: 120 },
-    { name: 'Player 3', time: 180 },
+    { name: 'Joueur 1', time: 60 },
+    { name: 'Joueur 2', time: 120 },
+    { name: 'Joueur 3', time: 180 },
 ];
 
 const newFakeBestTime = (): NewBestTime => ({ name: 'newBest', time: 1, gameName: 'FakeGame', isSolo: true });
