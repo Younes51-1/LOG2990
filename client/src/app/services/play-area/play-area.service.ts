@@ -231,9 +231,10 @@ export class PlayAreaService {
     errorAnswerVisuals(canvas: HTMLCanvasElement, pos: Vec2) {
         const nMilliseconds = Time.Thousand / this.speed;
         const context = canvas.getContext('2d');
-        const image = canvas === this.component.canvas1.nativeElement ? this.component.original : this.component.modified;
-        if (!this.replay)
+        if (!this.replay) {
+            const image = canvas === this.component.canvas1.nativeElement ? this.component.original : this.component.modified;
             this.normalComponent.sendError.emit({ pos: this.normalComponent.mousePosition, leftCanvas: image === this.component.original });
+        }
         if (context) {
             context.fillStyle = Color.Mario;
             clearTimeout(this.errorTimeout);
@@ -254,13 +255,12 @@ export class PlayAreaService {
         layer.width = this.component.width;
         layer.height = this.component.height;
         const context = layer.getContext('2d');
-        if (!context) return layer;
-        context.globalAlpha = isCheat || isHint ? helpAlphaValue : 1;
-        context.fillStyle = color;
+        (context as CanvasRenderingContext2D).globalAlpha = isCheat || isHint ? helpAlphaValue : 1;
+        (context as CanvasRenderingContext2D).fillStyle = color;
         for (let i = 0; i < matrix.length; i++) {
             for (let j = 0; j < matrix[0].length; j++) {
                 if (matrix[i][j] !== PossibleColor.EMPTYPIXEL) {
-                    context.fillRect(j, i, 1, 1);
+                    (context as CanvasRenderingContext2D).fillRect(j, i, 1, 1);
                 }
             }
         }

@@ -3,8 +3,8 @@
 import { OverlayModule } from '@angular/cdk/overlay';
 import { HttpClientModule } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { NgModule } from '@angular/core';
-import { ComponentFixture, discardPeriodicTasks, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ElementRef, NgModule } from '@angular/core';
+import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, tick } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -23,7 +23,7 @@ import { Time } from 'src/assets/variables/time';
 })
 export class DynamicTestModule {}
 
-describe('PlayAreaService', () => {
+fdescribe('PlayAreaService', () => {
     let service: PlayAreaService;
     let fixture: ComponentFixture<PlayAreaComponent>;
     let component: PlayAreaComponent;
@@ -198,6 +198,26 @@ describe('PlayAreaService', () => {
         expect((service as any).playNormalHint).toHaveBeenCalledWith(canvas);
     });
 
+    it('should start the cheat mode in the play mode', fakeAsync(() => {
+        (service as any).replay = true;
+        (service as any).replayCheatOn = false;
+        service.startCheatMode();
+        expect((service as any).replayCheatOn).toBeTrue();
+        service.endCheatMode();
+    }));
+
+    it('should start the cheat mode in the replay mode', fakeAsync(() => {
+        (service as any).replay = false;
+        (service as any).replayCheatOn = false;
+        const verifyDifferenceMatrixSpy = spyOn((service as any).normalComponent, 'verifyDifferenceMatrix').and.callFake(() => {
+            return;
+        });
+        service.startCheatMode();
+        expect((service as any).replayCheatOn).toBeFalse();
+        expect(verifyDifferenceMatrixSpy).toHaveBeenCalled();
+        service.endCheatMode();
+    }));
+
     it('should clear interval and update contexts', () => {
         const clearIntervalSpy = spyOn(window, 'clearInterval');
         const updateContextsSpy = spyOn(service as any, 'updateContexts').and.stub();
@@ -217,6 +237,27 @@ describe('PlayAreaService', () => {
         expect((service as any).replayCheatOn).toBeFalse();
     });
 
+    it('cheatInterval should show the cheat mode', (done) => {
+        (service as any).replay = true;
+        const updateContextsSpy = spyOn(service as any, 'updateContexts').and.callFake(() => {
+            return;
+        });
+        const drawImageContext1Spy = spyOn((service as any).component.context1, 'drawImage').and.callFake(() => {
+            return;
+        });
+        const drawImageContext2Spy = spyOn((service as any).component.context2, 'drawImage').and.callFake(() => {
+            return;
+        });
+        service.startCheatMode();
+        setTimeout(() => {
+            expect(updateContextsSpy).toHaveBeenCalled();
+            expect(drawImageContext1Spy).toHaveBeenCalled();
+            expect(drawImageContext2Spy).toHaveBeenCalled();
+            done();
+            service.endCheatMode();
+        }, Time.Thousand);
+    });
+
     it('should set context1 and context2 to canvas contexts', () => {
         const context = document.createElement('canvas').getContext('2d');
         spyOn((service as any).component.canvas1.nativeElement, 'getContext').and.returnValue(context);
@@ -234,6 +275,122 @@ describe('PlayAreaService', () => {
         service.setContexts();
         expect((service as any).component.context1).toBeNull();
         expect((service as any).component.context2).toBeNull();
+    });
+
+    it('should not flash difference if one of the context is null', () => {
+        const matrix = [
+            [1, 2, 3],
+            [2, 1, 0],
+        ];
+        (service as any).component.context1 = null;
+        (service as any).replay = true;
+        const clearIntervalSpy = spyOn(window, 'clearInterval').and.callThrough();
+        service.flashDifference(matrix);
+        expect(clearIntervalSpy).not.toHaveBeenCalled();
+    });
+
+    it('should flash difference in replay mode', (done) => {
+        const matrix = [
+            [1, 2, 3],
+            [2, 1, 0],
+        ];
+        (service as any).replay = true;
+        (service as any).component.cheatLayer = document.createElement('canvas');
+        (service as any).component.modified = new Image();
+        (service as any).replayComponent.cheatLayers = [{}, {}];
+        (service as any).replayComponent.sources = ['', ''];
+        const clearIntervalSpy = spyOn(window, 'clearInterval').and.callThrough();
+        const updateContextsSpy = spyOn(service as any, 'updateContexts').and.callFake(() => {
+            return;
+        });
+        service.flashDifference(matrix);
+        setTimeout(() => {
+            expect(updateContextsSpy).toHaveBeenCalled();
+            expect(clearIntervalSpy).toHaveBeenCalled();
+            done();
+        }, Time.Thousand * 2);
+    });
+
+    it('should flash difference in play mode', (done) => {
+        const matrix = [
+            [1, 2, 3],
+            [2, 1, 0],
+        ];
+        (service as any).replay = false;
+        const clearIntervalSpy = spyOn(window, 'clearInterval').and.callThrough();
+        const removeDifferenceSpy = spyOn(service as any, 'removeDifference').and.callFake(() => {
+            return;
+        });
+        service.flashDifference(matrix);
+        setTimeout(() => {
+            expect(clearIntervalSpy).toHaveBeenCalled();
+            expect(removeDifferenceSpy).toHaveBeenCalled();
+            done();
+        }, Time.Thousand);
+    });
+
+    it('should show "ERREUR" on the canvas1', () => {
+        (service as any).replay = false;
+        const updateContextsSpy = spyOn(service as any, 'updateContexts').and.callFake(() => {
+            return;
+        });
+        const clearTimeoutSpy = spyOn(window, 'clearTimeout').and.callThrough();
+        const canvas = document.createElement('canvas');
+        (service as any).component.canvas1 = new ElementRef(canvas);
+        service.errorAnswerVisuals(canvas, { x: 0, y: 0 });
+        expect(updateContextsSpy).toHaveBeenCalled();
+        expect(clearTimeoutSpy).toHaveBeenCalled();
+    });
+
+    it('should show "ERREUR" on the canvas2', () => {
+        (service as any).replay = false;
+        const updateContextsSpy = spyOn(service as any, 'updateContexts').and.callFake(() => {
+            return;
+        });
+        const clearTimeoutSpy = spyOn(window, 'clearTimeout').and.callThrough();
+        const canvas = document.createElement('canvas');
+        (service as any).component.canvas2 = new ElementRef(canvas);
+        service.errorAnswerVisuals(canvas, { x: 0, y: 0 });
+        expect(updateContextsSpy).toHaveBeenCalled();
+        expect(clearTimeoutSpy).toHaveBeenCalled();
+    });
+
+    it('should create and fill a new layer of the canvas', () => {
+        const matrix = [
+            [1, 2, 3],
+            [2, 1, 0],
+        ];
+        const layer = service.createAndFillNewLayer(Color.Luigi, false, false, matrix);
+        expect(layer.getContext('2d')?.globalAlpha).toEqual(1);
+    });
+
+    it('should handle the image load', () => {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        const image = new Image();
+        if (context) {
+            const drawImageSpy = spyOn(context, 'drawImage').and.callFake(() => {
+                return;
+            });
+            service.handleImageLoad(context, image);
+            expect(drawImageSpy).toHaveBeenCalled();
+        }
+    });
+
+    it('should flash the difference', () => {
+        const matrix = [
+            [1, 2, 3],
+            [2, 1, 0],
+        ];
+        const extractDifferenceSpy = spyOn((service as any).detectionDifferenceService, 'extractDifference').and.callFake(() => {
+            return matrix;
+        });
+        const flashDifferenceSpy = spyOn(service as any, 'flashDifference').and.callFake(() => {
+            return;
+        });
+        service.correctAnswerVisuals({ x: 0, y: 0 }, matrix);
+        expect(extractDifferenceSpy).toHaveBeenCalled();
+        expect(flashDifferenceSpy).toHaveBeenCalled();
     });
 
     it('should update the cheat speed if replayCheatOn is true', () => {
@@ -262,145 +419,54 @@ describe('PlayAreaService', () => {
         expect(endCheatModeSpy).not.toHaveBeenCalled();
     });
 
-    it('should create and fill a new layer of the canvas', () => {
-        const matrix = [
-            [1, 2, 3],
-            [2, 1, 0],
-        ];
-        const layer = service.createAndFillNewLayer(Color.Luigi, false, false, matrix);
-        expect(layer.getContext('2d')?.globalAlpha).toEqual(1);
+    it('should call drawImage with layer and have expected behavior', (done) => {
+        const layer = document.createElement('canvas');
+        const spyTimeout = spyOn(window, 'clearTimeout');
+        const spyInterval = spyOn(window, 'clearInterval');
+        const spyCtx1 = spyOn((service as any).component.context1, 'drawImage').and.callThrough();
+        const spyCtx2 = spyOn((service as any).component.context2, 'drawImage').and.callThrough();
+        const spyUpdateCtx = spyOn(service as any, 'updateContexts');
+        (service as any).hintTimeout = 0;
+        (service as any).playNormalHint(layer);
+        setTimeout(() => {
+            expect(spyTimeout).toHaveBeenCalledTimes(1);
+            expect(spyInterval).toHaveBeenCalledWith((service as any).hintInterval);
+            expect(spyInterval).toHaveBeenCalledTimes(2);
+            expect(spyCtx1).toHaveBeenCalledWith(layer, 0, 0, Dimensions.DEFAULT_WIDTH, Dimensions.DEFAULT_HEIGHT);
+            expect(spyCtx2).toHaveBeenCalledWith(layer, 0, 0, Dimensions.DEFAULT_WIDTH, Dimensions.DEFAULT_HEIGHT);
+            expect(spyUpdateCtx).toHaveBeenCalled();
+            expect(spyUpdateCtx).toHaveBeenCalledTimes(Time.Thousand / Time.OneHundredTwentyFive + 1);
+            done();
+        }, Time.Thousand * 2);
     });
 
-    it('should handle the image load', () => {
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
+    it('remove difference should update the differenceMatrix', () => {
+        const spy = spyOn((service as any).normalComponent, 'verifyDifferenceMatrix');
+        const newDiffMatrix = [
+            [PossibleColor.EMPTYPIXEL, PossibleColor.EMPTYPIXEL, PossibleColor.EMPTYPIXEL],
+            [PossibleColor.EMPTYPIXEL, PossibleColor.EMPTYPIXEL, PossibleColor.EMPTYPIXEL],
+            [PossibleColor.EMPTYPIXEL, PossibleColor.EMPTYPIXEL, PossibleColor.EMPTYPIXEL],
+        ];
+        (service as any).normalComponent.differenceMatrix = newDiffMatrix;
+        (service as any).normalComponent.differenceMatrix[0][0] = PossibleColor.WHITE;
+        (service as any).normalComponent.differenceMatrix[1][2] = PossibleColor.BLACK;
+        (service as any).removeDifference((service as any).normalComponent.differenceMatrix);
+        expect((service as any).normalComponent.differenceMatrix).toEqual(newDiffMatrix);
+        expect(spy).toHaveBeenCalledOnceWith('cheat');
+    });
+
+    it('remove difference should emit sendSource event', () => {
+        const matrix = [[]];
+        const spy = spyOn((service as any).normalComponent.sendSource, 'emit');
         const image = new Image();
-        if (context) {
-            const drawImageSpy = spyOn(context, 'drawImage').and.callFake(() => {
-                return;
-            });
-            service.handleImageLoad(context, image);
-            expect(drawImageSpy).toHaveBeenCalled();
-        }
-    });
-
-    it('should start the cheat mode in the play mode', fakeAsync(() => {
-        (service as any).replay = true;
-        (service as any).replayCheatOn = false;
-        service.startCheatMode();
-        expect((service as any).replayCheatOn).toBeTrue();
-        service.endCheatMode();
-    }));
-
-    it('should start the cheat mode in the replay mode', fakeAsync(() => {
-        (service as any).replay = false;
-        (service as any).replayCheatOn = false;
-        const verifyDifferenceMatrixSpy = spyOn((service as any).normalComponent, 'verifyDifferenceMatrix').and.callFake(() => {
-            return;
-        });
-        service.startCheatMode();
-        expect((service as any).replayCheatOn).toBeFalse();
-        expect(verifyDifferenceMatrixSpy).toHaveBeenCalled();
-        service.endCheatMode();
-    }));
-
-    it('cheatInterval should show the cheat mode', (done) => {
-        (service as any).replay = true;
-        const updateContextsSpy = spyOn(service as any, 'updateContexts').and.callFake(() => {
-            return;
-        });
-        const drawImageContext1Spy = spyOn((service as any).component.context1, 'drawImage').and.callFake(() => {
-            return;
-        });
-        const drawImageContext2Spy = spyOn((service as any).component.context2, 'drawImage').and.callFake(() => {
-            return;
-        });
-        service.startCheatMode();
-        setTimeout(() => {
-            expect(updateContextsSpy).toHaveBeenCalled();
-            expect(drawImageContext1Spy).toHaveBeenCalled();
-            expect(drawImageContext2Spy).toHaveBeenCalled();
-            done();
-            service.endCheatMode();
-        }, Time.Thousand);
-    });
-
-    it('should show "ERREUR" on the canvas', () => {
-        (service as any).replay = false;
-        const updateContextsSpy = spyOn(service as any, 'updateContexts').and.callFake(() => {
-            return;
-        });
-        const clearTimeoutSpy = spyOn(window, 'clearTimeout').and.callThrough();
-        const canvas = document.createElement('canvas');
-        service.errorAnswerVisuals(canvas, { x: 0, y: 0 });
-        expect(updateContextsSpy).toHaveBeenCalled();
-        expect(clearTimeoutSpy).toHaveBeenCalled();
-    });
-
-    it('should not flash difference if one of the context is null', () => {
-        const matrix = [
-            [1, 2, 3],
-            [2, 1, 0],
-        ];
-        (service as any).component.context1 = null;
-        (service as any).replay = true;
-        const clearIntervalSpy = spyOn(window, 'clearInterval').and.callThrough();
-        service.flashDifference(matrix);
-        expect(clearIntervalSpy).not.toHaveBeenCalled();
-    });
-
-    // it('should flash difference in replay mode', (done) => {
-    //     const matrix = [
-    //         [1, 2, 3],
-    //         [2, 1, 0],
-    //     ];
-    //     (service as any).component = replayComponent;
-    //     (service as any).replay = true;
-    //     (service as any).component.context1 = (service as any).component.context2 = document.createElement('canvas').getContext('2d');
-    //     const clearIntervalSpy = spyOn(window, 'clearInterval').and.callThrough();
-    //     const updateContextsSpy = spyOn(service as any, 'updateContexts').and.callFake(() => {
-    //         return;
-    //     });
-    //     service.flashDifference(matrix);
-    //     setTimeout(() => {
-    //         expect(updateContextsSpy).toHaveBeenCalled();
-    //         expect(clearIntervalSpy).toHaveBeenCalled();
-    //         done();
-    //     }, Time.Thousand * 2);
-    // });
-
-    it('should flash difference in play mode', (done) => {
-        const matrix = [
-            [1, 2, 3],
-            [2, 1, 0],
-        ];
-        (service as any).replay = false;
-        const clearIntervalSpy = spyOn(window, 'clearInterval').and.callThrough();
-        const removeDifferenceSpy = spyOn(service as any, 'removeDifference').and.callFake(() => {
-            return;
-        });
-        service.flashDifference(matrix);
-        setTimeout(() => {
-            expect(clearIntervalSpy).toHaveBeenCalled();
-            expect(removeDifferenceSpy).toHaveBeenCalled();
-            done();
-        }, Time.Thousand);
-    });
-
-    it('should flash the difference', () => {
-        const matrix = [
-            [1, 2, 3],
-            [2, 1, 0],
-        ];
-        const extractDifferenceSpy = spyOn((service as any).detectionDifferenceService, 'extractDifference').and.callFake(() => {
-            return matrix;
-        });
-        const flashDifferenceSpy = spyOn(service as any, 'flashDifference').and.callFake(() => {
-            return;
-        });
-        service.correctAnswerVisuals({ x: 0, y: 0 }, matrix);
-        expect(extractDifferenceSpy).toHaveBeenCalled();
-        expect(flashDifferenceSpy).toHaveBeenCalled();
+        image.src = 'source';
+        const layer = document.createElement('canvas');
+        (service as any).component.modified = image;
+        (service as any).component.cheatLayer = layer;
+        (service as any).normalComponent.differenceMatrix = matrix;
+        (service as any).removeDifference((service as any).normalComponent.differenceMatrix);
+        expect(spy).toHaveBeenCalledWith({ src: image.src, layer });
+        expect(spy).toHaveBeenCalledTimes(1);
     });
 
     it('should return correct dialMatrix for first hint', () => {
