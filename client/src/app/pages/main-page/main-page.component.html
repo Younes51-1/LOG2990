@@ -1,21 +1,19 @@
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.1/css/all.css" crossorigin="anonymous" />
-<div class="container">
+<body>
     <header>
         <button class="config-button" routerLink="/config">
             <i class="fa fa-cog fa-3x" aria-hidden="true"></i>
         </button>
         <img src="./assets/pictures/logo.png" />
     </header>
-    <span>MODES DE JEU</span>
     <section>
         <div class="modes">
-            <p class="solo-mode"><button class="solo-mode" (click)="setGameMode('classic-mode')">CLASSIQUE</button></p>
-            <p class="timer-mode"><button class="chrono-mode" (click)="setGameMode('limited-time-mode')">TEMPS
-                    LIMITÉ</button></p>
+            <p class="solo-mode"><button class="solo-mode" (click)="setGameMode('classic-mode')">MODE CLASSIQUE</button></p>
+            <p class="timer-mode"><button class="chrono-mode" (click)="setGameMode('limited-time-mode')">MODE TEMPS LIMITÉ</button></p>
         </div>
     </section>
     <footer>
-        <p>Équipe {{ teamName }}</p>
+        <p>204</p>
         <span *ngFor="let teamMate of teamMembers; let isLast = last">{{ teamMate }}{{ isLast ? '' : ', ' }}</span>
     </footer>
-</div>
+</body>

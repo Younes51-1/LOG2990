@@ -9,7 +9,6 @@ import { CreateJoinGameDialogComponent } from '@app/components/create-join-game-
     styleUrls: ['./main-page.component.scss'],
 })
 export class MainPageComponent implements OnDestroy {
-    readonly teamName = '204 : NO CONTENT';
     readonly teamMembers: string[] = [
         'Coralie Brodeur',
         ' Imène Clara Ghazi',

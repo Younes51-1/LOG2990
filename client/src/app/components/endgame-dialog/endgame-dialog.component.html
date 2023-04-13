@@ -1,5 +1,5 @@
 <div *ngIf="data.gameFinished">
-    <p *ngIf="data.limitedTimeMode">Merci d'avoir joue</p>
+    <p *ngIf="data.limitedTimeMode">C'est terminé, merci d'avoir joué !</p>
     <p *ngIf="!data.limitedTimeMode && data.gameWinner">Félicitation, vous avez gagné ce jeu ! {{ bestTimeMessage }}</p>
     <p *ngIf="!data.limitedTimeMode && !data.gameWinner">Oh non, vous avez perdu ce jeu !</p>
     <button mat-button routerLink="/home">Terminer</button>
