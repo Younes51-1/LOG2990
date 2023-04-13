@@ -12,6 +12,11 @@
     <button mat-button (click)="emitSupp(true)">Oui</button>
     <button mat-button (click)="emitSupp(false)">Non</button>
 </div>
+<div *ngIf="data.action === 'deleteHistory'">
+    <p>Êtes-vous sûr de vouloir supprimer <b>toutes</b> les parties ?</p>
+    <button mat-button (click)="emitSupp(true)">Oui</button>
+    <button mat-button (click)="emitSupp(false)">Non</button>
+</div>
 <div *ngIf="data.action === 'reset'">
     <p>Êtes-vous sûr de vouloir réinitialiser les meilleurs temps du jeu ?</p>
     <button mat-button (click)="emitSupp(true)">Oui</button>

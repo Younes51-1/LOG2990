@@ -85,8 +85,15 @@ export class ConfigSelectPageComponent implements OnInit {
     }
 
     deletePartie(): void {
-        this.configCommunicationService.deleteHistory().subscribe();
-        this.parties = [];
+        this.dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { action: 'deleteHistory' } });
+        if (this.dialogRef) {
+            this.dialogRef.afterClosed().subscribe((supp) => {
+                if (supp) {
+                    this.configCommunicationService.deleteHistory().subscribe();
+                    this.parties = [];
+                }
+            });
+        }
     }
 
     calculateTime(time: number) {
