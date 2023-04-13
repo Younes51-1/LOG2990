@@ -44,6 +44,10 @@ export class GameService {
         this.getConstant();
     }
 
+    getIsTyping(): boolean {
+        return this.chatService.getIsTyping();
+    }
+
     getConstant(): void {
         this.configHttpService.getConstants().subscribe((res) => {
             this.gameConstants = res;
@@ -78,6 +82,10 @@ export class GameService {
         if (this.gameMode === 'limited-time-mode') this.getAllGames();
         this.chatService.handleMessage();
         this.handleSocket();
+    }
+
+    sendMessage(message: string, username: string): void {
+        this.chatService.sendMessage(message, username, this.gameRoom.roomId);
     }
 
     turnOffWaitingSocket(): void {

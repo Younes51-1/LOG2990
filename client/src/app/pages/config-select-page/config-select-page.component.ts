@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { DeleteDialogComponent } from '@app/components/delete-dialog/delete-dialog.component';
 import { GameData, GameHistory } from '@app/interfaces/game';
 import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
@@ -33,7 +33,6 @@ export class ConfigSelectPageComponent implements OnInit {
     // eslint-disable-next-line max-params
     constructor(
         private readonly gameCommunicationService: CommunicationHttpService,
-        private route: ActivatedRoute,
         private router: Router,
         private dialog: MatDialog,
         private configCommunicationService: ConfigHttpService,
@@ -42,7 +41,7 @@ export class ConfigSelectPageComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.pageType = this.route.snapshot.data.page;
+        this.pageType = this.router.url.split('/')[1] as PageKeys;
         this.initializeImgSource();
         if (this.pageType === PageKeys.Config) {
             this.getPartiesFromServer();

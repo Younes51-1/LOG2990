@@ -1,8 +1,11 @@
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { CreationDialogComponent } from '@app/components/creation-dialog/creation-dialog.component';
 import { NewGame } from '@app/interfaces/game';
 import { CreationGamePageComponent } from '@app/pages/creation-game-page/creation-game-page.component';
 import { AsciiLetterValue, BIT_PER_PIXEL, OffsetValues } from 'src/assets/variables/images-values';
+import { DetectionDifferenceService } from '@app/services/detection-difference/detection-difference.service';
+import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 
 @Injectable({
     providedIn: 'root',
@@ -11,6 +14,12 @@ export class ImageLoadService {
     private component: CreationGamePageComponent;
     private width: number;
     private height: number;
+
+    constructor(
+        private router: Router,
+        private detectionService: DetectionDifferenceService,
+        private communicationService: CommunicationHttpService,
+    ) {}
 
     setComponent(component: CreationGamePageComponent) {
         this.component = component;
@@ -34,16 +43,14 @@ export class ImageLoadService {
         const img2HasContent: boolean = this.component.image2?.value !== undefined;
 
         if ((img1HasContent && img2HasContent) || this.component.undo.length > 0) {
-            this.component.differenceMatrix = this.component.detectionService.generateDifferencesMatrix(
+            this.component.differenceMatrix = this.detectionService.generateDifferencesMatrix(
                 this.component.context1,
                 this.component.context2,
                 this.component.radius,
             );
-            this.component.differenceCount = this.component.detectionService.countDifferences(
-                JSON.parse(JSON.stringify(this.component.differenceMatrix)),
-            );
-            this.component.imageDifferencesUrl = this.component.detectionService.createDifferencesImage(this.component.differenceMatrix);
-            this.component.difficulty = this.component.detectionService.computeLevelDifficulty(
+            this.component.differenceCount = this.detectionService.countDifferences(JSON.parse(JSON.stringify(this.component.differenceMatrix)));
+            this.component.imageDifferencesUrl = this.detectionService.createDifferencesImage(this.component.differenceMatrix);
+            this.component.difficulty = this.detectionService.computeLevelDifficulty(
                 this.component.differenceCount,
                 JSON.parse(JSON.stringify(this.component.differenceMatrix)),
             );
@@ -89,11 +96,11 @@ export class ImageLoadService {
             difficulty: this.component.difficulty,
             differenceMatrix: this.component.differenceMatrix,
         };
-        this.component.getCommunicationService.getGame(newGame.name).subscribe((res) => {
+        this.communicationService.getGame(newGame.name).subscribe((res) => {
             if (!res || Object.keys(res).length === 0) {
-                this.component.getCommunicationService.createNewGame(newGame).subscribe({
+                this.communicationService.createNewGame(newGame).subscribe({
                     next: () => {
-                        this.component.getRouter.navigate(['/config']);
+                        this.router.navigate(['/config']);
                     },
                     error: () => {
                         alert('Erreur lors de la création du jeu');
