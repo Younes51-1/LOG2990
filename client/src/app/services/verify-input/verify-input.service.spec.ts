@@ -52,7 +52,7 @@ describe('VerifyInputService', () => {
         expect(output).toBe(false);
     });
 
-    it('should return true when verifyConstantsInBounds input is valid', () => {
+    it('should return true when verifyConstantsInBounds input is valid for penaltyTime', () => {
         const ten = 10;
         const output = service.verifyConstantsInBounds(ten, 'penaltyTime');
         expect(output).toBe(true);
@@ -61,5 +61,17 @@ describe('VerifyInputService', () => {
     it('should return false when verifyConstantsInBounds is called with an unknown type', () => {
         const output = service.verifyConstantsInBounds(1, 'Samuel Pierre');
         expect(output).toBe(false);
+    });
+
+    it('should return true when verifyConstantsInBounds input is valid for initialTime', () => {
+        const ten = 100;
+        const output = service.verifyConstantsInBounds(ten, 'initialTime');
+        expect(output).toBe(true);
+    });
+
+    it('should return true when verifyConstantsInBounds input is valid for bonusTime', () => {
+        const ten = 10;
+        const output = service.verifyConstantsInBounds(ten, 'bonusTime');
+        expect(output).toBe(true);
     });
 });

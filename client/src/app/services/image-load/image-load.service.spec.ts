@@ -1,18 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable max-lines */
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HttpResponse } from '@angular/common/http';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialog, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
 import { CreationDialogComponent } from '@app/components/creation-dialog/creation-dialog.component';
-import { GameData } from '@app/interfaces/game';
+import { GameData, NewGame } from '@app/interfaces/game';
 import { CreationGamePageComponent } from '@app/pages/creation-game-page/creation-game-page.component';
 import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 import { DetectionDifferenceService } from '@app/services/detection-difference/detection-difference.service';
 import { ForegroundService } from '@app/services/foreground/foreground.service';
 import { ImageLoadService } from '@app/services/image-load/image-load.service';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import SpyObj = jasmine.SpyObj;
 
 describe('ImageLoadService', () => {
@@ -297,24 +297,25 @@ describe('ImageLoadService', () => {
         expect(readerAsArrayBufferSpy).toHaveBeenCalled();
     }));
 
-    // it("shouldn't call saveNameGame only if getGame return undefined or null", () => {
-    //     spyOn(service as any, 'convertImageToB64Url').and.returnValue('https://example.com/image3.jpg');
-    //     (service as any).component.differenceCount = 0;
-    //     (service as any).component.difficulty = 'facile';
-    //     (service as any).component.differenceMatrix = [[]];
-    //     const newGame: NewGame = {
-    //         name: 'test',
-    //         image1: 'https://example.com/image3.jpg',
-    //         image2: 'https://example.com/image3.jpg',
-    //         nbDifference: 0,
-    //         difficulty: 'facile',
-    //         differenceMatrix: [[]],
-    //     };
-    //     gameData = null as unknown as GameData;
-    //     (service as any).saveNameGame('test');
-    //     expect(communicationServiceSpy.getGame).toHaveBeenCalledWith('test');
-    //     expect(communicationServiceSpy.createNewGame).toHaveBeenCalledWith(newGame);
-    // });
+    it("shouldn't call createNewGame only if getGame return undefined or null", () => {
+        spyOn(service as any, 'convertImageToB64Url').and.returnValue('https://example.com/image3.jpg');
+        (service as any).component.differenceCount = 0;
+        (service as any).component.difficulty = 'facile';
+        (service as any).component.differenceMatrix = [[]];
+        communicationServiceSpy.getGame.and.returnValue(of(undefined as unknown as GameData));
+        const newGame: NewGame = {
+            name: 'test',
+            image1: 'https://example.com/image3.jpg',
+            image2: 'https://example.com/image3.jpg',
+            nbDifference: 0,
+            difficulty: 'facile',
+            differenceMatrix: [[]],
+        };
+        gameData = null as unknown as GameData;
+        (service as any).saveNameGame('test');
+        expect(communicationServiceSpy.getGame).toHaveBeenCalledWith('test');
+        expect(communicationServiceSpy.createNewGame).toHaveBeenCalledWith(newGame);
+    });
 
     it("should call saveNameGame if getGame doesn't return undefined or null", () => {
         spyOn(service as any, 'convertImageToB64Url').and.returnValue('https://example.com/image3.jpg');
@@ -328,38 +329,39 @@ describe('ImageLoadService', () => {
         expect(window.alert).toHaveBeenCalledWith('Nom de jeu déjà utilisé');
     });
 
-    // it('should navigate to config in case createNewGame was successful', () => {
-    //     spyOn(service as any, 'convertImageToB64Url').and.returnValue('https://example.com/image3.jpg');
-    //     (service as any).component.differenceCount = 0;
-    //     (service as any).component.difficulty = 'facile';
-    //     (service as any).component.differenceMatrix = [[]];
-    //     gameData = null as unknown as GameData;
-    //     communicationServiceSpy.createNewGame.and.returnValue(of(null as unknown as HttpResponse<string>));
-    //     spyOn((service as any).component.getRouter, 'navigate').and.returnValue(Promise.resolve(true));
-    //     (service as any).saveNameGame('test');
-    //     expect(communicationServiceSpy.getGame).toHaveBeenCalledWith('test');
-    //     expect(communicationServiceSpy.createNewGame).toHaveBeenCalled();
-    //     expect((service as any).component.getRouter.navigate).toHaveBeenCalledWith(['/config']);
-    // });
+    it('should navigate to config in case createNewGame was successful', () => {
+        spyOn(service as any, 'convertImageToB64Url').and.returnValue('https://example.com/image3.jpg');
+        (service as any).component.differenceCount = 0;
+        (service as any).component.difficulty = 'facile';
+        (service as any).component.differenceMatrix = [[]];
+        gameData = null as unknown as GameData;
+        communicationServiceSpy.getGame.and.returnValue(of(undefined as unknown as GameData));
+        communicationServiceSpy.createNewGame.and.returnValue(of(null as unknown as HttpResponse<string>));
+        spyOn((service as any).component.getRouter, 'navigate').and.returnValue(Promise.resolve(true));
+        (service as any).saveNameGame('test');
+        expect(communicationServiceSpy.getGame).toHaveBeenCalledWith('test');
+        expect(communicationServiceSpy.createNewGame).toHaveBeenCalled();
+        expect((service as any).component.getRouter.navigate).toHaveBeenCalledWith(['/config']);
+    });
 
-    // TODO: fix this test
-    // it('should alert in case createNewGame return null', () => {
-    //     spyOn(service as any, 'convertImageToB64Url').and.returnValue('https://example.com/image3.jpg');
-    //     (service as any).component.differenceCount = 0;
-    //     (service as any).component.difficulty = 'facile';
-    //     (service as any).component.differenceMatrix = [[]];
-    //     spyOn(window, 'alert');
-    //     gameData = null as unknown as GameData;
-    //     communicationServiceSpy.createNewGame.and.returnValue(
-    //         throwError(() => {
-    //             new Error('bad request');
-    //         }),
-    //     );
-    //     (service as any).saveNameGame('test');
-    //     expect(communicationServiceSpy.getGame).toHaveBeenCalledWith('test');
-    //     expect(communicationServiceSpy.createNewGame).toHaveBeenCalled();
-    //     expect(window.alert).toHaveBeenCalledWith('Erreur lors de la création du jeu');
-    // });
+    it('should alert in case createNewGame return null', () => {
+        spyOn(service as any, 'convertImageToB64Url').and.returnValue('https://example.com/image3.jpg');
+        (service as any).component.differenceCount = 0;
+        (service as any).component.difficulty = 'facile';
+        (service as any).component.differenceMatrix = [[]];
+        spyOn(window, 'alert');
+        gameData = null as unknown as GameData;
+        communicationServiceSpy.getGame.and.returnValue(of(undefined as unknown as GameData));
+        communicationServiceSpy.createNewGame.and.returnValue(
+            throwError(() => {
+                new Error('bad request');
+            }),
+        );
+        (service as any).saveNameGame('test');
+        expect(communicationServiceSpy.getGame).toHaveBeenCalledWith('test');
+        expect(communicationServiceSpy.createNewGame).toHaveBeenCalled();
+        expect(window.alert).toHaveBeenCalledWith('Erreur lors de la création du jeu');
+    });
 
     it("shouldn't runDetectionSystem if image1 or image2 is undefined", () => {
         (service as any).component.image1 = undefined as unknown as HTMLInputElement;

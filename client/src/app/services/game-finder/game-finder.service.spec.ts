@@ -1,11 +1,24 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable max-classes-per-file */
 import { TestBed } from '@angular/core/testing';
 
-import { GameFinderService } from './game-finder.service';
-import { GameContext } from '@app/interfaces/game';
+import { GameFinderService } from '@app/services/game-finder/game-finder.service';
 import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
-import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { Socket } from 'socket.io-client';
+import { SocketTestHelper } from '@app/classes/socket-test-helper';
+import { GameCardComponent } from '@app/components/game-card/game-card.component';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { HttpClientModule } from '@angular/common/http';
+import { NgModule } from '@angular/core';
+import { OverlayModule } from '@angular/cdk/overlay';
+import { MatDialogModule } from '@angular/material/dialog';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { RouterTestingModule } from '@angular/router/testing';
+import { AppRoutingModule } from '@app/modules/app-routing.module';
+
+@NgModule({
+    imports: [HttpClientModule, OverlayModule, MatDialogModule, BrowserAnimationsModule],
+})
+export class DynamicTestModule {}
 
 class SocketClientServiceMock extends CommunicationSocketService {
     override connect() {
@@ -14,68 +27,65 @@ class SocketClientServiceMock extends CommunicationSocketService {
 }
 
 describe('GameFinderService', () => {
-    let gameContextLimitedTime: GameContext;
-    let gameContextClassic: GameContext;
-
     let service: GameFinderService;
     let socketServiceMock: SocketClientServiceMock;
     let socketHelper: SocketTestHelper;
-
+    let gameCardComponent: GameCardComponent;
     beforeEach(() => {
-        gameContextLimitedTime = { gameName: 'test', gameMode: 'limited-time-mode' };
-        gameContextClassic = { gameName: 'test', gameMode: 'classic-mode' };
         socketHelper = new SocketTestHelper();
         socketServiceMock = new SocketClientServiceMock();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (socketServiceMock as any).socket = socketHelper as unknown as Socket;
         TestBed.configureTestingModule({
-            providers: [CommunicationSocketService, { provide: CommunicationSocketService, useValue: socketServiceMock }],
+            imports: [AppRoutingModule, DynamicTestModule, RouterTestingModule, HttpClientTestingModule],
+            providers: [GameCardComponent, { provide: CommunicationSocketService, useValue: socketServiceMock }],
         });
         service = TestBed.inject(GameFinderService);
+        gameCardComponent = TestBed.inject(GameCardComponent);
     });
 
     it('should be created', () => {
         expect(service).toBeTruthy();
     });
 
-    it('should check game', () => {
-        const connectSpy = spyOn(service, 'connectSocket').and.stub();
+    it('check game should connect socket and send checkGame event', () => {
+        const connectSpy = spyOn(socketServiceMock, 'connect').and.stub();
         const sendSpy = spyOn(socketServiceMock, 'send').and.stub();
-        const onSpy = spyOn(socketServiceMock, 'on').and.stub();
+        service.gameMode = 'limited-time-mode';
         service.checkGame();
         expect(connectSpy).toHaveBeenCalled();
-        expect(sendSpy).toHaveBeenCalled();
-        expect(onSpy).toHaveBeenCalled();
+        expect(sendSpy).toHaveBeenCalledWith('checkGame', { gameName: undefined, gameMode: 'limited-time-mode' });
     });
 
-    it('should set gameExists$ to true if game is found and gameMode is limited-time-mode', () => {
-        const gameExistsSpy = spyOn(service.gameExists$, 'next');
+    it('check game should handle gameFound event for limited-time-mode', () => {
+        const gameExistsSpy = spyOn(service.gameExists$, 'next').and.stub();
         service.gameMode = 'limited-time-mode';
         service.checkGame();
-        socketHelper.peerSideEmit('gameFound', gameContextLimitedTime);
+        socketHelper.peerSideEmit('gameFound', { gameName: undefined, gameMode: 'limited-time-mode' });
         expect(gameExistsSpy).toHaveBeenCalledWith(true);
     });
 
-    it('should set gameExists$ to true if game is found and gameName is the same', () => {
-        const gameExistsSpy = spyOn(service.gameExists$, 'next');
+    it('check game should handle gameFound event for limited-time-mode', () => {
+        const gameExistsSpy = spyOn(service.gameExists$, 'next').and.stub();
         service.gameMode = 'classic-mode';
         service.checkGame('test');
-        socketHelper.peerSideEmit('gameFound', gameContextClassic);
+        socketHelper.peerSideEmit('gameFound', { gameName: 'test', gameMode: 'classic-mode' });
         expect(gameExistsSpy).toHaveBeenCalledWith(true);
     });
 
-    it('should set gameExists$ to false if gameDeleted is received and gameMode is limited-time-mode', () => {
-        const gameExistsSpy = spyOn(service.gameExists$, 'next');
+    it('check game should handle gameDeleted event for limited-time-mode', () => {
+        const gameExistsSpy = spyOn(service.gameExists$, 'next').and.stub();
         service.gameMode = 'limited-time-mode';
         service.checkGame();
-        socketHelper.peerSideEmit('gameDeleted', gameContextLimitedTime);
+        socketHelper.peerSideEmit('gameDeleted', { gameName: undefined, gameMode: 'limited-time-mode' });
         expect(gameExistsSpy).toHaveBeenCalledWith(false);
     });
 
-    it('should set gameExists$ to false if gameDeleted is received and gameName is the same', () => {
-        const gameExistsSpy = spyOn(service.gameExists$, 'next');
+    it('check game should handle gameDeleted event for limited-time-mode', () => {
+        const gameExistsSpy = spyOn(service.gameExists$, 'next').and.stub();
         service.gameMode = 'classic-mode';
         service.checkGame('test');
-        socketHelper.peerSideEmit('gameDeleted', gameContextClassic);
+        socketHelper.peerSideEmit('gameDeleted', { gameName: 'test', gameMode: 'classic-mode' });
         expect(gameExistsSpy).toHaveBeenCalledWith(false);
     });
 
@@ -95,7 +105,7 @@ describe('GameFinderService', () => {
         expect(connectSpy).not.toHaveBeenCalled();
     });
 
-    it('should disconnect socket if it is alive', () => {
+    it('should disconnet socket if it is alive', () => {
         const socketAliveSpy = spyOn(socketServiceMock, 'isSocketAlive').and.returnValue(true);
         const disconnectSpy = spyOn(socketServiceMock, 'disconnect').and.stub();
         service.disconnectSocket();
@@ -103,7 +113,7 @@ describe('GameFinderService', () => {
         expect(disconnectSpy).toHaveBeenCalled();
     });
 
-    it('should not disconnect socket if it is not alive', () => {
+    it('should not disconnet socket if it is not alive', () => {
         const socketAliveSpy = spyOn(socketServiceMock, 'isSocketAlive').and.returnValue(false);
         const disconnectSpy = spyOn(socketServiceMock, 'disconnect').and.stub();
         service.disconnectSocket();
@@ -111,28 +121,24 @@ describe('GameFinderService', () => {
         expect(disconnectSpy).not.toHaveBeenCalled();
     });
 
-    // TODO fix these 2 tests
-    it('should disconnect socket when cannotJoinGame is received', () => {
+    it('canJoinGame should send canJoinGame event', () => {
         const sendSpy = spyOn(socketServiceMock, 'send').and.stub();
-        const onSpy = spyOn(socketServiceMock, 'on').and.stub();
-        const disconnectSpy = spyOn(service, 'disconnectSocket').and.stub();
-        const gameCardMock = jasmine.createSpyObj('GameCardComponent', ['applyBorder']);
-        service.canJoinGame('test', gameCardMock);
-        socketHelper.peerSideEmit('cannotJoinGame');
-        expect(sendSpy).toHaveBeenCalled();
-        expect(onSpy).toHaveBeenCalled();
-        expect(gameCardMock.applyBorder).toBeTrue();
-        expect(disconnectSpy).toHaveBeenCalled();
+        service.canJoinGame('username', gameCardComponent);
+        expect(sendSpy).toHaveBeenCalledWith('canJoinGame', { gameName: undefined, username: 'username', gameMode: undefined });
     });
 
-    it('should join game when canJoinGame is received', () => {
-        const sendSpy = spyOn(socketServiceMock, 'send').and.stub();
-        const onSpy = spyOn(socketServiceMock, 'on').and.stub();
-        const gameCardMock = jasmine.createSpyObj('GameCardComponent', ['joinGame']);
-        service.canJoinGame('test', gameCardMock, 'test');
+    it('should handle canJoinGame event', () => {
+        const canJoinGameSpy = spyOn(gameCardComponent, 'joinGame').and.stub();
+        service.canJoinGame('username', gameCardComponent);
         socketHelper.peerSideEmit('canJoinGame');
-        expect(sendSpy).toHaveBeenCalled();
-        expect(onSpy).toHaveBeenCalled();
-        expect(gameCardMock.joinGame).toHaveBeenCalled();
+        expect(canJoinGameSpy).toHaveBeenCalled();
+    });
+
+    it('should handle cannotJoinGame event', () => {
+        const disconnectSocketSpy = spyOn(service, 'disconnectSocket').and.stub();
+        service.canJoinGame('username', gameCardComponent);
+        socketHelper.peerSideEmit('cannotJoinGame');
+        expect(disconnectSocketSpy).toHaveBeenCalled();
+        expect(gameCardComponent.applyBorder).toBeTruthy();
     });
 });

@@ -1,28 +1,115 @@
-import { TestBed } from '@angular/core/testing';
+/* eslint-disable max-lines */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { TestBed, discardPeriodicTasks, fakeAsync, tick } from '@angular/core/testing';
 
 import { PlayAreaService } from './play-area.service';
+import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
+import { ReplayPlayAreaComponent } from '@app/components/replay-components/replay-play-area/replay-play-area.component';
+import { AppRoutingModule } from '@app/modules/app-routing.module';
+import { HttpClientModule } from '@angular/common/http';
+import { OverlayModule } from '@angular/cdk/overlay';
+import { MatDialogModule } from '@angular/material/dialog';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NgModule } from '@angular/core';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+// import { Vec2 } from '@app/interfaces/vec2';
+
+@NgModule({
+    imports: [HttpClientModule, OverlayModule, MatDialogModule, BrowserAnimationsModule],
+})
+export class DynamicTestModule {}
 
 describe('PlayAreaService', () => {
     let service: PlayAreaService;
+    let component: PlayAreaComponent;
+    let replayComponent: ReplayPlayAreaComponent;
 
     beforeEach(() => {
-        TestBed.configureTestingModule({});
+        TestBed.configureTestingModule({
+            imports: [HttpClientTestingModule, RouterTestingModule, AppRoutingModule, DynamicTestModule],
+            providers: [PlayAreaService, PlayAreaComponent, ReplayPlayAreaComponent],
+        });
         service = TestBed.inject(PlayAreaService);
+        component = TestBed.inject(PlayAreaComponent);
+        replayComponent = TestBed.inject(ReplayPlayAreaComponent);
     });
 
     it('should be created', () => {
         expect(service).toBeTruthy();
     });
 
-    // TODO OLD PLAY AREA TESTS
+    it('should set playAreaComponent', () => {
+        service.setComponent(component, false);
+        expect((service as any).component).toEqual(component);
+        expect((service as any).replay).toBeFalsy();
+        expect((service as any).normalComponent).toEqual(component);
+    });
 
+    it('should set ReplayPlayAreaComponent', () => {
+        service.setComponent(replayComponent, true);
+        expect((service as any).component).toEqual(replayComponent);
+        expect((service as any).replay).toBeTruthy();
+        expect((service as any).replayComponent).toEqual(replayComponent);
+    });
+
+    it('should setCheatMode', () => {
+        service.setCheatMode();
+        expect((service as any).isCheatModeOn).toBeFalsy();
+    });
+
+    it('should set speed', () => {
+        service.setSpeed(1);
+        expect((service as any).speed).toEqual(1);
+    });
+
+    it('should clearAsync', () => {
+        spyOn(window, 'clearInterval').and.stub();
+        service.clearAsync();
+        expect(window.clearInterval).toHaveBeenCalled();
+    });
+
+    it('should start confetti without coordinates', fakeAsync(() => {
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        spyOn(Math, 'random').and.returnValue(0.5);
+        spyOn(window, 'setTimeout').and.callThrough();
+        spyOn(window, 'setInterval').and.callThrough();
+        service.setSpeed(1);
+        service.startConfetti(undefined);
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        tick(1000);
+        expect((service as any).intervalId).toBeDefined();
+        expect(window.setInterval).toHaveBeenCalled();
+        discardPeriodicTasks();
+    }));
+
+    // it('should start confetti with coordinates', fakeAsync(() => {
+    //     // const layer = document.createElement('canvas');
+    //     // layer.width = 1000;
+    //     // layer.height = 1000;
+    //     // component.context1 = layer.getContext('2d') as CanvasRenderingContext2D;
+    //     // component.context2 = layer.getContext('2d') as CanvasRenderingContext2D;
+    //     service.setComponent(component, false);
+    //     const coords: Vec2 = { x: 100, y: 200 };
+    //     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+    //     spyOn(Math, 'random').and.returnValue(0.5);
+    //     spyOn(window, 'setTimeout').and.callThrough();
+    //     spyOn(window, 'setInterval').and.callThrough();
+    //     service.setSpeed(1);
+    //     service.startConfetti(coords);
+    //     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+    //     tick(1000);
+    //     expect((service as any).confettiInterval).toBeDefined();
+    //     expect(window.setInterval).toHaveBeenCalled();
+    //     discardPeriodicTasks();
+    // }));
     // it('should call handleImageLoad when original image is loaded', (done) => {
-    //     const handleImageLoadSpy = spyOn(component as unknown, 'handleImageLoad').and.callFake(() => {
+    //     const handleImageLoadSpy = spyOn(service as any, 'handleImageLoad').and.callFake(() => {
     //         return;
     //     });
-    //     (component as unknown).original.src = 'https://picsum.photos/id/88/200/300';
-    //     component.ngOnChanges();
-    //     (component as unknown).original.dispatchEvent(new Event('load'));
+    //     (service as unknown).original.src = 'https://picsum.photos/id/88/200/300';
+    //     service.ngOnChanges();
+    //     (service as unknown).original.dispatchEvent(new Event('load'));
     //     setTimeout(() => {
     //         expect(handleImageLoadSpy).toHaveBeenCalledWith((component as unknown).context1, (component as unknown).original);
     //         done();
@@ -276,4 +363,5 @@ describe('PlayAreaService', () => {
     //     tick(ms);
     //     expect(spy).toHaveBeenCalledTimes(1);
     //     discardPeriodicTasks();
+    // }));
 });
