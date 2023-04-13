@@ -195,12 +195,13 @@ export class GameModeService {
         }
     }
 
-    abandonLimitedTimeMode(gameRoom: GameRoom, username: string, socketId: string): void {
+    abandonLimitedTimeMode(gameRoom: GameRoom, username: string): void {
         if (gameRoom.userGame.username1 === username) {
             gameRoom.userGame.username1 = gameRoom.userGame.username2;
         }
         gameRoom.userGame.username2 = '';
         const gameHistory = this.getGameHistory(gameRoom.roomId);
+        gameHistory.abandonned = username;
         this.setGameHistory(gameRoom.roomId, gameHistory);
         this.setGameRoom(gameRoom);
     }
