@@ -1,4 +1,4 @@
-<div id="container">
+<body>
     <div class="cards">
         <div class="card">
             <div class="front-card">
@@ -22,7 +22,7 @@
     <button *ngIf="this.page === 'config'" routerLink="{{ routeTwo }}" (click)="resetCard()">{{ btnTwo }}</button>
     <button *ngIf="this.page === 'selection'" (click)="showInput1 = true; showInput2 = false; focusInput(); onCardSelect()">Jouer en solo</button>
     <button *ngIf="this.page === 'selection'" (click)="showInput1 = false; showInput2 = true; checkGame(); focusInput(); onCardSelect()">
-        Option multijoueur
+        Jouer en un contre un
     </button>
     <div class="player-name" *ngIf="showInput1 && slide.isSelected">
         <input
@@ -46,4 +46,4 @@
         />
         <button #multiButton (click)="verifyMultiInput()">{{ this.gameExists ? 'Joindre' : 'Créer' }}</button>
     </div>
-</div>
+</body>

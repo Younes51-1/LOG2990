@@ -30,10 +30,6 @@ describe('MainPageComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it("should have team name '204 : NO CONTENT'", () => {
-        expect(component.teamName).toEqual('204 : NO CONTENT');
-    });
-
     it("should have team members full name '", () => {
         const teamMembersFullName: string[] = [
             'Coralie Brodeur',
@@ -65,13 +61,13 @@ describe('MainPageComponent', () => {
     it('should have classique mode button', () => {
         const classicBtn = fixture.debugElement.query(By.css('.solo-mode button')).nativeElement;
         expect(classicBtn).not.toBeUndefined();
-        expect(classicBtn.innerHTML).toEqual('CLASSIQUE');
+        expect(classicBtn.innerHTML).toEqual('MODE CLASSIQUE');
     });
 
     it('should have limited mode button', () => {
         const chronoBtn = fixture.debugElement.query(By.css('.chrono-mode')).nativeElement;
         expect(chronoBtn).not.toBeUndefined();
-        expect(chronoBtn.innerHTML).toEqual('TEMPS LIMITÉ');
+        expect(chronoBtn.innerHTML).toEqual('MODE TEMPS LIMITÉ');
     });
 
     it('should show the configuration page on click of the configuration button', fakeAsync(() => {

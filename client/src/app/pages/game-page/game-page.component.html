@@ -33,4 +33,4 @@
     ></app-play-area>
     <app-chat-box [gameRoom]="gameRoom" [username]="username" (sendChatMessage)="getChatMessage($event)"></app-chat-box>
 </section>
-<button (click)="endGame()">Abandonner la partie</button>
+<button class="end" (click)="endGame()">Abandonner la partie</button>

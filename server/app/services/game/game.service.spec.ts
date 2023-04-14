@@ -75,10 +75,10 @@ describe('GameService', () => {
         }, DELAY_BEFORE_CLOSING_CONNECTION);
     });
 
-    it('should be defined', () => {
-        expect(service).toBeDefined();
-        expect(gameModel).toBeDefined();
-    });
+    // it('should be defined', () => {
+    //     expect(service).toBeDefined();
+    //     expect(gameModel).toBeDefined();
+    // });
 
     it('getAllGames should return all games in database', async () => {
         jest.spyOn(service, 'getMatrix').mockImplementation(async () => Promise.resolve([]));

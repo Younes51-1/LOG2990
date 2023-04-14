@@ -44,10 +44,10 @@ p {
     height: 20px;
     position: absolute;
     border-radius: 50%;
-    background-color: #8200FF;
+    background-color: #006aff;
     left: 15%;
     transform-origin: 50%;
-    animation: circle .5s alternate infinite ease;
+    animation: circle 0.5s alternate infinite ease;
 }
 
 @keyframes circle {
@@ -71,27 +71,27 @@ p {
 
 .circle:nth-child(2) {
     left: 45%;
-    animation-delay: .2s;
+    animation-delay: 0.2s;
 }
 
 .circle:nth-child(3) {
     left: auto;
     right: 15%;
-    animation-delay: .3s;
+    animation-delay: 0.3s;
 }
 
 .shadow {
     width: 20px;
     height: 4px;
     border-radius: 50%;
-    background-color: rgba(0, 0, 0, .5);
+    background-color: rgba(0, 0, 0, 0.5);
     position: fixed;
     top: 62px;
     transform-origin: 50%;
     z-index: -1;
     left: 15%;
     filter: blur(1px);
-    animation: shadow .5s alternate infinite ease;
+    animation: shadow 0.5s alternate infinite ease;
 }
 
 @keyframes shadow {
@@ -101,24 +101,24 @@ p {
 
     40% {
         transform: scaleX(1);
-        opacity: .7;
+        opacity: 0.7;
     }
 
     100% {
-        transform: scaleX(.2);
-        opacity: .4;
+        transform: scaleX(0.2);
+        opacity: 0.4;
     }
 }
 
 .shadow:nth-child(4) {
     left: 45%;
-    animation-delay: .2s
+    animation-delay: 0.2s;
 }
 
 .shadow:nth-child(5) {
     left: auto;
     right: 15%;
-    animation-delay: .3s;
+    animation-delay: 0.3s;
 }
 
 .wrapper span {
@@ -127,7 +127,7 @@ p {
     left: 20%;
     font-size: 200%;
     letter-spacing: 50%;
-    color: #8200FF;
+    color: #006aff;
 }
 
 button {
@@ -135,11 +135,11 @@ button {
     margin-left: 5px;
     text-align: center;
     padding: 0.7em 2em;
-    border: 3px solid #8200FF;
+    border: 3px solid #006aff;
     border-radius: 5px;
     position: relative;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.1);
-    color: #8200FF;
+    color: #006aff;
     text-decoration: none;
     transition: 0.3s ease all;
 }
@@ -153,7 +153,7 @@ button:before {
     bottom: 0;
     opacity: 0;
     content: '';
-    background-color: #8200FF;
+    background-color: #006aff;
     z-index: -1;
 }
 
