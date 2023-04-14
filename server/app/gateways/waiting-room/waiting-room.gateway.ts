@@ -1,6 +1,5 @@
 import { WaitingRoomEvents } from '@app/gateways/waiting-room/waiting-room.gateway.variables';
 import { GameRoom } from '@app/model/schema/game-room.schema';
-import { GameHistoryService } from '@app/services/game-history/game-history.service';
 import { GameModeService } from '@app/services/game-mode/game-mode.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
@@ -11,11 +10,7 @@ import { Server, Socket } from 'socket.io';
 export class WaitingRoomGateway implements OnGatewayDisconnect {
     @WebSocketServer() private server: Server;
 
-    constructor(
-        private readonly logger: Logger,
-        private readonly gameModeService: GameModeService,
-        private readonly gameHistoryService: GameHistoryService,
-    ) {}
+    constructor(private readonly logger: Logger, private readonly gameModeService: GameModeService) {}
 
     @SubscribeMessage(WaitingRoomEvents.Start)
     startGame(socket: Socket, roomId: string): void {

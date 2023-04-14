@@ -163,12 +163,12 @@ export class PlayAreaService {
 
     startCheatMode() {
         if (this.replay) this.replayCheatOn = true;
-        const flashDuration = Time.OneHundredTwentyFive / this.speed;
-        let isFlashing = true;
-        if (!this.replay) {
+        else {
             this.normalComponent.verifyDifferenceMatrix('cheat');
             this.normalComponent.sendCheatStart.emit({ layer: this.component.cheatLayer });
         }
+        const flashDuration = Time.OneHundredTwentyFive / this.speed;
+        let isFlashing = true;
         this.cheatInterval = setInterval(() => {
             if (isFlashing) {
                 this.updateContexts();
@@ -195,9 +195,7 @@ export class PlayAreaService {
 
     flashDifference(difference: number[][]) {
         if (!this.replay) this.normalComponent.sendDiff.emit({ diff: difference });
-        if (!this.component.context1 || !this.component.context2) {
-            return;
-        }
+        if (!this.component.context1 || !this.component.context2) return;
         const layer = this.createAndFillNewLayer(Color.Luigi, false, false, difference);
         let isFlashing = false;
         clearInterval(this.differenceInterval);
@@ -212,7 +210,7 @@ export class PlayAreaService {
         }, Time.Fifty / this.speed);
         this.layerTimeout = setTimeout(() => {
             if (!this.replay) {
-                this.removeDifference(this.normalComponent.currentDifferenceMatrix);
+                this.removeDifference(difference);
                 this.normalComponent.playerIsAllowedToClick = true;
             }
             clearInterval(this.differenceInterval);
@@ -227,9 +225,10 @@ export class PlayAreaService {
     errorAnswerVisuals(canvas: HTMLCanvasElement, pos: Vec2) {
         const nMilliseconds = Time.Thousand / this.speed;
         const context = canvas.getContext('2d');
-        const image = canvas === this.component.canvas1.nativeElement ? this.component.original : this.component.modified;
-        if (!this.replay)
+        if (!this.replay) {
+            const image = canvas === this.component.canvas1.nativeElement ? this.component.original : this.component.modified;
             this.normalComponent.sendError.emit({ pos: this.normalComponent.mousePosition, leftCanvas: image === this.component.original });
+        }
         if (context) {
             context.fillStyle = Color.Mario;
             clearTimeout(this.errorTimeout);
@@ -250,15 +249,12 @@ export class PlayAreaService {
         layer.width = this.component.width;
         layer.height = this.component.height;
         const context = layer.getContext('2d');
-        if (!context) {
-            return layer;
-        }
-        context.globalAlpha = isCheat || isHint ? helpAlphaValue : 1;
-        context.fillStyle = color;
+        (context as CanvasRenderingContext2D).globalAlpha = isCheat || isHint ? helpAlphaValue : 1;
+        (context as CanvasRenderingContext2D).fillStyle = color;
         for (let i = 0; i < matrix.length; i++) {
             for (let j = 0; j < matrix[0].length; j++) {
                 if (matrix[i][j] !== PossibleColor.EMPTYPIXEL) {
-                    context.fillRect(j, i, 1, 1);
+                    (context as CanvasRenderingContext2D).fillRect(j, i, 1, 1);
                 }
             }
         }
@@ -268,6 +264,13 @@ export class PlayAreaService {
     handleImageLoad(context: CanvasRenderingContext2D, image: HTMLImageElement) {
         if (context) {
             context.drawImage(image, 0, 0, this.component.width, this.component.height);
+        }
+    }
+
+    correctAnswerVisuals(pos: Vec2, differenceMatrix: number[][]) {
+        if (differenceMatrix) {
+            const currentDifferenceMatrix = this.detectionDifferenceService.extractDifference(JSON.parse(JSON.stringify(differenceMatrix)), pos);
+            this.flashDifference(currentDifferenceMatrix);
         }
     }
 
@@ -345,6 +348,7 @@ export class PlayAreaService {
     }
 
     private chooseDial(coords: Vec2, hintNum: number): number[][] {
+        if (hintNum !== 0 && hintNum !== 1) return [];
         const dialDimensions = [
             { width: 320, height: 240 },
             { width: 160, height: 120 },
@@ -370,8 +374,6 @@ export class PlayAreaService {
                 const dialIndex = Math.floor(coords.y / dialWidth) * 4 + Math.floor(coords.x / dialHeight);
                 return dialMatrix[dialIndex];
             }
-            default:
-                return [];
         }
     }
 

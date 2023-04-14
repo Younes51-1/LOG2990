@@ -337,11 +337,11 @@ describe('ImageLoadService', () => {
         gameData = null as unknown as GameData;
         communicationServiceSpy.getGame.and.returnValue(of(undefined as unknown as GameData));
         communicationServiceSpy.createNewGame.and.returnValue(of(null as unknown as HttpResponse<string>));
-        spyOn((service as any).component.getRouter, 'navigate').and.returnValue(Promise.resolve(true));
+        spyOn((service as any).router, 'navigate').and.returnValue(Promise.resolve(true));
         (service as any).saveNameGame('test');
         expect(communicationServiceSpy.getGame).toHaveBeenCalledWith('test');
         expect(communicationServiceSpy.createNewGame).toHaveBeenCalled();
-        expect((service as any).component.getRouter.navigate).toHaveBeenCalledWith(['/config']);
+        expect((service as any).router.navigate).toHaveBeenCalledWith(['/config']);
     });
 
     it('should alert in case createNewGame return null', () => {
@@ -369,10 +369,10 @@ describe('ImageLoadService', () => {
         (service as any).component.differenceMatrix = [];
         (service as any).component.differenceCount = 0;
         (service as any).component.difficulty = 'facile';
-        const countDifferencesSpy = spyOn((service as any).component.detectionService, 'countDifferences');
-        const createDifferencesImageSpy = spyOn((service as any).component.detectionService, 'createDifferencesImage');
-        const computeLevelDifficultySpy = spyOn((service as any).component.detectionService, 'computeLevelDifficulty');
-        (service as any).component.runDetectionSystem();
+        const countDifferencesSpy = spyOn((service as any).detectionService, 'countDifferences');
+        const createDifferencesImageSpy = spyOn((service as any).detectionService, 'createDifferencesImage');
+        const computeLevelDifficultySpy = spyOn((service as any).detectionService, 'computeLevelDifficulty');
+        (service as any).runDetectionSystem();
         expect(countDifferencesSpy).not.toHaveBeenCalled();
         expect(createDifferencesImageSpy).not.toHaveBeenCalled();
         expect(computeLevelDifficultySpy).not.toHaveBeenCalled();

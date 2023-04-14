@@ -1,6 +1,6 @@
 import { DELAY_BEFORE_CLOSING_CONNECTION } from '@app/constants';
 import { GameConstants, GameConstantsDocument, gameConstantsSchema } from '@app/model/database/game-constants';
-import { getConnectionToken, getModelToken, MongooseModule } from '@nestjs/mongoose';
+import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Model } from 'mongoose';
@@ -67,22 +67,15 @@ describe('GameConstantsService', () => {
         expect(gameConst.bonusTime).toEqual(getInitConstants().bonusTime);
     });
 
-    // it('initiateGameConstants should not create new constants in database if already present', async () => {
-    //     await gameConstantsModel.deleteMany({});
-    //     const gameConstants = await gameConstantsModel.create(getInitConstants());
-    //     gameConstants.initialTime = 10;
-    //     await gameConstantsModel.create(gameConstants);
-    //     await service.initiateGameConstants();
-    //     const afterInitgameConst = await service.getGameConstants();
-    //     expect(afterInitgameConst.initialTime).toEqual(gameConstants.initialTime);
-    // });
-
-    // doesnt work
-    // it('should have rejected if init cant create new constants', async () => {
-    //     jest.spyOn(gameConstantsModel, 'create').mockImplementation(async () => Promise.reject(''));
-    //     await gameConstantsModel.deleteMany({});
-    //     await expect(service.initiateGameConstants()).rejects.toBeTruthy();
-    // });
+    it('initiateGameConstants should not create new constants in database if already present', async () => {
+        await gameConstantsModel.deleteMany({});
+        const gameConstants = await gameConstantsModel.create(getInitConstants());
+        gameConstants.initialTime = 10;
+        await gameConstantsModel.create(gameConstants);
+        await service.initiateGameConstants();
+        const afterInitgameConst = await gameConstantsModel.findOne({});
+        expect(afterInitgameConst.initialTime).toEqual(gameConstants.initialTime);
+    });
 
     it('should update the game constants', async () => {
         await gameConstantsModel.deleteMany({});
