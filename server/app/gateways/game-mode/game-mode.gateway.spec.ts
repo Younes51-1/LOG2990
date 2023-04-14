@@ -263,6 +263,19 @@ describe('GameModeGateway', () => {
         expect(deleteRoomSpy).not.toHaveBeenCalled();
     });
 
+    it('socket disconnection should just return if and call abandonned when its multiplayer game', () => {
+        const deleteRoomSpy = jest.spyOn(gameModeService, 'deleteRoom').mockImplementation();
+        const abandonnedSpy = jest.spyOn(gateway, 'abandoned').mockImplementation();
+        jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
+            const gameRoom = getFakeGameRoom();
+            gameRoom.userGame.username2 = 'fakeUser2';
+            return gameRoom;
+        });
+        gateway.handleDisconnect(socket);
+        expect(abandonnedSpy).toHaveBeenCalled();
+        expect(deleteRoomSpy).not.toHaveBeenCalled();
+    });
+
     it('emitTime should emit time after 1s to connected socket', () => {
         const emitTimeSpy = jest.spyOn(gateway, 'emitTime');
         jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {

@@ -3,11 +3,9 @@ import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { DrawModes } from '@app/interfaces/creation-game';
 import { CreationGamePageComponent } from '@app/pages/creation-game-page/creation-game-page.component';
-import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 import { DrawingService } from '@app/services/drawing/drawing.service';
 import { ForegroundService } from '@app/services/foreground/foreground.service';
 import { ImageLoadService } from '@app/services/image-load/image-load.service';
@@ -17,9 +15,7 @@ describe('CreationGamePageComponent', () => {
     let fixture: ComponentFixture<CreationGamePageComponent>;
     let foregroundService: ForegroundService;
     let drawingService: DrawingService;
-    let communicationService: CommunicationHttpService;
     let imageLoadService: ImageLoadService;
-    let router: Router;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
@@ -28,9 +24,7 @@ describe('CreationGamePageComponent', () => {
         });
         foregroundService = TestBed.inject(ForegroundService);
         drawingService = TestBed.inject(DrawingService);
-        communicationService = TestBed.inject(CommunicationHttpService);
         imageLoadService = TestBed.inject(ImageLoadService);
-        router = TestBed.inject(Router);
         fixture = TestBed.createComponent(CreationGamePageComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
@@ -57,16 +51,8 @@ describe('CreationGamePageComponent', () => {
         expect(inputRayon3.checked).toBeTruthy();
     });
 
-    it('should return the router', () => {
-        expect(component.getRouter).toBe(router);
-    });
-
     it('should return the foreground service', () => {
         expect(component.getForegroundService).toBe(foregroundService);
-    });
-
-    it('should return the communication service', () => {
-        expect(component.getCommunicationService).toBe(communicationService);
     });
 
     it('ngAfterViewInit should call set components to services', () => {

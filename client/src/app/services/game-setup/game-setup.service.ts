@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
 import { GameData, GameRoom } from '@app/interfaces/game';
 import { GameConstants } from '@app/interfaces/game-constants';
 import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
@@ -18,13 +17,10 @@ export class GameSetupService {
     gameRoom$ = new Subject<GameRoom>();
     private slides: GameData[] = [];
 
-    // need all services to be injected in the constructor
-    // eslint-disable-next-line max-params
     constructor(
         private communicationService: CommunicationHttpService,
         private configHttpService: ConfigHttpService,
         private waitingRoomService: WaitingRoomService,
-        private router: Router,
     ) {
         this.getAllGames();
         this.getConstant();
@@ -42,6 +38,11 @@ export class GameSetupService {
 
     getAllGames() {
         this.communicationService.getAllGames().subscribe((games) => {
+            games.forEach((game) => {
+                this.communicationService.getGame(game.name).subscribe((gameData) => {
+                    game.differenceMatrix = gameData.differenceMatrix;
+                });
+            });
             this.slides = games;
         });
     }
@@ -81,18 +82,12 @@ export class GameSetupService {
         }
         this.gameRoom.userGame.gameData = slide;
         this.waitingRoomService.createGame(this.gameRoom);
-        if (this.gameRoom.started) {
-            this.router.navigate(['/game']);
-        }
     }
 
     initLimitedTimeMode(): void {
         this.gameRoom.userGame.gameData = this.randomSlide();
         this.gameRoom.userGame.timer = this.gameConstants.initialTime;
         this.waitingRoomService.createGame(this.gameRoom);
-        if (this.gameRoom.started) {
-            this.router.navigate(['/game']);
-        }
     }
 
     joinGame(username: string, gameName = undefined as unknown as string): void {

@@ -44,6 +44,10 @@ export class GameService {
         this.getConstant();
     }
 
+    getIsTyping(): boolean {
+        return this.chatService.getIsTyping();
+    }
+
     getConstant(): void {
         this.configHttpService.getConstants().subscribe((res) => {
             this.gameConstants = res;
@@ -80,6 +84,10 @@ export class GameService {
         this.handleSocket();
     }
 
+    sendMessage(message: string, username: string): void {
+        this.chatService.sendMessage(message, username, this.gameRoom.roomId);
+    }
+
     turnOffWaitingSocket(): void {
         this.socketService.off('gameInfo');
         this.socketService.off('gameCreated');
@@ -90,6 +98,11 @@ export class GameService {
 
     getAllGames() {
         this.communicationService.getAllGames().subscribe((games) => {
+            games.forEach((game) => {
+                this.communicationService.getGame(game.name).subscribe((gameData) => {
+                    game.differenceMatrix = gameData.differenceMatrix;
+                });
+            });
             this.slides = games;
             this.slides = this.slides.filter((game) => game.name !== this.gameRoom.userGame.gameData.name);
         });

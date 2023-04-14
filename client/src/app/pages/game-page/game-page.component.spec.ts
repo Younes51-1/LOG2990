@@ -15,18 +15,15 @@ import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-dialog.component';
 import { GameScoreboardComponent } from '@app/components/game-scoreboard/game-scoreboard.component';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
+import { DifferenceTry } from '@app/interfaces/difference-try';
 import { GameData, GameRoom } from '@app/interfaces/game';
-import { GameConstants } from '@app/interfaces/game-constants';
 import { Instruction } from '@app/interfaces/video-replay';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
-import { ChatService } from '@app/services/chat/chat.service';
-import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
-import { ConfigHttpService } from '@app/services/config-http/config-http.service';
 import { GameService } from '@app/services/game/game.service';
-import { of } from 'rxjs';
+import { PlayAreaService } from '@app/services/play-area/play-area.service';
+import { of, Subject } from 'rxjs';
 import { Socket } from 'socket.io-client';
-import SpyObj = jasmine.SpyObj;
 
 @NgModule({
     imports: [MatDialogModule, HttpClientModule, BrowserAnimationsModule],
@@ -45,11 +42,10 @@ describe('GamePageComponent', () => {
 
     let component: GamePageComponent;
     let fixture: ComponentFixture<GamePageComponent>;
-    let communicationServiceSpy: SpyObj<CommunicationHttpService>;
-    let gameServiceSpy: GameService;
+    let gameServiceSpy: jasmine.SpyObj<GameService>;
+    let playAreaService: jasmine.SpyObj<PlayAreaService>;
     let socketServiceMock: SocketClientServiceMock;
     let socketHelper: SocketTestHelper;
-    let chatServiceSpy: ChatService;
     const mockDialogRef = {
         afterClosed: () => of(true),
         // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -65,28 +61,57 @@ describe('GamePageComponent', () => {
             started: false,
             gameMode: 'mode classique',
         };
-        communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getGame']);
-        communicationServiceSpy.getGame.and.returnValue(of(gameData));
-        gameServiceSpy = jasmine.createSpyObj('GameService', ['timer$', 'differencesFound$', 'gameFinished$', 'userGame$']);
+        gameServiceSpy = jasmine.createSpyObj('GameService', [
+            'timer$',
+            'totalDifferencesFound$',
+            'userDifferencesFound$',
+            'gameFinished$',
+            'gameRoom$',
+            'getConstant',
+            'gameConstants',
+            'abandoned$',
+            'serverValidateResponse$',
+            'reset',
+            'sendMessage',
+            'changeTime',
+            'endGame',
+            'abandonGame',
+            'disconnectSocket',
+        ]);
+        gameServiceSpy.timer$ = new Subject<number>();
+        gameServiceSpy.totalDifferencesFound$ = new Subject<number>();
+        gameServiceSpy.userDifferencesFound$ = new Subject<number>();
+        gameServiceSpy.gameFinished$ = new Subject<boolean>();
+        gameServiceSpy.gameRoom$ = new Subject<GameRoom>();
+        gameServiceSpy.abandoned$ = new Subject<string>();
+        gameServiceSpy.serverValidateResponse$ = new Subject<DifferenceTry>();
+        gameServiceSpy.gameConstants = { initialTime: 10, penaltyTime: 10, bonusTime: 0 };
         socketHelper = new SocketTestHelper();
         socketServiceMock = new SocketClientServiceMock();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (socketServiceMock as any).socket = socketHelper as unknown as Socket;
-        chatServiceSpy = new ChatService(socketServiceMock);
-        spyOn(chatServiceSpy, 'sendMessage').and.callFake(() => {
-            return;
-        });
+        playAreaService = jasmine.createSpyObj('PlayAreaService', [
+            'cheatMode',
+            'flashDifference',
+            'errorAnswerVisuals',
+            'createAndFillNewLayer',
+            'handleImageLoad',
+            'setContexts',
+            'setComponent',
+            'setSpeed',
+            'setCheatMode',
+            'correctAnswerVisuals',
+            'clearAsync',
+            'hintMode',
+            'startConfetti',
+        ]);
         await TestBed.configureTestingModule({
             declarations: [GamePageComponent, GameScoreboardComponent, MatToolbar, EndgameDialogComponent, ChatBoxComponent, PlayAreaComponent],
             imports: [DynamicTestModule, RouterTestingModule, MatDialogModule, HttpClientTestingModule],
             providers: [
-                ChatService,
-                GameService,
-                CommunicationSocketService,
-                CommunicationHttpService,
-                ConfigHttpService,
+                { provide: PlayAreaService, useValue: playAreaService },
                 { provide: CommunicationSocketService, useValue: socketServiceMock },
-                { provide: ChatService, useValue: chatServiceSpy },
+                { provide: GameService, useValue: gameServiceSpy },
             ],
         }).compileComponents();
     });
@@ -110,7 +135,6 @@ describe('GamePageComponent', () => {
 
     it('should subscribe to timer$ observable', () => {
         const testingValue = 5;
-        gameServiceSpy = TestBed.inject(GameService);
         const spyTimer = spyOn(gameServiceSpy.timer$, 'subscribe').and.callThrough();
         component.ngOnInit();
         gameServiceSpy.timer$.next(testingValue);
@@ -120,7 +144,6 @@ describe('GamePageComponent', () => {
 
     it('should subscribe to totalDifferencesFound $ observable', () => {
         const testingValue = 5;
-        gameServiceSpy = TestBed.inject(GameService);
         const spyDifferencesFound = spyOn(gameServiceSpy.totalDifferencesFound$, 'subscribe').and.callThrough();
         component.ngOnInit();
         gameServiceSpy.totalDifferencesFound$.next(testingValue);
@@ -132,19 +155,16 @@ describe('GamePageComponent', () => {
         const testingValue = 5;
         component.gameRoom.userGame.username2 = 'user2';
         (component as any).differenceThreshold = 5;
-        gameServiceSpy = TestBed.inject(GameService);
         const spyDifferencesFound = spyOn(gameServiceSpy.userDifferencesFound$, 'subscribe').and.callThrough();
-        const endGameSpy = spyOn(gameServiceSpy, 'endGame');
         component.ngOnInit();
         gameServiceSpy.userDifferencesFound$.next(testingValue);
         expect(spyDifferencesFound).toHaveBeenCalled();
         expect(component.userDifferencesFound).toEqual(testingValue);
         expect(gameServiceSpy.gameFinished$).toBeTruthy();
-        expect(endGameSpy).toHaveBeenCalled();
+        expect(gameServiceSpy.endGame).toHaveBeenCalled();
     });
 
     it('should subscribe to gameFinished$ observable', fakeAsync(() => {
-        gameServiceSpy = TestBed.inject(GameService);
         const spyGameFinished = spyOn(gameServiceSpy.gameFinished$, 'subscribe').and.callThrough();
         const endGameSpy = spyOn(component, 'endGame');
         component.ngOnInit();
@@ -156,7 +176,6 @@ describe('GamePageComponent', () => {
     }));
 
     it('should subscribe to gameRoom$ observable', () => {
-        gameServiceSpy = TestBed.inject(GameService);
         const spyUserGame = spyOn(gameServiceSpy.gameRoom$, 'subscribe').and.callThrough();
         component.ngOnInit();
         gameServiceSpy.gameRoom$.next(gameRoom);
@@ -167,7 +186,6 @@ describe('GamePageComponent', () => {
     });
 
     it('should subscribe to gameRoom$ observable and assign opponent username to username2', () => {
-        gameServiceSpy = TestBed.inject(GameService);
         gameServiceSpy.username = gameRoom.userGame.username1;
         gameRoom.userGame.username2 = 'username2';
         const spyUserGame = spyOn(gameServiceSpy.gameRoom$, 'subscribe').and.callThrough();
@@ -181,7 +199,6 @@ describe('GamePageComponent', () => {
     });
 
     it('should subscribe to gameRoom$ observable and assign opponent username to username1', () => {
-        gameServiceSpy = TestBed.inject(GameService);
         gameRoom.userGame.username2 = 'username2';
         gameServiceSpy.username = gameRoom.userGame.username2;
         const spyUserGame = spyOn(gameServiceSpy.gameRoom$, 'subscribe').and.callThrough();
@@ -195,7 +212,6 @@ describe('GamePageComponent', () => {
     });
 
     it('should assign the corresponding threshold from gameRoom$ observable for even differences number in multiplayer mode', () => {
-        gameServiceSpy = TestBed.inject(GameService);
         gameRoom.userGame.username2 = 'username2';
         gameRoom.userGame.gameData.nbDifference = 10;
         const spyUserGame = spyOn(gameServiceSpy.gameRoom$, 'subscribe').and.callThrough();
@@ -209,7 +225,6 @@ describe('GamePageComponent', () => {
     });
 
     it('should assign the corresponding threshold from gameRoom$ observable for odd differences number in multiplayer mode', () => {
-        gameServiceSpy = TestBed.inject(GameService);
         gameRoom.userGame.username2 = 'username2';
         gameRoom.userGame.gameData.nbDifference = 11;
         const spyUserGame = spyOn(gameServiceSpy.gameRoom$, 'subscribe').and.callThrough();
@@ -223,7 +238,6 @@ describe('GamePageComponent', () => {
     });
 
     it('should assign the corresponding threshold from gameRoom$ observable solo mode', () => {
-        gameServiceSpy = TestBed.inject(GameService);
         gameRoom.userGame.gameData.nbDifference = 11;
         const spyUserGame = spyOn(gameServiceSpy.gameRoom$, 'subscribe').and.callThrough();
         component.ngOnInit();
@@ -236,42 +250,37 @@ describe('GamePageComponent', () => {
     });
 
     it('should subscribe to abandoned$ observable', () => {
-        gameServiceSpy = TestBed.inject(GameService);
         const spyAbandonGame = spyOn(gameServiceSpy.abandoned$, 'subscribe').and.callThrough();
         component.ngOnInit();
         gameServiceSpy.abandoned$.next('test');
         expect(spyAbandonGame).toHaveBeenCalled();
     });
 
-    it('should call startConfetti on abandoned$ observable in mode classique', () => {
+    it('should call startConfetti on abandoned$ observable in classic-mode', () => {
         gameServiceSpy = TestBed.inject(GameService);
         const consfettiSpy = spyOn((component as any).playAreaService, 'startConfetti').and.stub();
         const abandonGameSpy = spyOn(gameServiceSpy.abandoned$, 'subscribe').and.callThrough();
-        const endGameSpy = spyOn((component as any).gameService, 'endGame').and.stub();
+        gameServiceSpy.endGame.and.stub();
         const unsubscribeSpy = spyOn(component as any, 'unsubscribe').and.stub();
         (component as any).gameService.gameMode = 'mode classique';
         component.ngOnInit();
         gameServiceSpy.abandoned$.next('test');
         expect(abandonGameSpy).toHaveBeenCalled();
-        expect(consfettiSpy).toHaveBeenCalled();
-        expect(endGameSpy).toHaveBeenCalled();
+        expect(playAreaService.startConfetti).toHaveBeenCalled();
+        expect(gameServiceSpy.endGame).toHaveBeenCalled();
         expect(unsubscribeSpy).toHaveBeenCalled();
     });
 
     it('should call getConstants and getConstantsFromServer', () => {
-        const gameServiceConstantSpy = spyOn((component as any).gameService, 'getConstant').and.stub();
-        const configServiceConstantSpy = spyOn((component as any).configService, 'getConstants').and.returnValue(
-            of({ initialTime: 100, penaltyTime: 10, bonusTime: 5 } as GameConstants),
-        );
+        gameServiceSpy.getConstant.and.stub();
         component.ngOnInit();
-        expect(gameServiceConstantSpy).toHaveBeenCalled();
-        expect(configServiceConstantSpy).toHaveBeenCalled();
+        expect(gameServiceSpy.getConstant).toHaveBeenCalled();
         expect(component.penaltyTime).toEqual(10);
     });
 
     it('should open EndgameDialogComponent with correct data if all differences found in single player mode and classic mode', () => {
         (component as any).gameFinished = true;
-        spyOn((component as any).gameService, 'endGame').and.stub();
+        gameServiceSpy.endGame.and.stub();
         component.totalDifferencesFound = component.gameRoom.userGame.gameData.nbDifference;
         const matDialogSpy = spyOn((component as any).dialog, 'open').and.callThrough();
         component.endGame();
@@ -291,7 +300,7 @@ describe('GamePageComponent', () => {
         (component as any).gameFinished = true;
         component.totalDifferencesFound = 0;
         component.gameRoom.userGame.username2 = 'test';
-        spyOn((component as any).gameService, 'endGame').and.stub();
+        gameServiceSpy.endGame.and.stub();
         component.userDifferencesFound = (component as any).differenceThreshold;
         const matDialogSpy = spyOn((component as any).dialog, 'open').and.callThrough();
         component.endGame();
@@ -310,7 +319,7 @@ describe('GamePageComponent', () => {
     it('should open EndgameDialogComponent with correct data if in multiplayer mode and looser in classic mode', () => {
         (component as any).gameFinished = true;
         component.totalDifferencesFound = 0;
-        spyOn((component as any).gameService, 'endGame').and.stub();
+        gameServiceSpy.endGame.and.stub();
         component.gameRoom.userGame.gameData.nbDifference = 1;
         component.gameRoom.userGame.username2 = 'test';
         (component as any).differenceThreshold = 1;
@@ -337,7 +346,7 @@ describe('GamePageComponent', () => {
 
     it('should open EndgameDialogComponent with correct data if all differences found in single player mode and limited time mode', () => {
         (component as any).gameFinished = true;
-        spyOn((component as any).gameService, 'endGame').and.stub();
+        gameServiceSpy.endGame.and.stub();
         component.totalDifferencesFound = component.gameRoom.userGame.gameData.nbDifference;
         const matDialogSpy = spyOn((component as any).dialog, 'open').and.callThrough();
         component.gameRoom.gameMode = 'limited-time-mode';
@@ -365,37 +374,37 @@ describe('GamePageComponent', () => {
     it('should open EndgameDialogComponent and abandon game if abandon is true', fakeAsync(() => {
         spyOn((component as any).dialog, 'open').and.returnValue(mockDialogRef as MatDialogRef<EndgameDialogComponent>);
         spyOn((component as any).router, 'navigate');
-        spyOn((component as any).gameService, 'abandonGame');
-        spyOn((component as any).gameService, 'disconnectSocket');
+        gameServiceSpy.abandonGame.and.stub();
+        gameServiceSpy.disconnectSocket.and.stub();
         (component as any).abandonConfirmation();
         flush();
         expect((component as any).dialog.open).toHaveBeenCalled();
-        expect((component as any).gameService.abandonGame).toHaveBeenCalled();
-        expect((component as any).gameService.disconnectSocket).toHaveBeenCalled();
+        expect(gameServiceSpy.abandonGame).toHaveBeenCalled();
+        expect(gameServiceSpy.disconnectSocket).toHaveBeenCalled();
         expect((component as any).router.navigate).toHaveBeenCalledWith(['/home']);
     }));
 
     it('should send error message in case of error', () => {
         component.username = gameRoom.userGame.username1;
         component.sendEvent('error');
-        expect(chatServiceSpy.sendMessage).toHaveBeenCalledWith(`Erreur par ${component.username}`, 'Système', component.gameRoom.roomId);
+        expect(gameServiceSpy.sendMessage).toHaveBeenCalledWith(`Erreur par ${component.username}`, 'Système');
     });
 
     it('should send success message in case of success', () => {
         component.username = gameRoom.userGame.username1;
         component.sendEvent('success');
-        expect(chatServiceSpy.sendMessage).toHaveBeenCalledWith(`Différence trouvée par ${component.username}`, 'Système', component.gameRoom.roomId);
+        expect(gameServiceSpy.sendMessage).toHaveBeenCalledWith(`Différence trouvée par ${component.username}`, 'Système');
     });
 
     it('should send abandon message in case of abandon', () => {
         component.username = gameRoom.userGame.username1;
         component.sendEvent('abandon');
-        expect(chatServiceSpy.sendMessage).toHaveBeenCalledWith(`${component.username} a abandonné la partie`, 'Système', component.gameRoom.roomId);
+        expect(gameServiceSpy.sendMessage).toHaveBeenCalledWith(`${component.username} a abandonné la partie`, 'Système');
     });
 
     it('should send hint message in case of hint', () => {
         component.sendEvent('hint');
-        expect(chatServiceSpy.sendMessage).toHaveBeenCalledWith('Indice utilisé', 'Système', component.gameRoom.roomId);
+        expect(gameServiceSpy.sendMessage).toHaveBeenCalledWith('Indice utilisé', 'Système');
     });
 
     it('should have a button to quit the game', fakeAsync(() => {
@@ -424,24 +433,20 @@ describe('GamePageComponent', () => {
 
     it('toggleHint should call hintMode, sendEvent and changeTime with penaltyTime in classic mode', () => {
         (component as any).gameService.gameConstants = { initialTime: 100, penaltyTime: 10, bonusTime: 5 };
-        const changeTimeSpy = spyOn((component as any).gameService, 'changeTime').and.stub();
-        const hintModeSpy = spyOn((component as any).playAreaService, 'hintMode').and.stub();
         const sendEventSpy = spyOn(component as any, 'sendEvent').and.stub();
         component.toggleHint();
-        expect(changeTimeSpy).toHaveBeenCalledWith(10);
-        expect(hintModeSpy).toHaveBeenCalled();
+        expect(gameServiceSpy.changeTime).toHaveBeenCalledWith(10);
+        expect(playAreaService.hintMode).toHaveBeenCalled();
         expect(sendEventSpy).toHaveBeenCalled();
     });
 
     it('toggleHint should call hintMode, sendEvent and changeTime with penaltyTime in limited mode', () => {
         (component as any).gameService.gameConstants = { initialTime: 100, penaltyTime: 10, bonusTime: 5 };
-        const changeTimeSpy = spyOn((component as any).gameService, 'changeTime').and.stub();
-        const hintModeSpy = spyOn((component as any).playAreaService, 'hintMode').and.stub();
         const sendEventSpy = spyOn(component as any, 'sendEvent').and.stub();
         (component as any).gameService.gameMode = 'limited-time-mode';
         component.toggleHint();
-        expect(changeTimeSpy).toHaveBeenCalledWith(-10);
-        expect(hintModeSpy).toHaveBeenCalled();
+        expect(gameServiceSpy.changeTime).toHaveBeenCalledWith(-10);
+        expect(playAreaService.hintMode).toHaveBeenCalled();
         expect(sendEventSpy).toHaveBeenCalled();
     });
 
@@ -518,12 +523,12 @@ describe('GamePageComponent', () => {
     });
 
     it('should reset and clearAsync on ngOnDestroy', () => {
-        const resetSpy = spyOn((component as any).gameService, 'reset').and.stub();
-        const clearAsyncSpy = spyOn((component as any).playAreaService, 'clearAsync').and.stub();
+        gameServiceSpy.reset.and.stub();
+        playAreaService.clearAsync.and.stub();
         const closeAllSpy = spyOn((component as any).dialog, 'closeAll').and.stub();
         component.ngOnDestroy();
         expect(closeAllSpy).toHaveBeenCalled();
-        expect(resetSpy).toHaveBeenCalled();
-        expect(clearAsyncSpy).toHaveBeenCalled();
+        expect(gameServiceSpy.reset).toHaveBeenCalled();
+        expect(playAreaService.clearAsync).toHaveBeenCalled();
     });
 });

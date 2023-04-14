@@ -65,7 +65,7 @@ export class GameModeService {
         const newGameHistory = new GameHistory();
         newGameHistory.name = gameRoom.userGame.gameData.name;
         newGameHistory.username1 = gameRoom.userGame.username1;
-        newGameHistory.username2 = gameRoom.userGame?.username2;
+        newGameHistory.username2 = gameRoom.userGame.username2;
         newGameHistory.startTime = Date.now();
         newGameHistory.timer = 0;
         if (gameRoom.gameMode === 'mode classique') {

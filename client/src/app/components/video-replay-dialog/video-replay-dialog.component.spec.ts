@@ -1,4 +1,5 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { VideoReplayDialogComponent } from '@app/components/video-replay-dialog/video-replay-dialog.component';
@@ -41,6 +42,7 @@ describe('VideoReplayDialogComponent', () => {
         };
         await TestBed.configureTestingModule({
             declarations: [VideoReplayDialogComponent],
+            schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
             imports: [MatProgressBarModule],
             providers: [{ provide: MAT_DIALOG_DATA, useValue: { videoReplay } }],
         }).compileComponents();

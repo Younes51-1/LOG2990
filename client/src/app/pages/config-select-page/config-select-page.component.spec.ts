@@ -8,7 +8,7 @@ import { CUSTOM_ELEMENTS_SCHEMA, NgModule, NgZone } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { By } from '@angular/platform-browser';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ConfigParamsComponent } from '@app/components/config-params/config-params.component';
 import { DeleteDialogComponent } from '@app/components/delete-dialog/delete-dialog.component';
@@ -34,6 +34,7 @@ describe('ConfigSelectPageComponent', () => {
     let configHttpServiceSpy: SpyObj<ConfigHttpService>;
     let dialog: MatDialog;
     let zone: NgZone;
+    let router: Router;
 
     beforeEach(async () => {
         communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getAllGames', 'deleteGame', 'deleteAllGames']);
@@ -92,24 +93,15 @@ describe('ConfigSelectPageComponent', () => {
                 { provide: CommunicationHttpService, useValue: communicationServiceSpy },
                 { provide: ConfigHttpService, useValue: configHttpServiceSpy },
                 { provide: MatDialog, useValue: dialog },
-                {
-                    provide: ActivatedRoute,
-                    useValue: {
-                        snapshot: {
-                            data: {
-                                page: 'selection',
-                            },
-                        },
-                    },
-                },
             ],
         }).compileComponents();
+        router = TestBed.inject(Router);
+        spyOnProperty(router, 'url', 'get').and.returnValue('/config');
     });
 
     beforeEach(() => {
         fixture = TestBed.createComponent(ConfigSelectPageComponent);
         component = fixture.componentInstance;
-
         fixture.detectChanges();
     });
 
@@ -118,7 +110,6 @@ describe('ConfigSelectPageComponent', () => {
     });
 
     it('should navigate to the configuration page when searching for the ./config URL', fakeAsync(() => {
-        const router = TestBed.inject(Router);
         const location = TestBed.inject(Location);
         zone.run(() => {
             router.initialNavigation();
@@ -131,7 +122,6 @@ describe('ConfigSelectPageComponent', () => {
     }));
 
     it('should instantiate the component when navigating to /config', fakeAsync(() => {
-        const router = TestBed.inject(Router);
         zone.run(() => {
             router.navigate(['/config']);
         });
@@ -168,13 +158,11 @@ describe('ConfigSelectPageComponent', () => {
     });
 
     it('should show the game creation page on click of the Game Creation button', fakeAsync(() => {
-        component.pageType = PageKeys.Config;
-        fixture.detectChanges();
-        const router = TestBed.inject(Router);
+        const location = TestBed.inject(Location);
         const creationBtn = fixture.debugElement.nativeElement.getElementsByClassName('btn')[0];
         creationBtn.click();
         tick();
-        expect(router.url).toEqual('/creation');
+        expect(location.path()).toEqual('/creation');
     }));
 
     it('should not contain config elements if pageType is selection', () => {
@@ -321,7 +309,6 @@ describe('ConfigSelectPageComponent', () => {
 
     it('should call getPartiesFromServer on init only in config page', () => {
         const getPartiesFromServerSpy = spyOn(component as any, 'getPartiesFromServer').and.stub();
-        (component as any).route.snapshot.data.page = PageKeys.Config;
         component.ngOnInit();
         expect(getPartiesFromServerSpy).toHaveBeenCalled();
     });
@@ -335,7 +322,7 @@ describe('ConfigSelectPageComponent', () => {
 
     it('calculateTime should return the correct time', () => {
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        const time = component.calculateTime(204);
+        const time = component.calculateTime(204204);
         expect(time).toEqual('03:24');
     });
 

@@ -61,8 +61,9 @@ describe('GameService', () => {
         configHttpServiceSpy = jasmine.createSpyObj('ConfigHttpService', ['getConstants', 'getBestTime', 'updateBestTime']);
         configHttpServiceSpy.getConstants.and.returnValue(of({ initialTime: 10, bonusTime: 2, penaltyTime: 0 }));
         configHttpServiceSpy.getBestTime.and.returnValue(of({ soloBestTimes: newBestTimes, vsBestTimes: newBestTimes }));
-        communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getAllGames']);
+        communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getAllGames', 'getGame']);
         communicationServiceSpy.getAllGames.and.returnValue(of([gameData]));
+        communicationServiceSpy.getGame.and.returnValue(of(gameData));
         TestBed.configureTestingModule({
             imports: [HttpClientTestingModule],
             providers: [
@@ -123,9 +124,21 @@ describe('GameService', () => {
         expect(disconnectSpy).not.toHaveBeenCalled();
     });
 
+    it('should call send message from chatService', () => {
+        const sendMessageSpy = spyOn(chatServiceMock, 'sendMessage').and.stub();
+        service.sendMessage('hello there', 'test');
+        expect(sendMessageSpy).toHaveBeenCalledWith('hello there', 'test', gameRoom.roomId);
+    });
+
     it('should return true when gameMode is limited time', () => {
         service.gameMode = 'limited-time-mode';
         expect(service.isLimitedTimeMode()).toBeTrue();
+    });
+
+    it('should call getIsTyping from chatService', () => {
+        const getIsTypingSpy = spyOn(chatServiceMock, 'getIsTyping').and.stub();
+        service.getIsTyping();
+        expect(getIsTypingSpy).toHaveBeenCalled();
     });
 
     it('startGame should assign values', () => {

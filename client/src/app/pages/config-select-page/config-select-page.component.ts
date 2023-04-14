@@ -1,12 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { DeleteDialogComponent } from '@app/components/delete-dialog/delete-dialog.component';
 import { GameData, GameHistory } from '@app/interfaces/game';
 import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 import { ConfigHttpService } from '@app/services/config-http/config-http.service';
 import { PageKeys } from 'src/assets/variables/game-card-options';
-import { Time } from 'src/assets/variables/time';
 
 @Component({
     selector: 'app-config-select-page',
@@ -33,7 +32,6 @@ export class ConfigSelectPageComponent implements OnInit {
     // eslint-disable-next-line max-params
     constructor(
         private readonly gameCommunicationService: CommunicationHttpService,
-        private route: ActivatedRoute,
         private router: Router,
         private dialog: MatDialog,
         private configCommunicationService: ConfigHttpService,
@@ -42,7 +40,7 @@ export class ConfigSelectPageComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.pageType = this.route.snapshot.data.page;
+        this.pageType = this.router.url.split('/')[1] as PageKeys;
         this.initializeImgSource();
         if (this.pageType === PageKeys.Config) {
             this.getPartiesFromServer();
@@ -97,9 +95,10 @@ export class ConfigSelectPageComponent implements OnInit {
     }
 
     calculateTime(time: number) {
-        const minutes = Math.floor(time / Time.Sixty);
-        const seconds = time % Time.Sixty;
-        return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        const date = new Date(time);
+        const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+        const seconds = date.getUTCSeconds().toString().padStart(2, '0');
+        return `${minutes}:${seconds}`;
     }
 
     resetBestTimes() {
