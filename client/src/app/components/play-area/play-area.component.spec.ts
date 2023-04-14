@@ -6,7 +6,6 @@ import { ComponentFixture, fakeAsync, TestBed } from '@angular/core/testing';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
 import { DifferenceTry } from '@app/interfaces/difference-try';
 import { GameData, GameRoom, UserGame } from '@app/interfaces/game';
-import { ChatService } from '@app/services/chat/chat.service';
 import { DetectionDifferenceService } from '@app/services/detection-difference/detection-difference.service';
 import { GameService } from '@app/services/game/game.service';
 import { PlayAreaService } from '@app/services/play-area/play-area.service';
@@ -31,7 +30,7 @@ const createAndPopulateMatrix = (value: number): number[][] => {
 
 const invalidPixelValue = -1;
 
-describe('PlayAreaComponent', () => {
+fdescribe('PlayAreaComponent', () => {
     const differenceMatrix: number[][] = [[]];
     const gameData: GameData = {
         name: '',
@@ -50,14 +49,12 @@ describe('PlayAreaComponent', () => {
     let fixture: ComponentFixture<PlayAreaComponent>;
     let detectionService: jasmine.SpyObj<DetectionDifferenceService>;
     let gameService: jasmine.SpyObj<GameService>;
-    let chatService: jasmine.SpyObj<ChatService>;
     let playAreaService: jasmine.SpyObj<PlayAreaService>;
 
     beforeEach(async () => {
         detectionService = jasmine.createSpyObj('DetectionDifferenceService', ['extractDifference']);
         gameService = jasmine.createSpyObj('GameService', ['changeTime', 'nextGame', 'sendServerValidate', 'isLimitedTimeMode']);
         gameService.serverValidateResponse$ = new Subject<DifferenceTry>();
-        chatService = jasmine.createSpyObj('ChatService', ['getIsTyping']);
         playAreaService = jasmine.createSpyObj('PlayAreaService', [
             'cheatMode',
             'flashDifference',
@@ -75,7 +72,6 @@ describe('PlayAreaComponent', () => {
             providers: [
                 { provide: DetectionDifferenceService, useValue: detectionService },
                 { provide: GameService, useValue: gameService },
-                { provide: ChatService, useValue: chatService },
                 { provide: PlayAreaService, useValue: playAreaService },
             ],
         }).compileComponents();

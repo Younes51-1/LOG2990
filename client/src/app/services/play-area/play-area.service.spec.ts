@@ -23,7 +23,7 @@ import { Time } from 'src/assets/variables/time';
 })
 export class DynamicTestModule {}
 
-fdescribe('PlayAreaService', () => {
+describe('PlayAreaService', () => {
     let service: PlayAreaService;
     let fixture: ComponentFixture<PlayAreaComponent>;
     let component: PlayAreaComponent;
