@@ -67,7 +67,7 @@ describe('GameModeService', () => {
 
     it('canJoinGame should return undefined if the game does not exist', () => {
         expect(
-            service.canJoinGame(socket, { gameName: getFakeGameRoom().userGame.gameData.name, username: 'FakeUser', gameMode: 'classic-mode' }),
+            service.canJoinGame(socket, { gameName: getFakeGameRoom().userGame.gameData.name, username: 'FakeUser', gameMode: 'mode classique' }),
         ).toEqual(null);
     });
 
@@ -80,7 +80,7 @@ describe('GameModeService', () => {
         const newRoom = getFakeGameRoom();
         testGameModeService.addElementToMap(newRoom.roomId, newRoom);
         expect(
-            service.canJoinGame(socket, { gameName: getFakeGameRoom().userGame.gameData.name, username: 'FakeUser', gameMode: 'classic-mode' }),
+            service.canJoinGame(socket, { gameName: getFakeGameRoom().userGame.gameData.name, username: 'FakeUser', gameMode: 'mode classique' }),
         ).toBeUndefined();
     });
 
@@ -91,7 +91,7 @@ describe('GameModeService', () => {
             return newRoom;
         });
         expect(
-            service.canJoinGame(socket, { gameName: getFakeGameRoom().userGame.gameData.name, username: 'FakeUser2', gameMode: 'classic-mode' }),
+            service.canJoinGame(socket, { gameName: getFakeGameRoom().userGame.gameData.name, username: 'FakeUser2', gameMode: 'mode classique' }),
         ).toBeUndefined();
     });
 
@@ -102,7 +102,7 @@ describe('GameModeService', () => {
         const newRoom = getFakeGameRoom();
         testGameModeService.addElementToMap(newRoom.roomId, newRoom);
         expect(
-            service.canJoinGame(socket, { gameName: getFakeGameRoom().userGame.gameData.name, username: 'FakeUser2', gameMode: 'classic-mode' }),
+            service.canJoinGame(socket, { gameName: getFakeGameRoom().userGame.gameData.name, username: 'FakeUser2', gameMode: 'mode classique' }),
         ).toEqual(newRoom);
     });
 
@@ -113,9 +113,9 @@ describe('GameModeService', () => {
         const newRoom = getFakeGameRoom();
         testGameModeService.addElementToMap(newRoom.roomId, newRoom);
         socket.join.returns();
-        expect(service.joinGame(socket, { gameName: newRoom.userGame.gameData.name, username: 'FakeUserJoining', gameMode: 'classic-mode' })).toEqual(
-            true,
-        );
+        expect(
+            service.joinGame(socket, { gameName: newRoom.userGame.gameData.name, username: 'FakeUserJoining', gameMode: 'mode classique' }),
+        ).toEqual(true);
         jest.spyOn(service, 'getGameRoom').mockRestore();
         expect(service.getGameRoom(newRoom.roomId).userGame.potentialPlayers).toContain('FakeUserJoining');
     });
@@ -143,7 +143,7 @@ describe('GameModeService', () => {
         expect(testGameModeService.validateDifference(getFakeGameRoom().roomId, { x: 0, y: 0 })).toBeFalsy();
     });
 
-    it('isGameFinished should return true if all differences have been found on classic-mode', () => {
+    it('isGameFinished should return true if all differences have been found on mode classique', () => {
         const newRoom = getFakeGameRoom();
         testGameModeService.addElementToMap(newRoom.roomId, newRoom);
         testGameModeService.getGameRoom(newRoom.roomId).userGame.nbDifferenceFound = 2;
@@ -178,14 +178,14 @@ describe('GameModeService', () => {
         expect(testGameModeService.isGameFinished(newRoom.roomId)).toBeFalsy();
     });
 
-    it('updateTimer should increment timer in classic-mode', () => {
+    it('updateTimer should increment timer in mode classique', () => {
         const newRoom = getFakeGameRoom();
         testGameModeService.addElementToMap(newRoom.roomId, newRoom);
         testGameModeService.updateTimer(newRoom);
         expect(testGameModeService.getGameRoom(newRoom.roomId).userGame.timer).toEqual(1);
     });
 
-    it('updateTimer should decrement timer in classic-mode', () => {
+    it('updateTimer should decrement timer in mode classique', () => {
         const newRoom = getFakeGameRoom();
         newRoom.gameMode = 'time-limited';
         newRoom.userGame.timer = 10;
@@ -314,7 +314,7 @@ describe('GameModeService', () => {
         expect(testGameModeService.getGameRoom(newRoom.roomId)).toEqual(newRoomModified);
     });
 
-    it('nextGame should do nothing if its a classic-mode game', () => {
+    it('nextGame should do nothing if its a mode classique game', () => {
         const newRoom = getFakeGameRoom();
         testGameModeService.addElementToMap(newRoom.roomId, newRoom);
         const newRoomModified = newRoom;
@@ -540,7 +540,7 @@ const getFakeGameRoom = (): GameRoom => ({
     userGame: getFakeUserGame(),
     roomId: 'socketId',
     started: false,
-    gameMode: 'classic-mode',
+    gameMode: 'mode classique',
 });
 
 const getFakeGameHistory = (): GameHistory => ({
@@ -549,7 +549,7 @@ const getFakeGameHistory = (): GameHistory => ({
     timer: 0,
     username2: undefined,
     username1: 'FakeUser',
-    gameMode: 'classic-mode',
+    gameMode: 'mode classique',
     abandonned: undefined,
     winner: undefined,
 });

@@ -1,18 +1,18 @@
 /* eslint-disable max-classes-per-file */
-import { TestBed } from '@angular/core/testing';
-import { WaitingRoomService } from './waiting-room.service';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { RouterTestingModule } from '@angular/router/testing';
-import { AppRoutingModule } from '@app/modules/app-routing.module';
-import { NgModule } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
 import { OverlayModule } from '@angular/cdk/overlay';
+import { HttpClientModule } from '@angular/common/http';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { NgModule } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
-import { Socket } from 'socket.io-client';
+import { RouterTestingModule } from '@angular/router/testing';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { GameData, GameRoom } from '@app/interfaces/game';
+import { AppRoutingModule } from '@app/modules/app-routing.module';
+import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
+import { Socket } from 'socket.io-client';
+import { WaitingRoomService } from './waiting-room.service';
 
 @NgModule({
     imports: [HttpClientModule, OverlayModule, MatDialogModule, BrowserAnimationsModule],
@@ -41,7 +41,7 @@ describe('WaitingRoomService', () => {
             userGame: { gameData, nbDifferenceFound: 0, timer: 0, username1: 'Test' },
             roomId: 'fakeId',
             started: false,
-            gameMode: 'classic-mode',
+            gameMode: 'mode classique',
         };
         socketHelper = new SocketTestHelper();
         socketServiceMock = new SocketClientServiceMock();
@@ -134,7 +134,7 @@ describe('WaitingRoomService', () => {
         spyOn(service, 'disconnectSocket').and.stub();
         service.gameRoom = undefined as unknown as GameRoom;
         service.username = 'differentUsername';
-        service.gameMode = 'classic-mode';
+        service.gameMode = 'mode classique';
         service.abortGame();
         expect(socketServiceMock.send).not.toHaveBeenCalled();
         expect(service.disconnectSocket).toHaveBeenCalled();
@@ -170,19 +170,23 @@ describe('WaitingRoomService', () => {
         spyOn(service, 'connectSocket').and.stub();
         spyOn(service, 'handleWaitingRoomSocket').and.stub();
         spyOn(socketServiceMock, 'send').and.stub();
-        service.joinGame('test', 'classic-mode');
+        service.joinGame('test', 'mode classique');
         expect(service.gameRoom).toBeUndefined();
         expect(service.username).toEqual('test');
-        expect(service.gameMode).toEqual('classic-mode');
+        expect(service.gameMode).toEqual('mode classique');
         expect(service.disconnectSocket).toHaveBeenCalled();
         expect(service.connectSocket).toHaveBeenCalled();
         expect(service.handleWaitingRoomSocket).toHaveBeenCalled();
-        expect(socketServiceMock.send).toHaveBeenCalledWith('askingToJoinGame', { gameName: undefined, username: 'test', gameMode: 'classic-mode' });
+        expect(socketServiceMock.send).toHaveBeenCalledWith('askingToJoinGame', {
+            gameName: undefined,
+            username: 'test',
+            gameMode: 'mode classique',
+        });
     });
 
     it('should handle gameInfo', () => {
         service.gameRoom = undefined as unknown as GameRoom;
-        service.gameMode = 'classic-mode';
+        service.gameMode = 'mode classique';
         service.handleWaitingRoomSocket();
         socketHelper.peerSideEmit('gameInfo', gameRoom);
         expect(service.gameRoom).toEqual(gameRoom);
@@ -190,7 +194,7 @@ describe('WaitingRoomService', () => {
 
     it('should update GameRoom in gameInfo if we have the same username', () => {
         service.gameRoom = gameRoom;
-        service.gameMode = 'classic-mode';
+        service.gameMode = 'mode classique';
         service.handleWaitingRoomSocket();
         socketHelper.peerSideEmit('gameInfo', gameRoom);
         expect(service.gameRoom).toEqual(gameRoom);
@@ -206,7 +210,7 @@ describe('WaitingRoomService', () => {
     it('should handle gameCreated and call startGame if started is true', () => {
         gameRoom.started = true;
         service.gameRoom = undefined as unknown as GameRoom;
-        service.gameMode = 'classic-mode';
+        service.gameMode = 'mode classique';
         spyOn(service, 'startGame').and.stub();
         service.handleWaitingRoomSocket();
         socketHelper.peerSideEmit('gameCreated', gameRoom);
@@ -216,7 +220,7 @@ describe('WaitingRoomService', () => {
 
     it("shouldn't call startGame in gameCreated if started is false", () => {
         spyOn(service, 'startGame').and.stub();
-        service.gameMode = 'classic-mode';
+        service.gameMode = 'mode classique';
         service.handleWaitingRoomSocket();
         socketHelper.peerSideEmit('gameCreated', gameRoom);
         expect(service.gameRoom).toEqual(gameRoom);
@@ -279,7 +283,7 @@ describe('WaitingRoomService', () => {
     it('should handle gameCanceled', () => {
         spyOn(service.gameCanceled$, 'next').and.stub();
         service.gameRoom = gameRoom;
-        service.gameMode = 'classic-mode';
+        service.gameMode = 'mode classique';
         service.username = gameRoom.userGame.username1;
         service.handleWaitingRoomSocket();
         socketHelper.peerSideEmit('gameCanceled', gameRoom);
@@ -289,7 +293,7 @@ describe('WaitingRoomService', () => {
     it('should handle gameCanceled if gameRoom is undefined', () => {
         spyOn(service.gameCanceled$, 'next').and.stub();
         service.gameRoom = undefined as unknown as GameRoom;
-        service.gameMode = 'classic-mode';
+        service.gameMode = 'mode classique';
         service.username = gameRoom.userGame.username1;
         service.handleWaitingRoomSocket();
         socketHelper.peerSideEmit('gameCanceled', gameRoom);
@@ -299,7 +303,7 @@ describe('WaitingRoomService', () => {
     it('should handle gameCanceled send undefined', () => {
         spyOn(service.gameCanceled$, 'next').and.stub();
         service.gameRoom = gameRoom;
-        service.gameMode = 'classic-mode';
+        service.gameMode = 'mode classique';
         service.username = gameRoom.userGame.username1;
         service.handleWaitingRoomSocket();
         socketHelper.peerSideEmit('gameCanceled', undefined as unknown as GameRoom);
@@ -310,7 +314,7 @@ describe('WaitingRoomService', () => {
         spyOn(service.gameCanceled$, 'next').and.stub();
         gameRoom.userGame.potentialPlayers = ['myusername', 'differentUsername'];
         service.gameRoom = gameRoom;
-        service.gameMode = 'classic-mode';
+        service.gameMode = 'mode classique';
         service.username = 'differentUsername';
         service.handleWaitingRoomSocket();
         socketHelper.peerSideEmit('gameCanceled', gameRoom);
@@ -320,7 +324,7 @@ describe('WaitingRoomService', () => {
     it('should handle gameCanceled if it was sent to wrong user', () => {
         spyOn(service.gameCanceled$, 'next').and.stub();
         service.gameRoom = gameRoom;
-        service.gameMode = 'classic-mode';
+        service.gameMode = 'mode classique';
         service.username = 'differentUsername';
         service.handleWaitingRoomSocket();
         socketHelper.peerSideEmit('gameCanceled', gameRoom);

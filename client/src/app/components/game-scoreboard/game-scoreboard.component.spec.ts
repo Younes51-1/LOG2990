@@ -39,7 +39,7 @@ describe('GameScoreboardComponent', () => {
             userGame: { gameData, nbDifferenceFound: 0, timer: 0, username1: 'Test' },
             roomId: 'fakeId',
             started: false,
-            gameMode: 'classic-mode',
+            gameMode: 'mode classique',
         };
 
         fixture = TestBed.createComponent(GameScoreboardComponent);

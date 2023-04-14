@@ -1,18 +1,18 @@
-import { TestBed } from '@angular/core/testing';
-import { GameSetupService } from './game-setup.service';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { RouterTestingModule } from '@angular/router/testing';
-import { AppRoutingModule } from '@app/modules/app-routing.module';
-import { HttpClientModule } from '@angular/common/http';
 import { OverlayModule } from '@angular/cdk/overlay';
+import { HttpClientModule } from '@angular/common/http';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { NgModule, NgZone } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgModule, NgZone } from '@angular/core';
-import { of } from 'rxjs';
+import { RouterTestingModule } from '@angular/router/testing';
 import { BestTime, GameData } from '@app/interfaces/game';
+import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 import { ConfigHttpService } from '@app/services/config-http/config-http.service';
 import { WaitingRoomService } from '@app/services/waiting-room/waiting-room.service';
+import { of } from 'rxjs';
+import { GameSetupService } from './game-setup.service';
 
 @NgModule({
     imports: [HttpClientModule, OverlayModule, MatDialogModule, BrowserAnimationsModule],
@@ -86,7 +86,7 @@ describe('GameSetupService', () => {
     });
 
     it('should initGameRoom', () => {
-        service.gameMode = 'classic-mode';
+        service.gameMode = 'mode classique';
         service.initGameRoom('Player 1', false);
         expect(service.gameRoom).toEqual({
             userGame: {
@@ -97,12 +97,12 @@ describe('GameSetupService', () => {
             },
             roomId: '',
             started: false,
-            gameMode: 'classic-mode',
+            gameMode: 'mode classique',
         });
         expect(service.username).toEqual('Player 1');
     });
 
-    it('should call initClassicMode when gameMode is classic-mode', () => {
+    it('should call initClassicMode when gameMode is mode classique', () => {
         spyOn(service, 'initClassicMode').and.stub();
         service.initGameMode('game1');
         expect(service.initClassicMode).toHaveBeenCalled();
@@ -156,9 +156,9 @@ describe('GameSetupService', () => {
         expect(waitingRoomServiceSpy.createGame).toHaveBeenCalled();
     });
 
-    it('should call joinClassicMode when gameMode is classic-mode', () => {
+    it('should call joinClassicMode when gameMode is mode classique', () => {
         spyOn(service, 'joinClassicMode').and.stub();
-        service.gameMode = 'classic-mode';
+        service.gameMode = 'mode classique';
         service.joinGame('username', 'gameName');
         expect(service.joinClassicMode).toHaveBeenCalled();
     });

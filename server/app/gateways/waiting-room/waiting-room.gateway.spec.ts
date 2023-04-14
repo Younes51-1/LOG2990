@@ -280,5 +280,5 @@ const getFakeGameRoom = (): GameRoom => ({
     userGame: getFakeUserGame1(),
     roomId: 'socketId',
     started: false,
-    gameMode: 'classic-mode',
+    gameMode: 'mode classique',
 });

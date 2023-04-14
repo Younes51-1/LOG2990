@@ -1,8 +1,8 @@
+import { SimpleChanges } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { GameData, GameRoom, UserGame } from '@app/interfaces/game';
 import { Instruction, InstructionReplay } from '@app/interfaces/video-replay';
 import { ReplayScoreBoardComponent } from './replay-score-board.component';
-import { GameData, GameRoom, UserGame } from '@app/interfaces/game';
-import { SimpleChanges } from '@angular/core';
 
 describe('ReplayScoreBoardComponent', () => {
     const differenceMatrix: number[][] = [[]];
@@ -17,7 +17,7 @@ describe('ReplayScoreBoardComponent', () => {
         differenceMatrix,
     };
     const userGame: UserGame = { username1: '', gameData, nbDifferenceFound: 0, timer: 0 };
-    const gameRoom: GameRoom = { userGame, roomId: 'testRoom', started: false, gameMode: 'classic-mode' };
+    const gameRoom: GameRoom = { userGame, roomId: 'testRoom', started: false, gameMode: 'mode classique' };
 
     let component: ReplayScoreBoardComponent;
     let fixture: ComponentFixture<ReplayScoreBoardComponent>;

@@ -133,7 +133,7 @@ export class GameService {
             endGame.roomId = this.gameRoom.roomId;
             endGame.username = this.username;
             this.socketService.send('endGame', endGame);
-            if (this.gameMode === 'classic-mode') this.updateBestTime(gameFinished, winner);
+            if (this.gameMode === 'mode classique') this.updateBestTime(gameFinished, winner);
         }
     }
 

@@ -14,7 +14,7 @@ export class GameFinderGateway {
     @SubscribeMessage(GameFinderEvents.CheckGame)
     checkGame(socket: Socket, data: { gameName: string; gameMode: string }): void {
         if (this.gameModeService.getGameRoom(undefined, data.gameName, data.gameMode)) {
-            if (data.gameMode === 'classic-mode') {
+            if (data.gameMode === 'mode classique') {
                 this.logger.log(`Game finder gateway: Game ${data.gameName} found`);
             } else {
                 this.logger.log('Game finder gateway: Limited time game found');

@@ -22,7 +22,7 @@ export class MainPageComponent implements OnDestroy {
     constructor(private readonly router: Router, private dialog: MatDialog) {}
 
     setGameMode(mode: string) {
-        if (mode === 'classic-mode') {
+        if (mode === 'mode classique') {
             this.router.navigate(['/selection']);
         } else {
             this.dialogRef = this.dialog.open(CreateJoinGameDialogComponent);

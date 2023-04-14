@@ -4,17 +4,17 @@ import { HttpClientModule } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { NgModule } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { MatDialog, MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
-import { WaitingRoomComponent } from '@app/components/waiting-room-dialog/waiting-room-dialog.component';
 import { GameCardComponent } from '@app/components/game-card/game-card.component';
+import { WaitingRoomComponent } from '@app/components/waiting-room-dialog/waiting-room-dialog.component';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
-import { options, PageKeys } from 'src/assets/variables/game-card-options';
-import { GameSetupService } from '@app/services/game-setup/game-setup.service';
 import { GameFinderService } from '@app/services/game-finder/game-finder.service';
+import { GameSetupService } from '@app/services/game-setup/game-setup.service';
 import { VerifyInputService } from '@app/services/verify-input/verify-input.service';
 import { Subject } from 'rxjs';
+import { options, PageKeys } from 'src/assets/variables/game-card-options';
 
 @NgModule({
     imports: [HttpClientModule, OverlayModule, MatDialogModule, BrowserAnimationsModule],
@@ -168,8 +168,8 @@ describe('GameCardComponent', () => {
 
     it('should set up gameMode to classic mode', () => {
         gameFinderService.gameExists$.next(true);
-        expect(gameFinderService.gameMode).toEqual('classic-mode');
-        expect(gameSetupService.gameMode).toEqual('classic-mode');
+        expect(gameFinderService.gameMode).toEqual('mode classique');
+        expect(gameSetupService.gameMode).toEqual('mode classique');
         expect(component.gameExists).toBeTruthy();
     });
 

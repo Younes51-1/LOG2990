@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { GameRoom } from '@app/interfaces/game';
 import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
-import { Subject } from 'rxjs';
-import { Router } from '@angular/router';
 import { GameService } from '@app/services/game/game.service';
+import { Subject } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -37,7 +37,7 @@ export class WaitingRoomService {
         }
         this.disconnectSocket();
         this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-            this.router.navigate([this.gameMode === 'classic-mode' ? '/selection' : '/home']);
+            this.router.navigate([this.gameMode === 'mode classique' ? '/selection' : '/home']);
         });
     }
 

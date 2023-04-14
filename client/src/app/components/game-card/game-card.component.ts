@@ -5,7 +5,7 @@ import { GameData } from '@app/interfaces/game';
 import { GameFinderService } from '@app/services/game-finder/game-finder.service';
 import { GameSetupService } from '@app/services/game-setup/game-setup.service';
 import { VerifyInputService } from '@app/services/verify-input/verify-input.service';
-import { options, PageKeys } from 'src/assets/variables/game-card-options';
+import { PageKeys, options } from 'src/assets/variables/game-card-options';
 import { Time } from 'src/assets/variables/time';
 
 @Component({
@@ -46,8 +46,8 @@ export class GameCardComponent implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit() {
-        this.gameFinderService.gameMode = 'classic-mode';
-        this.gameSetupService.gameMode = 'classic-mode';
+        this.gameFinderService.gameMode = 'mode classique';
+        this.gameSetupService.gameMode = 'mode classique';
         const { routeOne, btnOne, routeTwo, btnTwo } = options[this.page];
         this.routeOne = routeOne;
         this.btnOne = btnOne;

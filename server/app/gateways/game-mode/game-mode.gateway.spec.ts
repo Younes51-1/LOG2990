@@ -332,7 +332,7 @@ const getFakeGameRoom = (): GameRoom => ({
     userGame: getFakeUserGame1(),
     roomId: 'socketId',
     started: true,
-    gameMode: 'classic-mode',
+    gameMode: 'mode classique',
 });
 
 const getFakeEndGame = (): EndGame => ({
