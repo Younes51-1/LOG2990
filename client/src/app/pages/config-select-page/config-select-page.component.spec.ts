@@ -322,7 +322,7 @@ describe('ConfigSelectPageComponent', () => {
 
     it('calculateTime should return the correct time', () => {
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        const time = component.calculateTime(204);
+        const time = component.calculateTime(204204);
         expect(time).toEqual('03:24');
     });
 
