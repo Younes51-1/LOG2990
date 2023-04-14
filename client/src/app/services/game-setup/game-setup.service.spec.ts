@@ -39,8 +39,9 @@ describe('GameSetupService', () => {
             { name: 'Player 3', time: 180 },
         ];
         zone = new NgZone({ enableLongStackTrace: false });
-        communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getAllGames']);
+        communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getAllGames', 'getGame']);
         communicationServiceSpy.getAllGames.and.returnValue(of([gameData]));
+        communicationServiceSpy.getGame.and.returnValue(of(gameData));
         configHttpServiceSpy = jasmine.createSpyObj('ConfigHttpService', ['getConstants', 'getBestTime', 'updateBestTime']);
         configHttpServiceSpy.getConstants.and.returnValue(of({ initialTime: 10, bonusTime: 2, penaltyTime: 0 }));
         configHttpServiceSpy.getBestTime.and.returnValue(of({ soloBestTimes: newBestTimes, vsBestTimes: newBestTimes }));
@@ -56,6 +57,8 @@ describe('GameSetupService', () => {
             ],
         });
         service = TestBed.inject(GameSetupService);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (service as any).slides = [gameData];
     });
 
     it('should be created', () => {
@@ -74,13 +77,11 @@ describe('GameSetupService', () => {
     });
 
     it('should getAllGames', () => {
-        service.getAllGames();
         expect(communicationServiceSpy.getAllGames).toHaveBeenCalled();
         expect(service.getSlides()).toEqual([gameData]);
     });
 
     it('should getSlides', () => {
-        service.getAllGames();
         expect(service.getSlides()).toEqual([gameData]);
     });
 
@@ -114,52 +115,45 @@ describe('GameSetupService', () => {
     });
 
     it('should initClassicMode', () => {
-        service.getAllGames();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (service as any).slides = [gameData];
         service.initGameRoom('Player 1', false);
         service.initClassicMode('');
         expect(service.gameRoom.userGame.gameData).toEqual(gameData);
         expect(waitingRoomServiceSpy.createGame).toHaveBeenCalled();
     });
 
-    it('should initClassicMode and navigate to game if game has started', () => {
-        service.getAllGames();
+    it('should initClassicMode and call createGame by waiting room service', () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const routerSpy = spyOn((service as any).router, 'navigate').and.stub();
+        (service as any).slides = [gameData];
         service.initGameRoom('Player 1', true);
         zone.run(() => {
             service.initClassicMode('');
         });
         expect(service.gameRoom.userGame.gameData).toEqual(gameData);
         expect(waitingRoomServiceSpy.createGame).toHaveBeenCalled();
-        expect(routerSpy).toHaveBeenCalledWith(['/game']);
     });
 
     it('should alert if gameName is not found', () => {
         spyOn(window, 'alert').and.stub();
-        service.getAllGames();
         service.initClassicMode('game2');
         expect(window.alert).toHaveBeenCalledWith('Jeu introuvable');
     });
 
     it('should initLimitedTimeMode', () => {
-        service.getAllGames();
         service.initGameRoom('Player 1', false);
         service.initLimitedTimeMode();
         expect(service.gameRoom.userGame.gameData).toEqual(gameData);
         expect(waitingRoomServiceSpy.createGame).toHaveBeenCalled();
     });
 
-    it('should initLimitedTimeMode and navigate to game if game has started', () => {
-        service.getAllGames();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const routerSpy = spyOn((service as any).router, 'navigate').and.stub();
+    it('should initLimitedTimeMode and call createGame by waiting room service', () => {
         service.initGameRoom('Player 1', true);
         zone.run(() => {
             service.initLimitedTimeMode();
         });
         expect(service.gameRoom.userGame.gameData).toEqual(gameData);
         expect(waitingRoomServiceSpy.createGame).toHaveBeenCalled();
-        expect(routerSpy).toHaveBeenCalledWith(['/game']);
     });
 
     it('should call joinClassicMode when gameMode is classic-mode', () => {
@@ -177,14 +171,12 @@ describe('GameSetupService', () => {
     });
 
     it('should joinClassicMode', () => {
-        service.getAllGames();
         service.joinClassicMode('');
         expect(waitingRoomServiceSpy.joinGame).toHaveBeenCalled();
     });
 
     it('should alert if gameName is not found', () => {
         spyOn(window, 'alert').and.stub();
-        service.getAllGames();
         service.joinClassicMode('game2');
         expect(window.alert).toHaveBeenCalledWith('Jeu introuvable');
     });
@@ -195,14 +187,12 @@ describe('GameSetupService', () => {
     });
 
     it('should return a randomSlide', () => {
-        service.getAllGames();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const randomSlide = (service as any).randomSlide();
         expect(randomSlide).toEqual(gameData);
     });
 
     it('should return a getGameData', () => {
-        service.getAllGames();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const slide = (service as any).getGameData('');
         expect(slide).toEqual(gameData);

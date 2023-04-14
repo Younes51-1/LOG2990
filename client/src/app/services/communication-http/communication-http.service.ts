@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { GameData, NewGame } from '@app/interfaces/game';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
     providedIn: 'root',

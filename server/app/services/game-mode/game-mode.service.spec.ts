@@ -334,6 +334,7 @@ describe('GameModeService', () => {
         const fakeGameRoom = getFakeGameRoom();
         fakeGameRoom.userGame.username2 = 'FakeUser2';
         service.saveGameHistory(fakeGameRoom);
+        expect(service.getGameHistory(fakeGameRoom.roomId).username2).toEqual(fakeGameRoom.userGame.username2);
         expect(service.getGameHistory(fakeGameRoom.roomId).name).toEqual(fakeGameRoom.userGame.gameData.name);
         expect(service.getGameHistory(fakeGameRoom.roomId).gameMode).toEqual('Mode classique Multi-joueur');
     });
@@ -546,8 +547,8 @@ const getFakeGameHistory = (): GameHistory => ({
     name: 'FakeGame',
     startTime: 0,
     timer: 0,
+    username2: undefined,
     username1: 'FakeUser',
-    username2: '',
     gameMode: 'classic-mode',
     abandonned: undefined,
     winner: undefined,

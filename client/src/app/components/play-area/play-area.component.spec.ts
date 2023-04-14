@@ -30,7 +30,7 @@ const createAndPopulateMatrix = (value: number): number[][] => {
 
 const invalidPixelValue = -1;
 
-fdescribe('PlayAreaComponent', () => {
+describe('PlayAreaComponent', () => {
     const differenceMatrix: number[][] = [[]];
     const gameData: GameData = {
         name: '',
@@ -53,7 +53,7 @@ fdescribe('PlayAreaComponent', () => {
 
     beforeEach(async () => {
         detectionService = jasmine.createSpyObj('DetectionDifferenceService', ['extractDifference']);
-        gameService = jasmine.createSpyObj('GameService', ['changeTime', 'nextGame', 'sendServerValidate', 'isLimitedTimeMode']);
+        gameService = jasmine.createSpyObj('GameService', ['changeTime', 'nextGame', 'sendServerValidate', 'isLimitedTimeMode', 'getIsTyping']);
         gameService.serverValidateResponse$ = new Subject<DifferenceTry>();
         playAreaService = jasmine.createSpyObj('PlayAreaService', [
             'cheatMode',
@@ -65,6 +65,7 @@ fdescribe('PlayAreaComponent', () => {
             'setComponent',
             'setSpeed',
             'setCheatMode',
+            'correctAnswerVisuals',
         ]);
         await TestBed.configureTestingModule({
             declarations: [PlayAreaComponent],
@@ -130,7 +131,7 @@ fdescribe('PlayAreaComponent', () => {
         const buttonEvent = {
             key: expectedKey,
         } as KeyboardEvent;
-        chatService.getIsTyping.and.returnValue(true);
+        gameService.getIsTyping.and.returnValue(true);
         const playAreaServiceSpy = playAreaService.cheatMode.and.stub();
         component.buttonDetect(buttonEvent);
         expect(playAreaServiceSpy).not.toHaveBeenCalled();
@@ -141,7 +142,7 @@ fdescribe('PlayAreaComponent', () => {
         const buttonEvent = {
             key: expectedKey,
         } as KeyboardEvent;
-        chatService.getIsTyping.and.returnValue(false);
+        gameService.getIsTyping.and.returnValue(false);
         const playAreaServiceSpy = playAreaService.cheatMode.and.stub();
         component.buttonDetect(buttonEvent);
         expect(playAreaServiceSpy).toHaveBeenCalled();
@@ -243,13 +244,12 @@ fdescribe('PlayAreaComponent', () => {
 
     it('correctRetroaction should call audio play and pause and correctAnswerVisuals ', () => {
         (component as any).playerIsAllowedToClick = true;
-        spyOn(component as any, 'correctAnswerVisuals');
         spyOn((component as any).audioValid, 'pause');
         spyOn((component as any).audioValid, 'play');
-
+        component.differenceMatrix = differenceMatrix;
         (component as any).correctRetroaction({ x: 1, y: 2 });
         expect((component as any).playerIsAllowedToClick).toBeFalsy();
-        expect((component as any).correctAnswerVisuals).toHaveBeenCalledWith({ x: 1, y: 2 });
+        expect(playAreaService.correctAnswerVisuals).toHaveBeenCalledWith({ x: 1, y: 2 }, differenceMatrix);
         expect((component as any).audioValid.pause).toHaveBeenCalled();
         expect((component as any).audioValid.currentTime).toEqual(0);
         expect((component as any).audioValid.play).toHaveBeenCalled();
@@ -265,12 +265,12 @@ fdescribe('PlayAreaComponent', () => {
         gameService.changeTime.and.stub();
         gameService.nextGame.and.stub();
         (component as any).playerIsAllowedToClick = true;
-        spyOn(component as any, 'correctAnswerVisuals');
+        component.differenceMatrix = differenceMatrix;
         spyOn((component as any).audioValid, 'pause');
         spyOn((component as any).audioValid, 'play');
         (component as any).correctRetroaction({ x: 1, y: 2 });
         expect((component as any).playerIsAllowedToClick).toBeFalsy();
-        expect((component as any).correctAnswerVisuals).toHaveBeenCalledWith({ x: 1, y: 2 });
+        expect(playAreaService.correctAnswerVisuals).toHaveBeenCalledWith({ x: 1, y: 2 }, differenceMatrix);
         expect((component as any).audioValid.pause).toHaveBeenCalled();
         expect((component as any).audioValid.currentTime).toEqual(0);
         expect((component as any).audioValid.play).toHaveBeenCalled();
@@ -308,14 +308,6 @@ fdescribe('PlayAreaComponent', () => {
         expect((component as any).differenceMatrix).toEqual(undefined as unknown as number[][]);
         expect((component as any).original.src).toContain('https://picsum.photos/id/88/200/300');
         expect((component as any).modified.src).toContain('https://picsum.photos/id/88/200/300');
-    });
-
-    it('correctAnswerVisuals should call the flashDifference from playAreaService', () => {
-        component.differenceMatrix = gameRoom.userGame.gameData.differenceMatrix;
-        playAreaService.flashDifference.and.stub();
-        detectionService.extractDifference.and.stub();
-        (component as any).correctAnswerVisuals({ x: 1, y: 2 });
-        expect(playAreaService.flashDifference).toHaveBeenCalled();
     });
 
     it('verifyDifferenceMatrix should call createAndFillNewLayer in cheat option', () => {

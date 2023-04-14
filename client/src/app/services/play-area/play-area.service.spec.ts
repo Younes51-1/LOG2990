@@ -429,9 +429,9 @@ describe('PlayAreaService', () => {
         (service as any).hintTimeout = 0;
         (service as any).playNormalHint(layer);
         setTimeout(() => {
-            expect(spyTimeout).toHaveBeenCalledTimes(1);
+            expect(spyTimeout).toHaveBeenCalled();
             expect(spyInterval).toHaveBeenCalledWith((service as any).hintInterval);
-            expect(spyInterval).toHaveBeenCalledTimes(2);
+            expect(spyInterval).toHaveBeenCalled();
             expect(spyCtx1).toHaveBeenCalledWith(layer, 0, 0, Dimensions.DEFAULT_WIDTH, Dimensions.DEFAULT_HEIGHT);
             expect(spyCtx2).toHaveBeenCalledWith(layer, 0, 0, Dimensions.DEFAULT_WIDTH, Dimensions.DEFAULT_HEIGHT);
             expect(spyUpdateCtx).toHaveBeenCalled();

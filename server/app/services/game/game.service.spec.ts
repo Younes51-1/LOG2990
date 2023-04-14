@@ -80,7 +80,6 @@ describe('GameService', () => {
         expect(gameModel).toBeDefined();
     });
 
-    // TODO: Fix this test
     it('getAllGames should return all games in database', async () => {
         jest.spyOn(service, 'getMatrix').mockImplementation(async () => Promise.resolve([]));
         await gameModel.deleteMany({});
@@ -136,10 +135,9 @@ describe('GameService', () => {
         ).rejects.toBeTruthy();
     });
 
-    // TODO: Fix this test
-    // it('getGame should return undefined if the game with the specified subject code does not exist', async () => {
-    //     expect(await service.getGame('FakeGame')).toEqual({});
-    // });
+    it('getGame should return undefined if the game with the specified subject code does not exist', async () => {
+        await expect(service.getGame('404')).rejects.toEqual('Failed to get game');
+    });
 
     it('getGame should return the game with the specified name', async () => {
         const game = getFakeGame();
@@ -206,11 +204,7 @@ describe('GameService', () => {
     it('deleteGame should fail if mongo query failed', async () => {
         jest.spyOn(gameModel, 'deleteOne').mockRejectedValue('');
         const game = getFakeGame();
-        try {
-            await service.deleteGame(game.name);
-        } catch (e) {
-            expect(e).toBeTruthy();
-        }
+        await expect(service.deleteGame(game.name)).rejects.toEqual('Failed to delete game: ');
     });
 
     it('deleteAllGames should delete all games', async () => {
@@ -221,15 +215,10 @@ describe('GameService', () => {
         expect(gameModel.countDocuments()).resolves.toEqual(0);
     });
 
-    // it('deleteAllGames should fail if mongo query failed', async () => {
-    //     jest.spyOn(gameModel, 'deleteOne').mockRejectedValue('');
-    //     jest.spyOn(gameModeGateway, 'cancelDeletedGame').mockImplementation();
-    //     try {
-    //         await service.deleteAllGames();
-    //     } catch (e) {
-    //         expect(e).toBeTruthy();
-    //     }
-    // });
+    it('deleteAllGames should fail if mongo query failed', async () => {
+        jest.spyOn(gameModel, 'find').mockRejectedValue('');
+        await expect(service.deleteAllGames()).rejects.toEqual('Failed to delete all games: ');
+    });
 
     it('deleteBestTimes should reset to default values bestTimes of every games', async () => {
         jest.spyOn(service, 'getMatrix').mockImplementation(async () => Promise.resolve([]));
@@ -262,14 +251,10 @@ describe('GameService', () => {
         expect(gamesUpdated[1].vsBestTimes).toEqual(newBestTimes());
     });
 
-    // it('deleteBestTimes should fail if update fails', async () => {
-    //     jest.spyOn(gameModel, 'findOne').mockRejectedValue('');
-    //     try {
-    //         await service.deleteBestTimes();
-    //     } catch (e) {
-    //         expect(e).toBeTruthy();
-    //     }
-    // });
+    it('deleteBestTimes should fail if update fails', async () => {
+        jest.spyOn(gameModel, 'find').mockRejectedValue('');
+        await expect(service.deleteBestTimes()).rejects.toEqual('Failed to delete best times: ');
+    });
 
     it('deleteBestTime should reset to default values bestTimes of specified game', async () => {
         await gameModel.deleteMany({});
@@ -303,14 +288,10 @@ describe('GameService', () => {
         expect(gamesUpdated[0].vsBestTimes).toEqual(newBestTimes());
     });
 
-    // it('deleteBestTime should fail if update fails', async () => {
-    //     jest.spyOn(gameModel.prototype, 'save').mockRejectedValue('');
-    //     try {
-    //         service.deleteBestTimes();
-    //     } catch (e) {
-    //         expect(e).toBeTruthy();
-    //     }
-    // });
+    it('deleteBestTime should fail if update fails', async () => {
+        jest.spyOn(gameModel, 'findOne').mockRejectedValue('');
+        await expect(service.deleteBestTime('404')).rejects.toEqual('Failed to delete best time: ');
+    });
 
     it('updateBestTime should add new bestTime to specified game if its an actual new best and send a new message', async () => {
         jest.spyOn(chatGateway, 'newBestTimeScore').mockImplementation();
@@ -366,11 +347,20 @@ describe('GameService', () => {
         expect(position).toEqual(NOT_TOP3);
     });
 
-    // it('BestTime should return an array of type BestTime', () => {
-    //     const game = getFakeGame();
-    //     expect(game.soloBestTimes).toBeInstanceOf(Array);
-    //     expect(game.soloBestTimes[0]).toBeInstanceOf(BestTime);
-    // });
+    it('updateBestTime should throw an error if game is not found', async () => {
+        jest.spyOn(gameModel, 'findOne').mockRejectedValue('');
+        await expect(service.updateBestTime('404', newFakeBestTime())).rejects.toEqual('Failed to update best time: ');
+    });
+
+    it('updateBestTime should throw an error if game is undefined', async () => {
+        jest.spyOn(gameModel, 'findOne').mockReturnValue(undefined);
+        await expect(service.updateBestTime('404', newFakeBestTime())).rejects.toEqual('Could not find game');
+    });
+
+    it('BestTime should return an array of type BestTime', () => {
+        const game = getFakeGame();
+        expect(game.soloBestTimes).toBeInstanceOf(Array);
+    });
 });
 
 const getFakeGame = (): Game => ({

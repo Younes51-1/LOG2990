@@ -38,6 +38,11 @@ export class GameSetupService {
 
     getAllGames() {
         this.communicationService.getAllGames().subscribe((games) => {
+            games.forEach((game) => {
+                this.communicationService.getGame(game.name).subscribe((gameData) => {
+                    game.differenceMatrix = gameData.differenceMatrix;
+                });
+            });
             this.slides = games;
         });
     }
