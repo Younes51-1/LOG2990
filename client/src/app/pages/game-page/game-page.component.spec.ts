@@ -256,9 +256,8 @@ describe('GamePageComponent', () => {
         expect(spyAbandonGame).toHaveBeenCalled();
     });
 
-    it('should call startConfetti on abandoned$ observable in classic-mode', () => {
-        gameServiceSpy = TestBed.inject(GameService);
-        const consfettiSpy = spyOn((component as any).playAreaService, 'startConfetti').and.stub();
+    it('should call startConfetti on abandoned$ observable in mode classique', () => {
+        playAreaService.startConfetti.and.stub();
         const abandonGameSpy = spyOn(gameServiceSpy.abandoned$, 'subscribe').and.callThrough();
         gameServiceSpy.endGame.and.stub();
         const unsubscribeSpy = spyOn(component as any, 'unsubscribe').and.stub();

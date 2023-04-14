@@ -37,15 +37,15 @@
         </div>
     </div>
     <div id="options">
-        <button mat-button routerLink="/home">Terminer</button>
-        <button mat-button (click)="restart()"><i class="fas fa-step-backward"></i></button>
-        <button *ngIf="!this.paused" mat-button (click)="pause()"><i class="fas fa-pause-circle"></i></button>
-        <button *ngIf="this.paused" mat-button (click)="continue()"><i class="fas fa-play-circle"></i></button>
-        <mat-progress-bar mode="determinate" [value]="(this.time / (this.actions[this.actions.length - 1].timeStart + 1)) * 100"></mat-progress-bar>
+        <button mat-button tabindex="-1" routerLink="/home">Terminer</button>
+        <button *ngIf="!this.paused" mat-button tabindex="-1" (click)="pause()"><i class="fas fa-pause-circle"></i></button>
+        <button *ngIf="this.paused" mat-button tabindex="-1" (click)="continue()"><i class="fas fa-play-circle"></i></button>
         <select [(ngModel)]="speed" (change)="startTimer()">
             <option value="1">x1</option>
             <option value="2">x2</option>
             <option value="4">x4</option>
         </select>
+        <mat-progress-bar mode="determinate" [value]="(this.time / (this.actions[this.actions.length - 1].timeStart + 1)) * 100"></mat-progress-bar>
+        <button mat-button tabindex="-1" (click)="restart()"><i class="fas fa-step-backward"></i></button>
     </div>
 </div>
