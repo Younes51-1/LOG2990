@@ -1,6 +1,18 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable max-lines */
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import {
+    AfterViewInit,
+    Component,
+    ElementRef,
+    EventEmitter,
+    Input,
+    OnChanges,
+    OnDestroy,
+    OnInit,
+    Output,
+    SimpleChanges,
+    ViewChild,
+} from '@angular/core';
 import { Instruction, InstructionReplay } from '@app/interfaces/video-replay';
 import { PlayAreaService } from '@app/services/play-area/play-area.service';
 import { Dimensions } from 'src/assets/variables/picture-dimension';
@@ -10,7 +22,7 @@ import { Dimensions } from 'src/assets/variables/picture-dimension';
     templateUrl: './replay-play-area.component.html',
     styleUrls: ['./replay-play-area.component.scss'],
 })
-export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit {
+export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit, OnDestroy {
     @Input() image1: string;
     @Input() image2: string;
     @Input() time: number;
@@ -85,6 +97,10 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
             this.currentAction = this.actions[this.counter++];
         }
         this.playAreaService.updateCheatSpeed();
+    }
+
+    ngOnDestroy(): void {
+        this.playAreaService.endCheatMode();
     }
 
     private restart() {
