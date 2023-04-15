@@ -195,7 +195,7 @@ export class GameModeService {
     }
 
     abandonLimitedTimeMode(gameRoom: GameRoom, username: string): void {
-        if (gameRoom.userGame.username1 === username) {
+        if (gameRoom.userGame.username1 === username && gameRoom.userGame.username2) {
             gameRoom.userGame.username1 = gameRoom.userGame.username2;
         }
         gameRoom.userGame.username2 = '';

@@ -13,7 +13,9 @@ export class GameFinderGateway {
 
     @SubscribeMessage(GameFinderEvents.CheckGame)
     checkGame(socket: Socket, data: { gameName: string; gameMode: string }): void {
-        if (this.gameModeService.getGameRoom(undefined, data.gameName, data.gameMode)) {
+        const gameRoom = this.gameModeService.getGameRoom(undefined, data.gameName, data.gameMode);
+        if (gameRoom) {
+            if (gameRoom.started) return;
             if (data.gameMode === 'mode classique') {
                 this.logger.log(`Game finder gateway: Game ${data.gameName} found`);
             } else {

@@ -50,7 +50,7 @@ export class GameModeGateway implements OnGatewayConnection, OnGatewayDisconnect
         } else {
             const sockets = this.server.sockets.adapter.rooms.get(data.roomId);
             sockets.delete(socket.id);
-            if (socket.id === gameRoom.roomId) {
+            if (socket.id === gameRoom.roomId && gameRoom.userGame.username2) {
                 socket.leave(data.roomId);
                 gameRoom.roomId = Array.from(sockets.keys())[0];
             } else {
