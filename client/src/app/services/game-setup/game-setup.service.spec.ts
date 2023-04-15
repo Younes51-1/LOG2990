@@ -106,12 +106,14 @@ describe('GameSetupService', () => {
         spyOn(service, 'initClassicMode').and.stub();
         service.initGameMode('game1');
         expect(service.initClassicMode).toHaveBeenCalled();
+        expect(communicationServiceSpy.getGame).toHaveBeenCalled();
     });
 
     it('should call initLimitedTimeMode when gameMode is limited-time-mode', () => {
         spyOn(service, 'initLimitedTimeMode').and.stub();
         service.initGameMode();
         expect(service.initLimitedTimeMode).toHaveBeenCalled();
+        expect(communicationServiceSpy.getGame).toHaveBeenCalled();
     });
 
     it('should initClassicMode', () => {
