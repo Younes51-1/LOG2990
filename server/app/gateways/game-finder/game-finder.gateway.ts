@@ -22,6 +22,8 @@ export class GameFinderGateway {
                 this.logger.log('Game finder gateway: Limited time game found');
             }
             this.server.to(socket.id).emit(GameFinderEvents.GameFound, { gameName: data.gameName, gameMode: data.gameMode });
+        } else {
+            this.logger.log(`Game finder gateway: Game ${data.gameName} not found`);
         }
     }
 
