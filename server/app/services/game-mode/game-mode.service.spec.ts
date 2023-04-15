@@ -551,6 +551,7 @@ const getFakeGameHistory = (): GameHistory => ({
     username1: 'FakeUser',
     gameMode: 'classic-mode',
     abandonned: undefined,
+    abandonned2: undefined,
     winner: undefined,
 });
 

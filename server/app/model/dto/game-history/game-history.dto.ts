@@ -32,5 +32,9 @@ export class GameHistory {
 
     @ApiProperty()
     @IsString()
+    abandonned2?: string;
+
+    @ApiProperty()
+    @IsString()
     winner: string;
 }

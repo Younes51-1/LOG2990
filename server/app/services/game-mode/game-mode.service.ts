@@ -195,15 +195,24 @@ export class GameModeService {
     }
 
     abandonLimitedTimeMode(gameRoom: GameRoom, username: string): void {
+        const gameHistory = this.getGameHistory(gameRoom.roomId);
+        if (gameHistory) {
+            if (gameHistory.abandonned) {
+                gameHistory.abandonned2 = username;
+            } else {
+                gameHistory.abandonned = username;
+            }
+            if (!gameRoom.userGame.username2) {
+                gameHistory.timer = Date.now() - gameHistory.startTime;
+                this.gameHistoryService.saveGameHistory(gameHistory);
+            } else {
+                this.setGameHistory(gameRoom.roomId, gameHistory);
+            }
+        }
         if (gameRoom.userGame.username1 === username && gameRoom.userGame.username2) {
             gameRoom.userGame.username1 = gameRoom.userGame.username2;
         }
         gameRoom.userGame.username2 = '';
-        const gameHistory = this.getGameHistory(gameRoom.roomId);
-        if (gameHistory) {
-            gameHistory.abandonned = username;
-            this.setGameHistory(gameRoom.roomId, gameHistory);
-        }
         this.setGameRoom(gameRoom);
     }
 }
