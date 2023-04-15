@@ -23,18 +23,12 @@
     padding: 25px;
     display: flex;
     justify-content: center;
-}
-
-app-fake-chat-box {
-    padding: 0 30px 5px 30px;
+    align-items: center;
 }
 
 #options * {
     margin: 5px 5px 5px 5px;
-}
-
-#options i {
-    font-size: 30px;
+    font-size: 20px;
 }
 
 ::ng-deep .mat-progress-bar-fill::after {
@@ -47,8 +41,8 @@ app-fake-chat-box {
 
 .mat-progress-bar {
     border-radius: 10px;
-    height: 15px;
-    width: 1000px;
+    height: 20px;
+    width: 70%;
 }
 
 #mainContainer {

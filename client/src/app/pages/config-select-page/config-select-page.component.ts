@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { DeleteDialogComponent } from '@app/components/delete-dialog/delete-dialog.component';
@@ -13,6 +13,8 @@ import { PageKeys } from 'src/assets/variables/game-card-options';
     styleUrls: ['./config-select-page.component.scss'],
 })
 export class ConfigSelectPageComponent implements OnInit {
+    @ViewChild('table-container', { static: true }) table: ElementRef;
+
     pageType: PageKeys;
     imgSource: string;
     slides: GameData[];
@@ -45,6 +47,9 @@ export class ConfigSelectPageComponent implements OnInit {
         if (this.pageType === PageKeys.Config) {
             this.getPartiesFromServer();
         }
+        // setTimeout(() => {
+        //     this.table.nativeElement.scrollTop = this.table.nativeElement.scrollHeight;
+        // }, 0);
     }
 
     deleteNotify(name: string): void {
