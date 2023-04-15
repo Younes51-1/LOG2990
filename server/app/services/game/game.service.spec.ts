@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import { DELAY_BEFORE_CLOSING_CONNECTION, NOT_TOP3 } from '@app/constants';
-import { environment } from '@app/environments/environment';
+import { environment } from '@app/environments/environment.prod';
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
 import { GameModeGateway } from '@app/gateways/game-mode/game-mode.gateway';
 import { Game, GameDocument, gameSchema } from '@app/model/database/game';
@@ -75,10 +75,10 @@ describe('GameService', () => {
         }, DELAY_BEFORE_CLOSING_CONNECTION);
     });
 
-    // it('should be defined', () => {
-    //     expect(service).toBeDefined();
-    //     expect(gameModel).toBeDefined();
-    // });
+    it('should be defined', () => {
+        expect(service).toBeDefined();
+        expect(gameModel).toBeDefined();
+    });
 
     it('getAllGames should return all games in database', async () => {
         jest.spyOn(service, 'getMatrix').mockImplementation(async () => Promise.resolve([]));

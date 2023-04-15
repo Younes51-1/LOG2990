@@ -50,7 +50,7 @@
                             <td
                                 [ngClass]="{
                                     winner: partie.winner === partie.username1,
-                                    abandoned: partie.abandonned === partie.username1 || partie.abandonned2 === partie.username1
+                                    abandoned: partie.abandonned?.includes(partie.username1) === true
                                 }"
                             >
                                 {{ partie.username1 }}
@@ -59,7 +59,7 @@
                                 *ngIf="partie.username2 !== ''"
                                 [ngClass]="{
                                     winner: partie.winner === partie.username2,
-                                    abandoned: partie.abandonned === partie.username2 || partie.abandonned2 === partie.username2
+                                    abandoned: partie.abandonned?.includes(partie.username2!)
                                 }"
                             >
                                 {{ partie.username2 }}

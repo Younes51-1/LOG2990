@@ -56,7 +56,7 @@ export class GameModeGateway implements OnGatewayConnection, OnGatewayDisconnect
             } else {
                 socket.leave(socket.id);
             }
-            this.gameModeService.abandonLimitedTimeMode(gameRoom, data.username);
+            this.gameModeService.abandonLimitedTimeMode(gameRoom, data.username, data.roomId);
             this.server.to(gameRoom.roomId).emit(GameModeEvents.Abandoned, { gameRoom, username: data.username });
         }
     }

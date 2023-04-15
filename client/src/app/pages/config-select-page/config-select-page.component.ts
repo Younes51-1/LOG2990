@@ -47,9 +47,6 @@ export class ConfigSelectPageComponent implements OnInit {
         if (this.pageType === PageKeys.Config) {
             this.getPartiesFromServer();
         }
-        // setTimeout(() => {
-        //     this.table.nativeElement.scrollTop = this.table.nativeElement.scrollHeight;
-        // }, 0);
     }
 
     deleteNotify(name: string): void {

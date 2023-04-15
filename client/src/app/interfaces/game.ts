@@ -55,8 +55,7 @@ export interface GameHistory {
     username1: string;
     username2?: string;
     gameMode: string;
-    abandonned?: string;
-    abandonned2?: string;
+    abandonned?: string[];
     winner: string;
 }
 
