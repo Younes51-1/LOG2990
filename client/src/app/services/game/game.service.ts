@@ -79,9 +79,18 @@ export class GameService {
             this.connectSocket();
             this.socketService.send('start', this.gameRoom.roomId);
         }
-        if (this.gameMode === 'limited-time-mode') this.getAllGames();
+        if (this.gameMode === 'limited-time-mode') {
+            this.getAllGames();
+            this.gameDeletedSocket();
+        }
         this.chatService.handleMessage();
         this.handleSocket();
+    }
+
+    gameDeletedSocket(): void {
+        this.socketService.on('gameCanceled', (gameName: string) => {
+            this.slides = this.slides.filter((game) => game.name !== gameName);
+        });
     }
 
     sendMessage(message: string, username: string): void {

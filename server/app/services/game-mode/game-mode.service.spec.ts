@@ -549,7 +549,7 @@ const getFakeGameHistory = (): GameHistory => ({
     timer: 0,
     username2: undefined,
     username1: 'FakeUser',
-    gameMode: 'classic-mode',
+    gameMode: 'mode classique',
     abandonned: undefined,
     abandonned2: undefined,
     winner: undefined,

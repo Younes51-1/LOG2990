@@ -80,7 +80,7 @@ describe('ConfigSelectPageComponent', () => {
             'getHistory',
         ]);
         configHttpServiceSpy.getHistory.and.returnValue(
-            of([{ name: 'Find the difference 1', startTime: 100, timer: 200, username1: 'user1', gameMode: 'mode classique solo', winner: 'user1' }]),
+            of([{ name: 'Find the difference 1', startTime: 100, timer: 200, username1: 'user1', gameMode: 'classic-mode solo', winner: 'user1' }]),
         );
         configHttpServiceSpy.getConstants.and.returnValue(of({ initialTime: 100, penaltyTime: 10, bonusTime: 5 } as GameConstants));
         zone = new NgZone({ enableLongStackTrace: false });
@@ -313,11 +313,28 @@ describe('ConfigSelectPageComponent', () => {
         expect(getPartiesFromServerSpy).toHaveBeenCalled();
     });
 
-    it('deletePartie should call deleteHistory', () => {
+    it('deletePartie should call deleteHistory if user responded yes', () => {
+        const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
+        (dialog.open as jasmine.Spy).and.returnValue(dialogRefSpy);
+        dialogRefSpy.afterClosed.and.returnValue(of(true));
+        component.pageType = PageKeys.Config;
         configHttpServiceSpy.deleteHistory.and.returnValue(of(new HttpResponse({ status: 200 }) as HttpResponse<string>));
         component.deletePartie();
         expect(configHttpServiceSpy.deleteHistory).toHaveBeenCalled();
         expect(component.parties.length).toEqual(0);
+        expect(dialog.open).toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true, data: { action: 'deleteHistory' } });
+        expect(dialogRefSpy.afterClosed).toHaveBeenCalled();
+    });
+
+    it("deletePartie shouldn't call deleteHistory if user responded no", () => {
+        const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
+        (dialog.open as jasmine.Spy).and.returnValue(dialogRefSpy);
+        dialogRefSpy.afterClosed.and.returnValue(of(false));
+        component.pageType = PageKeys.Config;
+        component.deletePartie();
+        expect(dialog.open).toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true, data: { action: 'deleteHistory' } });
+        expect(dialogRefSpy.afterClosed).toHaveBeenCalled();
+        expect(component.slides.length).toEqual(2);
     });
 
     it('calculateTime should return the correct time', () => {

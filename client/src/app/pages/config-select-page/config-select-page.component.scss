@@ -99,9 +99,11 @@ btn:focus:before {
 }
 
 table {
-    border-collapse: collapse;
     width: 90%;
+    height: 50%;
+    overflow-y: scroll;
     margin: auto;
+    border-collapse: collapse;
 }
 
 th,
