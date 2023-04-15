@@ -62,9 +62,8 @@ describe('WaitingRoomGateway', () => {
         });
         const saveGameHistorySpy = jest.spyOn(gameModeService, 'saveGameHistory').mockImplementation();
         server.to.returns({
-            emit: (event: string, gameRoom: GameRoom) => {
+            emit: (event: string) => {
                 expect(event).toEqual(WaitingRoomEvents.Started);
-                expect(gameRoom).toEqual(getFakeGameRoom());
             },
         } as BroadcastOperator<unknown, unknown>);
         gateway.startGame(socket, getFakeGameRoom().roomId);
@@ -74,9 +73,9 @@ describe('WaitingRoomGateway', () => {
     it('createGame should initNewRoom and emit created and gameFound if not started', () => {
         const initNewRoomSpy = jest.spyOn(gameModeService, 'initNewRoom').mockImplementation();
         server.to.returns({
-            emit: (event: string, gameRoom: GameRoom) => {
+            emit: (event: string, roomId: string) => {
                 expect(event).toEqual(WaitingRoomEvents.GameCreated || WaitingRoomEvents.GameFound);
-                expect(gameRoom).toEqual(getFakeGameRoom());
+                expect(roomId).toEqual(getFakeGameRoom().roomId);
             },
         } as BroadcastOperator<unknown, unknown>);
         gateway.createGame(socket, getFakeGameRoom());

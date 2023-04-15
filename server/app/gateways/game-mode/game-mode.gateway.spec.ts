@@ -159,6 +159,7 @@ describe('GameModeGateway', () => {
         const getGameRoomSpy = jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
             const gameRoom = getFakeGameRoom();
             gameRoom.gameMode = 'limited-mode';
+            gameRoom.userGame.username2 = 'secondPlayer';
             return gameRoom;
         });
         const abandonLimitedTimeModeSpy = jest.spyOn(gameModeService, 'abandonLimitedTimeMode').mockImplementation();
@@ -166,8 +167,9 @@ describe('GameModeGateway', () => {
         gameRoomSent.gameMode = 'limited-mode';
         const gameRoomExpected = gameRoomSent;
         gameRoomExpected.roomId = 'socketId2';
+        gameRoomExpected.userGame.username2 = 'secondPlayer';
         const roomsMap = new Map<string, Set<string>>();
-        roomsMap.set(gameRoomSent.roomId, new Set<string>([socket.id, 'socketId2']));
+        roomsMap.set('socketId', new Set<string>([socket.id, 'socketId2']));
         Object.defineProperty(server, 'sockets', { value: { adapter: { rooms: roomsMap } }, writable: true });
         socket.join(gameRoomSent.roomId);
         server.to.returns({
@@ -177,7 +179,7 @@ describe('GameModeGateway', () => {
                 expect(username).toEqual(gameRoomSent.userGame.username1);
             },
         } as BroadcastOperator<unknown, unknown>);
-        gateway.abandoned(socket, { roomId: gameRoomSent.roomId, username: gameRoomSent.userGame.username1 });
+        gateway.abandoned(socket, { roomId: 'socketId', username: gameRoomSent.userGame.username1 });
         expect(getGameRoomSpy).toHaveBeenCalled();
         expect(abandonLimitedTimeModeSpy).toHaveBeenCalled();
     });

@@ -26,7 +26,7 @@ export class VideoReplayDialogComponent implements AfterViewInit, OnInit {
     endTimeout: ReturnType<typeof setTimeout>;
     username: string;
 
-    constructor(@Inject(MAT_DIALOG_DATA) public data: { videoReplay: VideoReplay }) {}
+    constructor(@Inject(MAT_DIALOG_DATA) public data: { videoReplay: VideoReplay; penaltyTime: number }) {}
 
     ngOnInit(): void {
         this.actions = this.data.videoReplay.actions;
@@ -77,7 +77,7 @@ export class VideoReplayDialogComponent implements AfterViewInit, OnInit {
     }
 
     incrementTimer() {
-        this.time += 3;
+        this.time += this.data.penaltyTime;
     }
 
     stopTimer() {

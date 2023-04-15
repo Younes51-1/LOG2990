@@ -54,7 +54,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.userDifferencesFoundSubscription = this.gameService.userDifferencesFound$.subscribe((count) => {
             this.userDifferencesFound = count;
             this.sendEvent('success');
-            if (this.userDifferencesFound >= this.differenceThreshold) {
+            if (this.userDifferencesFound >= this.differenceThreshold && this.gameService.gameMode === 'mode classique') {
                 this.gameFinished = true;
                 this.endGame();
             }

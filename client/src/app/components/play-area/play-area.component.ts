@@ -126,17 +126,19 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         }
     }
 
+    nextGame() {
+        if (!this.gameService.isLimitedTimeMode()) return;
+        this.gameService.nextGame();
+        this.gameService.changeTime(this.gameService.gameConstants.bonusTime);
+        this.ngOnChanges();
+    }
+
     private correctRetroaction(differencePos: Vec2) {
         this.playerIsAllowedToClick = false;
         this.audioValid.pause();
         this.audioValid.currentTime = 0;
         this.audioValid.play();
         this.playAreaService.correctAnswerVisuals(differencePos, this.differenceMatrix);
-        if (this.gameService.isLimitedTimeMode()) {
-            this.gameService.nextGame();
-            this.gameService.changeTime(this.gameService.gameConstants.bonusTime);
-            this.ngOnChanges();
-        }
     }
 
     private errorRetroaction(canvas: HTMLCanvasElement) {

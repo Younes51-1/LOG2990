@@ -194,9 +194,8 @@ export class GameService {
     }
 
     private handleSocket(): void {
-        this.socketService.on('started', (gameRoom: GameRoom) => {
-            this.gameRoom = gameRoom;
-            this.gameRoom$.next(gameRoom);
+        this.socketService.on('started', () => {
+            this.gameRoom$.next(this.gameRoom);
         });
 
         this.socketService.on('validated', (differenceTry: DifferenceTry) => {

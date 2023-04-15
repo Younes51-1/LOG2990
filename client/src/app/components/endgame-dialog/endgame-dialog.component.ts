@@ -50,7 +50,7 @@ export class EndgameDialogComponent implements OnInit {
 
     openVideoReplay() {
         this.videoReplayDialog.open(VideoReplayDialogComponent, {
-            data: { videoReplay: this.data.videoReplay },
+            data: { videoReplay: this.data.videoReplay, penaltyTime: this.gameService.gameConstants.penaltyTime },
             disableClose: true,
             width: '62%',
             height: '80%',
