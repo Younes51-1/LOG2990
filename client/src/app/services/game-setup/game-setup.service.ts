@@ -81,12 +81,18 @@ export class GameSetupService {
             return;
         }
         this.gameRoom.userGame.gameData = slide;
+        this.communicationService.getGame(gameName).subscribe((gameData) => {
+            this.gameRoom.userGame.gameData.differenceMatrix = gameData.differenceMatrix;
+        });
         this.waitingRoomService.createGame(this.gameRoom);
     }
 
     initLimitedTimeMode(): void {
         this.gameRoom.userGame.gameData = this.randomSlide();
         this.gameRoom.userGame.timer = this.gameConstants.initialTime;
+        this.communicationService.getGame(this.gameRoom.userGame.gameData.name).subscribe((gameData) => {
+            this.gameRoom.userGame.gameData.differenceMatrix = gameData.differenceMatrix;
+        });
         this.waitingRoomService.createGame(this.gameRoom);
     }
 
