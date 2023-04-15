@@ -167,17 +167,19 @@ describe('GameService', () => {
         expect(startGameSpy).toHaveBeenCalledWith('start', gameRoom.roomId);
     });
 
-    it('getAllGames should be called only in limited time mode in startGame', () => {
+    it('getAllGames and gameDeletedSocket should be called only in limited time mode in startGame', () => {
         const handleMessageSpy = spyOn(chatServiceMock, 'handleMessage').and.stub();
         const handleSocketSpy = spyOn(service as any, 'handleSocket').and.stub();
         gameRoom.gameMode = 'limited-time-mode';
         const getAllGamesSpy = spyOn(service, 'getAllGames').and.stub();
+        const gameDeletedSocketSpy = spyOn(service, 'gameDeletedSocket').and.stub();
         service.startGame(gameRoom, 'test');
         expect(service.gameRoom).toEqual(gameRoom);
         expect(service.username).toEqual('test');
         expect(service.gameMode).toEqual('limited-time-mode');
         expect(handleMessageSpy).toHaveBeenCalled();
         expect(handleSocketSpy).toHaveBeenCalled();
+        expect(gameDeletedSocketSpy).toHaveBeenCalled();
         expect(getAllGamesSpy).toHaveBeenCalled();
     });
 
@@ -191,6 +193,13 @@ describe('GameService', () => {
     it('getAllGames should call getAllGames by communication service', () => {
         service.getAllGames();
         expect(communicationServiceSpy.getAllGames).toHaveBeenCalled();
+    });
+
+    it('should handle gameDeletedSocket', () => {
+        service.slides = [gameRoom.userGame.gameData];
+        service.gameDeletedSocket();
+        socketHelper.peerSideEmit('gameCanceled', gameRoom.userGame.gameData.name);
+        expect(service.slides).toEqual([]);
     });
 
     it('should abort the game creation', () => {

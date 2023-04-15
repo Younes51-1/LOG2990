@@ -116,7 +116,8 @@ export class GameModeService {
                 gameHistory.winner = 'Aucun gagnant';
             }
         } else {
-            gameHistory.abandonned = endGame.username;
+            if (!gameHistory.abandonned) gameHistory.abandonned = [];
+            gameHistory.abandonned.push(endGame.username);
         }
         this.setGameHistory(endGame.roomId, gameHistory);
     }
@@ -124,7 +125,8 @@ export class GameModeService {
     abandonGameHistory(roomId: string, username: string): void {
         const gameHistory = this.getGameHistory(roomId);
         if (gameHistory.username2) {
-            gameHistory.abandonned = username;
+            if (!gameHistory.abandonned) gameHistory.abandonned = [];
+            gameHistory.abandonned.push(username);
         } else {
             this.updateGameHistory({ roomId, gameFinished: false, winner: false, username });
         }
@@ -194,16 +196,23 @@ export class GameModeService {
         }
     }
 
-    abandonLimitedTimeMode(gameRoom: GameRoom, username: string): void {
-        if (gameRoom.userGame.username1 === username) {
+    abandonLimitedTimeMode(gameRoom: GameRoom, username: string, oldRoomId: string): void {
+        const gameHistory = this.getGameHistory(oldRoomId);
+        if (gameHistory) {
+            if (!gameHistory.abandonned) gameHistory.abandonned = [];
+            gameHistory.abandonned.push(username);
+            if (!gameRoom.userGame.username2) {
+                gameHistory.timer = Date.now() - gameHistory.startTime;
+                this.gameHistoryService.saveGameHistory(gameHistory);
+            } else {
+                this.deleteGameHistory(oldRoomId);
+                this.setGameHistory(gameRoom.roomId, gameHistory);
+            }
+        }
+        if (gameRoom.userGame.username1 === username && gameRoom.userGame.username2) {
             gameRoom.userGame.username1 = gameRoom.userGame.username2;
         }
         gameRoom.userGame.username2 = '';
-        const gameHistory = this.getGameHistory(gameRoom.roomId);
-        if (gameHistory) {
-            gameHistory.abandonned = username;
-            this.setGameHistory(gameRoom.roomId, gameHistory);
-        }
         this.setGameRoom(gameRoom);
     }
 }

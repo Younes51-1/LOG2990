@@ -219,6 +219,7 @@ export class PlayAreaService {
                 this.component.modified.src = this.replayComponent.sources[this.replayComponent.srcCounter++];
             }
             this.updateContexts();
+            this.normalComponent.nextGame();
         }, Time.Thousand / 2 / this.speed);
     }
 

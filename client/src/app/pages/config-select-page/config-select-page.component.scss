@@ -98,10 +98,13 @@ btn:focus:before {
     text-decoration: line-through;
 }
 
+#table-container {
+    overflow-y: auto;
+    max-height: 500px;
+}
+
 table {
     width: 90%;
-    height: 50%;
-    overflow-y: scroll;
     margin: auto;
     border-collapse: collapse;
 }

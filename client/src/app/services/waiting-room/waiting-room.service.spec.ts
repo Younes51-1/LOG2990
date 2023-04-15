@@ -208,22 +208,27 @@ describe('WaitingRoomService', () => {
     });
 
     it('should handle gameCreated and call startGame if started is true', () => {
-        gameRoom.started = true;
-        service.gameRoom = undefined as unknown as GameRoom;
+        service.gameRoom = gameRoom;
+        service.gameRoom.roomId = '';
+        service.gameRoom.started = true;
         service.gameMode = 'mode classique';
         spyOn(service, 'startGame').and.stub();
         service.handleWaitingRoomSocket();
-        socketHelper.peerSideEmit('gameCreated', gameRoom);
-        expect(service.gameRoom).toEqual(gameRoom);
+        socketHelper.peerSideEmit('gameCreated', 'fakeId');
+        expect(service.gameRoom.roomId).toEqual('fakeId');
         expect(service.startGame).toHaveBeenCalled();
     });
 
     it("shouldn't call startGame in gameCreated if started is false", () => {
+        service.gameRoom = gameRoom;
+        service.gameRoom.roomId = '';
+        service.gameRoom.started = false;
+        service.gameMode = 'mode classique';
         spyOn(service, 'startGame').and.stub();
         service.gameMode = 'mode classique';
         service.handleWaitingRoomSocket();
-        socketHelper.peerSideEmit('gameCreated', gameRoom);
-        expect(service.gameRoom).toEqual(gameRoom);
+        socketHelper.peerSideEmit('gameCreated', 'fakeId');
+        expect(service.gameRoom.roomId).toEqual('fakeId');
         expect(service.startGame).not.toHaveBeenCalled();
     });
 

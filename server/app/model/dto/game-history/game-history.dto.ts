@@ -28,7 +28,7 @@ export class GameHistory {
 
     @ApiProperty()
     @IsString()
-    abandonned?: string;
+    abandonned?: string[];
 
     @ApiProperty()
     @IsString()

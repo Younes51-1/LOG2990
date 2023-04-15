@@ -79,13 +79,13 @@ export class WaitingRoomService {
             }
         });
 
-        this.socketService.on('gameCreated', (gameRoom: GameRoom) => {
-            if (gameRoom && gameRoom.gameMode === this.gameMode) {
-                this.gameRoom = gameRoom;
-                if (gameRoom.started) {
+        this.socketService.on('gameCreated', (roomId: string) => {
+            if (roomId) {
+                this.gameRoom.roomId = roomId;
+                if (this.gameRoom.started) {
                     this.startGame();
                 }
-            } else if (!gameRoom) {
+            } else if (!roomId) {
                 alert('Nous avons eu un problème pour obtenir les informations de jeu du serveur');
             }
         });

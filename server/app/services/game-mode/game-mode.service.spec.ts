@@ -395,7 +395,7 @@ describe('GameModeService', () => {
         testGameModeService.updateGameHistory(fakeEndGame);
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         // expect(testGameModeService.getGameHistory(fakeGameRoom.roomId).timer).toEqual(10);
-        expect(testGameModeService.getGameHistory(fakeGameRoom.roomId).abandonned).toEqual('FakeUser');
+        expect(testGameModeService.getGameHistory(fakeGameRoom.roomId).abandonned).toEqual(['FakeUser']);
     });
 
     it('updateGameHistory should correctly update game history with no winners if its a solo game', () => {
@@ -440,7 +440,7 @@ describe('GameModeService', () => {
         });
         service.abandonGameHistory(getFakeGameRoom().roomId, getFakeGameRoom().userGame.username1);
         jest.spyOn(service, 'getGameHistory').mockRestore();
-        expect(service.getGameHistory(getFakeGameRoom().roomId).abandonned).toEqual('FakeUser');
+        expect(service.getGameHistory(getFakeGameRoom().roomId).abandonned).toEqual(['FakeUser']);
     });
 
     it('applyTimeToTimer should correctly add time to userGame timer', () => {
@@ -507,9 +507,25 @@ describe('GameModeService', () => {
         (testGameModeService as any).gameHistory = new Map();
         const newGameHistory = getFakeGameHistory();
         testGameModeService.addElementToHistoryMap(newRoom.roomId, newGameHistory);
-        testGameModeService.abandonLimitedTimeMode(newRoom, newRoom.userGame.username1);
+        testGameModeService.abandonLimitedTimeMode(newRoom, newRoom.userGame.username1, newRoom.roomId);
         expect(testGameModeService.getGameRoom(newRoom.roomId).userGame.username1).toEqual('FakeUser2');
-        expect(testGameModeService.getGameHistory(newRoom.roomId).abandonned).toEqual('FakeUser');
+        expect(testGameModeService.getGameHistory(newRoom.roomId).abandonned).toEqual(['FakeUser']);
+    });
+
+    it('abandonLimitedTimeMode should change username if user quit and update gameRoom and history', () => {
+        const saveGameHistorySpy = jest.spyOn(gameHistoryService, 'saveGameHistory').mockImplementation();
+        // We need to cast to any because the map is private
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (testGameModeService as any).gameRooms = new Map();
+        const newRoom = getFakeGameRoom();
+        testGameModeService.addElementToMap(newRoom.roomId, newRoom);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (testGameModeService as any).gameHistory = new Map();
+        const newGameHistory = getFakeGameHistory();
+        testGameModeService.addElementToHistoryMap(newRoom.roomId, newGameHistory);
+        testGameModeService.abandonLimitedTimeMode(newRoom, newRoom.userGame.username1, newRoom.roomId);
+        expect(saveGameHistorySpy).toHaveBeenCalled();
+        expect(testGameModeService.getGameHistory(newRoom.roomId).abandonned).toEqual(['FakeUser']);
     });
 });
 

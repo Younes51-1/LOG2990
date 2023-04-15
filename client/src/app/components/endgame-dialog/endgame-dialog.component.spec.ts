@@ -79,10 +79,12 @@ describe('EndgameDialogComponent', () => {
     });
 
     it('openVideo should call open videoReplayDialog dialog', () => {
+        const gameService = TestBed.inject(GameService);
+        gameService.gameConstants = { initialTime: 0, penaltyTime: 0, bonusTime: 0 };
         const openVideoReplayDialogSpy = spyOn((component as any).videoReplayDialog, 'open').and.stub();
         component.openVideoReplay();
         expect(openVideoReplayDialogSpy).toHaveBeenCalledWith(VideoReplayDialogComponent, {
-            data: { videoReplay: component.data.videoReplay },
+            data: { videoReplay: component.data.videoReplay, penaltyTime: gameService.gameConstants.penaltyTime },
             disableClose: true,
             width: '62%',
             height: '80%',

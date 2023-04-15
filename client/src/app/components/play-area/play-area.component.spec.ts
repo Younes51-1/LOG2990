@@ -218,6 +218,26 @@ describe('PlayAreaComponent', () => {
         expect(errorRetroactionSpy).not.toHaveBeenCalled();
     });
 
+    it('should call nextGame, changeTime and ngOnChanges if game is limited time mode', () => {
+        spyOn(component, 'ngOnChanges').and.stub();
+        gameService.isLimitedTimeMode.and.returnValue(true);
+        gameService.gameConstants = { initialTime: 1, bonusTime: 2, penaltyTime: 1 };
+        component.nextGame();
+        expect(gameService.nextGame).toHaveBeenCalled();
+        expect(gameService.changeTime).toHaveBeenCalledWith(2);
+        expect(component.ngOnChanges).toHaveBeenCalled();
+    });
+
+    it('should not call nextGame, changeTime and ngOnChanges if game is classique mode', () => {
+        spyOn(component, 'ngOnChanges').and.stub();
+        gameService.isLimitedTimeMode.and.returnValue(false);
+        gameService.gameConstants = { initialTime: 1, bonusTime: 2, penaltyTime: 1 };
+        component.nextGame();
+        expect(gameService.nextGame).not.toHaveBeenCalled();
+        expect(gameService.changeTime).not.toHaveBeenCalled();
+        expect(component.ngOnChanges).not.toHaveBeenCalled();
+    });
+
     it('should react accordingly on invalid response from server', () => {
         const correctRetroactionSpy = spyOn(component as any, 'correctRetroaction').and.callFake(() => {
             return;
@@ -253,29 +273,6 @@ describe('PlayAreaComponent', () => {
         expect((component as any).audioValid.pause).toHaveBeenCalled();
         expect((component as any).audioValid.currentTime).toEqual(0);
         expect((component as any).audioValid.play).toHaveBeenCalled();
-    });
-
-    it('correctRetroaction should call change Time and switch game in limited game mode', () => {
-        gameService.isLimitedTimeMode.and.returnValue(true);
-        gameService.gameConstants = {
-            initialTime: 1,
-            bonusTime: 2,
-            penaltyTime: 3,
-        };
-        gameService.changeTime.and.stub();
-        gameService.nextGame.and.stub();
-        (component as any).playerIsAllowedToClick = true;
-        component.differenceMatrix = differenceMatrix;
-        spyOn((component as any).audioValid, 'pause');
-        spyOn((component as any).audioValid, 'play');
-        (component as any).correctRetroaction({ x: 1, y: 2 });
-        expect((component as any).playerIsAllowedToClick).toBeFalsy();
-        expect(playAreaService.correctAnswerVisuals).toHaveBeenCalledWith({ x: 1, y: 2 }, differenceMatrix);
-        expect((component as any).audioValid.pause).toHaveBeenCalled();
-        expect((component as any).audioValid.currentTime).toEqual(0);
-        expect((component as any).audioValid.play).toHaveBeenCalled();
-        expect(gameService.changeTime).toHaveBeenCalledWith(2);
-        expect(gameService.nextGame).toHaveBeenCalled();
     });
 
     it('errorRetroaction should call audio play and errorAnswerVisuals ', () => {

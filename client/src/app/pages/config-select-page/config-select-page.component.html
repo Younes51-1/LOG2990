@@ -34,8 +34,8 @@
                 </ngx-slick-carousel>
             </section>
             <section id="historique" class="tab-panel">
-                <table id="table-container">
-                    <thead>
+                <div id="table-container">
+                    <table>
                         <tr>
                             <th>Début de partie</th>
                             <th>Durée totale</th>
@@ -43,24 +43,30 @@
                             <th>Joueur 1</th>
                             <th>Joueur 2</th>
                         </tr>
-                    </thead>
-                    <tbody>
                         <tr *ngFor="let partie of parties; let i = index">
                             <td>{{ partie.startTime | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
                             <td>{{ calculateTime(partie.timer) }}</td>
                             <td>{{ partie.gameMode }}</td>
-                            <td [ngClass]="{ winner: partie.winner === partie.username1, abandoned: partie.abandonned === partie.username1 }">
+                            <td
+                                [ngClass]="{
+                                    winner: partie.winner === partie.username1,
+                                    abandoned: partie.abandonned?.includes(partie.username1) === true
+                                }"
+                            >
                                 {{ partie.username1 }}
                             </td>
                             <td
                                 *ngIf="partie.username2 !== ''"
-                                [ngClass]="{ winner: partie.winner === partie.username2, abandoned: partie.abandonned === partie.username2 }"
+                                [ngClass]="{
+                                    winner: partie.winner === partie.username2,
+                                    abandoned: partie.abandonned?.includes(partie.username2!)
+                                }"
                             >
                                 {{ partie.username2 }}
                             </td>
                         </tr>
-                    </tbody>
-                </table>
+                    </table>
+                </div>
                 <button class="btn delete" (click)="deletePartie()">Supprimer toutes les parties</button>
             </section>
             <section id="constants" class="tab-panel">
