@@ -154,6 +154,7 @@ describe('GamePageComponent', () => {
     it('should subscribe to userDifferencesFound$ observable', () => {
         const testingValue = 5;
         component.gameRoom.userGame.username2 = 'user2';
+        gameServiceSpy.gameMode = 'mode classique';
         (component as any).differenceThreshold = 5;
         const spyDifferencesFound = spyOn(gameServiceSpy.userDifferencesFound$, 'subscribe').and.callThrough();
         component.ngOnInit();

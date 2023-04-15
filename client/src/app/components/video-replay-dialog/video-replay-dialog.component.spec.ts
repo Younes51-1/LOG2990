@@ -44,7 +44,7 @@ describe('VideoReplayDialogComponent', () => {
             declarations: [VideoReplayDialogComponent],
             schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
             imports: [MatProgressBarModule],
-            providers: [{ provide: MAT_DIALOG_DATA, useValue: { videoReplay } }],
+            providers: [{ provide: MAT_DIALOG_DATA, useValue: { videoReplay, penaltyTime: 2 } }],
         }).compileComponents();
 
         fixture = TestBed.createComponent(VideoReplayDialogComponent);
@@ -151,10 +151,10 @@ describe('VideoReplayDialogComponent', () => {
         expect(component.restartSignal).toBeTrue();
     });
 
-    it('incrementTime should increment time by 3', () => {
+    it('incrementTime should increment time by penalty time', () => {
         component.time = 0;
         component.incrementTimer();
-        expect(component.time).toBe(3);
+        expect(component.time).toBe(component.data.penaltyTime);
     });
 
     it('stopTimer should clear timer', () => {
