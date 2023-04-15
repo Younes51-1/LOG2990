@@ -232,6 +232,16 @@ describe('GameModeService', () => {
         expect(testGameModeService.getGameRoom(undefined, newRoom.userGame.gameData.name, newRoom.gameMode)).toEqual(newRoom);
     });
 
+    it('getRoom should not return room defined by the name and gamemode if it has started', () => {
+        // We need to cast to any because the map is private
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (testGameModeService as any).gameRooms = new Map();
+        const newRoom = getFakeGameRoom();
+        newRoom.started = true;
+        testGameModeService.addElementToMap(newRoom.roomId, newRoom);
+        expect(testGameModeService.getGameRoom(undefined, newRoom.userGame.gameData.name, newRoom.gameMode)).toEqual(undefined);
+    });
+
     it('getRoom should return room defined by gamemode (time-limited)', () => {
         // We need to cast to any because the map is private
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
