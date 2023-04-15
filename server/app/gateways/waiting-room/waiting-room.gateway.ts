@@ -35,6 +35,7 @@ export class WaitingRoomGateway implements OnGatewayDisconnect {
         if (this.gameModeService.joinGame(socket, data)) {
             const gameRoom = this.gameModeService.getGameRoom(undefined, data.gameName, data.gameMode);
             this.logger.log(`Waiting room gateway: ${data.username} joined the game: ${gameRoom.userGame.gameData.name}`);
+            if (data.gameMode === 'limited-time-mode') this.playerAccepted(socket, { roomId: gameRoom.roomId, username: data.username });
             this.server.emit(WaitingRoomEvents.GameInfo, gameRoom);
         } else {
             this.logger.log(`Waiting room gateway: Jeu: ${data.gameName} not found`);
