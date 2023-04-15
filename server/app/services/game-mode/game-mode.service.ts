@@ -17,11 +17,11 @@ export class GameModeService {
         if (roomId) return this.gameRooms.get(roomId);
         if (gameMode === 'mode classique') {
             for (const gameRoom of this.gameRooms.values()) {
-                if (gameRoom.userGame.gameData.name === gameName && gameRoom.gameMode === gameMode) return gameRoom;
+                if (gameRoom.userGame.gameData.name === gameName && gameRoom.gameMode === gameMode && !gameRoom.started) return gameRoom;
             }
         } else {
             for (const gameRoom of this.gameRooms.values()) {
-                if (gameRoom.gameMode === gameMode) return gameRoom;
+                if (gameRoom.gameMode === gameMode && !gameRoom.started) return gameRoom;
             }
         }
         return undefined;

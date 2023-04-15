@@ -522,13 +522,15 @@ describe('GamePageComponent', () => {
         ]);
     });
 
-    it('should reset and clearAsync on ngOnDestroy', () => {
+    it('should reset and clearAsync on ngOnDestroy', fakeAsync(() => {
         gameServiceSpy.reset.and.stub();
         playAreaService.clearAsync.and.stub();
+        gameServiceSpy.abandonGame.and.stub();
         const closeAllSpy = spyOn((component as any).dialog, 'closeAll').and.stub();
         component.ngOnDestroy();
+        flush();
         expect(closeAllSpy).toHaveBeenCalled();
         expect(gameServiceSpy.reset).toHaveBeenCalled();
         expect(playAreaService.clearAsync).toHaveBeenCalled();
-    });
+    }));
 });
