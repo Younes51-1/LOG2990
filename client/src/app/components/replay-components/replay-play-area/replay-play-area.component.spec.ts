@@ -94,6 +94,12 @@ describe('ReplayPlayAreaComponent', () => {
         }, 0);
     });
 
+    it('should call endCheatMode in ngOnDestroy', () => {
+        playAreaService.endCheatMode.and.stub();
+        component.ngOnDestroy();
+        expect(playAreaService.endCheatMode).toHaveBeenCalled();
+    });
+
     it('should call setSpeed and updateCheatSpeed on change', () => {
         component.speed = 1;
         component.ngOnChanges({} as SimpleChanges);

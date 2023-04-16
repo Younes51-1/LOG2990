@@ -66,6 +66,8 @@ describe('PlayAreaComponent', () => {
             'setSpeed',
             'setCheatMode',
             'correctAnswerVisuals',
+            'endCheatMode',
+            'startCheatMode',
         ]);
         await TestBed.configureTestingModule({
             declarations: [PlayAreaComponent],
@@ -228,7 +230,7 @@ describe('PlayAreaComponent', () => {
         expect(component.ngOnChanges).toHaveBeenCalled();
     });
 
-    it('should not call nextGame, changeTime and ngOnChanges if game is classique mode', () => {
+    it('should not call nextGame, changeTime and ngOnChanges if game is classic mode', () => {
         spyOn(component, 'ngOnChanges').and.stub();
         gameService.isLimitedTimeMode.and.returnValue(false);
         gameService.gameConstants = { initialTime: 1, bonusTime: 2, penaltyTime: 1 };
@@ -236,6 +238,36 @@ describe('PlayAreaComponent', () => {
         expect(gameService.nextGame).not.toHaveBeenCalled();
         expect(gameService.changeTime).not.toHaveBeenCalled();
         expect(component.ngOnChanges).not.toHaveBeenCalled();
+    });
+
+    it('should not call endCheatMode and startCheatMode if cheatMode is activated', () => {
+        spyOn(component, 'ngOnChanges').and.stub();
+        gameService.isLimitedTimeMode.and.returnValue(true);
+        gameService.gameConstants = { initialTime: 1, bonusTime: 2, penaltyTime: 1 };
+        playAreaService.isCheatModeOn = true;
+        playAreaService.endCheatMode.and.stub();
+        playAreaService.startCheatMode.and.stub();
+        component.nextGame();
+        expect(gameService.nextGame).toHaveBeenCalled();
+        expect(gameService.changeTime).toHaveBeenCalled();
+        expect(component.ngOnChanges).toHaveBeenCalled();
+        expect(playAreaService.endCheatMode).toHaveBeenCalled();
+        expect(playAreaService.startCheatMode).toHaveBeenCalled();
+    });
+
+    it('should not call endCheatMode and startCheatMode if cheatMode is not activated', () => {
+        spyOn(component, 'ngOnChanges').and.stub();
+        gameService.isLimitedTimeMode.and.returnValue(true);
+        gameService.gameConstants = { initialTime: 1, bonusTime: 2, penaltyTime: 1 };
+        playAreaService.isCheatModeOn = false;
+        playAreaService.endCheatMode.and.stub();
+        playAreaService.startCheatMode.and.stub();
+        component.nextGame();
+        expect(gameService.nextGame).toHaveBeenCalled();
+        expect(gameService.changeTime).toHaveBeenCalled();
+        expect(component.ngOnChanges).toHaveBeenCalled();
+        expect(playAreaService.endCheatMode).not.toHaveBeenCalled();
+        expect(playAreaService.startCheatMode).not.toHaveBeenCalled();
     });
 
     it('should react accordingly on invalid response from server', () => {

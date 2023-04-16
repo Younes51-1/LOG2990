@@ -50,6 +50,7 @@ describe('PlayAreaService', () => {
     });
 
     it('should set playAreaComponent', () => {
+        spyOn(service, 'endCheatMode').and.stub();
         service.setComponent(component, false);
         expect((service as any).component).toEqual(component);
         expect((service as any).replay).toBeFalsy();
@@ -57,6 +58,7 @@ describe('PlayAreaService', () => {
     });
 
     it('should set ReplayPlayAreaComponent', () => {
+        spyOn(service, 'endCheatMode').and.stub();
         service.setComponent(replayComponent, true);
         expect((service as any).component).toEqual(replayComponent);
         expect((service as any).replay).toBeTruthy();
@@ -268,6 +270,7 @@ describe('PlayAreaService', () => {
     });
 
     it('should not set context1 and context2 if canvas contexts are null', () => {
+        spyOn(service, 'endCheatMode').and.stub();
         (service as any).component.context1 = null;
         (service as any).component.context2 = null;
         spyOn((service as any).component.canvas1.nativeElement, 'getContext').and.returnValue(null);
@@ -278,6 +281,7 @@ describe('PlayAreaService', () => {
     });
 
     it('should not flash difference if one of the context is null', () => {
+        spyOn(service, 'endCheatMode').and.stub();
         const matrix = [
             [1, 2, 3],
             [2, 1, 0],
