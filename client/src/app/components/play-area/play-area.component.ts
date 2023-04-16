@@ -132,7 +132,8 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
         this.gameService.changeTime(this.gameService.gameConstants.bonusTime);
         this.ngOnChanges();
         if (this.playAreaService.isCheatModeOn) {
-            this.playAreaService.cheatMode();
+            this.playAreaService.endCheatMode();
+            this.playAreaService.startCheatMode();
         }
     }
 
