@@ -55,7 +55,7 @@ describe('GameFinderGateway', () => {
         expect(gateway).toBeDefined();
     });
 
-    it('checkGame should emit gameName and event GameFound if the game exists', async () => {
+    it('checkGame should emit gameName and event GameFound if the game exists in mode classique', async () => {
         const getGameRoomSpy = jest.spyOn(gameModeService, 'getGameRoom').mockReturnValue(getFakeGameRoom());
         const loggerSpy = jest.spyOn(logger, 'log');
         const dataSent = { gameName: 'fakeGame', gameMode: 'mode classique' };
@@ -71,10 +71,10 @@ describe('GameFinderGateway', () => {
         expect(loggerSpy).toHaveBeenCalledWith(`Game finder gateway: Game ${dataSent.gameName} found`);
     });
 
-    it('checkGame should emit gameName and event GameFound if the game exists', async () => {
+    it('checkGame should emit gameName and event GameFound if the game exists in limited-time-mode', async () => {
         const getGameRoomSpy = jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => getFakeGameRoom());
         const loggerSpy = jest.spyOn(logger, 'log');
-        const dataSent = { gameName: 'fakeGame', gameMode: 'time-limited' };
+        const dataSent = { gameName: 'fakeGame', gameMode: 'limited-time-mode' };
         server.to.returns({
             emit: (event: string, { gameName, gameMode }) => {
                 expect(event).toEqual(GameFinderEvents.GameFound);
@@ -98,6 +98,17 @@ describe('GameFinderGateway', () => {
         gateway.checkGame(socket, dataSent);
         expect(getGameRoomSpy).toHaveBeenCalled();
         expect(loggerSpy).not.toHaveBeenCalledWith(`Game finder gateway: Game ${dataSent.gameName} found`);
+    });
+
+    it('checkGame should not emit gameName and event GameFound if the gameRoom do not exists', async () => {
+        const getGameRoomSpy = jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
+            return undefined;
+        });
+        const loggerSpy = jest.spyOn(logger, 'log');
+        const dataSent = { gameName: 'fakeGame', gameMode: 'mode classique' };
+        gateway.checkGame(socket, dataSent);
+        expect(getGameRoomSpy).toHaveBeenCalled();
+        expect(loggerSpy).toHaveBeenCalledWith(`Game finder gateway: Game ${dataSent.gameName} not found`);
     });
 
     it('canJoinGame should emit event CanJoinGame if the game exists and is joinable', async () => {

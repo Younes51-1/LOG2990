@@ -116,6 +116,30 @@ describe('WaitingRoomGateway', () => {
         expect(joinGameSpy).toHaveBeenCalled();
     });
 
+    it('joinGame should emit the gameRoom if the game is joinable and call playerAccepted in limited-time-mode', () => {
+        const gameRoom = getFakeGameRoom();
+        gameRoom.gameMode = 'limited-time-mode';
+        const joinGameSpy = jest.spyOn(gameModeService, 'joinGame').mockImplementation(() => {
+            return true;
+        });
+        const getGameSpy = jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
+            return gameRoom;
+        });
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        const playerAcceptedSpy = jest.spyOn(gateway, 'playerAccepted').mockImplementation(() => {});
+
+        server.to.returns({
+            emit: (event: string, gameRoomReturned: GameRoom) => {
+                expect(event).toEqual(WaitingRoomEvents.GameFound);
+                expect(gameRoomReturned).toEqual(gameRoom);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        gateway.joinGame(socket, { gameName: gameRoom.userGame.gameData.name, username: gameRoom.userGame.username1, gameMode: gameRoom.gameMode });
+        expect(joinGameSpy).toHaveBeenCalled();
+        expect(playerAcceptedSpy).toHaveBeenCalled();
+        expect(getGameSpy).toHaveBeenCalled();
+    });
+
     it('abortGameCreation should deleteRoom and emit GameDeleted and canceled if not started', () => {
         const deleteRoomSpy = jest.spyOn(gameModeService, 'deleteRoom').mockImplementation();
         const getGameSpy = jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
