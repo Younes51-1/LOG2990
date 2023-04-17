@@ -31,7 +31,7 @@ export class ConfigController {
             const allHistory = await this.gameHistoryService.getGamesHistories();
             response.status(HttpStatus.OK).json(allHistory);
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
+            response.status(HttpStatus.INTERNAL_SERVER_ERROR).send(error.message);
         }
     }
 
@@ -80,7 +80,7 @@ export class ConfigController {
     async updateBestTime(@Param('name') name: string, @Body() newBestTimes: NewBestTime, @Res() response: Response) {
         try {
             const bestTimePosition = await this.gameService.updateBestTime(name, newBestTimes);
-            response.status(HttpStatus.OK).json(bestTimePosition);
+            response.status(HttpStatus.CREATED).json(bestTimePosition);
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send(error.message);
         }
@@ -97,9 +97,9 @@ export class ConfigController {
     async updateConstants(@Body() gameConstants: GameConstants, @Res() response: Response) {
         try {
             await this.gameConstantsService.updateGameConstants(gameConstants);
-            response.status(HttpStatus.OK).send();
+            response.status(HttpStatus.NO_CONTENT).send();
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
+            response.status(HttpStatus.INTERNAL_SERVER_ERROR).send(error.message);
         }
     }
 
@@ -115,7 +115,7 @@ export class ConfigController {
             await this.gameHistoryService.deleteGamesHistories();
             response.status(HttpStatus.OK).send();
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
+            response.status(HttpStatus.INTERNAL_SERVER_ERROR).send(error.message);
         }
     }
 
@@ -131,7 +131,7 @@ export class ConfigController {
             await this.gameService.deleteBestTimes();
             response.status(HttpStatus.OK).send();
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
+            response.status(HttpStatus.INTERNAL_SERVER_ERROR).send(error.message);
         }
     }
 

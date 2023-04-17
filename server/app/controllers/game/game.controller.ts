@@ -24,7 +24,7 @@ export class GameController {
             const allGames = await this.gameService.getAllGames();
             response.status(HttpStatus.OK).json(allGames);
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
+            response.status(HttpStatus.INTERNAL_SERVER_ERROR).send(error.message);
         }
     }
 
@@ -49,7 +49,7 @@ export class GameController {
         description: 'Add new game',
     })
     @ApiNotFoundResponse({
-        description: 'Return NOT_FOUND http status when request fails',
+        description: 'Return INTERNAL_SERVER_ERROR http status when request fails',
     })
     @Post('/')
     async createNewGame(@Body() newGame: NewGame, @Res() response: Response) {
@@ -57,7 +57,7 @@ export class GameController {
             await this.gameService.createNewGame(newGame);
             response.status(HttpStatus.CREATED).send();
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
+            response.status(HttpStatus.INTERNAL_SERVER_ERROR).send(error.message);
         }
     }
 
@@ -81,7 +81,7 @@ export class GameController {
         description: 'Delete all games',
     })
     @ApiNotFoundResponse({
-        description: 'Return NOT_FOUND http status when request fails',
+        description: 'Return INTERNAL_SERVER_ERROR http status when request fails',
     })
     @Delete('/')
     async deleteAllGames(@Res() response: Response) {
@@ -89,7 +89,7 @@ export class GameController {
             await this.gameService.deleteAllGames();
             response.status(HttpStatus.OK).send();
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
+            response.status(HttpStatus.INTERNAL_SERVER_ERROR).send(error.message);
         }
     }
 }
