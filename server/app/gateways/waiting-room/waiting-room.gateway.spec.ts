@@ -124,8 +124,9 @@ describe('WaitingRoomGateway', () => {
         const getGameSpy = jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
             return gameRoom;
         });
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        const playerAcceptedSpy = jest.spyOn(gateway, 'playerAccepted').mockImplementation(() => {});
+        const playerAcceptedSpy = jest.spyOn(gateway, 'playerAccepted').mockImplementation(() => {
+            return;
+        });
 
         server.to.returns({
             emit: (event: string, gameRoomReturned: GameRoom) => {

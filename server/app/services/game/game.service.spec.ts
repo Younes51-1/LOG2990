@@ -24,7 +24,6 @@ describe('GameService', () => {
     let gameModeGateway: SinonStubbedInstance<GameModeGateway>;
     let chatGateway: SinonStubbedInstance<ChatGateway>;
     let gameHistoryService: SinonStubbedInstance<GameHistoryService>;
-    // eslint-disable-next-line no-unused-vars
     const timeoutTime = 1000;
 
     beforeEach(async () => {
