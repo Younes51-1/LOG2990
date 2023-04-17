@@ -59,7 +59,8 @@ describe('GameConstantsService', () => {
 
     it('initiateGameConstants should create constants in database if not already created', async () => {
         await gameConstantsModel.deleteMany({});
-        await service.initiateGameConstants();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (service as any).initiateGameConstants();
         const gameConst = await service.getGameConstants();
         expect(gameConst).toBeDefined();
         expect(gameConst.initialTime).toEqual(getInitConstants().initialTime);
@@ -67,15 +68,16 @@ describe('GameConstantsService', () => {
         expect(gameConst.bonusTime).toEqual(getInitConstants().bonusTime);
     });
 
-    // it('initiateGameConstants should not create new constants in database if already present', async () => {
-    //     await gameConstantsModel.deleteMany({});
-    //     const gameConstants = await gameConstantsModel.create(getInitConstants());
-    //     gameConstants.initialTime = 10;
-    //     await gameConstantsModel.create(gameConstants);
-    //     await service.initiateGameConstants();
-    //     const afterInitgameConst = await gameConstantsModel.findOne({});
-    //     expect(afterInitgameConst.initialTime).toEqual(gameConstants.initialTime);
-    // });
+    it('initiateGameConstants should not create new constants in database if already present', async () => {
+        await gameConstantsModel.deleteMany({});
+        const gameConstants = await gameConstantsModel.create(getInitConstants());
+        gameConstants.initialTime = 10;
+        await gameConstantsModel.create(gameConstants);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (service as any).initiateGameConstants();
+        const afterInitgameConst = await gameConstantsModel.findOne({});
+        expect(afterInitgameConst.initialTime).toEqual(gameConstants.initialTime);
+    });
 
     it('should update the game constants', async () => {
         await gameConstantsModel.deleteMany({});

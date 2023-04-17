@@ -107,22 +107,6 @@ export class GameModeService {
         }
     }
 
-    updateGameHistory(endGame: EndGame): void {
-        const gameHistory = this.getGameHistory(endGame.roomId);
-        gameHistory.timer = Date.now() - gameHistory.startTime;
-        if (endGame.gameFinished) {
-            if (endGame.winner) {
-                gameHistory.winner = endGame.username;
-            } else if (!gameHistory.username2) {
-                gameHistory.winner = 'Aucun gagnant';
-            }
-        } else {
-            if (!gameHistory.abandonned) gameHistory.abandonned = [];
-            gameHistory.abandonned.push(endGame.username);
-        }
-        this.setGameHistory(endGame.roomId, gameHistory);
-    }
-
     abandonGameHistory(roomId: string, username: string): void {
         const gameHistory = this.getGameHistory(roomId);
         if (gameHistory.username2) {
@@ -215,5 +199,21 @@ export class GameModeService {
         }
         gameRoom.userGame.username2 = '';
         this.setGameRoom(gameRoom);
+    }
+
+    private updateGameHistory(endGame: EndGame): void {
+        const gameHistory = this.getGameHistory(endGame.roomId);
+        gameHistory.timer = Date.now() - gameHistory.startTime;
+        if (endGame.gameFinished) {
+            if (endGame.winner) {
+                gameHistory.winner = endGame.username;
+            } else if (!gameHistory.username2) {
+                gameHistory.winner = 'Aucun gagnant';
+            }
+        } else {
+            if (!gameHistory.abandonned) gameHistory.abandonned = [];
+            gameHistory.abandonned.push(endGame.username);
+        }
+        this.setGameHistory(endGame.roomId, gameHistory);
     }
 }

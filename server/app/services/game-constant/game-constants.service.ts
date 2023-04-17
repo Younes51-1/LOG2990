@@ -14,7 +14,11 @@ export class GameConstantsService {
         return await this.gameConstantsModel.findOne({});
     }
 
-    async initiateGameConstants(): Promise<void> {
+    async updateGameConstants(gameConstants: GameConstants): Promise<void> {
+        await this.gameConstantsModel.updateOne({}, gameConstants);
+    }
+
+    private async initiateGameConstants(): Promise<void> {
         const constants = await this.gameConstantsModel.findOne({});
         if (!constants) {
             const gameConstants: GameConstants = {
@@ -24,9 +28,5 @@ export class GameConstantsService {
             };
             await this.gameConstantsModel.create(gameConstants);
         }
-    }
-
-    async updateGameConstants(gameConstants: GameConstants): Promise<void> {
-        await this.gameConstantsModel.updateOne({}, gameConstants);
     }
 }
