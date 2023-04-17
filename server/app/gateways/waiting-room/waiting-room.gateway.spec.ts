@@ -10,7 +10,8 @@ import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
-import { WaitingRoomEvents } from './waiting-room.gateway.variables';
+import { WaitingRoomEvents } from '@app/enum/waiting-room.gateway.variables';
+import { GameMode } from '@common/game-mode';
 
 describe('WaitingRoomGateway', () => {
     let gateway: WaitingRoomGateway;
@@ -47,8 +48,6 @@ describe('WaitingRoomGateway', () => {
         }).compile();
 
         gateway = module.get<WaitingRoomGateway>(WaitingRoomGateway);
-        // We want to assign a value to the private field
-        // eslint-disable-next-line dot-notation
         gateway['server'] = server;
     });
 
@@ -118,7 +117,7 @@ describe('WaitingRoomGateway', () => {
 
     it('joinGame should emit the gameRoom if the game is joinable and call playerAccepted in limited-time-mode', () => {
         const gameRoom = getFakeGameRoom();
-        gameRoom.gameMode = 'limited-time-mode';
+        gameRoom.gameMode = GameMode.limitedTimeMode;
         const joinGameSpy = jest.spyOn(gameModeService, 'joinGame').mockImplementation(() => {
             return true;
         });
@@ -303,5 +302,5 @@ const getFakeGameRoom = (): GameRoom => ({
     userGame: getFakeUserGame1(),
     roomId: 'socketId',
     started: false,
-    gameMode: 'mode classique',
+    gameMode: GameMode.classicMode,
 });

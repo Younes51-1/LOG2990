@@ -6,6 +6,7 @@ import { Vector2D } from '@app/model/schema/vector2d.schema';
 import { GameHistoryService } from '@app/services/game-history/game-history.service';
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
+import { GameMode } from '@common/game-mode';
 
 @Injectable()
 export class GameModeService {
@@ -15,7 +16,7 @@ export class GameModeService {
     constructor(private gameHistoryService: GameHistoryService) {}
     getGameRoom(roomId?: string, gameName?: string, gameMode?: string): GameRoom {
         if (roomId) return this.gameRooms.get(roomId);
-        if (gameMode === 'mode classique') {
+        if (gameMode === GameMode.classicMode) {
             for (const gameRoom of this.gameRooms.values()) {
                 if (gameRoom.userGame.gameData.name === gameName && gameRoom.gameMode === gameMode && !gameRoom.started) return gameRoom;
             }
@@ -48,7 +49,7 @@ export class GameModeService {
     }
 
     nextGame(gameRoom: GameRoom): void {
-        if (gameRoom.gameMode === 'mode classique') return;
+        if (gameRoom.gameMode === GameMode.classicMode) return;
         this.setGameRoom(gameRoom);
     }
 
@@ -68,7 +69,7 @@ export class GameModeService {
         newGameHistory.username2 = gameRoom.userGame.username2;
         newGameHistory.startTime = Date.now();
         newGameHistory.timer = 0;
-        if (gameRoom.gameMode === 'mode classique') {
+        if (gameRoom.gameMode === GameMode.classicMode) {
             if (gameRoom.userGame.username2) {
                 newGameHistory.gameMode = 'Mode classique Multi-joueur';
             } else {
@@ -99,7 +100,7 @@ export class GameModeService {
     isGameFinished(gameId: string): boolean {
         const gameRoom = this.getGameRoom(gameId);
         if (!gameRoom) return false;
-        if (gameRoom.gameMode === 'mode classique') {
+        if (gameRoom.gameMode === GameMode.classicMode) {
             return gameRoom.userGame.nbDifferenceFound === gameRoom.userGame.gameData.nbDifference;
         } else {
             return gameRoom.userGame.timer <= 0;
@@ -166,7 +167,7 @@ export class GameModeService {
     }
 
     updateTimer(gameRoom: GameRoom): void {
-        if (gameRoom.gameMode === 'mode classique') {
+        if (gameRoom.gameMode === GameMode.classicMode) {
             gameRoom.userGame.timer++;
         } else {
             gameRoom.userGame.timer--;

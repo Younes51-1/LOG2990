@@ -1,8 +1,9 @@
-import { GameFinderEvents } from '@app/gateways/game-finder/game-finder.gateway.variables';
+import { GameFinderEvents } from '@app/enum/game-finder.gateway.variables';
 import { GameModeService } from '@app/services/game-mode/game-mode.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { GameMode } from '@common/game-mode';
 
 @WebSocketGateway({ cors: true })
 @Injectable()
@@ -16,7 +17,7 @@ export class GameFinderGateway {
         const gameRoom = this.gameModeService.getGameRoom(undefined, data.gameName, data.gameMode);
         if (gameRoom) {
             if (gameRoom.started) return;
-            if (data.gameMode === 'mode classique') {
+            if (data.gameMode === GameMode.classicMode) {
                 this.logger.log(`Game finder gateway: Game ${data.gameName} found`);
             } else {
                 this.logger.log('Game finder gateway: Limited time game found');

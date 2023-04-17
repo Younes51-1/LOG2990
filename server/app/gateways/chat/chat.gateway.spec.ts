@@ -1,6 +1,6 @@
 import { environment } from '@app/environments/environment';
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
-import { ChatEvents } from '@app/gateways/chat/chat.gateway.variables';
+import { ChatEvents } from '@app/enum/chat.gateway.variables';
 import { BestTime } from '@app/model/schema/best-times.schema';
 import { GameRoom } from '@app/model/schema/game-room.schema';
 import { UserGame } from '@app/model/schema/user-game.schema';
@@ -32,8 +32,6 @@ describe('ChatGateway', () => {
         }).compile();
 
         gateway = module.get<ChatGateway>(ChatGateway);
-        // We want to assign a value to the private field
-        // eslint-disable-next-line dot-notation
         gateway['server'] = server;
     });
 

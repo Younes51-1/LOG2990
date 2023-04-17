@@ -1,9 +1,10 @@
-import { WaitingRoomEvents } from '@app/gateways/waiting-room/waiting-room.gateway.variables';
+import { WaitingRoomEvents } from '@app/enum/waiting-room.gateway.variables';
 import { GameRoom } from '@app/model/schema/game-room.schema';
 import { GameModeService } from '@app/services/game-mode/game-mode.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { GameMode } from '@common/game-mode';
 
 @WebSocketGateway({ cors: true })
 @Injectable()
@@ -35,7 +36,7 @@ export class WaitingRoomGateway implements OnGatewayDisconnect {
         if (this.gameModeService.joinGame(socket, data)) {
             const gameRoom = this.gameModeService.getGameRoom(undefined, data.gameName, data.gameMode);
             this.logger.log(`Waiting room gateway: ${data.username} joined the game: ${gameRoom.userGame.gameData.name}`);
-            if (data.gameMode === 'limited-time-mode') this.playerAccepted(socket, { roomId: gameRoom.roomId, username: data.username });
+            if (data.gameMode === GameMode.limitedTimeMode) this.playerAccepted(socket, { roomId: gameRoom.roomId, username: data.username });
             this.server.emit(WaitingRoomEvents.GameInfo, gameRoom);
         } else {
             this.logger.log(`Waiting room gateway: Jeu: ${data.gameName} not found`);

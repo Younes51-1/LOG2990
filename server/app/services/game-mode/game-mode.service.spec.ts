@@ -1,3 +1,5 @@
+// We want to assign a value to the private field
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable max-lines */
 import { environment } from '@app/environments/environment.prod';
 import { GameHistory } from '@app/model/database/game-history';
@@ -11,17 +13,14 @@ import { GameModeService } from '@app/services/game-mode/game-mode.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { Socket } from 'socket.io';
+import { GameMode } from '@common/game-mode';
 
 class TestGameModeService extends GameModeService {
     addElementToMap(key: string, value: GameRoom) {
-        // We want to assign a value to the private field
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (this as any).gameRooms.set(key, value);
     }
 
     addElementToHistoryMap(key: string, value: GameHistory) {
-        // We want to assign a value to the private field
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (this as any).gameHistory.set(key, value);
     }
 }
@@ -67,7 +66,7 @@ describe('GameModeService', () => {
 
     it('canJoinGame should return undefined if the game does not exist', () => {
         expect(
-            service.canJoinGame(socket, { gameName: getFakeGameRoom().userGame.gameData.name, username: 'FakeUser', gameMode: 'mode classique' }),
+            service.canJoinGame(socket, { gameName: getFakeGameRoom().userGame.gameData.name, username: 'FakeUser', gameMode: GameMode.classicMode }),
         ).toEqual(null);
     });
 
@@ -80,7 +79,7 @@ describe('GameModeService', () => {
         const newRoom = getFakeGameRoom();
         testGameModeService.addElementToMap(newRoom.roomId, newRoom);
         expect(
-            service.canJoinGame(socket, { gameName: getFakeGameRoom().userGame.gameData.name, username: 'FakeUser', gameMode: 'mode classique' }),
+            service.canJoinGame(socket, { gameName: getFakeGameRoom().userGame.gameData.name, username: 'FakeUser', gameMode: GameMode.classicMode }),
         ).toBeUndefined();
     });
 
@@ -91,7 +90,11 @@ describe('GameModeService', () => {
             return newRoom;
         });
         expect(
-            service.canJoinGame(socket, { gameName: getFakeGameRoom().userGame.gameData.name, username: 'FakeUser2', gameMode: 'mode classique' }),
+            service.canJoinGame(socket, {
+                gameName: getFakeGameRoom().userGame.gameData.name,
+                username: 'FakeUser2',
+                gameMode: GameMode.classicMode,
+            }),
         ).toBeUndefined();
     });
 
@@ -102,7 +105,11 @@ describe('GameModeService', () => {
         const newRoom = getFakeGameRoom();
         testGameModeService.addElementToMap(newRoom.roomId, newRoom);
         expect(
-            service.canJoinGame(socket, { gameName: getFakeGameRoom().userGame.gameData.name, username: 'FakeUser2', gameMode: 'mode classique' }),
+            service.canJoinGame(socket, {
+                gameName: getFakeGameRoom().userGame.gameData.name,
+                username: 'FakeUser2',
+                gameMode: GameMode.classicMode,
+            }),
         ).toEqual(newRoom);
     });
 
@@ -114,14 +121,14 @@ describe('GameModeService', () => {
         testGameModeService.addElementToMap(newRoom.roomId, newRoom);
         socket.join.returns();
         expect(
-            service.joinGame(socket, { gameName: newRoom.userGame.gameData.name, username: 'FakeUserJoining', gameMode: 'mode classique' }),
+            service.joinGame(socket, { gameName: newRoom.userGame.gameData.name, username: 'FakeUserJoining', gameMode: GameMode.classicMode }),
         ).toEqual(true);
         jest.spyOn(service, 'getGameRoom').mockRestore();
         expect(service.getGameRoom(newRoom.roomId).userGame.potentialPlayers).toContain('FakeUserJoining');
     });
 
     it('joinGame should return false if the gameName is undefined', () => {
-        expect(service.joinGame(socket, { gameName: undefined, username: 'FakeUser', gameMode: 'solo' })).toEqual(false);
+        expect(service.joinGame(socket, { gameName: undefined, username: 'FakeUser', gameMode: GameMode.classicMode })).toEqual(false);
     });
 
     it('validateDifference should return true if the difference is valid', () => {
@@ -215,8 +222,6 @@ describe('GameModeService', () => {
     });
 
     it('getRoom should return room if the roomId is defined', () => {
-        // We need to cast to any because the map is private
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (testGameModeService as any).gameRooms = new Map();
         const newRoom = getFakeGameRoom();
         testGameModeService.addElementToMap(newRoom.roomId, newRoom);
@@ -224,8 +229,6 @@ describe('GameModeService', () => {
     });
 
     it('getRoom should return room defined by the name and gamemode', () => {
-        // We need to cast to any because the map is private
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (testGameModeService as any).gameRooms = new Map();
         const newRoom = getFakeGameRoom();
         testGameModeService.addElementToMap(newRoom.roomId, newRoom);
@@ -233,8 +236,6 @@ describe('GameModeService', () => {
     });
 
     it('getRoom should not return room defined by the name and gamemode if it has started', () => {
-        // We need to cast to any because the map is private
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (testGameModeService as any).gameRooms = new Map();
         const newRoom = getFakeGameRoom();
         newRoom.started = true;
@@ -243,35 +244,26 @@ describe('GameModeService', () => {
     });
 
     it('getRoom should return room defined by gamemode (time-limited)', () => {
-        // We need to cast to any because the map is private
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (testGameModeService as any).gameRooms = new Map();
         const newRoom = getFakeGameRoom();
-        newRoom.gameMode = 'time-limited';
+        newRoom.gameMode = GameMode.limitedTimeMode;
         testGameModeService.addElementToMap(newRoom.roomId, newRoom);
         expect(testGameModeService.getGameRoom(undefined, undefined, newRoom.gameMode)).toEqual(newRoom);
     });
 
     it('getRoom should return undefined if the game doesnt exists', () => {
-        // We need to cast to any because the map is private
         const newRoom = getFakeGameRoom();
         expect(testGameModeService.getGameRoom(newRoom.roomId)).toEqual(undefined);
     });
 
     it('setRoom should add room', () => {
-        // We need to cast to any because the map is private
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (testGameModeService as any).gameRooms = new Map();
         const newRoom = getFakeGameRoom();
         testGameModeService.setGameRoom(newRoom);
-        // We need to cast to any because the map is private
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         expect((testGameModeService as any).gameRooms.get(newRoom.roomId)).toEqual(newRoom);
     });
 
     it('getGameHistory should return gameHistory', () => {
-        // We need to cast to any because the map is private
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (testGameModeService as any).gameHistory = new Map();
         const newGameHistory = getFakeGameHistory();
         testGameModeService.addElementToHistoryMap(getFakeGameRoom().roomId, newGameHistory);
@@ -279,8 +271,6 @@ describe('GameModeService', () => {
     });
 
     it('deleteGameHistory should delete gameHistory', () => {
-        // We need to cast to any because the map is private
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (testGameModeService as any).gameHistory = new Map();
         const newGameHistory = getFakeGameHistory();
         testGameModeService.addElementToHistoryMap(getFakeGameRoom().roomId, newGameHistory);
@@ -289,8 +279,6 @@ describe('GameModeService', () => {
     });
 
     it('deleteRoom should delete room', () => {
-        // We need to cast to any because the map is private
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (testGameModeService as any).gameRooms = new Map();
         const newRoom = getFakeGameRoom();
         testGameModeService.addElementToMap(newRoom.roomId, newRoom);
@@ -351,7 +339,7 @@ describe('GameModeService', () => {
 
     it('saveGameHistory should correctly save game history with time-limited gamemode when only one username', () => {
         const fakeGameRoom = getFakeGameRoom();
-        fakeGameRoom.gameMode = 'time-limited';
+        fakeGameRoom.gameMode = GameMode.limitedTimeMode;
         service.saveGameHistory(fakeGameRoom);
         expect(service.getGameHistory(fakeGameRoom.roomId).name).toEqual(fakeGameRoom.userGame.gameData.name);
         expect(service.getGameHistory(fakeGameRoom.roomId).gameMode).toEqual('Mode Temps Limité  Solo');
@@ -360,17 +348,17 @@ describe('GameModeService', () => {
     it('saveGameHistory should correctly save game history with time-limited gamemode when two usernames', () => {
         const fakeGameRoom = getFakeGameRoom();
         fakeGameRoom.userGame.username2 = 'FakeUser2';
-        fakeGameRoom.gameMode = 'time-limited';
+        fakeGameRoom.gameMode = GameMode.limitedTimeMode;
         service.saveGameHistory(fakeGameRoom);
         expect(service.getGameHistory(fakeGameRoom.roomId).name).toEqual(fakeGameRoom.userGame.gameData.name);
         expect(service.getGameHistory(fakeGameRoom.roomId).gameMode).toEqual('Mode Temps Limité  Multi-joueur');
     });
 
     it('updateGameHistory should correctly update game history when user is the winner', () => {
-        // We need to cast to any because the map is private
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (testGameModeService as any).gameHistory = new Map();
         const newGameHistory = getFakeGameHistory();
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        jest.spyOn(Date, 'now').mockReturnValue(20);
         const fakeEndGame: EndGame = {
             winner: true,
             roomId: getFakeGameRoom().roomId,
@@ -378,19 +366,18 @@ describe('GameModeService', () => {
             gameFinished: true,
         };
         const fakeGameRoom = getFakeGameRoom();
-        fakeGameRoom.userGame.timer = 10;
         testGameModeService.addElementToHistoryMap(getFakeGameRoom().roomId, newGameHistory);
         testGameModeService.addElementToMap(fakeGameRoom.roomId, fakeGameRoom);
         testGameModeService.updateGameHistory(fakeEndGame);
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        // expect(testGameModeService.getGameHistory(fakeGameRoom.roomId).timer).toEqual(10);
+        expect(testGameModeService.getGameHistory(fakeGameRoom.roomId).timer).toEqual(10);
         expect(testGameModeService.getGameHistory(fakeGameRoom.roomId).winner).toEqual('FakeUser');
     });
 
     it('updateGameHistory should correctly update game history when game was abandonned', () => {
-        // We need to cast to any because the map is private
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (testGameModeService as any).gameHistory = new Map();
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        jest.spyOn(Date, 'now').mockReturnValue(20);
         const newGameHistory = getFakeGameHistory();
         const fakeEndGame: EndGame = {
             winner: false,
@@ -399,19 +386,18 @@ describe('GameModeService', () => {
             gameFinished: false,
         };
         const fakeGameRoom = getFakeGameRoom();
-        fakeGameRoom.userGame.timer = 10;
         testGameModeService.addElementToHistoryMap(getFakeGameRoom().roomId, newGameHistory);
         testGameModeService.addElementToMap(fakeGameRoom.roomId, fakeGameRoom);
         testGameModeService.updateGameHistory(fakeEndGame);
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        // expect(testGameModeService.getGameHistory(fakeGameRoom.roomId).timer).toEqual(10);
+        expect(testGameModeService.getGameHistory(fakeGameRoom.roomId).timer).toEqual(10);
         expect(testGameModeService.getGameHistory(fakeGameRoom.roomId).abandonned).toEqual(['FakeUser']);
     });
 
     it('updateGameHistory should correctly update game history with no winners if its a solo game', () => {
-        // We need to cast to any because the map is private
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (testGameModeService as any).gameHistory = new Map();
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        jest.spyOn(Date, 'now').mockReturnValue(20);
         const newGameHistory = getFakeGameHistory();
         const fakeEndGame: EndGame = {
             winner: false,
@@ -420,17 +406,15 @@ describe('GameModeService', () => {
             gameFinished: true,
         };
         const fakeGameRoom = getFakeGameRoom();
-        fakeGameRoom.userGame.timer = 10;
         testGameModeService.addElementToHistoryMap(getFakeGameRoom().roomId, newGameHistory);
         testGameModeService.addElementToMap(fakeGameRoom.roomId, fakeGameRoom);
         testGameModeService.updateGameHistory(fakeEndGame);
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        // expect(testGameModeService.getGameHistory(fakeGameRoom.roomId).timer).toEqual(10);
+        expect(testGameModeService.getGameHistory(fakeGameRoom.roomId).timer).toEqual(10);
         expect(testGameModeService.getGameHistory(fakeGameRoom.roomId).winner).toEqual('Aucun gagnant');
     });
 
     it('abandonGameHistory should correctly update game history when game was abandonned', () => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (testGameModeService as any).gameHistory = new Map();
         jest.spyOn(service, 'getGameHistory').mockImplementation(() => getFakeGameHistory());
         jest.spyOn(service, 'updateGameHistory').mockImplementation();
@@ -441,7 +425,6 @@ describe('GameModeService', () => {
     });
 
     it('abandonGameHistory should correctly update game history when game was abandonned and we are in a multiplayer lobby', () => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (testGameModeService as any).gameHistory = new Map();
         jest.spyOn(service, 'getGameHistory').mockImplementation(() => {
             const gameHistory = getFakeGameHistory();
@@ -475,8 +458,6 @@ describe('GameModeService', () => {
     });
 
     it('getRoomsValues should return an array of game rooms', () => {
-        // We need to cast to any because the map is private
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (testGameModeService as any).gameRooms = new Map();
         const newRoom = getFakeGameRoom();
         testGameModeService.addElementToMap(newRoom.roomId, newRoom);
@@ -484,8 +465,6 @@ describe('GameModeService', () => {
     });
 
     it('endGame should save game history and remove game room', () => {
-        // We need to cast to any because the map is private
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (testGameModeService as any).gameRooms = new Map();
         const newRoom = getFakeGameRoom();
         testGameModeService.addElementToMap(newRoom.roomId, newRoom);
@@ -507,13 +486,10 @@ describe('GameModeService', () => {
     });
 
     it('abandonLimitedTimeMode should change username if user 1 quit and update gameRoom and history', () => {
-        // We need to cast to any because the map is private
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (testGameModeService as any).gameRooms = new Map();
         const newRoom = getFakeGameRoom();
         newRoom.userGame.username2 = 'FakeUser2';
         testGameModeService.addElementToMap(newRoom.roomId, newRoom);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (testGameModeService as any).gameHistory = new Map();
         const newGameHistory = getFakeGameHistory();
         testGameModeService.addElementToHistoryMap(newRoom.roomId, newGameHistory);
@@ -524,12 +500,9 @@ describe('GameModeService', () => {
 
     it('abandonLimitedTimeMode should change username if user quit and update gameRoom and history', () => {
         const saveGameHistorySpy = jest.spyOn(gameHistoryService, 'saveGameHistory').mockImplementation();
-        // We need to cast to any because the map is private
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (testGameModeService as any).gameRooms = new Map();
         const newRoom = getFakeGameRoom();
         testGameModeService.addElementToMap(newRoom.roomId, newRoom);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (testGameModeService as any).gameHistory = new Map();
         const newGameHistory = getFakeGameHistory();
         testGameModeService.addElementToHistoryMap(newRoom.roomId, newGameHistory);
@@ -566,16 +539,16 @@ const getFakeGameRoom = (): GameRoom => ({
     userGame: getFakeUserGame(),
     roomId: 'socketId',
     started: false,
-    gameMode: 'mode classique',
+    gameMode: GameMode.classicMode,
 });
 
 const getFakeGameHistory = (): GameHistory => ({
     name: 'FakeGame',
-    startTime: 0,
+    startTime: 10,
     timer: 0,
     username2: undefined,
     username1: 'FakeUser',
-    gameMode: 'mode classique',
+    gameMode: GameMode.classicMode,
     abandonned: undefined,
     winner: undefined,
 });

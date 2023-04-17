@@ -42,10 +42,10 @@ describe('GameHistoryService', () => {
         }, DELAY_BEFORE_CLOSING_CONNECTION);
     });
 
-    // it('should be defined', () => {
-    //     expect(service).toBeDefined();
-    //     expect(gameHistoryModel).toBeDefined();
-    // });
+    it('should be defined', () => {
+        expect(service).toBeDefined();
+        expect(gameHistoryModel).toBeDefined();
+    });
 
     it('should return the game constants', async () => {
         await gameHistoryModel.deleteMany({});

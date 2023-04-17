@@ -1,4 +1,4 @@
-import { ChatEvents } from '@app/gateways/chat/chat.gateway.variables';
+import { ChatEvents } from '@app/enum/chat.gateway.variables';
 import { Injectable, Logger } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';

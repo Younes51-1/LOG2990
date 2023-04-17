@@ -9,7 +9,7 @@ import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Response } from 'express';
 import { createStubInstance, SinonStubbedInstance } from 'sinon';
-import { ConfigController } from './config.controller';
+import { ConfigController } from '@app/controllers/config/config.controller';
 
 describe.only('ConfigController', () => {
     let controller: ConfigController;

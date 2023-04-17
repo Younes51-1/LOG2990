@@ -1,7 +1,8 @@
 /* eslint-disable max-lines */
 import { environment } from '@app/environments/environment.prod';
 import { GameModeGateway } from '@app/gateways/game-mode/game-mode.gateway';
-import { DelayBeforeEmittingTime, GameModeEvents } from '@app/gateways/game-mode/game-mode.gateway.variables';
+import { GameModeEvents } from '@app/enum/game-mode.gateway.variables';
+import { DELAY_BEFORE_EMITTING_TIME } from '@app/constants';
 import { BestTime } from '@app/model/schema/best-times.schema';
 import { EndGame } from '@app/model/schema/end-game.schema';
 import { GameRoom } from '@app/model/schema/game-room.schema';
@@ -13,6 +14,7 @@ import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
+import { GameMode } from '@common/game-mode';
 
 describe('GameModeGateway', () => {
     let gateway: GameModeGateway;
@@ -49,8 +51,6 @@ describe('GameModeGateway', () => {
         }).compile();
 
         gateway = module.get<GameModeGateway>(GameModeGateway);
-        // We want to assign a value to the private field
-        // eslint-disable-next-line dot-notation
         gateway['server'] = server;
     });
 
@@ -158,13 +158,13 @@ describe('GameModeGateway', () => {
     it('Abandoned should emit Abandoned event with the username of the one quitting the limited-mode game and if host', () => {
         const getGameRoomSpy = jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
             const gameRoom = getFakeGameRoom();
-            gameRoom.gameMode = 'limited-mode';
+            gameRoom.gameMode = GameMode.limitedTimeMode;
             gameRoom.userGame.username2 = 'secondPlayer';
             return gameRoom;
         });
         const abandonLimitedTimeModeSpy = jest.spyOn(gameModeService, 'abandonLimitedTimeMode').mockImplementation();
         const gameRoomSent = getFakeGameRoom();
-        gameRoomSent.gameMode = 'limited-mode';
+        gameRoomSent.gameMode = GameMode.limitedTimeMode;
         const gameRoomExpected = gameRoomSent;
         gameRoomExpected.roomId = 'socketId2';
         gameRoomExpected.userGame.username2 = 'secondPlayer';
@@ -187,13 +187,13 @@ describe('GameModeGateway', () => {
     it('Abandoned should emit Abandoned event with the username of the one quitting the limited-mode game and if not host', () => {
         const getGameRoomSpy = jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
             const gameRoom = getFakeGameRoom();
-            gameRoom.gameMode = 'limited-mode';
+            gameRoom.gameMode = GameMode.limitedTimeMode;
             gameRoom.roomId = 'socketId2';
             return gameRoom;
         });
         const abandonLimitedTimeModeSpy = jest.spyOn(gameModeService, 'abandonLimitedTimeMode').mockImplementation();
         const gameRoomSent = getFakeGameRoom();
-        gameRoomSent.gameMode = 'limited-mode';
+        gameRoomSent.gameMode = GameMode.limitedTimeMode;
         gameRoomSent.roomId = 'socketId2';
         const roomsMap = new Map<string, Set<string>>();
         roomsMap.set(gameRoomSent.roomId, new Set<string>([socket.id]));
@@ -237,7 +237,7 @@ describe('GameModeGateway', () => {
         const emitTimeSpy = jest.spyOn(gateway, 'emitTime').mockImplementation();
         jest.useFakeTimers();
         gateway.afterInit();
-        jest.advanceTimersByTime(DelayBeforeEmittingTime.DELAY_BEFORE_EMITTING_TIME);
+        jest.advanceTimersByTime(DELAY_BEFORE_EMITTING_TIME);
         expect(emitTimeSpy).toHaveBeenCalled();
     });
 
@@ -293,7 +293,7 @@ describe('GameModeGateway', () => {
             },
         } as BroadcastOperator<unknown, unknown>);
         gateway.emitTime();
-        jest.advanceTimersByTime(DelayBeforeEmittingTime.DELAY_BEFORE_EMITTING_TIME);
+        jest.advanceTimersByTime(DELAY_BEFORE_EMITTING_TIME);
         expect(emitTimeSpy).toHaveBeenCalled();
     });
 
@@ -334,7 +334,7 @@ const getFakeGameRoom = (): GameRoom => ({
     userGame: getFakeUserGame1(),
     roomId: 'socketId',
     started: true,
-    gameMode: 'mode classique',
+    gameMode: GameMode.classicMode,
 });
 
 const getFakeEndGame = (): EndGame => ({

@@ -9,7 +9,8 @@ import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
-import { GameFinderEvents } from './game-finder.gateway.variables';
+import { GameFinderEvents } from '@app/enum/game-finder.gateway.variables';
+import { GameMode } from '@common/game-mode';
 
 describe('GameFinderGateway', () => {
     let gateway: GameFinderGateway;
@@ -46,8 +47,6 @@ describe('GameFinderGateway', () => {
         }).compile();
 
         gateway = module.get<GameFinderGateway>(GameFinderGateway);
-        // We want to assign a value to the private field
-        // eslint-disable-next-line dot-notation
         gateway['server'] = server;
     });
 
@@ -58,7 +57,7 @@ describe('GameFinderGateway', () => {
     it('checkGame should emit gameName and event GameFound if the game exists in mode classique', async () => {
         const getGameRoomSpy = jest.spyOn(gameModeService, 'getGameRoom').mockReturnValue(getFakeGameRoom());
         const loggerSpy = jest.spyOn(logger, 'log');
-        const dataSent = { gameName: 'fakeGame', gameMode: 'mode classique' };
+        const dataSent = { gameName: 'fakeGame', gameMode: GameMode.classicMode };
         server.to.returns({
             emit: (event: string, { gameName, gameMode }) => {
                 expect(event).toEqual(GameFinderEvents.GameFound);
@@ -74,7 +73,7 @@ describe('GameFinderGateway', () => {
     it('checkGame should emit gameName and event GameFound if the game exists in limited-time-mode', async () => {
         const getGameRoomSpy = jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => getFakeGameRoom());
         const loggerSpy = jest.spyOn(logger, 'log');
-        const dataSent = { gameName: 'fakeGame', gameMode: 'limited-time-mode' };
+        const dataSent = { gameName: 'fakeGame', gameMode: GameMode.limitedTimeMode };
         server.to.returns({
             emit: (event: string, { gameName, gameMode }) => {
                 expect(event).toEqual(GameFinderEvents.GameFound);
@@ -94,7 +93,7 @@ describe('GameFinderGateway', () => {
             return gameRoom;
         });
         const loggerSpy = jest.spyOn(logger, 'log');
-        const dataSent = { gameName: 'fakeGame', gameMode: 'mode classique' };
+        const dataSent = { gameName: 'fakeGame', gameMode: GameMode.classicMode };
         gateway.checkGame(socket, dataSent);
         expect(getGameRoomSpy).toHaveBeenCalled();
         expect(loggerSpy).not.toHaveBeenCalledWith(`Game finder gateway: Game ${dataSent.gameName} found`);
@@ -105,7 +104,7 @@ describe('GameFinderGateway', () => {
             return undefined;
         });
         const loggerSpy = jest.spyOn(logger, 'log');
-        const dataSent = { gameName: 'fakeGame', gameMode: 'mode classique' };
+        const dataSent = { gameName: 'fakeGame', gameMode: GameMode.classicMode };
         gateway.checkGame(socket, dataSent);
         expect(getGameRoomSpy).toHaveBeenCalled();
         expect(loggerSpy).toHaveBeenCalledWith(`Game finder gateway: Game ${dataSent.gameName} not found`);
@@ -113,7 +112,7 @@ describe('GameFinderGateway', () => {
 
     it('canJoinGame should emit event CanJoinGame if the game exists and is joinable', async () => {
         const canJoinGameSpy = jest.spyOn(gameModeService, 'canJoinGame').mockImplementation(() => getFakeGameRoom());
-        const dataSent = { gameName: 'fakeGame', username: 'fakeUser', gameMode: 'mode classique' };
+        const dataSent = { gameName: 'fakeGame', username: 'fakeUser', gameMode: GameMode.classicMode };
         server.to.returns({
             emit: (event: string) => {
                 expect(event).toEqual(GameFinderEvents.CanJoinGame);
@@ -125,7 +124,7 @@ describe('GameFinderGateway', () => {
 
     it('canJoinGame should emit event CannotJoinGame if the game exists and is not joinable', async () => {
         const canJoinGameSpy = jest.spyOn(gameModeService, 'canJoinGame').mockImplementation(() => undefined);
-        const dataSent = { gameName: 'fakeGame', username: 'fakeUser', gameMode: 'mode classique' };
+        const dataSent = { gameName: 'fakeGame', username: 'fakeUser', gameMode: GameMode.classicMode };
         server.to.returns({
             emit: (event: string) => {
                 expect(event).toEqual(GameFinderEvents.CannotJoinGame);
@@ -163,5 +162,5 @@ const getFakeGameRoom = (): GameRoom => ({
     userGame: getFakeUserGame1(),
     roomId: 'socketId',
     started: false,
-    gameMode: 'mode classique',
+    gameMode: GameMode.classicMode,
 });
