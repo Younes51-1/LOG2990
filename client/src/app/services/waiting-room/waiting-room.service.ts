@@ -122,6 +122,12 @@ export class WaitingRoomService {
                 this.gameCanceled$.next(true);
             }
         });
+
+        this.socketService.on('gameDeleted', (gameName: string) => {
+            if (this.gameRoom.userGame.gameData.name === gameName) {
+                this.gameCanceled$.next(true);
+            }
+        });
     }
 
     connectSocket(): void {

@@ -1,13 +1,13 @@
-import { GameModeEvents } from '@app/enum/game-mode.gateway.variables';
 import { DELAY_BEFORE_EMITTING_TIME } from '@app/constants';
+import { GameModeEvents } from '@app/enum/game-mode.gateway.variables';
 import { EndGame } from '@app/model/schema/end-game.schema';
 import { GameRoom } from '@app/model/schema/game-room.schema';
 import { Vector2D } from '@app/model/schema/vector2d.schema';
 import { GameModeService } from '@app/services/game-mode/game-mode.service';
+import { GameMode } from '@common/game-mode';
 import { Injectable, Logger } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { GameMode } from '@common/game-mode';
 
 @WebSocketGateway({ cors: true })
 @Injectable()
@@ -33,7 +33,7 @@ export class GameModeGateway implements OnGatewayConnection, OnGatewayDisconnect
     }
 
     @SubscribeMessage(GameModeEvents.EndGame)
-    endGame(socket: Socket, endGame: EndGame): void {
+    endGame(_socket: Socket, endGame: EndGame): void {
         const gameRoom = this.gameModeService.getGameRoom(endGame.roomId);
         if (!gameRoom || !endGame) return;
         this.logger.log(`Game mode gateway: End of game: ${gameRoom.userGame.gameData.name}`);
@@ -64,13 +64,13 @@ export class GameModeGateway implements OnGatewayConnection, OnGatewayDisconnect
     }
 
     @SubscribeMessage(GameModeEvents.ChangeTime)
-    changeTime(socket: Socket, data: { roomId: string; time: number }): void {
+    changeTime(_socket: Socket, data: { roomId: string; time: number }): void {
         this.logger.log(`Game mode gateway: Time changed: ${data.time}`);
         this.gameModeService.applyTimeToTimer(data.roomId, data.time);
     }
 
     @SubscribeMessage(GameModeEvents.NextGame)
-    nextGame(socket: Socket, gameRoom: GameRoom): void {
+    nextGame(_socket: Socket, gameRoom: GameRoom): void {
         this.gameModeService.nextGame(gameRoom);
     }
 
@@ -94,7 +94,7 @@ export class GameModeGateway implements OnGatewayConnection, OnGatewayDisconnect
         this.logger.log(`Game mode gateway: ${socket.id}: disconnected`);
         this.logger.log(`Game deleted: ${gameRoom.userGame.gameData.name}`);
         this.server.emit(GameModeEvents.GameDeleted, { gameName: gameRoom.userGame.gameData.name, gameMode: gameRoom.gameMode });
-        this.gameModeService.deleteRoom(socket.id);
+        this.gameModeService.deleteGameRoom(socket.id);
     }
 
     emitTime(): void {
@@ -108,6 +108,6 @@ export class GameModeGateway implements OnGatewayConnection, OnGatewayDisconnect
 
     cancelDeletedGame(gameName: string): void {
         this.logger.log(`Game mode gateway: Game canceled: ${gameName}`);
-        this.server.emit(GameModeEvents.GameCanceled, gameName);
+        this.server.emit(GameModeEvents.GameDeleted, gameName);
     }
 }

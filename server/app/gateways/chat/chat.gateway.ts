@@ -18,6 +18,6 @@ export class ChatGateway {
 
     newBestTimeScore(message: string): void {
         this.server.emit(ChatEvents.Message, { message, username: 'Événement' });
-        this.logger.log(message);
+        this.logger.log(`Événement: ${message}`);
     }
 }

@@ -1,20 +1,20 @@
 /* eslint-disable max-lines */
+import { DELAY_BEFORE_EMITTING_TIME } from '@app/constants';
+import { GameModeEvents } from '@app/enum/game-mode.gateway.variables';
 import { environment } from '@app/environments/environment.prod';
 import { GameModeGateway } from '@app/gateways/game-mode/game-mode.gateway';
-import { GameModeEvents } from '@app/enum/game-mode.gateway.variables';
-import { DELAY_BEFORE_EMITTING_TIME } from '@app/constants';
-import { BestTime } from '@app/model/schema/best-times.schema';
+import { BestTime } from '@app/model/schema/best-time.schema';
 import { EndGame } from '@app/model/schema/end-game.schema';
 import { GameRoom } from '@app/model/schema/game-room.schema';
 import { UserGame } from '@app/model/schema/user-game.schema';
 import { Vector2D } from '@app/model/schema/vector2d.schema';
 import { GameHistoryService } from '@app/services/game-history/game-history.service';
 import { GameModeService } from '@app/services/game-mode/game-mode.service';
+import { GameMode } from '@common/game-mode';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
-import { GameMode } from '@common/game-mode';
 
 describe('GameModeGateway', () => {
     let gateway: GameModeGateway;
@@ -26,11 +26,12 @@ describe('GameModeGateway', () => {
 
     beforeEach(async () => {
         logger = createStubInstance(Logger);
+        socket = createStubInstance<Socket>(Socket);
+        server = createStubInstance<Server>(Server);
         gameModeService = createStubInstance(GameModeService);
         gameHistoryService = createStubInstance(GameHistoryService);
-        socket = createStubInstance<Socket>(Socket);
+
         Object.defineProperty(socket, 'id', { value: getFakeGameRoom().roomId, writable: true });
-        server = createStubInstance<Server>(Server);
 
         const module: TestingModule = await Test.createTestingModule({
             providers: [
@@ -62,9 +63,8 @@ describe('GameModeGateway', () => {
         const differencePos = new Vector2D();
         differencePos.x = 1;
         differencePos.y = 1;
-        const validateDifferenceSpy = jest.spyOn(gameModeService, 'validateDifference').mockImplementation(() => {
-            return true;
-        });
+        const validateDifferenceSpy = jest.spyOn(gameModeService, 'validateDifference').mockReturnValue(true);
+        const fakeGameRoom = getFakeGameRoom();
         server.to.returns({
             // eslint-disable-next-line no-unused-vars
             emit: (event: string, { validated, _ }) => {
@@ -72,7 +72,7 @@ describe('GameModeGateway', () => {
                 expect(validated).toEqual(true);
             },
         } as BroadcastOperator<unknown, unknown>);
-        await gateway.validateDifference(socket, { differencePos, roomId: getFakeGameRoom().roomId, username: getFakeGameRoom().userGame.username1 });
+        await gateway.validateDifference(socket, { differencePos, roomId: fakeGameRoom.roomId, username: fakeGameRoom.userGame.username1 });
         expect(validateDifferenceSpy).toHaveBeenCalled();
     });
 
@@ -80,9 +80,8 @@ describe('GameModeGateway', () => {
         const differencePos = new Vector2D();
         differencePos.x = 0;
         differencePos.y = 0;
-        const validateDifferenceSpy = jest.spyOn(gameModeService, 'validateDifference').mockImplementation(() => {
-            return false;
-        });
+        const validateDifferenceSpy = jest.spyOn(gameModeService, 'validateDifference').mockReturnValue(false);
+        const fakeGameRoom = getFakeGameRoom();
         server.to.returns({
             // eslint-disable-next-line no-unused-vars
             emit: (event: string, { validated, _ }) => {
@@ -90,7 +89,7 @@ describe('GameModeGateway', () => {
                 expect(validated).toEqual(false);
             },
         } as BroadcastOperator<unknown, unknown>);
-        await gateway.validateDifference(socket, { differencePos, roomId: getFakeGameRoom().roomId, username: getFakeGameRoom().userGame.username1 });
+        await gateway.validateDifference(socket, { differencePos, roomId: fakeGameRoom.roomId, username: fakeGameRoom.userGame.username1 });
         expect(validateDifferenceSpy).toHaveBeenCalled();
     });
 
@@ -98,13 +97,10 @@ describe('GameModeGateway', () => {
         const differencePos = new Vector2D();
         differencePos.x = 1;
         differencePos.y = 1;
-        const validateDifferenceSpy = jest.spyOn(gameModeService, 'validateDifference').mockImplementation(() => {
-            return true;
-        });
-        const isGameFinishedSpy = jest.spyOn(gameModeService, 'isGameFinished').mockImplementation(() => {
-            return true;
-        });
+        const validateDifferenceSpy = jest.spyOn(gameModeService, 'validateDifference').mockReturnValue(true);
+        const isGameFinishedSpy = jest.spyOn(gameModeService, 'isGameFinished').mockReturnValue(true);
         const endGameSpy = jest.spyOn(gateway, 'endGame').mockImplementation();
+        const fakeGameRoom = getFakeGameRoom();
         server.to.returns({
             // eslint-disable-next-line no-unused-vars
             emit: (event: string, { validated, _ }) => {
@@ -112,16 +108,14 @@ describe('GameModeGateway', () => {
                 expect(validated).toEqual(true);
             },
         } as BroadcastOperator<unknown, unknown>);
-        await gateway.validateDifference(socket, { differencePos, roomId: getFakeGameRoom().roomId, username: getFakeGameRoom().userGame.username1 });
+        await gateway.validateDifference(socket, { differencePos, roomId: fakeGameRoom.roomId, username: fakeGameRoom.userGame.username1 });
         expect(validateDifferenceSpy).toHaveBeenCalled();
         expect(isGameFinishedSpy).toHaveBeenCalled();
         expect(endGameSpy).toHaveBeenCalled();
     });
 
     it('endGame should emit endGame event with the timer', () => {
-        jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
-            return getFakeGameRoom();
-        });
+        jest.spyOn(gameModeService, 'getGameRoom').mockReturnValue(getFakeGameRoom());
         server.to.returns({
             emit: (event: string) => {
                 expect(event).toEqual(GameModeEvents.GameFinished);
@@ -131,26 +125,23 @@ describe('GameModeGateway', () => {
     });
 
     it('endGame should do nothing if the gameRoom does not exist', () => {
-        jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
-            return undefined;
-        });
+        jest.spyOn(gameModeService, 'getGameRoom').mockReturnValue(undefined);
         gateway.endGame(socket, getFakeEndGame());
         expect(logger.log.notCalled).toBeTruthy();
     });
 
     it('Abandoned should emit Abandoned event with the username of the one quitting the game', () => {
-        const getGameRoomSpy = jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
-            return getFakeGameRoom();
-        });
+        const getGameRoomSpy = jest.spyOn(gameModeService, 'getGameRoom').mockReturnValue(getFakeGameRoom());
         const abandonClassicModeSpy = jest.spyOn(gameModeService, 'abandonClassicMode').mockImplementation();
+        const fakeGameRoom = getFakeGameRoom();
         server.to.returns({
             emit: (event: string, { gameRoom, username }) => {
                 expect(event).toEqual(GameModeEvents.Abandoned);
-                expect(gameRoom).toEqual(getFakeGameRoom());
-                expect(username).toEqual(getFakeGameRoom().userGame.username1);
+                expect(gameRoom).toEqual(fakeGameRoom);
+                expect(username).toEqual(fakeGameRoom.userGame.username1);
             },
         } as BroadcastOperator<unknown, unknown>);
-        gateway.abandoned(socket, { roomId: getFakeGameRoom().roomId, username: getFakeGameRoom().userGame.username1 });
+        gateway.abandoned(socket, { roomId: fakeGameRoom.roomId, username: fakeGameRoom.userGame.username1 });
         expect(getGameRoomSpy).toHaveBeenCalled();
         expect(abandonClassicModeSpy).toHaveBeenCalled();
     });
@@ -168,10 +159,12 @@ describe('GameModeGateway', () => {
         const gameRoomExpected = gameRoomSent;
         gameRoomExpected.roomId = 'socketId2';
         gameRoomExpected.userGame.username2 = 'secondPlayer';
+
         const roomsMap = new Map<string, Set<string>>();
         roomsMap.set('socketId', new Set<string>([socket.id, 'socketId2']));
         Object.defineProperty(server, 'sockets', { value: { adapter: { rooms: roomsMap } }, writable: true });
         socket.join(gameRoomSent.roomId);
+
         server.to.returns({
             emit: (event: string, { gameRoom, username }) => {
                 expect(event).toEqual(GameModeEvents.Abandoned);
@@ -195,10 +188,12 @@ describe('GameModeGateway', () => {
         const gameRoomSent = getFakeGameRoom();
         gameRoomSent.gameMode = GameMode.limitedTimeMode;
         gameRoomSent.roomId = 'socketId2';
+
         const roomsMap = new Map<string, Set<string>>();
         roomsMap.set(gameRoomSent.roomId, new Set<string>([socket.id]));
         Object.defineProperty(server, 'sockets', { value: { adapter: { rooms: roomsMap } }, writable: true });
         socket.join(gameRoomSent.roomId);
+
         server.to.returns({
             emit: (event: string, { gameRoom, username }) => {
                 expect(event).toEqual(GameModeEvents.Abandoned);
@@ -212,9 +207,7 @@ describe('GameModeGateway', () => {
     });
 
     it('Abandoned should do nothing if the game doesnt exists', () => {
-        const getGameRoomSpy = jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
-            return undefined;
-        });
+        const getGameRoomSpy = jest.spyOn(gameModeService, 'getGameRoom').mockReturnValue(undefined);
         const abandonClassicModeSpy = jest.spyOn(gameModeService, 'abandonClassicMode').mockImplementation();
         gateway.abandoned(socket, { roomId: getFakeGameRoom().roomId, username: getFakeGameRoom().userGame.username1 });
         expect(getGameRoomSpy).toHaveBeenCalled();
@@ -246,27 +239,23 @@ describe('GameModeGateway', () => {
         expect(logger.log.called).toBeTruthy();
     });
 
-    it('socket disconnection should be logged and call deleteRoom', () => {
-        const deleteRoomSpy = jest.spyOn(gameModeService, 'deleteRoom').mockImplementation();
-        jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
-            return getFakeGameRoom();
-        });
+    it('socket disconnection should be logged and call deleteGameRoom', () => {
+        const deleteRoomSpy = jest.spyOn(gameModeService, 'deleteGameRoom').mockImplementation();
+        jest.spyOn(gameModeService, 'getGameRoom').mockReturnValue(getFakeGameRoom());
         gateway.handleDisconnect(socket);
         expect(logger.log.called).toBeTruthy();
         expect(deleteRoomSpy).toHaveBeenCalled();
     });
 
     it('socket disconnection should just return if the game doesnt exists', () => {
-        const deleteRoomSpy = jest.spyOn(gameModeService, 'deleteRoom').mockImplementation();
-        jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
-            return undefined;
-        });
+        const deleteRoomSpy = jest.spyOn(gameModeService, 'deleteGameRoom').mockImplementation();
+        jest.spyOn(gameModeService, 'getGameRoom').mockReturnValue(undefined);
         gateway.handleDisconnect(socket);
         expect(deleteRoomSpy).not.toHaveBeenCalled();
     });
 
     it('socket disconnection should just return if and call abandonned when its multiplayer game', () => {
-        const deleteRoomSpy = jest.spyOn(gameModeService, 'deleteRoom').mockImplementation();
+        const deleteRoomSpy = jest.spyOn(gameModeService, 'deleteGameRoom').mockImplementation();
         const abandonnedSpy = jest.spyOn(gateway, 'abandoned').mockImplementation();
         jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
             const gameRoom = getFakeGameRoom();
@@ -280,12 +269,8 @@ describe('GameModeGateway', () => {
 
     it('emitTime should emit time after 1s to connected socket', () => {
         const emitTimeSpy = jest.spyOn(gateway, 'emitTime');
-        jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
-            return getFakeGameRoom();
-        });
-        jest.spyOn(gameModeService, 'getRoomsValues').mockImplementation(() => {
-            return [getFakeGameRoom()];
-        });
+        jest.spyOn(gameModeService, 'getGameRoom').mockReturnValue(getFakeGameRoom());
+        jest.spyOn(gameModeService, 'getRoomsValues').mockReturnValue([getFakeGameRoom()]);
         jest.useFakeTimers();
         server.to.returns({
             emit: (event: string) => {
@@ -308,7 +293,7 @@ describe('GameModeGateway', () => {
 });
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-const getFakeUserGame1 = (): UserGame => ({
+const getFakeUserGame = (): UserGame => ({
     username1: 'FakeUser',
     nbDifferenceFound: 0,
     timer: 0,
@@ -324,14 +309,19 @@ const getFakeUserGame1 = (): UserGame => ({
         image1url: `${environment.serverUrl}/FakeGame/image1.bmp`,
         image2url: `${environment.serverUrl}/FakeGame/image2.bmp`,
         difficulty: 'Facile',
-        soloBestTimes: [new BestTime(), new BestTime(), new BestTime()],
-        vsBestTimes: [new BestTime(), new BestTime(), new BestTime()],
+        soloBestTimes: newBestTimes(),
+        vsBestTimes: newBestTimes(),
     },
 });
-/* eslint-enable @typescript-eslint/no-magic-numbers */
+
+const newBestTimes = (): BestTime[] => [
+    { name: 'Joueur 1', time: 60 },
+    { name: 'Joueur 2', time: 120 },
+    { name: 'Joueur 3', time: 180 },
+];
 
 const getFakeGameRoom = (): GameRoom => ({
-    userGame: getFakeUserGame1(),
+    userGame: getFakeUserGame(),
     roomId: 'socketId',
     started: true,
     gameMode: GameMode.classicMode,

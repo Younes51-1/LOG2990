@@ -1,5 +1,5 @@
 import { GameConstantsDocument } from '@app/model/database/game-constants';
-import { GameConstants } from '@app/model/dto/game-history/game-constants.dto';
+import { GameConstants } from '@app/model/dto/game-constants/game-constants.dto';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';

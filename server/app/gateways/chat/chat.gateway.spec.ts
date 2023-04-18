@@ -1,7 +1,7 @@
+import { ChatEvents } from '@app/enum/chat.gateway.variables';
 import { environment } from '@app/environments/environment';
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
-import { ChatEvents } from '@app/enum/chat.gateway.variables';
-import { BestTime } from '@app/model/schema/best-times.schema';
+import { BestTime } from '@app/model/schema/best-time.schema';
 import { GameRoom } from '@app/model/schema/game-room.schema';
 import { UserGame } from '@app/model/schema/user-game.schema';
 import { Logger } from '@nestjs/common';
@@ -90,4 +90,4 @@ const getFakeGameRoom = (): GameRoom => ({
     gameMode: 'mode classique',
 });
 
-const getFakeNewBestScoreMessage = (): string => 'FakePlayer obtient la 2 place dans les meilleurs temps du jeu FakeGame en mode solo';
+const getFakeNewBestScoreMessage = (): string => 'Événement: FakePlayer obtient la 2 place dans les meilleurs temps du jeu FakeGame en mode solo';

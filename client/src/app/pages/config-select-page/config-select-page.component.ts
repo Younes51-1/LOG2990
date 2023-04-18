@@ -15,6 +15,7 @@ import { PageKeys } from 'src/assets/variables/game-card-options';
 export class ConfigSelectPageComponent implements OnInit {
     @ViewChild('table-container', { static: true }) table: ElementRef;
 
+    noGames: boolean = false;
     pageType: PageKeys;
     imgSource: string;
     slides: GameData[];
@@ -131,6 +132,9 @@ export class ConfigSelectPageComponent implements OnInit {
 
     private getSlidesFromServer(): void {
         this.gameCommunicationService.getAllGames().subscribe((res) => {
+            if (res.length === 0) {
+                this.noGames = true;
+            }
             this.slides = res;
             for (const slide of this.slides) {
                 slide.isSelected = false;

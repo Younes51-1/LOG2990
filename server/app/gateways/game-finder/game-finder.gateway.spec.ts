@@ -1,16 +1,16 @@
+import { GameFinderEvents } from '@app/enum/game-finder.gateway.variables';
 import { environment } from '@app/environments/environment';
 import { GameFinderGateway } from '@app/gateways/game-finder/game-finder.gateway';
-import { BestTime } from '@app/model/schema/best-times.schema';
+import { BestTime } from '@app/model/schema/best-time.schema';
 import { GameRoom } from '@app/model/schema/game-room.schema';
 import { UserGame } from '@app/model/schema/user-game.schema';
 import { GameHistoryService } from '@app/services/game-history/game-history.service';
 import { GameModeService } from '@app/services/game-mode/game-mode.service';
+import { GameMode } from '@common/game-mode';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
-import { GameFinderEvents } from '@app/enum/game-finder.gateway.variables';
-import { GameMode } from '@common/game-mode';
 
 describe('GameFinderGateway', () => {
     let gateway: GameFinderGateway;
@@ -23,10 +23,11 @@ describe('GameFinderGateway', () => {
     beforeEach(async () => {
         logger = createStubInstance(Logger);
         socket = createStubInstance<Socket>(Socket);
+        server = createStubInstance<Server>(Server);
         gameModeService = createStubInstance(GameModeService);
         gameHistoryService = createStubInstance(GameHistoryService);
+
         Object.defineProperty(socket, 'id', { value: getFakeGameRoom().roomId, writable: true });
-        server = createStubInstance<Server>(Server);
 
         const module: TestingModule = await Test.createTestingModule({
             providers: [
@@ -71,7 +72,7 @@ describe('GameFinderGateway', () => {
     });
 
     it('checkGame should emit gameName and event GameFound if the game exists in limited-time-mode', async () => {
-        const getGameRoomSpy = jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => getFakeGameRoom());
+        const getGameRoomSpy = jest.spyOn(gameModeService, 'getGameRoom').mockReturnValue(getFakeGameRoom());
         const loggerSpy = jest.spyOn(logger, 'log');
         const dataSent = { gameName: 'fakeGame', gameMode: GameMode.limitedTimeMode };
         server.to.returns({
@@ -100,18 +101,16 @@ describe('GameFinderGateway', () => {
     });
 
     it('checkGame should not emit gameName and event GameFound if the gameRoom do not exists', async () => {
-        const getGameRoomSpy = jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
-            return undefined;
-        });
+        const getGameRoomSpy = jest.spyOn(gameModeService, 'getGameRoom').mockReturnValue(undefined);
         const loggerSpy = jest.spyOn(logger, 'log');
         const dataSent = { gameName: 'fakeGame', gameMode: GameMode.classicMode };
         gateway.checkGame(socket, dataSent);
         expect(getGameRoomSpy).toHaveBeenCalled();
-        expect(loggerSpy).toHaveBeenCalledWith(`Game finder gateway: Game ${dataSent.gameName} not found`);
+        expect(loggerSpy).toHaveBeenCalledWith(`Game finder gateway: No game ${dataSent.gameName} found`);
     });
 
     it('canJoinGame should emit event CanJoinGame if the game exists and is joinable', async () => {
-        const canJoinGameSpy = jest.spyOn(gameModeService, 'canJoinGame').mockImplementation(() => getFakeGameRoom());
+        const canJoinGameSpy = jest.spyOn(gameModeService, 'canJoinGame').mockReturnValue(getFakeGameRoom());
         const dataSent = { gameName: 'fakeGame', username: 'fakeUser', gameMode: GameMode.classicMode };
         server.to.returns({
             emit: (event: string) => {
@@ -123,7 +122,7 @@ describe('GameFinderGateway', () => {
     });
 
     it('canJoinGame should emit event CannotJoinGame if the game exists and is not joinable', async () => {
-        const canJoinGameSpy = jest.spyOn(gameModeService, 'canJoinGame').mockImplementation(() => undefined);
+        const canJoinGameSpy = jest.spyOn(gameModeService, 'canJoinGame').mockReturnValue(undefined);
         const dataSent = { gameName: 'fakeGame', username: 'fakeUser', gameMode: GameMode.classicMode };
         server.to.returns({
             emit: (event: string) => {
@@ -136,7 +135,7 @@ describe('GameFinderGateway', () => {
 });
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-const getFakeUserGame1 = (): UserGame => ({
+const getFakeUserGame = (): UserGame => ({
     username1: 'FakeUser',
     nbDifferenceFound: 0,
     timer: 0,
@@ -152,14 +151,19 @@ const getFakeUserGame1 = (): UserGame => ({
         image1url: `${environment.serverUrl}/FakeGame/image1.bmp`,
         image2url: `${environment.serverUrl}/FakeGame/image2.bmp`,
         difficulty: 'Facile',
-        soloBestTimes: [new BestTime(), new BestTime(), new BestTime()],
-        vsBestTimes: [new BestTime(), new BestTime(), new BestTime()],
+        soloBestTimes: newBestTimes(),
+        vsBestTimes: newBestTimes(),
     },
 });
-/* eslint-enable @typescript-eslint/no-magic-numbers */
+
+const newBestTimes = (): BestTime[] => [
+    { name: 'Joueur 1', time: 60 },
+    { name: 'Joueur 2', time: 120 },
+    { name: 'Joueur 3', time: 180 },
+];
 
 const getFakeGameRoom = (): GameRoom => ({
-    userGame: getFakeUserGame1(),
+    userGame: getFakeUserGame(),
     roomId: 'socketId',
     started: false,
     gameMode: GameMode.classicMode,

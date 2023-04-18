@@ -1,5 +1,5 @@
 import { Component, Inject, Input, OnInit } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { VideoReplayDialogComponent } from '@app/components/video-replay-dialog/video-replay-dialog.component';
 import { VideoReplay } from '@app/interfaces/video-replay';
 import { GameService } from '@app/services/game/game.service';
@@ -36,7 +36,7 @@ export class EndgameDialogComponent implements OnInit {
             }
             this.gameService.timePosition$.subscribe((timePosition: number) => {
                 timePosition++;
-                if (timePosition === 1) this.timePosition = `${timePosition}er`;
+                if (timePosition === 1) this.timePosition = `${timePosition}ere`;
                 else this.timePosition = `${timePosition}eme`;
                 this.bestTimeMessage = `Nouveau record de temps !
                                         Vous avez effectué un temps de ${this.time} et prenez la ${this.timePosition} place !`;

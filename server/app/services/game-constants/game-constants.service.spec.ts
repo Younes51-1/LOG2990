@@ -1,10 +1,10 @@
 import { DELAY_BEFORE_CLOSING_CONNECTION } from '@app/constants';
 import { GameConstants, GameConstantsDocument, gameConstantsSchema } from '@app/model/database/game-constants';
+import { GameConstantsService } from '@app/services/game-constants/game-constants.service';
 import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Model } from 'mongoose';
-import { GameConstantsService } from '@app/services/game-constant/game-constants.service';
 
 describe('GameConstantsService', () => {
     let service: GameConstantsService;

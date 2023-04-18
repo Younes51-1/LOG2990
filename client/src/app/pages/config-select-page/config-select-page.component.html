@@ -31,6 +31,7 @@
                             (notifySelected)="setSelected($event)"
                         ></app-game-card>
                     </div>
+                    <p *ngIf="this.noGames">Aucun jeu sauvegardé trouvé !</p>
                 </ngx-slick-carousel>
             </section>
             <section id="historique" class="tab-panel">

@@ -47,7 +47,7 @@ describe('GameHistoryService', () => {
         expect(gameHistoryModel).toBeDefined();
     });
 
-    it('should return the game constants', async () => {
+    it('getGamesHistories should return the game constants', async () => {
         await gameHistoryModel.deleteMany({});
         await gameHistoryModel.create(getFakeGameHistory());
         await gameHistoryModel.create(getFakeGameHistory2());
@@ -65,7 +65,7 @@ describe('GameHistoryService', () => {
         expect(gameHistories[0].name).toEqual(getFakeGameHistory().name);
     });
 
-    it('should have rejected if cannot create new gameHistory', async () => {
+    it('saveGameHistory should have rejected if cannot create new gameHistory', async () => {
         jest.spyOn(gameHistoryModel, 'create').mockImplementation(async () => Promise.reject(''));
         await gameHistoryModel.deleteMany({});
         await expect(service.saveGameHistory(getFakeGameHistory())).rejects.toBeTruthy();
@@ -80,7 +80,7 @@ describe('GameHistoryService', () => {
         expect(gameHistories.length).toEqual(0);
     });
 
-    it('should have rejected if cannot delete', async () => {
+    it('deleteGamesHistories should have rejected if cannot delete', async () => {
         jest.spyOn(gameHistoryModel, 'deleteMany').mockRejectedValue('');
         try {
             await service.deleteGamesHistories();

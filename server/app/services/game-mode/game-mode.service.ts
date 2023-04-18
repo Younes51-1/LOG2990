@@ -4,9 +4,9 @@ import { EndGame } from '@app/model/schema/end-game.schema';
 import { GameRoom } from '@app/model/schema/game-room.schema';
 import { Vector2D } from '@app/model/schema/vector2d.schema';
 import { GameHistoryService } from '@app/services/game-history/game-history.service';
+import { GameMode } from '@common/game-mode';
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
-import { GameMode } from '@common/game-mode';
 
 @Injectable()
 export class GameModeService {
@@ -44,7 +44,7 @@ export class GameModeService {
         this.gameHistory.delete(roomId);
     }
 
-    deleteRoom(roomId: string): void {
+    deleteGameRoom(roomId: string): void {
         this.gameRooms.delete(roomId);
     }
 
@@ -77,9 +77,9 @@ export class GameModeService {
             }
         } else {
             if (gameRoom.userGame.username2) {
-                newGameHistory.gameMode = 'Mode Temps Limité  Multi-joueur';
+                newGameHistory.gameMode = 'Mode Temps Limité Multi-joueur';
             } else {
-                newGameHistory.gameMode = 'Mode Temps Limité  Solo';
+                newGameHistory.gameMode = 'Mode Temps Limité Solo';
             }
         }
 
@@ -124,9 +124,9 @@ export class GameModeService {
         socket.join(gameRoom.roomId);
     }
 
-    canJoinGame(socket: Socket, data: { gameName: string; username: string; gameMode: string }): GameRoom {
+    canJoinGame(data: { gameName: string; username: string; gameMode: string }): GameRoom {
         const gameRoom = this.getGameRoom(undefined, data.gameName, data.gameMode);
-        if (!gameRoom) return null;
+        if (!gameRoom) return undefined;
         if (!gameRoom.userGame.potentialPlayers) {
             gameRoom.userGame.potentialPlayers = [];
         }
@@ -139,15 +139,15 @@ export class GameModeService {
         return gameRoom;
     }
 
+    getRoomsValues(): GameRoom[] {
+        return Array.from(this.gameRooms.values());
+    }
+
     applyTimeToTimer(roomId: string, time: number): void {
         const gameRoom = this.getGameRoom(roomId);
         if (!gameRoom) return;
         gameRoom.userGame.timer += time;
         this.setGameRoom(gameRoom);
-    }
-
-    getRoomsValues(): GameRoom[] {
-        return Array.from(this.gameRooms.values());
     }
 
     updateTimer(gameRoom: GameRoom): void {
@@ -169,7 +169,7 @@ export class GameModeService {
         this.updateGameHistory(endGame);
         const gameHistory = this.getGameHistory(endGame.roomId);
         this.gameHistoryService.saveGameHistory(gameHistory);
-        this.deleteRoom(endGame.roomId);
+        this.deleteGameRoom(endGame.roomId);
     }
 
     abandonClassicMode(gameRoom: GameRoom, username: string): void {
