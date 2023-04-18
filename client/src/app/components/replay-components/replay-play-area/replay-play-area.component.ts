@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
-/* eslint-disable max-lines */
 import {
     AfterViewInit,
     Component,
@@ -183,13 +181,6 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
         if (firstContext) this.context1 = context;
         else this.context2 = context;
     }
-
-    // private clearAsync() {
-    //     clearInterval(this.playAreaService.cheatInterval);
-    //     clearInterval(this.playAreaService.differenceInterval);
-    //     clearTimeout(this.playAreaService.errorTimeout);
-    //     clearTimeout(this.playAreaService.layerTimeout);
-    // }
 
     private playAudio(audio: HTMLAudioElement) {
         this.audioValid.pause();

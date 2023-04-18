@@ -5,6 +5,7 @@ import { DeleteDialogComponent } from '@app/components/delete-dialog/delete-dial
 import { GameData, GameHistory } from '@app/interfaces/game';
 import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 import { ConfigHttpService } from '@app/services/config-http/config-http.service';
+import { DeleteDialogAction } from 'src/assets/variables/delete-dialog-action';
 import { PageKeys, slideConfig } from 'src/assets/variables/game-card-options';
 
 @Component({
@@ -44,7 +45,7 @@ export class ConfigSelectPageComponent implements OnInit {
 
     deleteNotify(name: string): void {
         if (this.pageType === PageKeys.Config) {
-            this.dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { action: 'delete' } });
+            this.dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { action: DeleteDialogAction.Delete } });
             if (this.dialogRef) {
                 this.dialogRef.afterClosed().subscribe((supp) => {
                     if (supp) {
@@ -57,7 +58,7 @@ export class ConfigSelectPageComponent implements OnInit {
 
     resetNotify(name: string): void {
         if (this.pageType === PageKeys.Config) {
-            this.dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { action: 'reset' } });
+            this.dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { action: DeleteDialogAction.Reset } });
             if (this.dialogRef) {
                 this.dialogRef.afterClosed().subscribe((supp) => {
                     if (supp) {
@@ -78,7 +79,7 @@ export class ConfigSelectPageComponent implements OnInit {
     }
 
     deletePartie(): void {
-        this.dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { action: 'deleteHistory' } });
+        this.dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { action: DeleteDialogAction.DeleteHistory } });
         if (this.dialogRef) {
             this.dialogRef.afterClosed().subscribe((supp) => {
                 if (supp) {
@@ -97,7 +98,7 @@ export class ConfigSelectPageComponent implements OnInit {
     }
 
     resetBestTimes() {
-        this.dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { action: 'resetAll' } });
+        this.dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { action: DeleteDialogAction.ResetAll } });
         if (this.dialogRef) {
             this.dialogRef.afterClosed().subscribe((supp) => {
                 if (supp) {
@@ -111,7 +112,7 @@ export class ConfigSelectPageComponent implements OnInit {
     }
 
     deleteAllGames(): void {
-        this.dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { action: 'deleteAll' } });
+        this.dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { action: DeleteDialogAction.DeleteAll } });
         if (this.dialogRef) {
             this.dialogRef.afterClosed().subscribe((supp) => {
                 if (supp) {

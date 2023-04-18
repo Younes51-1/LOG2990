@@ -358,7 +358,7 @@ describe('DrawingService', () => {
         const spySwap = spyOn((service as any).component, 'swapForegrounds').and.callFake(() => {
             return;
         });
-        service.ctrlZ();
+        service.undo();
         expect(spyPush).toHaveBeenCalledWith({ layer: canvas, belonging: true, swap: true });
         expect(spySwap).toHaveBeenCalled();
         expect((service as any).component.redo.length).toEqual(lengthRedo + 1);
@@ -375,7 +375,7 @@ describe('DrawingService', () => {
         const spyCanvasAndUpdate = spyOn(service as any, 'getCanvasAndUpdate').and.callFake(() => {
             return canvas;
         });
-        service.ctrlZ();
+        service.undo();
         expect(spyPush).toHaveBeenCalledWith({ layer: canvas, belonging: (service as any).component.belongsToCanvas1, swap: false });
         expect(spyCanvasAndUpdate).toHaveBeenCalledWith({ layer: canvas, belonging: true, swap: false });
         expect((service as any).component.redo.length).toEqual(lengthRedo + 1);
@@ -385,7 +385,7 @@ describe('DrawingService', () => {
     it('should not cancel an event if undo stack is empty', () => {
         (service as any).component.undo = [];
         expect((service as any).component.undo.length).toEqual(0);
-        service.ctrlZ();
+        service.undo();
         expect((service as any).component.undo.length).toEqual(0);
     });
 
@@ -399,7 +399,7 @@ describe('DrawingService', () => {
         const spySwap = spyOn((service as any).component, 'swapForegrounds').and.callFake(() => {
             return;
         });
-        service.ctrlShiftZ();
+        service.redo();
         expect(spyPush).toHaveBeenCalledWith({ layer: canvas, belonging: true, swap: true });
         expect(spySwap).toHaveBeenCalled();
         expect((service as any).component.redo.length).toEqual(lengthRedo - 1);
@@ -416,7 +416,7 @@ describe('DrawingService', () => {
         const spyCanvasAndUpdate = spyOn(service as any, 'getCanvasAndUpdate').and.callFake(() => {
             return canvas;
         });
-        service.ctrlShiftZ();
+        service.redo();
         expect(spyPush).toHaveBeenCalledWith({ layer: canvas, belonging: (service as any).component.belongsToCanvas1, swap: false });
         expect(spyCanvasAndUpdate).toHaveBeenCalled();
         expect((service as any).component.redo.length).toEqual(lengthRedo - 1);
@@ -426,7 +426,7 @@ describe('DrawingService', () => {
     it('should not redo an event if redo stack is empty', () => {
         (service as any).component.redo = [];
         expect((service as any).component.redo.length).toEqual(0);
-        service.ctrlShiftZ();
+        service.redo();
         expect((service as any).component.redo.length).toEqual(0);
     });
 
@@ -530,7 +530,7 @@ describe('DrawingService', () => {
         // esl
         const canvas = document.createElement('canvas');
         (service as any).component.undo = [{ layer: canvas, belonging: true, swap: false }];
-        service.ctrlZ();
+        service.undo();
         expect(spySwap).not.toHaveBeenCalled();
     });
 
@@ -552,7 +552,7 @@ describe('DrawingService', () => {
         // esl
         const canvas = document.createElement('canvas');
         (service as any).component.redo = [{ layer: canvas, belonging: true, swap: false }];
-        service.ctrlShiftZ();
+        service.redo();
         expect(spySwap).not.toHaveBeenCalled();
     });
 

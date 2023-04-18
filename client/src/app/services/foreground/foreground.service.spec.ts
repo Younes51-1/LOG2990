@@ -249,14 +249,14 @@ describe('ForegroundService', () => {
         expect(spyDrawImage).toHaveBeenCalled();
     });
 
-    it('pushAndSwapForegrounds should empty redo stack and call all functions', () => {
+    it('invertForegrounds should empty redo stack and call all functions', () => {
         const spyEmptyRedoStack = spyOn((service as any).component, 'emptyRedoStack').and.callFake(() => {
             return;
         });
         const spySwapForeground = spyOn(service, 'swapForegrounds').and.callFake(() => {
             return;
         });
-        service.pushAndSwapForegrounds();
+        service.invertForegrounds();
         expect(spyEmptyRedoStack).toHaveBeenCalled();
         expect(spySwapForeground).toHaveBeenCalled();
     });

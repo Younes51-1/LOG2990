@@ -10,6 +10,7 @@ import { GameService } from '@app/services/game/game.service';
 import { PlayAreaService } from '@app/services/play-area/play-area.service';
 import { Subscription } from 'rxjs';
 import { Time } from 'src/assets/variables/time';
+import { GameMode } from '@common/game-mode';
 
 @Component({
     selector: 'app-game-page',
@@ -44,64 +45,18 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.gameService.getConstant();
-        this.timerSubscription = this.gameService.timer$.subscribe((timer: number) => {
-            this.timer = timer;
-        });
+        this.subscribeTimer();
         this.penaltyTime = this.gameService.gameConstants.penaltyTime;
-        this.differencesFoundSubscription = this.gameService.totalDifferencesFound$.subscribe((count) => {
-            this.totalDifferencesFound = count;
-        });
-        this.userDifferencesFoundSubscription = this.gameService.userDifferencesFound$.subscribe((count) => {
-            this.userDifferencesFound = count;
-            this.sendEvent('success');
-            if (this.userDifferencesFound >= this.differenceThreshold && this.gameService.gameMode === 'mode classique') {
-                this.gameFinished = true;
-                this.endGame();
-            }
-        });
-        this.gameFinishedSubscription = this.gameService.gameFinished$.subscribe(() => {
-            this.gameFinished = true;
-            this.endGame();
-        });
-        this.gameRoomSubscription = this.gameService.gameRoom$.subscribe((gameRoom) => {
-            this.gameRoom = gameRoom;
-            this.username = this.gameService.username;
-            this.gameName = gameRoom.userGame.gameData.name;
-            if (gameRoom.userGame.username2) {
-                this.opponentUsername = gameRoom.userGame.username1 === this.username ? gameRoom.userGame.username2 : gameRoom.userGame.username1;
-                this.differenceThreshold = Math.ceil(gameRoom.userGame.gameData.nbDifference / 2);
-            } else {
-                this.opponentUsername = '';
-                this.differenceThreshold = gameRoom.userGame.gameData.nbDifference;
-            }
-        });
-        this.abandonedGameSubscription = this.gameService.abandoned$.subscribe((username: string) => {
-            if (this.gameService.gameMode === 'mode classique') {
-                if (username !== this.username) {
-                    this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
-                    this.playAreaService.startConfetti(undefined);
-                }
-                this.unsubscribe();
-                this.gameService.endGame(true, true);
-            }
-        });
-
-        this.videoReplay = {
-            images: { original: '', modified: '' },
-            scoreboardParams: {
-                gameRoom: this.gameRoom,
-                gameName: this.gameName,
-                opponentUsername: this.opponentUsername,
-                username: this.username,
-            },
-            actions: [],
-            sources: [],
-            cheatLayers: [],
-        };
+        this.subscribeTotalDifferencesFound();
+        this.subscribeUserDifferencesFound();
+        this.subscribeGameFinished();
+        this.subscribeAbandon();
+        this.subscribeGameRoom();
+        this.setVideoReplay();
     }
 
     endGame() {
-        if (this.gameRoom.gameMode === 'mode classique') {
+        if (this.gameRoom.gameMode === GameMode.classicMode) {
             this.endGameClassicMode();
         } else {
             this.endGameLimitedTimeMode();
@@ -116,24 +71,25 @@ export class GamePageComponent implements OnInit, OnDestroy {
             username: this.username,
         };
 
-        if (this.gameFinished) {
-            if (this.userDifferencesFound === this.differenceThreshold) {
-                this.dialogRef = this.dialog.open(EndgameDialogComponent, {
-                    disableClose: true,
-                    data: { gameFinished: true, gameWinner: true, videoReplay: this.videoReplay, time: this.timer },
-                });
-                this.playAreaService.startConfetti(undefined);
-            } else {
-                this.dialogRef = this.dialog.open(EndgameDialogComponent, {
-                    disableClose: true,
-                    data: { gameFinished: true, gameWinner: false, videoReplay: this.videoReplay },
-                });
-            }
-            this.gameService.endGame(this.gameFinished, this.userDifferencesFound === this.differenceThreshold);
-            this.unsubscribe();
-        } else {
+        if (!this.gameFinished) {
             this.abandonConfirmation();
+            return;
         }
+
+        if (this.userDifferencesFound === this.differenceThreshold) {
+            this.dialogRef = this.dialog.open(EndgameDialogComponent, {
+                disableClose: true,
+                data: { gameFinished: true, gameWinner: true, videoReplay: this.videoReplay, time: this.timer },
+            });
+            this.playAreaService.startConfetti(undefined);
+        } else {
+            this.dialogRef = this.dialog.open(EndgameDialogComponent, {
+                disableClose: true,
+                data: { gameFinished: true, gameWinner: false, videoReplay: this.videoReplay },
+            });
+        }
+        this.gameService.endGame(this.gameFinished, this.userDifferencesFound === this.differenceThreshold);
+        this.unsubscribe();
     }
 
     endGameLimitedTimeMode() {
@@ -159,7 +115,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     toggleHint() {
         if (this.hintNum < 3) {
             this.playAreaService.hintMode(this.hintNum);
-            if (this.gameService.gameMode === 'limited-time-mode') {
+            if (this.gameService.gameMode === GameMode.limitedTimeMode) {
                 this.gameService.changeTime(-this.gameService.gameConstants.penaltyTime);
             } else {
                 this.gameService.changeTime(this.gameService.gameConstants.penaltyTime);
@@ -262,6 +218,79 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 }
             });
         }
+    }
+
+    private setVideoReplay() {
+        this.videoReplay = {
+            images: { original: '', modified: '' },
+            scoreboardParams: {
+                gameRoom: this.gameRoom,
+                gameName: this.gameName,
+                opponentUsername: this.opponentUsername,
+                username: this.username,
+            },
+            actions: [],
+            sources: [],
+            cheatLayers: [],
+        };
+    }
+
+    private subscribeTotalDifferencesFound() {
+        this.differencesFoundSubscription = this.gameService.totalDifferencesFound$.subscribe((count) => {
+            this.totalDifferencesFound = count;
+        });
+    }
+
+    private subscribeUserDifferencesFound() {
+        this.userDifferencesFoundSubscription = this.gameService.userDifferencesFound$.subscribe((count) => {
+            this.userDifferencesFound = count;
+            this.sendEvent('success');
+            if (this.userDifferencesFound >= this.differenceThreshold && this.gameService.gameMode === GameMode.limitedTimeMode) {
+                this.gameFinished = true;
+                this.endGame();
+            }
+        });
+    }
+
+    private subscribeTimer() {
+        this.timerSubscription = this.gameService.timer$.subscribe((timer: number) => {
+            this.timer = timer;
+        });
+    }
+
+    private subscribeGameFinished() {
+        this.gameFinishedSubscription = this.gameService.gameFinished$.subscribe(() => {
+            this.gameFinished = true;
+            this.endGame();
+        });
+    }
+
+    private subscribeAbandon() {
+        this.abandonedGameSubscription = this.gameService.abandoned$.subscribe((username: string) => {
+            if (this.gameService.gameMode === GameMode.classicMode) {
+                if (username !== this.username) {
+                    this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
+                    this.playAreaService.startConfetti(undefined);
+                }
+                this.unsubscribe();
+                this.gameService.endGame(true, true);
+            }
+        });
+    }
+
+    private subscribeGameRoom() {
+        this.gameRoomSubscription = this.gameService.gameRoom$.subscribe((gameRoom) => {
+            this.gameRoom = gameRoom;
+            this.username = this.gameService.username;
+            this.gameName = gameRoom.userGame.gameData.name;
+            if (gameRoom.userGame.username2) {
+                this.opponentUsername = gameRoom.userGame.username1 === this.username ? gameRoom.userGame.username2 : gameRoom.userGame.username1;
+                this.differenceThreshold = Math.ceil(gameRoom.userGame.gameData.nbDifference / 2);
+            } else {
+                this.opponentUsername = '';
+                this.differenceThreshold = gameRoom.userGame.gameData.nbDifference;
+            }
+        });
     }
 
     private unsubscribe() {

@@ -6,7 +6,7 @@ import { HttpClientModule, HttpResponse } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule, NgZone } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { By } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -35,6 +35,7 @@ describe('ConfigSelectPageComponent', () => {
     let dialog: MatDialog;
     let zone: NgZone;
     let router: Router;
+    let dialogRefSpy: SpyObj<MatDialogRef<DeleteDialogComponent>>;
 
     beforeEach(async () => {
         communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getAllGames', 'deleteGame', 'deleteAllGames']);
@@ -97,6 +98,8 @@ describe('ConfigSelectPageComponent', () => {
         }).compileComponents();
         router = TestBed.inject(Router);
         spyOnProperty(router, 'url', 'get').and.returnValue('/config');
+        dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
+        (dialog.open as jasmine.Spy).and.returnValue(dialogRefSpy);
     });
 
     beforeEach(() => {
@@ -187,8 +190,6 @@ describe('ConfigSelectPageComponent', () => {
     });
 
     it('deleteNotify should call removeSlide if PageKeys is set to Config and user responded yes', () => {
-        const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-        (dialog.open as jasmine.Spy).and.returnValue(dialogRefSpy);
         dialogRefSpy.afterClosed.and.returnValue(of(true));
         spyOn(component as any, 'removeSlide').and.callFake(() => {
             return;
@@ -201,8 +202,6 @@ describe('ConfigSelectPageComponent', () => {
     });
 
     it("deleteNotify shouldn't call removeSlide if PageKeys is set to Config and user responded no", () => {
-        const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-        (dialog.open as jasmine.Spy).and.returnValue(dialogRefSpy);
         dialogRefSpy.afterClosed.and.returnValue(of(false));
         spyOn(component as any, 'removeSlide').and.callFake(() => {
             return;
@@ -215,8 +214,6 @@ describe('ConfigSelectPageComponent', () => {
     });
 
     it("deleteNotify shouldn't call removeSlide if PageKeys isn't set to Config", () => {
-        const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-        (dialog.open as jasmine.Spy).and.returnValue(dialogRefSpy);
         dialogRefSpy.afterClosed.and.returnValue(of(false));
         spyOn(component as any, 'removeSlide').and.callFake(() => {
             return;
@@ -229,8 +226,6 @@ describe('ConfigSelectPageComponent', () => {
     });
 
     it('resetNotify should call deleteBestTime if PageKeys is set to Config and user responded yes', () => {
-        const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-        (dialog.open as jasmine.Spy).and.returnValue(dialogRefSpy);
         dialogRefSpy.afterClosed.and.returnValue(of(true));
         configHttpServiceSpy.deleteBestTime.and.returnValue(of(new HttpResponse({ status: 200 }) as HttpResponse<string>));
         component.pageType = PageKeys.Config;
@@ -243,8 +238,6 @@ describe('ConfigSelectPageComponent', () => {
     });
 
     it("resetNotify shouldn't call deleteBestTime if PageKeys is set to Config and user responded no", () => {
-        const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-        (dialog.open as jasmine.Spy).and.returnValue(dialogRefSpy);
         dialogRefSpy.afterClosed.and.returnValue(of(false));
         configHttpServiceSpy.deleteBestTime.and.stub();
         component.pageType = PageKeys.Config;
@@ -255,8 +248,6 @@ describe('ConfigSelectPageComponent', () => {
     });
 
     it("resetNotify shouldn't call deleteBestTime if PageKeys isn't set to Config", () => {
-        const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-        (dialog.open as jasmine.Spy).and.returnValue(dialogRefSpy);
         dialogRefSpy.afterClosed.and.returnValue(of(false));
         configHttpServiceSpy.deleteBestTime.and.stub();
         component.pageType = PageKeys.Selection;
@@ -314,8 +305,6 @@ describe('ConfigSelectPageComponent', () => {
     });
 
     it('deletePartie should call deleteHistory if user responded yes', () => {
-        const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-        (dialog.open as jasmine.Spy).and.returnValue(dialogRefSpy);
         dialogRefSpy.afterClosed.and.returnValue(of(true));
         component.pageType = PageKeys.Config;
         configHttpServiceSpy.deleteHistory.and.returnValue(of(new HttpResponse({ status: 200 }) as HttpResponse<string>));
@@ -327,8 +316,6 @@ describe('ConfigSelectPageComponent', () => {
     });
 
     it("deletePartie shouldn't call deleteHistory if user responded no", () => {
-        const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-        (dialog.open as jasmine.Spy).and.returnValue(dialogRefSpy);
         dialogRefSpy.afterClosed.and.returnValue(of(false));
         component.pageType = PageKeys.Config;
         component.deletePartie();
@@ -344,8 +331,6 @@ describe('ConfigSelectPageComponent', () => {
     });
 
     it('resetNotify should call deleteBestTime if user responded yes', () => {
-        const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-        (dialog.open as jasmine.Spy).and.returnValue(dialogRefSpy);
         dialogRefSpy.afterClosed.and.returnValue(of(true));
         configHttpServiceSpy.deleteBestTimes.and.returnValue(of(new HttpResponse({ status: 200 }) as HttpResponse<string>));
         component.pageType = PageKeys.Config;
@@ -358,8 +343,6 @@ describe('ConfigSelectPageComponent', () => {
     });
 
     it("resetBestTimes shouldn't call deleteBestTime if user responded no", () => {
-        const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-        (dialog.open as jasmine.Spy).and.returnValue(dialogRefSpy);
         dialogRefSpy.afterClosed.and.returnValue(of(false));
         configHttpServiceSpy.deleteBestTimes.and.stub();
         component.pageType = PageKeys.Config;
@@ -370,8 +353,6 @@ describe('ConfigSelectPageComponent', () => {
     });
 
     it('deleteAllGames should call deleteAllGames if user responded yes', () => {
-        const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-        (dialog.open as jasmine.Spy).and.returnValue(dialogRefSpy);
         dialogRefSpy.afterClosed.and.returnValue(of(true));
         component.pageType = PageKeys.Config;
         component.deleteAllGames();
@@ -382,8 +363,6 @@ describe('ConfigSelectPageComponent', () => {
     });
 
     it("deleteAllGames shouldn't call deleteAllGames if user responded no", () => {
-        const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-        (dialog.open as jasmine.Spy).and.returnValue(dialogRefSpy);
         dialogRefSpy.afterClosed.and.returnValue(of(false));
         component.pageType = PageKeys.Config;
         component.deleteAllGames();
