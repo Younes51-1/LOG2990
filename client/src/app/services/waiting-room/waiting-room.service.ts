@@ -124,7 +124,9 @@ export class WaitingRoomService {
         });
 
         this.socketService.on('gameDeleted', (gameName: string) => {
-            if (this.gameRoom.userGame.gameData.name === gameName) {
+            if (this.gameMode === 'limited-time-mode') {
+                this.gameService.slides = this.gameService.slides.filter((slide) => slide.name !== gameName);
+            } else if (this.gameRoom.userGame.gameData.name === gameName) {
                 this.gameCanceled$.next(true);
             }
         });

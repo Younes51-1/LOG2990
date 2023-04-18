@@ -1,4 +1,4 @@
-import { EMPTY_PIXEL_VALUE } from '@app/constants';
+import { EMPTY_PIXEL_VALUE } from '@app/constants/constants';
 import { GameHistory } from '@app/model/database/game-history';
 import { EndGame } from '@app/model/schema/end-game.schema';
 import { GameRoom } from '@app/model/schema/game-room.schema';
@@ -7,6 +7,7 @@ import { GameHistoryService } from '@app/services/game-history/game-history.serv
 import { GameMode } from '@common/game-mode';
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
+import { gameHistoryMode } from '@app/constants/game-history-mode';
 
 @Injectable()
 export class GameModeService {
@@ -69,18 +70,13 @@ export class GameModeService {
         newGameHistory.username2 = gameRoom.userGame.username2;
         newGameHistory.startTime = Date.now();
         newGameHistory.timer = 0;
+
         if (gameRoom.gameMode === GameMode.classicMode) {
-            if (gameRoom.userGame.username2) {
-                newGameHistory.gameMode = 'Mode classique Multi-joueur';
-            } else {
-                newGameHistory.gameMode = 'Mode classique Solo';
-            }
+            if (gameRoom.userGame.username2) newGameHistory.gameMode = gameHistoryMode.classicModeMultiplayer;
+            else newGameHistory.gameMode = gameHistoryMode.classicModeSolo;
         } else {
-            if (gameRoom.userGame.username2) {
-                newGameHistory.gameMode = 'Mode Temps Limité Multi-joueur';
-            } else {
-                newGameHistory.gameMode = 'Mode Temps Limité Solo';
-            }
+            if (gameRoom.userGame.username2) newGameHistory.gameMode = gameHistoryMode.limitedTimeModeMultiplayer;
+            else newGameHistory.gameMode = gameHistoryMode.limitedTimeModeSolo;
         }
 
         this.setGameHistory(gameRoom.roomId, newGameHistory);

@@ -1,4 +1,4 @@
-import { DELAY_BEFORE_CLOSING_CONNECTION } from '@app/constants';
+import { DELAY_BEFORE_CLOSING_CONNECTION } from '@app/constants/constants';
 import { GameHistory, gameHistorySchema, HistoryDocument } from '@app/model/database/game-history';
 import { GameHistoryService } from '@app/services/game-history/game-history.service';
 import { getConnectionToken, getModelToken, MongooseModule } from '@nestjs/mongoose';

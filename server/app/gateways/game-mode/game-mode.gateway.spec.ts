@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import { DELAY_BEFORE_EMITTING_TIME } from '@app/constants';
+import { DELAY_BETWEEN_EMISSIONS } from '@app/constants/constants';
 import { GameModeEvents } from '@app/enum/game-mode.gateway.variables';
 import { environment } from '@app/environments/environment.prod';
 import { GameModeGateway } from '@app/gateways/game-mode/game-mode.gateway';
@@ -230,7 +230,7 @@ describe('GameModeGateway', () => {
         const emitTimeSpy = jest.spyOn(gateway, 'emitTime').mockImplementation();
         jest.useFakeTimers();
         gateway.afterInit();
-        jest.advanceTimersByTime(DELAY_BEFORE_EMITTING_TIME);
+        jest.advanceTimersByTime(DELAY_BETWEEN_EMISSIONS);
         expect(emitTimeSpy).toHaveBeenCalled();
     });
 
@@ -278,7 +278,7 @@ describe('GameModeGateway', () => {
             },
         } as BroadcastOperator<unknown, unknown>);
         gateway.emitTime();
-        jest.advanceTimersByTime(DELAY_BEFORE_EMITTING_TIME);
+        jest.advanceTimersByTime(DELAY_BETWEEN_EMISSIONS);
         expect(emitTimeSpy).toHaveBeenCalled();
     });
 

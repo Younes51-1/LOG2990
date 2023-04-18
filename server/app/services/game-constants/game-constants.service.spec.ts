@@ -1,4 +1,4 @@
-import { DELAY_BEFORE_CLOSING_CONNECTION } from '@app/constants';
+import { DELAY_BEFORE_CLOSING_CONNECTION } from '@app/constants/constants';
 import { GameConstants, GameConstantsDocument, gameConstantsSchema } from '@app/model/database/game-constants';
 import { GameConstantsService } from '@app/services/game-constants/game-constants.service';
 import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongoose';

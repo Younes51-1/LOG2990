@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import { DELAY_BEFORE_CLOSING_CONNECTION, NOT_TOP3 } from '@app/constants';
+import { DELAY_BEFORE_CLOSING_CONNECTION, NOT_TOP3 } from '@app/constants/constants';
 import { environment } from '@app/environments/environment.prod';
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
 import { GameModeGateway } from '@app/gateways/game-mode/game-mode.gateway';

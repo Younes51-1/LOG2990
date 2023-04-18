@@ -5,7 +5,7 @@ import { DeleteDialogComponent } from '@app/components/delete-dialog/delete-dial
 import { GameData, GameHistory } from '@app/interfaces/game';
 import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 import { ConfigHttpService } from '@app/services/config-http/config-http.service';
-import { PageKeys } from 'src/assets/variables/game-card-options';
+import { PageKeys, slideConfig } from 'src/assets/variables/game-card-options';
 
 @Component({
     selector: 'app-config-select-page',
@@ -20,15 +20,7 @@ export class ConfigSelectPageComponent implements OnInit {
     imgSource: string;
     slides: GameData[];
     parties: GameHistory[];
-    slideConfig = {
-        slidesToShow: 4,
-        slidesToScroll: 4,
-        lazyLoad: 'ondemand',
-        cssEase: 'linear',
-        dots: true,
-        appendArrows: 'ngx-slick-carousel',
-        infinite: false,
-    };
+    slideConfig = slideConfig;
 
     private dialogRef: MatDialogRef<DeleteDialogComponent>;
 

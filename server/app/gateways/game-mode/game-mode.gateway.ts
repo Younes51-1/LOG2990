@@ -1,4 +1,4 @@
-import { DELAY_BEFORE_EMITTING_TIME } from '@app/constants';
+import { DELAY_BETWEEN_EMISSIONS } from '@app/constants/constants';
 import { GameModeEvents } from '@app/enum/game-mode.gateway.variables';
 import { EndGame } from '@app/model/schema/end-game.schema';
 import { GameRoom } from '@app/model/schema/game-room.schema';
@@ -23,11 +23,12 @@ export class GameModeGateway implements OnGatewayConnection, OnGatewayDisconnect
             .to(data.roomId)
             .emit(GameModeEvents.DifferenceValidated, { validated, differencePos: data.differencePos, username: data.username });
         if (this.gameModeService.isGameFinished(data.roomId)) {
-            const endGame = {} as EndGame;
-            endGame.gameFinished = true;
-            endGame.winner = true;
-            endGame.roomId = data.roomId;
-            endGame.username = data.username;
+            const endGame = {
+                gameFinished: true,
+                winner: true,
+                roomId: data.roomId,
+                username: data.username,
+            };
             this.endGame(socket, endGame);
         }
     }
@@ -77,7 +78,7 @@ export class GameModeGateway implements OnGatewayConnection, OnGatewayDisconnect
     afterInit(): void {
         setInterval(() => {
             this.emitTime();
-        }, DELAY_BEFORE_EMITTING_TIME);
+        }, DELAY_BETWEEN_EMISSIONS);
     }
 
     handleConnection(socket: Socket): void {

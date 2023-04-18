@@ -1,3 +1,4 @@
+import { defalutGameConstants } from '@app/constants/default-game-constants';
 import { GameConstantsDocument } from '@app/model/database/game-constants';
 import { GameConstants } from '@app/model/dto/game-constants/game-constants.dto';
 import { Injectable } from '@nestjs/common';
@@ -21,12 +22,7 @@ export class GameConstantsService {
     private async initiateGameConstants(): Promise<void> {
         const constants = await this.gameConstantsModel.findOne({});
         if (!constants) {
-            const gameConstants: GameConstants = {
-                initialTime: 30,
-                penaltyTime: 5,
-                bonusTime: 5,
-            };
-            await this.gameConstantsModel.create(gameConstants);
+            await this.gameConstantsModel.create(defalutGameConstants);
         }
     }
 }

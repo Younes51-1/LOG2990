@@ -1,4 +1,4 @@
-import { NOT_TOP3 } from '@app/constants';
+import { NOT_TOP3 } from '@app/constants/constants';
 import { environment } from '@app/environments/environment.prod';
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
 import { GameModeGateway } from '@app/gateways/game-mode/game-mode.gateway';
@@ -143,12 +143,13 @@ export class GameService {
     }
 
     private async convertNewGameToGame(newGame: NewGame): Promise<Game> {
-        const game = new Game();
-        game.name = newGame.name;
-        game.nbDifference = newGame.nbDifference;
-        game.soloBestTimes = this.newBestTimes();
-        game.vsBestTimes = this.newBestTimes();
-        game.difficulty = newGame.difficulty;
+        const game = {
+            name: newGame.name,
+            nbDifference: newGame.nbDifference,
+            soloBestTimes: this.newBestTimes(),
+            vsBestTimes: this.newBestTimes(),
+            difficulty: newGame.difficulty,
+        };
         return game;
     }
 
@@ -200,16 +201,16 @@ export class GameService {
     }
 
     private async convertGameToGameData(game: Game, getMatrix: boolean): Promise<GameData> {
-        const { name, nbDifference, difficulty, soloBestTimes, vsBestTimes } = game;
-        const gameData = new GameData();
-        gameData.name = name;
-        gameData.nbDifference = nbDifference;
-        gameData.image1url = `${environment.serverUrl}/${name}/image1.bmp`;
-        gameData.image2url = `${environment.serverUrl}/${name}/image2.bmp`;
-        gameData.difficulty = difficulty;
-        gameData.soloBestTimes = soloBestTimes;
-        gameData.vsBestTimes = vsBestTimes;
-        gameData.differenceMatrix = getMatrix ? await this.getMatrix(name) : undefined;
+        const gameData = {
+            name: game.name,
+            nbDifference: game.nbDifference,
+            image1url: `${environment.serverUrl}/${game.name}/image1.bmp`,
+            image2url: `${environment.serverUrl}/${game.name}/image2.bmp`,
+            difficulty: game.difficulty,
+            soloBestTimes: game.soloBestTimes,
+            vsBestTimes: game.vsBestTimes,
+            differenceMatrix: getMatrix ? await this.getMatrix(game.name) : undefined,
+        };
         return gameData;
     }
 }
