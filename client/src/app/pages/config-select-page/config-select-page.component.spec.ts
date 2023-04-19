@@ -191,9 +191,7 @@ describe('ConfigSelectPageComponent', () => {
 
     it('deleteNotify should call removeSlide if PageKeys is set to Config and user responded yes', () => {
         dialogRefSpy.afterClosed.and.returnValue(of(true));
-        spyOn(component as any, 'removeSlide').and.callFake(() => {
-            return;
-        });
+        spyOn(component as any, 'removeSlide').and.stub();
         component.pageType = PageKeys.Config;
         component.deleteNotify('Find the Differences 1');
         expect(dialog.open).toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true, data: { action: 'delete' } });
@@ -203,9 +201,7 @@ describe('ConfigSelectPageComponent', () => {
 
     it("deleteNotify shouldn't call removeSlide if PageKeys is set to Config and user responded no", () => {
         dialogRefSpy.afterClosed.and.returnValue(of(false));
-        spyOn(component as any, 'removeSlide').and.callFake(() => {
-            return;
-        });
+        spyOn(component as any, 'removeSlide').and.stub();
         component.pageType = PageKeys.Config;
         component.deleteNotify('Find the Differences 1');
         expect(dialog.open).toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true, data: { action: 'delete' } });
@@ -215,9 +211,7 @@ describe('ConfigSelectPageComponent', () => {
 
     it("deleteNotify shouldn't call removeSlide if PageKeys isn't set to Config", () => {
         dialogRefSpy.afterClosed.and.returnValue(of(false));
-        spyOn(component as any, 'removeSlide').and.callFake(() => {
-            return;
-        });
+        spyOn(component as any, 'removeSlide').and.stub();
         component.pageType = PageKeys.Selection;
         component.deleteNotify('Find the Differences 1');
         expect(dialog.open).not.toHaveBeenCalledWith(DeleteDialogComponent, { disableClose: true });

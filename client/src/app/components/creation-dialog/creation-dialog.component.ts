@@ -18,10 +18,10 @@ export class CreationDialogComponent implements AfterViewInit {
     @ViewChild('canvasDifferences') canvasDifferences: ElementRef<HTMLCanvasElement>;
     width = Dimensions.DEFAULT_WIDTH;
     height = Dimensions.DEFAULT_HEIGHT;
-    context: CanvasRenderingContext2D;
     inputValue: string;
     applyBorder = false;
 
+    private context: CanvasRenderingContext2D;
     private image: HTMLImageElement;
 
     constructor(

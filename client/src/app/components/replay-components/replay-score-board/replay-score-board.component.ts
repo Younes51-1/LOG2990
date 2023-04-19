@@ -2,6 +2,7 @@ import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/cor
 import { GameRoom } from '@app/interfaces/game';
 import { InstructionReplay } from '@app/interfaces/video-replay';
 import { Time } from 'src/assets/variables/time';
+import { GameMode } from '@common/game-mode';
 
 @Component({
     selector: 'app-replay-score-board',
@@ -18,7 +19,7 @@ export class ReplayScoreBoardComponent implements OnInit, OnChanges {
     @Input() actions: InstructionReplay[];
     @Input() restartSignal: boolean;
 
-    gameMode: string = 'mode classique';
+    gameMode: string = GameMode.classicMode;
     difficulty: string;
     nbDiff: number;
     differencesFound = 0;

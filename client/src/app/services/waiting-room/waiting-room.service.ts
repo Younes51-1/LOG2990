@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { GameRoom } from '@app/interfaces/game';
 import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
 import { GameService } from '@app/services/game/game.service';
+import { GameMode } from '@common/game-mode';
 import { Subject } from 'rxjs';
 
 @Injectable({
@@ -37,7 +38,7 @@ export class WaitingRoomService {
         }
         this.disconnectSocket();
         this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-            this.router.navigate([this.gameMode === 'mode classique' ? '/selection' : '/home']);
+            this.router.navigate([this.gameMode === GameMode.classicMode ? '/selection' : '/home']);
         });
     }
 
@@ -124,7 +125,7 @@ export class WaitingRoomService {
         });
 
         this.socketService.on('gameDeleted', (gameName: string) => {
-            if (this.gameMode === 'limited-time-mode') {
+            if (this.gameMode === GameMode.limitedTimeMode) {
                 this.gameService.slides = this.gameService.slides.filter((slide) => slide.name !== gameName);
             } else if (this.gameRoom.userGame.gameData.name === gameName) {
                 this.gameCanceled$.next(true);

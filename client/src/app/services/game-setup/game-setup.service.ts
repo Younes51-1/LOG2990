@@ -4,6 +4,7 @@ import { GameConstants } from '@app/interfaces/game-constants';
 import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 import { ConfigHttpService } from '@app/services/config-http/config-http.service';
 import { WaitingRoomService } from '@app/services/waiting-room/waiting-room.service';
+import { GameMode } from '@common/game-mode';
 import { Subject } from 'rxjs';
 
 @Injectable({
@@ -98,7 +99,7 @@ export class GameSetupService {
 
     joinGame(username: string, gameName = undefined as unknown as string): void {
         this.username = username;
-        if (this.gameMode === 'mode classique') {
+        if (this.gameMode === GameMode.classicMode) {
             this.joinClassicMode(gameName);
         } else {
             this.joinLimitedTimeMode();

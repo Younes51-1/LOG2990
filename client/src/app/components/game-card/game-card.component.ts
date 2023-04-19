@@ -7,6 +7,7 @@ import { GameSetupService } from '@app/services/game-setup/game-setup.service';
 import { VerifyInputService } from '@app/services/verify-input/verify-input.service';
 import { PageKeys, options } from 'src/assets/variables/game-card-options';
 import { Time } from 'src/assets/variables/time';
+import { GameMode } from '@common/game-mode';
 
 @Component({
     selector: 'app-game-card',
@@ -46,33 +47,10 @@ export class GameCardComponent implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit() {
-        this.gameFinderService.gameMode = 'mode classique';
-        this.gameSetupService.gameMode = 'mode classique';
-        const { routeOne, btnOne, routeTwo, btnTwo } = options[this.page];
-        this.routeOne = routeOne;
-        this.btnOne = btnOne;
-        this.routeTwo = routeTwo;
-        this.btnTwo = btnTwo;
-        this.soloBestTime = [];
-        this.vsBestTime = [];
-        this.slide.soloBestTimes.forEach((time) => {
-            this.soloBestTime.push({
-                name: time.name,
-                time: `${Math.floor(time.time / Time.Sixty)}:${(time.time % Time.Sixty).toLocaleString('en-US', {
-                    minimumIntegerDigits: 2,
-                    useGrouping: false,
-                })}`,
-            });
-        });
-        this.slide.vsBestTimes.forEach((time) => {
-            this.vsBestTime.push({
-                name: time.name,
-                time: `${Math.floor(time.time / Time.Sixty)}:${(time.time % Time.Sixty).toLocaleString('en-US', {
-                    minimumIntegerDigits: 2,
-                    useGrouping: false,
-                })}`,
-            });
-        });
+        this.gameFinderService.gameMode = GameMode.classicMode;
+        this.gameSetupService.gameMode = GameMode.classicMode;
+        this.setRoutes();
+        this.setBestTimes();
         this.gameFinderService.gameExists$.subscribe((gameExists) => {
             this.gameExists = gameExists;
         });
@@ -133,6 +111,37 @@ export class GameCardComponent implements OnInit, OnDestroy {
         this.gameSetupService.joinGame(this.inputValue2, this.slide.name);
         this.notify.emit(this.slide);
         this.dialogRef = this.dialog.open(WaitingRoomComponent, { disableClose: true, width: '80%', height: '80%' });
+    }
+
+    private setRoutes() {
+        const { routeOne, btnOne, routeTwo, btnTwo } = options[this.page];
+        this.routeOne = routeOne;
+        this.btnOne = btnOne;
+        this.routeTwo = routeTwo;
+        this.btnTwo = btnTwo;
+    }
+
+    private setBestTimes() {
+        this.soloBestTime = [];
+        this.vsBestTime = [];
+        this.slide.soloBestTimes.forEach((time) => {
+            this.soloBestTime.push({
+                name: time.name,
+                time: `${Math.floor(time.time / Time.Sixty)}:${(time.time % Time.Sixty).toLocaleString('en-US', {
+                    minimumIntegerDigits: 2,
+                    useGrouping: false,
+                })}`,
+            });
+        });
+        this.slide.vsBestTimes.forEach((time) => {
+            this.vsBestTime.push({
+                name: time.name,
+                time: `${Math.floor(time.time / Time.Sixty)}:${(time.time % Time.Sixty).toLocaleString('en-US', {
+                    minimumIntegerDigits: 2,
+                    useGrouping: false,
+                })}`,
+            });
+        });
     }
 
     private startSoloGame() {

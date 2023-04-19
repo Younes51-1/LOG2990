@@ -8,8 +8,8 @@ import { CommunicationHttpService } from '@app/services/communication-http/commu
 import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
 import { ConfigHttpService } from '@app/services/config-http/config-http.service';
 import { Subject } from 'rxjs';
-
-const NOT_TOP3 = -1;
+import { GameMode } from '@common/game-mode';
+import { NOT_TOP3 } from 'src/assets/variables/constants';
 
 @Injectable({
     providedIn: 'root',
@@ -67,7 +67,7 @@ export class GameService {
     }
 
     isLimitedTimeMode(): boolean {
-        return this.gameMode === 'limited-time-mode';
+        return this.gameMode === GameMode.limitedTimeMode;
     }
 
     startGame(gameRoom: GameRoom, username: string): void {
@@ -79,7 +79,7 @@ export class GameService {
             this.connectSocket();
             this.socketService.send('start', this.gameRoom.roomId);
         }
-        if (this.gameMode === 'limited-time-mode') {
+        if (this.gameMode === GameMode.limitedTimeMode) {
             this.getAllGames();
             this.gameDeletedSocket();
         }
@@ -227,13 +227,13 @@ export class GameService {
         this.socketService.on('abandoned', (data: { gameRoom: GameRoom; username: string }) => {
             this.isAbandoned = true;
             this.abandoned$.next(data.username);
-            if (this.gameMode === 'limited-time-mode') {
+            if (this.gameMode === GameMode.limitedTimeMode) {
                 this.limitedTimeGameAbandoned(data.gameRoom);
             }
         });
 
         this.socketService.on('timer', (timer: number) => {
-            if (this.gameRoom.userGame.timer <= 0 && this.gameMode === 'limited-time-mode') {
+            if (this.gameRoom.userGame.timer <= 0 && this.gameMode === GameMode.limitedTimeMode) {
                 this.gameFinished$.next(true);
             }
             this.gameRoom.userGame.timer = timer;

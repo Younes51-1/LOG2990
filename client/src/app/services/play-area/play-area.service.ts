@@ -1,15 +1,13 @@
-/* eslint-disable max-lines */
-/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { Injectable } from '@angular/core';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
 import { ReplayPlayAreaComponent } from '@app/components/replay-components/replay-play-area/replay-play-area.component';
 import { Vec2 } from '@app/interfaces/vec2';
 import { DetectionDifferenceService } from '@app/services/detection-difference/detection-difference.service';
-import confetti from 'canvas-confetti';
 import { Color } from 'src/assets/variables/color';
-import { PossibleColor } from 'src/assets/variables/images-values';
+import { PixelSize, PossibleColor } from 'src/assets/variables/images-values';
 import { ErrorText } from 'src/assets/variables/text';
 import { Time } from 'src/assets/variables/time';
+import { ConfettiService } from '@app/services/confetti/confetti.service';
 
 @Injectable({
     providedIn: 'root',
@@ -17,23 +15,22 @@ import { Time } from 'src/assets/variables/time';
 export class PlayAreaService {
     isCheatModeOn = false;
     isHintModeOn = false;
-    private intervalId: ReturnType<typeof setInterval>;
-    private confettiInterval: ReturnType<typeof setInterval>;
+    hintInterval: ReturnType<typeof setInterval>;
+    hintTimeout: ReturnType<typeof setTimeout>;
+    component: PlayAreaComponent | ReplayPlayAreaComponent;
+    speed = 1;
+
     private cheatInterval: ReturnType<typeof setInterval>;
     private layerTimeout: ReturnType<typeof setTimeout>;
     private differenceInterval: ReturnType<typeof setInterval>;
     private errorTimeout: ReturnType<typeof setTimeout>;
-    private hintInterval: ReturnType<typeof setInterval>;
-    private hintTimeout: ReturnType<typeof setTimeout>;
 
-    private component: PlayAreaComponent | ReplayPlayAreaComponent;
     private replayComponent: ReplayPlayAreaComponent;
     private normalComponent: PlayAreaComponent;
     private replay: boolean;
     private replayCheatOn: boolean;
-    private speed = 1;
 
-    constructor(private detectionDifferenceService: DetectionDifferenceService) {}
+    constructor(private detectionDifferenceService: DetectionDifferenceService, private confettiService: ConfettiService) {}
 
     setComponent(component: PlayAreaComponent | ReplayPlayAreaComponent, replay: boolean) {
         this.component = component;
@@ -51,8 +48,8 @@ export class PlayAreaService {
     }
 
     clearAsync() {
-        clearInterval(this.intervalId);
-        clearInterval(this.confettiInterval);
+        clearInterval(this.confettiService.intervalId);
+        clearInterval(this.confettiService.confettiInterval);
         clearInterval(this.cheatInterval);
         clearTimeout(this.layerTimeout);
         clearInterval(this.differenceInterval);
@@ -62,61 +59,7 @@ export class PlayAreaService {
     }
 
     startConfetti(coords: Vec2 | undefined) {
-        clearTimeout(this.hintTimeout);
-        clearInterval(this.hintInterval);
-        if (coords) {
-            const layer = document.createElement('canvas');
-            layer.width = this.component.width;
-            layer.height = this.component.height;
-            let isFlashing = false;
-            const defaults = {
-                origin: {
-                    x: coords.y / 640,
-                    y: coords.x / 480,
-                },
-                spread: 360,
-                ticks: 50,
-                gravity: 0,
-                decay: 0.94,
-                startVelocity: 30,
-                shapes: ['star'],
-                colors: ['FFE400', 'FFBD00', 'E89400', 'FFCA6C', 'FDFFB8'],
-                zIndex: -1,
-            };
-            const confettiGenerator = confetti.create(layer, {});
-            setTimeout(() => this.lastHint(confettiGenerator, defaults), 0);
-            setTimeout(() => this.lastHint(confettiGenerator, defaults), 100);
-            setTimeout(() => this.lastHint(confettiGenerator, defaults), 200);
-            setTimeout(() => this.lastHint(confettiGenerator, defaults), 300);
-            this.confettiInterval = setInterval(() => {
-                if (isFlashing) {
-                    this.component.context1.drawImage(this.component.original, 0, 0, this.component.width, this.component.height);
-                    this.component.context2.drawImage(this.component.modified, 0, 0, this.component.width, this.component.height);
-                } else {
-                    this.component.context1.drawImage(layer, 0, 0, this.component.width, this.component.height);
-                    this.component.context2.drawImage(layer, 0, 0, this.component.width, this.component.height);
-                }
-                isFlashing = !isFlashing;
-            }, 0.000001 / this.speed);
-            setTimeout(() => {
-                clearInterval(this.confettiInterval);
-                this.component.context1.drawImage(this.component.original, 0, 0, this.component.width, this.component.height);
-                this.component.context2.drawImage(this.component.modified, 0, 0, this.component.width, this.component.height);
-            }, 600 / this.speed);
-        } else {
-            const duration = 15 * 1000;
-            const animationEnd = Date.now() + duration;
-            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-            this.intervalId = setInterval(() => {
-                const timeLeft = animationEnd - Date.now();
-                if (timeLeft <= 0) {
-                    return clearInterval(this.intervalId);
-                }
-                const particleCount = 50 * (timeLeft / duration);
-                confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * (0.3 - 0.1) + 0.1, y: Math.random() - 0.2 } }));
-                confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * (0.9 - 0.7) + 0.7, y: Math.random() - 0.2 } }));
-            }, 250 / this.speed);
-        }
+        this.confettiService.startConfetti(coords);
     }
 
     cheatMode() {
@@ -301,21 +244,6 @@ export class PlayAreaService {
         }, (2 * Time.Thousand) / this.speed);
     }
 
-    private lastHint(confettiGenerator: (options: object) => void, defaults: object) {
-        confettiGenerator({
-            ...defaults,
-            particleCount: 40,
-            scalar: 1.2,
-            shapes: ['star'],
-        });
-        confettiGenerator({
-            ...defaults,
-            particleCount: 10,
-            scalar: 0.75,
-            shapes: ['circle'],
-        });
-    }
-
     private removeDifference(differenceMatrix: number[][]) {
         const differencePositions: Vec2[] = [];
         this.updateContexts();
@@ -366,13 +294,13 @@ export class PlayAreaService {
                 return dialMatrix[coords.x < dialHeight ? (coords.y < dialWidth ? 0 : 1) : coords.y < dialWidth ? 2 : 3];
             }
             case 1: {
-                const dialMatrix = new Array(16);
-                for (let i = 0; i < 16; i++) {
-                    const topLeft = { x: (i % 4) * dialHeight, y: Math.floor(i / 4) * dialWidth };
+                const dialMatrix = new Array(PixelSize ** 2);
+                for (let i = 0; i < PixelSize ** 2; i++) {
+                    const topLeft = { x: (i % PixelSize) * dialHeight, y: Math.floor(i / PixelSize) * dialWidth };
                     const bottomRight = { x: topLeft.x + dialHeight, y: topLeft.y + dialWidth };
                     dialMatrix[i] = this.createPopulateMatrix(topLeft, bottomRight);
                 }
-                const dialIndex = Math.floor(coords.y / dialWidth) * 4 + Math.floor(coords.x / dialHeight);
+                const dialIndex = Math.floor(coords.y / dialWidth) * PixelSize + Math.floor(coords.x / dialHeight);
                 return dialMatrix[dialIndex];
             }
         }

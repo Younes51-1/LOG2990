@@ -13,8 +13,8 @@ import { Time } from 'src/assets/variables/time';
 export class EndgameDialogComponent implements OnInit {
     @Input() bestTimeMessage: string;
 
-    time: string;
-    timePosition: string;
+    private time: string;
+    private timePosition: string;
 
     // eslint-disable-next-line max-params
     constructor(

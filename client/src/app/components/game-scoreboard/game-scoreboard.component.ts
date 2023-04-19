@@ -20,7 +20,6 @@ export class GameScoreboardComponent implements OnChanges {
     @Output() sendDifferencesFound = new EventEmitter<number>();
     @Output() sendOpponentDifferencesFound = new EventEmitter<number>();
 
-    gameMode: string = 'mode classique';
     difficulty: string;
     totalNumber: number;
     lastDifferencesFound: number = 0;

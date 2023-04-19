@@ -13,11 +13,14 @@ describe('ChatBoxComponent', () => {
     let differenceMatrix: number[][];
     let gameData: GameData;
     let gameRoom: GameRoom;
+    let chatService: ChatService;
+
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             declarations: [ChatBoxComponent],
             providers: [ChatService, VerifyInputService],
         }).compileComponents();
+        chatService = TestBed.inject(ChatService);
     });
 
     beforeEach(() => {
@@ -40,7 +43,6 @@ describe('ChatBoxComponent', () => {
     });
 
     it('should subscribe to chatService.message$', () => {
-        const chatService = TestBed.inject(ChatService);
         const messageSubSpy = spyOn(chatService.message$, 'subscribe').and.callThrough();
         component.ngOnInit();
         chatService.message$.next(messageStub);
@@ -49,12 +51,9 @@ describe('ChatBoxComponent', () => {
     });
 
     it('should call chatService.sendMessage() when sendMessage() is called and verify return true', () => {
-        const chatService = TestBed.inject(ChatService);
         const verifyService = TestBed.inject(VerifyInputService);
         const verifySpy = spyOn(verifyService, 'verify').and.returnValue(true);
-        const sendMessageSpy = spyOn(chatService, 'sendMessage').and.callFake(() => {
-            return;
-        });
+        const sendMessageSpy = spyOn(chatService, 'sendMessage').and.stub();
         component.message = 'message';
         component.username = 'username';
         component.gameRoom = gameRoom;
@@ -64,12 +63,9 @@ describe('ChatBoxComponent', () => {
     });
 
     it("shouldn't call chatService.sendMessage() when sendMessage() is called and verify return false", () => {
-        const chatService = TestBed.inject(ChatService);
         const verifyService = TestBed.inject(VerifyInputService);
         const verifySpy = spyOn(verifyService, 'verify').and.returnValue(false);
-        const sendMessageSpy = spyOn(chatService, 'sendMessage').and.callFake(() => {
-            return;
-        });
+        const sendMessageSpy = spyOn(chatService, 'sendMessage').and.stub();
         component.message = 'message';
         component.username = 'username';
         component.gameRoom = gameRoom;
@@ -79,19 +75,13 @@ describe('ChatBoxComponent', () => {
     });
 
     it('should call chatService.setIsTyping when chatInputFocus is called', () => {
-        const chatService = TestBed.inject(ChatService);
-        const setIsTypingSpy = spyOn(chatService, 'setIsTyping').and.callFake(() => {
-            return;
-        });
+        const setIsTypingSpy = spyOn(chatService, 'setIsTyping').and.stub();
         component.chatInputFocus();
         expect(setIsTypingSpy).toHaveBeenCalledWith(true);
     });
 
     it('should call chatService.setIsTyping when chatInputBlur is called', () => {
-        const chatService = TestBed.inject(ChatService);
-        const setIsTypingSpy = spyOn(chatService, 'setIsTyping').and.callFake(() => {
-            return;
-        });
+        const setIsTypingSpy = spyOn(chatService, 'setIsTyping').and.stub();
         component.chatInputBlur();
         expect(setIsTypingSpy).toHaveBeenCalledWith(false);
     });
