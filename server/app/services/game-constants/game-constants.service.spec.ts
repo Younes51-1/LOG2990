@@ -70,7 +70,7 @@ describe('GameConstantsService', () => {
 
     it('initiateGameConstants should not create new constants in database if already present', async () => {
         await gameConstantsModel.deleteMany({});
-        const gameConstants = await gameConstantsModel.create(getInitConstants());
+        const gameConstants = getInitConstants();
         gameConstants.initialTime = 10;
         await gameConstantsModel.create(gameConstants);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
