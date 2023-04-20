@@ -51,7 +51,7 @@ describe('GameService', () => {
             userGame: { gameData, nbDifferenceFound: 0, timer: 0, username1: 'Test' },
             roomId: 'fakeId',
             started: false,
-            gameMode: 'mode classique',
+            gameMode: 'mode Classique',
         };
         differenceTry = { validated: true, differencePos: { x: 0, y: 0 }, username: 'Test' };
         socketHelper = new SocketTestHelper();
@@ -131,7 +131,7 @@ describe('GameService', () => {
     });
 
     it('should return true when gameMode is limited time', () => {
-        service.gameMode = 'limited-time-mode';
+        service.gameMode = 'mode Temps Limité';
         expect(service.isLimitedTimeMode()).toBeTrue();
     });
 
@@ -147,7 +147,7 @@ describe('GameService', () => {
         service.startGame(gameRoom, 'test');
         expect(service.gameRoom).toEqual(gameRoom);
         expect(service.username).toEqual('test');
-        expect(service.gameMode).toEqual('mode classique');
+        expect(service.gameMode).toEqual('mode Classique');
         expect(handleMessageSpy).toHaveBeenCalled();
         expect(handleSocketSpy).toHaveBeenCalled();
     });
@@ -160,7 +160,7 @@ describe('GameService', () => {
         service.startGame(gameRoom, gameRoom.userGame.username1);
         expect(service.gameRoom).toEqual(gameRoom);
         expect(service.username).toEqual(gameRoom.userGame.username1);
-        expect(service.gameMode).toEqual('mode classique');
+        expect(service.gameMode).toEqual('mode Classique');
         expect(handleMessageSpy).toHaveBeenCalled();
         expect(handleSocketSpy).toHaveBeenCalled();
         expect(connectSocketSpy).toHaveBeenCalled();
@@ -170,13 +170,13 @@ describe('GameService', () => {
     it('getAllGames and gameDeletedSocket should be called only in limited time mode in startGame', () => {
         const handleMessageSpy = spyOn(chatServiceMock, 'handleMessage').and.stub();
         const handleSocketSpy = spyOn(service as any, 'handleSocket').and.stub();
-        gameRoom.gameMode = 'limited-time-mode';
+        gameRoom.gameMode = 'mode Temps Limité';
         const getAllGamesSpy = spyOn(service, 'getAllGames').and.stub();
         const gameDeletedSocketSpy = spyOn(service, 'gameDeletedSocket').and.stub();
         service.startGame(gameRoom, 'test');
         expect(service.gameRoom).toEqual(gameRoom);
         expect(service.username).toEqual('test');
-        expect(service.gameMode).toEqual('limited-time-mode');
+        expect(service.gameMode).toEqual('mode Temps Limité');
         expect(handleMessageSpy).toHaveBeenCalled();
         expect(handleSocketSpy).toHaveBeenCalled();
         expect(gameDeletedSocketSpy).toHaveBeenCalled();
@@ -249,7 +249,7 @@ describe('GameService', () => {
         spyOn(service as any, 'updateBestTime').and.callThrough();
         service.gameRoom = gameRoom;
         service.gameRoom.userGame.timer = 1;
-        service.gameMode = 'mode classique';
+        service.gameMode = 'mode Classique';
         service.endGame(true, true);
         expect(sendSpy).toHaveBeenCalled();
         expect(socketAliveSpy).toHaveBeenCalled();
@@ -264,7 +264,7 @@ describe('GameService', () => {
         const socketAliveSpy = spyOn(socketServiceMock, 'isSocketAlive').and.returnValue(true);
         const updateBestTimeSpy = spyOn(service as any, 'updateBestTime').and.callThrough();
         service.gameRoom = gameRoom;
-        service.gameMode = 'limited-time-mode';
+        service.gameMode = 'mode Temps Limité';
         service.gameRoom.userGame.timer = 1;
         service.endGame(true, true);
         expect(sendSpy).toHaveBeenCalled();
@@ -354,7 +354,7 @@ describe('GameService', () => {
 
     it('should handle abandoned and call limitedTimeGameAbandoned in limited time mode ', () => {
         const limitedTimeGameAbandonedSpy = spyOn(service as any, 'limitedTimeGameAbandoned').and.stub();
-        service.gameMode = 'limited-time-mode';
+        service.gameMode = 'mode Temps Limité';
         socketHelper.peerSideEmit('abandoned', { gameRoom, username: 'Test' });
         expect(service.abandoned$).toBeTruthy();
         expect(limitedTimeGameAbandonedSpy).toHaveBeenCalledWith(gameRoom);
@@ -368,7 +368,7 @@ describe('GameService', () => {
 
     it('should handle on timer message and end game if time < 0', () => {
         service.gameRoom = gameRoom;
-        service.gameMode = 'limited-time-mode';
+        service.gameMode = 'mode Temps Limité';
         service.gameRoom.userGame.timer = -1;
         socketHelper.peerSideEmit('timer', 1);
         expect(service.gameRoom.userGame.timer).toEqual(1);

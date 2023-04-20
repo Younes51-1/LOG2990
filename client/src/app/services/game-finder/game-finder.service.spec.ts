@@ -51,41 +51,41 @@ describe('GameFinderService', () => {
     it('check game should connect socket and send checkGame event', () => {
         const connectSpy = spyOn(socketServiceMock, 'connect').and.stub();
         const sendSpy = spyOn(socketServiceMock, 'send').and.stub();
-        service.gameMode = 'limited-time-mode';
+        service.gameMode = 'mode Temps Limité';
         service.checkGame();
         expect(connectSpy).toHaveBeenCalled();
-        expect(sendSpy).toHaveBeenCalledWith('checkGame', { gameName: undefined, gameMode: 'limited-time-mode' });
+        expect(sendSpy).toHaveBeenCalledWith('checkGame', { gameName: undefined, gameMode: 'mode Temps Limité' });
     });
 
-    it('check game should handle gameFound event for limited-time-mode', () => {
+    it('check game should handle gameFound event for mode Temps Limité', () => {
         const gameExistsSpy = spyOn(service.gameExists$, 'next').and.stub();
-        service.gameMode = 'limited-time-mode';
+        service.gameMode = 'mode Temps Limité';
         service.checkGame();
-        socketHelper.peerSideEmit('gameFound', { gameName: undefined, gameMode: 'limited-time-mode' });
+        socketHelper.peerSideEmit('gameFound', { gameName: undefined, gameMode: 'mode Temps Limité' });
         expect(gameExistsSpy).toHaveBeenCalledWith(true);
     });
 
-    it('check game should handle gameFound event for limited-time-mode', () => {
+    it('check game should handle gameFound event for mode Temps Limité', () => {
         const gameExistsSpy = spyOn(service.gameExists$, 'next').and.stub();
-        service.gameMode = 'mode classique';
+        service.gameMode = 'mode Classique';
         service.checkGame('test');
-        socketHelper.peerSideEmit('gameFound', { gameName: 'test', gameMode: 'mode classique' });
+        socketHelper.peerSideEmit('gameFound', { gameName: 'test', gameMode: 'mode Classique' });
         expect(gameExistsSpy).toHaveBeenCalledWith(true);
     });
 
-    it('check game should handle gameDeleted event for limited-time-mode', () => {
+    it('check game should handle gameDeleted event for mode Temps Limité', () => {
         const gameExistsSpy = spyOn(service.gameExists$, 'next').and.stub();
-        service.gameMode = 'limited-time-mode';
+        service.gameMode = 'mode Temps Limité';
         service.checkGame();
-        socketHelper.peerSideEmit('gameDeleted', { gameName: undefined, gameMode: 'limited-time-mode' });
+        socketHelper.peerSideEmit('gameDeleted', { gameName: undefined, gameMode: 'mode Temps Limité' });
         expect(gameExistsSpy).toHaveBeenCalledWith(false);
     });
 
-    it('check game should handle gameDeleted event for limited-time-mode', () => {
+    it('check game should handle gameDeleted event for mode Temps Limité', () => {
         const gameExistsSpy = spyOn(service.gameExists$, 'next').and.stub();
-        service.gameMode = 'mode classique';
+        service.gameMode = 'mode Classique';
         service.checkGame('test');
-        socketHelper.peerSideEmit('gameDeleted', { gameName: 'test', gameMode: 'mode classique' });
+        socketHelper.peerSideEmit('gameDeleted', { gameName: 'test', gameMode: 'mode Classique' });
         expect(gameExistsSpy).toHaveBeenCalledWith(false);
     });
 

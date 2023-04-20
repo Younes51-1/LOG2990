@@ -30,7 +30,7 @@ describe('ChatBoxComponent', () => {
             userGame: { gameData, nbDifferenceFound: 0, timer: 0, username1: 'Test' },
             roomId: 'fakeId',
             started: false,
-            gameMode: 'mode classique',
+            gameMode: 'mode Classique',
         };
         messageStub = { message: 'message', username: 'username', time: 0 };
         fixture = TestBed.createComponent(ChatBoxComponent);

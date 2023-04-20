@@ -56,6 +56,13 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     endGame() {
+        this.videoReplay.scoreboardParams = {
+            gameRoom: this.gameRoom,
+            gameName: this.gameName,
+            opponentUsername: this.opponentUsername,
+            username: this.username,
+        };
+
         if (this.gameRoom.gameMode === GameMode.classicMode) {
             this.endGameClassicMode();
         } else {
@@ -64,18 +71,10 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     endGameClassicMode() {
-        this.videoReplay.scoreboardParams = {
-            gameRoom: this.gameRoom,
-            gameName: this.gameName,
-            opponentUsername: this.opponentUsername,
-            username: this.username,
-        };
-
         if (!this.gameFinished) {
             this.abandonConfirmation();
             return;
         }
-
         if (this.userDifferencesFound === this.differenceThreshold) {
             this.dialogRef = this.dialog.open(EndgameDialogComponent, {
                 disableClose: true,
@@ -93,13 +92,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     endGameLimitedTimeMode() {
-        this.videoReplay.scoreboardParams = {
-            gameRoom: this.gameRoom,
-            gameName: this.gameName,
-            opponentUsername: this.opponentUsername,
-            username: this.username,
-        };
-
         if (this.gameFinished) {
             this.gameService.endGame(this.gameFinished, this.userDifferencesFound === this.differenceThreshold);
             this.unsubscribe();
@@ -269,11 +261,16 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.abandonedGameSubscription = this.gameService.abandoned$.subscribe((username: string) => {
             if (this.gameService.gameMode === GameMode.classicMode) {
                 if (username !== this.username) {
-                    this.dialogRef = this.dialog.open(EndgameDialogComponent, { disableClose: true, data: { gameFinished: true, gameWinner: true } });
+                    this.dialogRef = this.dialog.open(EndgameDialogComponent, {
+                        disableClose: true,
+                        data: { gameFinished: true, gameWinner: true, videoReplay: this.videoReplay },
+                    });
                     this.playAreaService.startConfetti(undefined);
                 }
                 this.unsubscribe();
-                this.gameService.endGame(true, true);
+                if (this.gameService.gameRoom.userGame.username2) {
+                    this.gameService.endGame(true, true);
+                }
             }
         });
     }

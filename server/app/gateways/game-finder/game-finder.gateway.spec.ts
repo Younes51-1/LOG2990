@@ -55,7 +55,7 @@ describe('GameFinderGateway', () => {
         expect(gateway).toBeDefined();
     });
 
-    it('checkGame should emit gameName and event GameFound if the game exists in mode classique', async () => {
+    it('checkGame should emit gameName and event GameFound if the game exists in mode Classique', async () => {
         const getGameRoomSpy = jest.spyOn(gameModeService, 'getGameRoom').mockReturnValue(getFakeGameRoom());
         const loggerSpy = jest.spyOn(logger, 'log');
         const dataSent = { gameName: 'fakeGame', gameMode: GameMode.classicMode };
@@ -71,7 +71,7 @@ describe('GameFinderGateway', () => {
         expect(loggerSpy).toHaveBeenCalledWith(`Game finder gateway: Game ${dataSent.gameName} found`);
     });
 
-    it('checkGame should emit gameName and event GameFound if the game exists in limited-time-mode', async () => {
+    it('checkGame should emit gameName and event GameFound if the game exists in mode Temps Limité', async () => {
         const getGameRoomSpy = jest.spyOn(gameModeService, 'getGameRoom').mockReturnValue(getFakeGameRoom());
         const loggerSpy = jest.spyOn(logger, 'log');
         const dataSent = { gameName: 'fakeGame', gameMode: GameMode.limitedTimeMode };

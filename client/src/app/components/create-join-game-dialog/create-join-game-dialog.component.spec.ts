@@ -66,11 +66,11 @@ describe('CreateJoinGameDialogComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should set gameMode to limited-time-mode', () => {
+    it('should set gameMode to mode Temps Limité', () => {
         component.ngOnInit();
         gameFinderService.gameExists$.next(true);
-        expect(gameFinderService.gameMode).toEqual('limited-time-mode');
-        expect(gameSetupService.gameMode).toEqual('limited-time-mode');
+        expect(gameFinderService.gameMode).toEqual('mode Temps Limité');
+        expect(gameSetupService.gameMode).toEqual('mode Temps Limité');
         expect(component.gameExists).toBeTruthy();
     });
 

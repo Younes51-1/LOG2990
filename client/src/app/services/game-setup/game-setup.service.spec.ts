@@ -86,7 +86,7 @@ describe('GameSetupService', () => {
     });
 
     it('should initGameRoom', () => {
-        service.gameMode = 'mode classique';
+        service.gameMode = 'mode Classique';
         service.initGameRoom('Player 1', false);
         expect(service.gameRoom).toEqual({
             userGame: {
@@ -97,19 +97,19 @@ describe('GameSetupService', () => {
             },
             roomId: '',
             started: false,
-            gameMode: 'mode classique',
+            gameMode: 'mode Classique',
         });
         expect(service.username).toEqual('Player 1');
     });
 
-    it('should call initClassicMode when gameMode is mode classique', () => {
+    it('should call initClassicMode when gameMode is mode Classique', () => {
         spyOn(service, 'initClassicMode').and.stub();
         service.initGameMode('game1');
         expect(service.initClassicMode).toHaveBeenCalled();
         expect(communicationServiceSpy.getGame).toHaveBeenCalled();
     });
 
-    it('should call initLimitedTimeMode when gameMode is limited-time-mode', () => {
+    it('should call initLimitedTimeMode when gameMode is mode Temps Limité', () => {
         spyOn(service, 'initLimitedTimeMode').and.stub();
         service.initGameMode();
         expect(service.initLimitedTimeMode).toHaveBeenCalled();
@@ -158,16 +158,16 @@ describe('GameSetupService', () => {
         expect(waitingRoomServiceSpy.createGame).toHaveBeenCalled();
     });
 
-    it('should call joinClassicMode when gameMode is mode classique', () => {
+    it('should call joinClassicMode when gameMode is mode Classique', () => {
         spyOn(service, 'joinClassicMode').and.stub();
-        service.gameMode = 'mode classique';
+        service.gameMode = 'mode Classique';
         service.joinGame('username', 'gameName');
         expect(service.joinClassicMode).toHaveBeenCalled();
     });
 
-    it('should call joinLimitedTimeMode when gameMode is limited-time-mode', () => {
+    it('should call joinLimitedTimeMode when gameMode is mode Temps Limité', () => {
         spyOn(service, 'joinLimitedTimeMode').and.stub();
-        service.gameMode = 'limited-time-mode';
+        service.gameMode = 'mode Temps Limité';
         service.joinGame('username');
         expect(service.joinLimitedTimeMode).toHaveBeenCalled();
     });

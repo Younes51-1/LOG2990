@@ -152,7 +152,7 @@ describe('GameModeService', () => {
         expect(testGameModeService.getGameRoom(newRoom.roomId)).toEqual(newRoomModified);
     });
 
-    it('nextGame should do nothing if its a mode classique game', () => {
+    it('nextGame should do nothing if its a mode Classique game', () => {
         const newRoom = getFakeGameRoom();
         testGameModeService.addElementToMap(newRoom.roomId, newRoom);
         const newRoomModified = newRoom;
@@ -182,7 +182,7 @@ describe('GameModeService', () => {
         const fakeGameRoom = getFakeGameRoom();
         service.saveGameHistory(fakeGameRoom);
         expect(service.getGameHistory(fakeGameRoom.roomId).name).toEqual(fakeGameRoom.userGame.gameData.name);
-        expect(service.getGameHistory(fakeGameRoom.roomId).gameMode).toEqual('Mode Classique solo');
+        expect(service.getGameHistory(fakeGameRoom.roomId).gameMode).toEqual('mode Classique solo');
     });
 
     it('saveGameHistory should correctly save game history with classic gamemode when has two usernames', () => {
@@ -191,7 +191,7 @@ describe('GameModeService', () => {
         service.saveGameHistory(fakeGameRoom);
         expect(service.getGameHistory(fakeGameRoom.roomId).username2).toEqual(fakeGameRoom.userGame.username2);
         expect(service.getGameHistory(fakeGameRoom.roomId).name).toEqual(fakeGameRoom.userGame.gameData.name);
-        expect(service.getGameHistory(fakeGameRoom.roomId).gameMode).toEqual('Mode Classique un contre un');
+        expect(service.getGameHistory(fakeGameRoom.roomId).gameMode).toEqual('mode Classique un contre un');
     });
 
     it('saveGameHistory should correctly save game history with time-limited gamemode when only one username', () => {
@@ -230,7 +230,7 @@ describe('GameModeService', () => {
         expect(testGameModeService.validateDifference(getFakeGameRoom().roomId, { x: 0, y: 0 })).toBeFalsy();
     });
 
-    it('isGameFinished should return true if all differences have been found on mode classique', () => {
+    it('isGameFinished should return true if all differences have been found on mode Classique', () => {
         const newRoom = getFakeGameRoom();
         testGameModeService.addElementToMap(newRoom.roomId, newRoom);
         testGameModeService.getGameRoom(newRoom.roomId).userGame.nbDifferenceFound = 2;
@@ -361,14 +361,14 @@ describe('GameModeService', () => {
         expect(setGameRoomSpy).not.toHaveBeenCalled();
     });
 
-    it('updateTimer should increment timer in mode classique', () => {
+    it('updateTimer should increment timer in mode Classique', () => {
         const newRoom = getFakeGameRoom();
         testGameModeService.addElementToMap(newRoom.roomId, newRoom);
         testGameModeService.updateTimer(newRoom);
         expect(testGameModeService.getGameRoom(newRoom.roomId).userGame.timer).toEqual(1);
     });
 
-    it('updateTimer should decrement timer in mode classique', () => {
+    it('updateTimer should decrement timer in mode Classique', () => {
         const newRoom = getFakeGameRoom();
         newRoom.gameMode = GameMode.limitedTimeMode;
         newRoom.userGame.timer = 10;

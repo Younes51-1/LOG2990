@@ -166,8 +166,8 @@ describe('GameCardComponent', () => {
 
     it('should set up gameMode to classic mode', () => {
         gameFinderService.gameExists$.next(true);
-        expect(gameFinderService.gameMode).toEqual('mode classique');
-        expect(gameSetupService.gameMode).toEqual('mode classique');
+        expect(gameFinderService.gameMode).toEqual('mode Classique');
+        expect(gameSetupService.gameMode).toEqual('mode Classique');
         expect(component.gameExists).toBeTruthy();
     });
 

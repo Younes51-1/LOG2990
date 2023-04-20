@@ -1,4 +1,4 @@
 export enum GameMode {
-    classicMode = 'mode classique',
-    limitedTimeMode = 'limited-time-mode',
+    classicMode = 'mode Classique',
+    limitedTimeMode = 'mode Temps Limité',
 }

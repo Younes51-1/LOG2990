@@ -24,7 +24,7 @@ export class ChatBoxComponent implements OnInit {
     ngOnInit() {
         this.chatService.message$.subscribe((message: Message) => {
             this.messages.push(message);
-            this.sendChatMessage.emit({ username: message.username, message: message.message });
+            this.sendChatMessage.emit({ username: message.username, message: message.message, time: message.time });
             setTimeout(() => {
                 this.chatbox.nativeElement.scrollTop = this.chatbox.nativeElement.scrollHeight;
             }, 0);

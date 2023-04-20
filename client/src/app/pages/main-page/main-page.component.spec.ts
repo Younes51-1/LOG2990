@@ -61,7 +61,7 @@ describe('MainPageComponent', () => {
     it('should have classique mode button', () => {
         const classicBtn = fixture.debugElement.query(By.css('.solo-mode button')).nativeElement;
         expect(classicBtn).not.toBeUndefined();
-        expect(classicBtn.innerHTML).toEqual('MODE CLASSIQUE');
+        expect(classicBtn.innerHTML).toEqual('mode Classique');
     });
 
     it('should have limited mode button', () => {

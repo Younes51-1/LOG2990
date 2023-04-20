@@ -116,7 +116,7 @@ describe('WaitingRoomGateway', () => {
         expect(joinGameSpy).toHaveBeenCalled();
     });
 
-    it('joinGame should emit the gameRoom if the game is joinable and call playerAccepted in limited-time-mode', () => {
+    it('joinGame should emit the gameRoom if the game is joinable and call playerAccepted in mode Temps Limité', () => {
         const fakeGameRoom = getFakeGameRoom();
         fakeGameRoom.gameMode = GameMode.limitedTimeMode;
         const joinGameSpy = jest.spyOn(gameModeService, 'joinGame').mockReturnValue(true);

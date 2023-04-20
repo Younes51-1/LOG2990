@@ -22,7 +22,7 @@ describe('VideoReplayDialogComponent', () => {
         differenceMatrix,
     };
     const userGame: UserGame = { username1: '', gameData, nbDifferenceFound: 0, timer: 0 };
-    const gameRoom: GameRoom = { userGame, roomId: 'testRoom', started: false, gameMode: 'mode classique' };
+    const gameRoom: GameRoom = { userGame, roomId: 'testRoom', started: false, gameMode: 'mode Classique' };
     let videoReplay: VideoReplay;
 
     beforeEach(async () => {

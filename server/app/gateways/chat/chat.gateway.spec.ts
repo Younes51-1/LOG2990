@@ -87,7 +87,7 @@ const getFakeGameRoom = (): GameRoom => ({
     userGame: getFakeUserGame1(),
     roomId: 'socketId',
     started: true,
-    gameMode: 'mode classique',
+    gameMode: 'mode Classique',
 });
 
 const getFakeNewBestScoreMessage = (): string => 'Événement: FakePlayer obtient la 2 place dans les meilleurs temps du jeu FakeGame en mode solo';

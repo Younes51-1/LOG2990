@@ -59,7 +59,7 @@ describe('GamePageComponent', () => {
             userGame: { gameData, nbDifferenceFound: 0, timer: 0, username1: 'Test' },
             roomId: 'fakeId',
             started: false,
-            gameMode: 'mode classique',
+            gameMode: 'mode Classique',
         };
         gameServiceSpy = jasmine.createSpyObj('GameService', [
             'timer$',
@@ -105,6 +105,7 @@ describe('GamePageComponent', () => {
             'hintMode',
             'startConfetti',
         ]);
+        gameServiceSpy.gameRoom = gameRoom;
         await TestBed.configureTestingModule({
             declarations: [GamePageComponent, GameScoreboardComponent, MatToolbar, EndgameDialogComponent, ChatBoxComponent, PlayAreaComponent],
             imports: [DynamicTestModule, RouterTestingModule, MatDialogModule, HttpClientTestingModule],
@@ -154,7 +155,7 @@ describe('GamePageComponent', () => {
     it('should subscribe to userDifferencesFound$ observable', () => {
         const testingValue = 5;
         component.gameRoom.userGame.username2 = 'user2';
-        gameServiceSpy.gameMode = 'mode classique';
+        gameServiceSpy.gameMode = 'mode Classique';
         (component as any).differenceThreshold = 5;
         const spyDifferencesFound = spyOn(gameServiceSpy.userDifferencesFound$, 'subscribe').and.callThrough();
         component.ngOnInit();
@@ -257,17 +258,32 @@ describe('GamePageComponent', () => {
         expect(spyAbandonGame).toHaveBeenCalled();
     });
 
-    it('should call startConfetti on abandoned$ observable in mode classique', () => {
+    it('should call startConfetti on abandoned$ observable in mode Classique multi', () => {
         playAreaService.startConfetti.and.stub();
         const abandonGameSpy = spyOn(gameServiceSpy.abandoned$, 'subscribe').and.callThrough();
         gameServiceSpy.endGame.and.stub();
         const unsubscribeSpy = spyOn(component as any, 'unsubscribe').and.stub();
-        (component as any).gameService.gameMode = 'mode classique';
+        (component as any).gameService.gameMode = 'mode Classique';
+        gameServiceSpy.gameRoom.userGame.username2 = 'test1';
         component.ngOnInit();
         gameServiceSpy.abandoned$.next('test');
         expect(abandonGameSpy).toHaveBeenCalled();
         expect(playAreaService.startConfetti).toHaveBeenCalled();
         expect(gameServiceSpy.endGame).toHaveBeenCalled();
+        expect(unsubscribeSpy).toHaveBeenCalled();
+    });
+
+    it('should not call startConfetti on abandoned$ observable in mode Classique solo', () => {
+        playAreaService.startConfetti.and.stub();
+        const abandonGameSpy = spyOn(gameServiceSpy.abandoned$, 'subscribe').and.callThrough();
+        gameServiceSpy.endGame.and.stub();
+        const unsubscribeSpy = spyOn(component as any, 'unsubscribe').and.stub();
+        (component as any).gameService.gameMode = 'mode Classique';
+        component.ngOnInit();
+        gameServiceSpy.abandoned$.next('test');
+        expect(abandonGameSpy).toHaveBeenCalled();
+        expect(playAreaService.startConfetti).toHaveBeenCalled();
+        expect(gameServiceSpy.endGame).not.toHaveBeenCalled();
         expect(unsubscribeSpy).toHaveBeenCalled();
     });
 
@@ -349,7 +365,7 @@ describe('GamePageComponent', () => {
         gameServiceSpy.endGame.and.stub();
         component.totalDifferencesFound = component.gameRoom.userGame.gameData.nbDifference;
         const matDialogSpy = spyOn((component as any).dialog, 'open').and.callThrough();
-        component.gameRoom.gameMode = 'limited-time-mode';
+        component.gameRoom.gameMode = 'mode Temps Limité';
         component.endGame();
         expect(matDialogSpy).toHaveBeenCalledWith(
             EndgameDialogComponent,
@@ -366,7 +382,7 @@ describe('GamePageComponent', () => {
 
     it('endgame should call abandonConfirmation if game is not finished', () => {
         const abandonConfirmationSpy = spyOn(component as any, 'abandonConfirmation');
-        component.gameRoom.gameMode = 'limited-time-mode';
+        component.gameRoom.gameMode = 'mode Temps Limité';
         component.endGame();
         expect(abandonConfirmationSpy).toHaveBeenCalled();
     });
@@ -443,7 +459,7 @@ describe('GamePageComponent', () => {
     it('toggleHint should call hintMode, sendEvent and changeTime with penaltyTime in limited mode', () => {
         (component as any).gameService.gameConstants = { initialTime: 100, penaltyTime: 10, bonusTime: 5 };
         const sendEventSpy = spyOn(component as any, 'sendEvent').and.stub();
-        (component as any).gameService.gameMode = 'limited-time-mode';
+        (component as any).gameService.gameMode = 'mode Temps Limité';
         component.toggleHint();
         expect(gameServiceSpy.changeTime).toHaveBeenCalledWith(-10);
         expect(playAreaService.hintMode).toHaveBeenCalled();
