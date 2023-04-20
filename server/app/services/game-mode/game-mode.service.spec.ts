@@ -182,7 +182,7 @@ describe('GameModeService', () => {
         const fakeGameRoom = getFakeGameRoom();
         service.saveGameHistory(fakeGameRoom);
         expect(service.getGameHistory(fakeGameRoom.roomId).name).toEqual(fakeGameRoom.userGame.gameData.name);
-        expect(service.getGameHistory(fakeGameRoom.roomId).gameMode).toEqual('Mode classique Solo');
+        expect(service.getGameHistory(fakeGameRoom.roomId).gameMode).toEqual('Mode Classique solo');
     });
 
     it('saveGameHistory should correctly save game history with classic gamemode when has two usernames', () => {
@@ -191,7 +191,7 @@ describe('GameModeService', () => {
         service.saveGameHistory(fakeGameRoom);
         expect(service.getGameHistory(fakeGameRoom.roomId).username2).toEqual(fakeGameRoom.userGame.username2);
         expect(service.getGameHistory(fakeGameRoom.roomId).name).toEqual(fakeGameRoom.userGame.gameData.name);
-        expect(service.getGameHistory(fakeGameRoom.roomId).gameMode).toEqual('Mode classique Multi-joueur');
+        expect(service.getGameHistory(fakeGameRoom.roomId).gameMode).toEqual('Mode Classique un contre un');
     });
 
     it('saveGameHistory should correctly save game history with time-limited gamemode when only one username', () => {
@@ -199,7 +199,7 @@ describe('GameModeService', () => {
         fakeGameRoom.gameMode = GameMode.limitedTimeMode;
         service.saveGameHistory(fakeGameRoom);
         expect(service.getGameHistory(fakeGameRoom.roomId).name).toEqual(fakeGameRoom.userGame.gameData.name);
-        expect(service.getGameHistory(fakeGameRoom.roomId).gameMode).toEqual('Mode Temps Limité Solo');
+        expect(service.getGameHistory(fakeGameRoom.roomId).gameMode).toEqual('Mode Temps Limité solo');
     });
 
     it('saveGameHistory should correctly save game history with time-limited gamemode when two usernames', () => {
@@ -208,7 +208,7 @@ describe('GameModeService', () => {
         fakeGameRoom.gameMode = GameMode.limitedTimeMode;
         service.saveGameHistory(fakeGameRoom);
         expect(service.getGameHistory(fakeGameRoom.roomId).name).toEqual(fakeGameRoom.userGame.gameData.name);
-        expect(service.getGameHistory(fakeGameRoom.roomId).gameMode).toEqual('Mode Temps Limité Multi-joueur');
+        expect(service.getGameHistory(fakeGameRoom.roomId).gameMode).toEqual('Mode Temps Limité coopératif');
     });
 
     it('validateDifference should return true if the difference is valid', () => {

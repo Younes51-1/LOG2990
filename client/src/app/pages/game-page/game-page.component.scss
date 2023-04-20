@@ -5,7 +5,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: auto;
 }
 
 header {
@@ -16,13 +15,18 @@ img {
     width: 70%;
 }
 
+.infos {
+    margin-left: -10%;
+}
+
 .gameplay {
     margin-top: 1%;
-    margin-left: 15%;
+    margin-left: 5%;
 }
 
 app-chat-box {
-    padding: 0 30px 5px 30px;
+    margin-left: 5px;
+    margin-right: 5px;
 }
 
 button {
@@ -37,8 +41,9 @@ button {
     text-decoration: none;
     transition: 0.3s ease all;
     z-index: 1;
-    margin-top: 1%;
-    left: 43%;
+    margin-top: 0.5%;
+    left: -5.5%;
+    margin-right: 1%;
 }
 
 button:before {
@@ -68,16 +73,4 @@ button:focus:before {
 
 button:active {
     transform: scale(0.9);
-}
-
-.hint {
-    left: -1%;
-}
-
-.infos {
-    margin-left: -2%;
-}
-
-.end {
-    left: -1%;
 }

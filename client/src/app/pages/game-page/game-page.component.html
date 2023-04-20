@@ -15,7 +15,10 @@
         (sendOpponentDifferencesFound)="getOpponentDifferencesFound($event)"
     ></app-game-scoreboard>
 </section>
-<button *ngIf="!opponentUsername" class="hint" (click)="toggleHint()">Indices - il vous en reste {{ 3 - hintNum }}</button>
+<div>
+    <button *ngIf="!opponentUsername" (click)="toggleHint()">Indices - il vous en reste {{ 3 - hintNum }}</button>
+    <button (click)="endGame()">Abandonner la partie</button>
+</div>
 <section class="gameplay">
     <app-play-area
         class="play-area"
@@ -33,4 +36,3 @@
     ></app-play-area>
     <app-chat-box [gameRoom]="gameRoom" [username]="username" (sendChatMessage)="getChatMessage($event)"></app-chat-box>
 </section>
-<button class="end" (click)="endGame()">Abandonner la partie</button>
