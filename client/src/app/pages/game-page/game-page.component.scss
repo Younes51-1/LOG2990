@@ -1,15 +1,77 @@
-.container {
-    height: 100%;
+* {
+    font-family: 'Poppins', sans-serif;
+    text-align: center;
+    user-select: none;
     display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.play-area-container {
-    overflow: auto;
-    flex: 1 1 auto;
+header {
+    justify-items: center;
 }
 
-.play-area {
-    display: grid;
-    width: min-content;
-    outline: none;
+img {
+    width: 70%;
+    margin-left: -5%;
+}
+
+.infos {
+    margin-left: -10%;
+}
+
+.gameplay {
+    margin-top: 1%;
+    margin-left: 5%;
+}
+
+app-chat-box {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+button {
+    display: inline-block;
+    text-align: center;
+    padding: 0.7em 2em;
+    border: 3px solid #006aff;
+    border-radius: 5px;
+    position: relative;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.1);
+    color: #006aff;
+    text-decoration: none;
+    transition: 0.3s ease all;
+    z-index: 1;
+    margin-top: 0.5%;
+    left: -5.5%;
+    margin-right: 1%;
+}
+
+button:before {
+    transition: 0.15s all ease;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    right: 50%;
+    bottom: 0;
+    opacity: 0;
+    content: '';
+    background-color: #006aff;
+    z-index: -1;
+}
+
+button:hover,
+button:focus {
+    color: white;
+}
+
+button:hover:before,
+button:focus:before {
+    left: 0;
+    right: 0;
+    opacity: 1;
+}
+
+button:active {
+    transform: scale(0.9);
 }

@@ -1,0 +1,23 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
+export const HINT_INTERVAL_DELAY = 100;
+export const HINT_DURATION = 600;
+export const WINNING_DURATION = 250;
+export const CONFETTI_INTERVAL_DELAY = 0.000001;
+export const CONFETTI_INTERVAL_DURATION = 15000;
+export const PARTICLE_COUNT = 50;
+export const PARTICLE_ORIGIN_MIN_X = 0.1;
+export const PARTICLE_ORIGIN_MAX_X = 0.7;
+export const PARTICLE_ORIGIN_X = 0.2;
+export const PARTICLE_ORIGIN_MAX_Y = 0.2;
+export const PARTICLE_SPREAD = 360;
+export const HINT_TICKS = 50;
+export const WINNING_TICKS = 60;
+export const PARTICLE_GRAVITY = 0;
+export const PARTICLE_DECAY = 0.94;
+export const PARTICLE_START_VELOCITY = 30;
+export const STAR_SHAPES = ['star'];
+export const CIRCLE_SHAPES = ['circle'];
+export const PARTICLE_COLORS = ['FFE400', 'FFBD00', 'E89400', 'FFCA6C', 'FDFFB8'];
+export const PARTICLE_ZINDEX = -1;
+export const LAST_HINT_PARTICLE_COUNT = [40, 10];
+export const PARTICLE_SCALAR = [1.2, 0.75];

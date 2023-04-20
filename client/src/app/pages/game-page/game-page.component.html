@@ -1,6 +1,38 @@
-<div class="container">
-    <app-sidebar></app-sidebar>
-    <section class="play-area-container">
-        <app-play-area class="play-area" tabindex="0"></app-play-area>
-    </section>
+<header>
+    <img src="./assets/pictures/jeu.png" />
+</header>
+<section class="infos">
+    <app-game-scoreboard
+        [gameName]="gameName"
+        [username]="username"
+        [opponentUsername]="opponentUsername"
+        [timer]="timer"
+        [differencesFound]="userDifferencesFound"
+        [opponentDifferencesFound]="totalDifferencesFound - userDifferencesFound"
+        [gameRoom]="gameRoom"
+        [penaltyTime]="penaltyTime"
+        (sendDifferencesFound)="getDifferencesFound($event)"
+        (sendOpponentDifferencesFound)="getOpponentDifferencesFound($event)"
+    ></app-game-scoreboard>
+</section>
+<div>
+    <button *ngIf="!opponentUsername" (click)="toggleHint()">Indices - il vous en reste {{ 3 - hintNum }}</button>
+    <button (click)="endGame()">Abandonner la partie</button>
 </div>
+<section class="gameplay">
+    <app-play-area
+        class="play-area"
+        tabindex="0"
+        [gameRoom]="gameRoom"
+        (userError)="sendEvent('error')"
+        (sendImage)="getImage($event)"
+        (sendDiff)="getDiff($event)"
+        (sendError)="getError($event)"
+        (sendSource)="getSource($event)"
+        (sendCheatStart)="getCheatStart($event)"
+        (sendCheatEnd)="getCheatEnd()"
+        (toggleHint)="toggleHint()"
+        (sendHint)="getHint($event)"
+    ></app-play-area>
+    <app-chat-box [gameRoom]="gameRoom" [username]="username" (sendChatMessage)="getChatMessage($event)"></app-chat-box>
+</section>
