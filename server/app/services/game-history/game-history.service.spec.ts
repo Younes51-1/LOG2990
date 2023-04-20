@@ -1,4 +1,4 @@
-import { DELAY_BEFORE_CLOSING_CONNECTION } from '@app/constants';
+import { DELAY_BEFORE_CLOSING_CONNECTION } from '@app/constants/constants';
 import { GameHistory, gameHistorySchema, HistoryDocument } from '@app/model/database/game-history';
 import { GameHistoryService } from '@app/services/game-history/game-history.service';
 import { getConnectionToken, getModelToken, MongooseModule } from '@nestjs/mongoose';
@@ -42,12 +42,12 @@ describe('GameHistoryService', () => {
         }, DELAY_BEFORE_CLOSING_CONNECTION);
     });
 
-    // it('should be defined', () => {
-    //     expect(service).toBeDefined();
-    //     expect(gameHistoryModel).toBeDefined();
-    // });
+    it('should be defined', () => {
+        expect(service).toBeDefined();
+        expect(gameHistoryModel).toBeDefined();
+    });
 
-    it('should return the game constants', async () => {
+    it('getGamesHistories should return the game constants', async () => {
         await gameHistoryModel.deleteMany({});
         await gameHistoryModel.create(getFakeGameHistory());
         await gameHistoryModel.create(getFakeGameHistory2());
@@ -65,7 +65,7 @@ describe('GameHistoryService', () => {
         expect(gameHistories[0].name).toEqual(getFakeGameHistory().name);
     });
 
-    it('should have rejected if cannot create new gameHistory', async () => {
+    it('saveGameHistory should have rejected if cannot create new gameHistory', async () => {
         jest.spyOn(gameHistoryModel, 'create').mockImplementation(async () => Promise.reject(''));
         await gameHistoryModel.deleteMany({});
         await expect(service.saveGameHistory(getFakeGameHistory())).rejects.toBeTruthy();
@@ -80,7 +80,7 @@ describe('GameHistoryService', () => {
         expect(gameHistories.length).toEqual(0);
     });
 
-    it('should have rejected if cannot delete', async () => {
+    it('deleteGamesHistories should have rejected if cannot delete', async () => {
         jest.spyOn(gameHistoryModel, 'deleteMany').mockRejectedValue('');
         try {
             await service.deleteGamesHistories();
@@ -97,7 +97,7 @@ const getFakeGameHistory = (): GameHistory => ({
     username1: 'FakeUser1',
     username2: undefined,
     gameMode: 'solo',
-    abandonned: undefined,
+    abandoned: undefined,
     winner: 'FakeUser1',
 });
 
@@ -108,6 +108,6 @@ const getFakeGameHistory2 = (): GameHistory => ({
     username1: 'FakeUser1',
     username2: 'FakeUser2',
     gameMode: 'vs',
-    abandonned: undefined,
+    abandoned: undefined,
     winner: 'FakeUser2',
 });

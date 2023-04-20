@@ -1,15 +1,15 @@
-import { GameConstants } from '@app/model/dto/game-history/game-constants.dto';
+import { ConfigController } from '@app/controllers/config/config.controller';
+import { GameConstants } from '@app/model/dto/game-constants/game-constants.dto';
 import { GameHistory } from '@app/model/dto/game-history/game-history.dto';
-import { NewBestTime } from '@app/model/dto/game/new-best-times.dto';
-import { BestTime } from '@app/model/schema/best-times.schema';
-import { GameConstantsService } from '@app/services/game-constant/game-constants.service';
+import { NewBestTime } from '@app/model/dto/game/new-best-time.dto';
+import { BestTime } from '@app/model/schema/best-time.schema';
+import { GameConstantsService } from '@app/services/game-constants/game-constants.service';
 import { GameHistoryService } from '@app/services/game-history/game-history.service';
 import { GameService } from '@app/services/game/game.service';
 import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Response } from 'express';
-import { createStubInstance, SinonStubbedInstance } from 'sinon';
-import { ConfigController } from './config.controller';
+import { SinonStubbedInstance, createStubInstance } from 'sinon';
 
 describe.only('ConfigController', () => {
     let controller: ConfigController;
@@ -60,23 +60,23 @@ describe.only('ConfigController', () => {
             return res;
         };
 
-        await controller.getAllHistory(res);
+        await controller.getAllHistories(res);
     });
 
-    it('getAllHistory should return NOT_FOUND when service unable to fetch history', async () => {
+    it('getAllHistory should return INTERNAL_SERVER_ERROR when service unable to fetch history', async () => {
         gameHistoryService.getGamesHistories.rejects();
 
         const res = {} as unknown as Response;
         res.status = (code) => {
-            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            expect(code).toEqual(HttpStatus.INTERNAL_SERVER_ERROR);
             return res;
         };
         res.send = () => res;
 
-        await controller.getAllHistory(res);
+        await controller.getAllHistories(res);
     });
 
-    it('getConstants should return the game constants', async () => {
+    it('getConstants should return the game constants with status code OK', async () => {
         const fakeConstants = getFakeGameConstants();
         gameConstantsService.getGameConstants.resolves(fakeConstants);
 
@@ -106,7 +106,7 @@ describe.only('ConfigController', () => {
         await controller.getConstants(res);
     });
 
-    it('getBestTime should return the bestTime of specific game', async () => {
+    it('getBestTime should return the bestTime of specific game with status code OK', async () => {
         const fakeBestTimes = { soloBestTimes: [new BestTime(), new BestTime()], vsBestTimes: [new BestTime(), new BestTime()] };
         gameService.getBestTime.resolves(fakeBestTimes);
 
@@ -136,12 +136,12 @@ describe.only('ConfigController', () => {
         await controller.getBestTime('', res);
     });
 
-    it('updateBestTime should modify the bestTime of specific game and return OK', async () => {
+    it('updateBestTime should modify the bestTime of specific game and return CREATED', async () => {
         gameService.updateBestTime.resolves(0);
 
         const res = {} as unknown as Response;
         res.status = (code) => {
-            expect(code).toEqual(HttpStatus.OK);
+            expect(code).toEqual(HttpStatus.CREATED);
             return res;
         };
         res.json = (position) => {
@@ -166,12 +166,12 @@ describe.only('ConfigController', () => {
         await controller.updateBestTime('', new NewBestTime(), res);
     });
 
-    it('updateConstants should modify the game constants and return OK', async () => {
+    it('updateConstants should modify the game constants and return NO_CONTENT', async () => {
         gameConstantsService.updateGameConstants.resolves();
 
         const res = {} as unknown as Response;
         res.status = (code) => {
-            expect(code).toEqual(HttpStatus.OK);
+            expect(code).toEqual(HttpStatus.NO_CONTENT);
             return res;
         };
         res.send = () => res;
@@ -179,12 +179,12 @@ describe.only('ConfigController', () => {
         await controller.updateConstants(new GameConstants(), res);
     });
 
-    it('updateConstants should return NOT_FOUND when service unable to update constants', async () => {
+    it('updateConstants should return INTERNAL_SERVER_ERROR when service unable to update constants', async () => {
         gameConstantsService.updateGameConstants.rejects();
 
         const res = {} as unknown as Response;
         res.status = (code) => {
-            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            expect(code).toEqual(HttpStatus.INTERNAL_SERVER_ERROR);
             return res;
         };
         res.send = () => res;
@@ -202,23 +202,23 @@ describe.only('ConfigController', () => {
         };
         res.send = () => res;
 
-        await controller.deleteHistories(res);
+        await controller.deleteAllHistories(res);
     });
 
-    it('deleteAllHistory should return NOT_FOUND when service unable to delete history', async () => {
+    it('deleteAllHistory should return INTERNAL_SERVER_ERROR when service unable to delete history', async () => {
         gameHistoryService.deleteGamesHistories.rejects();
 
         const res = {} as unknown as Response;
         res.status = (code) => {
-            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            expect(code).toEqual(HttpStatus.INTERNAL_SERVER_ERROR);
             return res;
         };
         res.send = () => res;
 
-        await controller.deleteHistories(res);
+        await controller.deleteAllHistories(res);
     });
 
-    it('deleteAllBestTimes should delete all bestTimes and return OK', async () => {
+    it('deleteBestTimes should delete all bestTimes and return OK', async () => {
         gameService.deleteBestTimes.resolves();
 
         const res = {} as unknown as Response;
@@ -228,20 +228,20 @@ describe.only('ConfigController', () => {
         };
         res.send = () => res;
 
-        await controller.deleteBestTimes(res);
+        await controller.deleteAllBestTimes(res);
     });
 
-    it('deleteAllBestTimes should return NOT_FOUND when service unable to delete bestTimes', async () => {
+    it('deleteBestTimes should return INTERNAL_SERVER_ERROR when service unable to delete bestTimes', async () => {
         gameService.deleteBestTimes.rejects();
 
         const res = {} as unknown as Response;
         res.status = (code) => {
-            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            expect(code).toEqual(HttpStatus.INTERNAL_SERVER_ERROR);
             return res;
         };
         res.send = () => res;
 
-        await controller.deleteBestTimes(res);
+        await controller.deleteAllBestTimes(res);
     });
 
     it('deleteBestTime should delete the bestTime of specific game and return OK', async () => {

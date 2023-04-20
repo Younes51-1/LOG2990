@@ -1,12 +1,12 @@
-import { NOT_TOP3 } from '@app/constants';
+import { NOT_TOP3 } from '@app/constants/constants';
 import { environment } from '@app/environments/environment.prod';
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
 import { GameModeGateway } from '@app/gateways/game-mode/game-mode.gateway';
 import { Game, GameDocument } from '@app/model/database/game';
 import { GameData } from '@app/model/dto/game/game-data.dto';
-import { NewBestTime } from '@app/model/dto/game/new-best-times.dto';
+import { NewBestTime } from '@app/model/dto/game/new-best-time.dto';
 import { NewGame } from '@app/model/dto/game/new-game.dto';
-import { BestTime } from '@app/model/schema/best-times.schema';
+import { BestTime } from '@app/model/schema/best-time.schema';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as fs from 'fs';
@@ -30,13 +30,13 @@ export class GameService {
     async getGame(name: string): Promise<GameData> {
         const game = await this.gameModel.findOne({ name });
         if (!game) return Promise.reject('Failed to get game');
-        return await this.convertGameToGameData(game, true);
+        return this.convertGameToGameData(game, true);
     }
 
     async getBestTime(name: string): Promise<{ soloBestTimes: BestTime[]; vsBestTimes: BestTime[] }> {
         const game = await this.gameModel.findOne({ name });
         if (!game) return undefined;
-        return await { soloBestTimes: game.soloBestTimes, vsBestTimes: game.vsBestTimes };
+        return { soloBestTimes: game.soloBestTimes, vsBestTimes: game.vsBestTimes };
     }
 
     async createNewGame(newGame: NewGame): Promise<void> {
@@ -52,12 +52,8 @@ export class GameService {
 
     async deleteGame(name: string): Promise<void> {
         try {
-            const res = await this.gameModel.deleteOne({
-                name,
-            });
-            if (res.deletedCount === 0) {
-                return Promise.reject('Could not find game');
-            }
+            const res = await this.gameModel.deleteOne({ name });
+            if (res.deletedCount === 0) return Promise.reject('Could not find game');
             this.deleteImages(name);
             this.gameModeGateway.cancelDeletedGame(name);
         } catch (error) {
@@ -85,7 +81,7 @@ export class GameService {
                 await game.save();
             });
         } catch (error) {
-            return Promise.reject(`Failed to delete best times: ${error}`);
+            return Promise.reject(`Failed to delete all best times: ${error}`);
         }
     }
 
@@ -139,23 +135,22 @@ export class GameService {
                 position = newPosition;
             }
             await game.save();
-            if (position !== NOT_TOP3) {
-                if (newBestTime.isSolo) {
-                    this.chatGateway.newBestTimeScore(
-                        `${newBestTime.name} obtient la ${position + 1} place dans les meilleurs temps du jeu ${newBestTime.gameName} en mode solo`,
-                    );
-                } else {
-                    this.chatGateway.newBestTimeScore(
-                        `${newBestTime.name} obtient la ${position + 1} place dans les meilleurs temps du jeu ${
-                            newBestTime.gameName
-                        } en mode un contre un`,
-                    );
-                }
-            }
+            if (position !== NOT_TOP3) this.chatGateway.newBestTimeScore(this.getNewBestTimeMessage(newBestTime, position));
             return position;
         } catch (error) {
             return Promise.reject(`Failed to update best time: ${error}`);
         }
+    }
+
+    private async convertNewGameToGame(newGame: NewGame): Promise<Game> {
+        const game = {
+            name: newGame.name,
+            nbDifference: newGame.nbDifference,
+            soloBestTimes: this.newBestTimes(),
+            vsBestTimes: this.newBestTimes(),
+            difficulty: newGame.difficulty,
+        };
+        return game;
     }
 
     private insertNewBestTime(bestTimes: BestTime[], newBestTime: NewBestTime): { newBestTimes: BestTime[]; position: number } {
@@ -169,22 +164,23 @@ export class GameService {
         return { newBestTimes, position: newBestTimes.findIndex((bestTime) => bestTime.name === newBestTime.name) };
     }
 
-    private async convertNewGameToGame(newGame: NewGame): Promise<Game> {
-        const game = new Game();
-        game.name = newGame.name;
-        game.nbDifference = newGame.nbDifference;
-        game.soloBestTimes = this.newBestTimes();
-        game.vsBestTimes = this.newBestTimes();
-        game.difficulty = newGame.difficulty;
-        return game;
-    }
-
     private newBestTimes(): BestTime[] {
         return [
             { name: 'Joueur 1', time: 60 },
             { name: 'Joueur 2', time: 120 },
             { name: 'Joueur 3', time: 180 },
         ];
+    }
+
+    private getNewBestTimeMessage(newBestTime: NewBestTime, position: number) {
+        let positionStr = '';
+        if (position === 0) positionStr = `${position + 1}ere`;
+        else positionStr = `${position + 1}eme`;
+
+        if (newBestTime.isSolo) {
+            return `${newBestTime.name} obtient la ${positionStr} place dans les meilleurs temps du jeu ${newBestTime.gameName} en mode solo`;
+        }
+        return `${newBestTime.name} obtient la ${positionStr} place dans les meilleurs temps du jeu ${newBestTime.gameName} en mode un contre un`;
     }
 
     private async saveImages(newGame: NewGame): Promise<void> {
@@ -205,16 +201,16 @@ export class GameService {
     }
 
     private async convertGameToGameData(game: Game, getMatrix: boolean): Promise<GameData> {
-        const { name, nbDifference, difficulty, soloBestTimes, vsBestTimes } = game;
-        const gameData = new GameData();
-        gameData.name = name;
-        gameData.nbDifference = nbDifference;
-        gameData.image1url = `${environment.serverUrl}/${name}/image1.bmp`;
-        gameData.image2url = `${environment.serverUrl}/${name}/image2.bmp`;
-        gameData.difficulty = difficulty;
-        gameData.soloBestTimes = soloBestTimes;
-        gameData.vsBestTimes = vsBestTimes;
-        gameData.differenceMatrix = getMatrix ? await this.getMatrix(name) : undefined;
+        const gameData = {
+            name: game.name,
+            nbDifference: game.nbDifference,
+            image1url: `${environment.serverUrl}/${game.name}/image1.bmp`,
+            image2url: `${environment.serverUrl}/${game.name}/image2.bmp`,
+            difficulty: game.difficulty,
+            soloBestTimes: game.soloBestTimes,
+            vsBestTimes: game.vsBestTimes,
+            differenceMatrix: getMatrix ? await this.getMatrix(game.name) : undefined,
+        };
         return gameData;
     }
 }

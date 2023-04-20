@@ -1,6 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { BestTime } from '@app/model/schema/best-times.schema';
+import { BestTime } from '@app/model/schema/best-time.schema';
 import { Prop, Schema } from '@nestjs/mongoose';
+import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsString } from 'class-validator';
 
 @Schema()

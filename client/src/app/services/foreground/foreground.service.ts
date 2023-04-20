@@ -131,8 +131,8 @@ export class ForegroundService {
         }
     }
 
-    pushAndSwapForegrounds() {
-        this.component.undo.push({ layer: document.createElement('canvas'), belonging: true, swap: true });
+    invertForegrounds() {
+        this.component.previousForegroundStates.push({ layer: document.createElement('canvas'), belonging: true, swap: true });
         this.component.emptyRedoStack();
         this.swapForegrounds();
     }

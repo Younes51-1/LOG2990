@@ -1,16 +1,17 @@
 /* eslint-disable max-lines */
+import { WaitingRoomEvents } from '@app/enum/waiting-room.gateway.variables';
 import { environment } from '@app/environments/environment.prod';
 import { WaitingRoomGateway } from '@app/gateways/waiting-room/waiting-room.gateway';
-import { BestTime } from '@app/model/schema/best-times.schema';
+import { BestTime } from '@app/model/schema/best-time.schema';
 import { GameRoom } from '@app/model/schema/game-room.schema';
 import { UserGame } from '@app/model/schema/user-game.schema';
 import { GameHistoryService } from '@app/services/game-history/game-history.service';
 import { GameModeService } from '@app/services/game-mode/game-mode.service';
+import { GameMode } from '@common/game-mode';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
-import { WaitingRoomEvents } from './waiting-room.gateway.variables';
 
 describe('WaitingRoomGateway', () => {
     let gateway: WaitingRoomGateway;
@@ -22,11 +23,12 @@ describe('WaitingRoomGateway', () => {
 
     beforeEach(async () => {
         logger = createStubInstance(Logger);
+        socket = createStubInstance<Socket>(Socket);
+        server = createStubInstance<Server>(Server);
         gameModeService = createStubInstance(GameModeService);
         gameHistoryService = createStubInstance(GameHistoryService);
-        socket = createStubInstance<Socket>(Socket);
+
         Object.defineProperty(socket, 'id', { value: getFakeGameRoom().roomId, writable: true });
-        server = createStubInstance<Server>(Server);
 
         const module: TestingModule = await Test.createTestingModule({
             providers: [
@@ -47,8 +49,6 @@ describe('WaitingRoomGateway', () => {
         }).compile();
 
         gateway = module.get<WaitingRoomGateway>(WaitingRoomGateway);
-        // We want to assign a value to the private field
-        // eslint-disable-next-line dot-notation
         gateway['server'] = server;
     });
 
@@ -57,9 +57,7 @@ describe('WaitingRoomGateway', () => {
     });
 
     it('startGame should call saveGameHistory and emit started', () => {
-        jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
-            return getFakeGameRoom();
-        });
+        jest.spyOn(gameModeService, 'getGameRoom').mockReturnValue(getFakeGameRoom());
         const saveGameHistorySpy = jest.spyOn(gameModeService, 'saveGameHistory').mockImplementation();
         server.to.returns({
             emit: (event: string) => {
@@ -83,44 +81,66 @@ describe('WaitingRoomGateway', () => {
     });
 
     it('joinGame should emit the gameRoom if the game is joinable', () => {
-        const gameRoom = getFakeGameRoom();
-        const joinGameSpy = jest.spyOn(gameModeService, 'joinGame').mockImplementation(() => {
-            return true;
-        });
-        const getGameSpy = jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
-            return gameRoom;
-        });
+        const fakeGameRoom = getFakeGameRoom();
+        const joinGameSpy = jest.spyOn(gameModeService, 'joinGame').mockReturnValue(true);
+        const getGameSpy = jest.spyOn(gameModeService, 'getGameRoom').mockReturnValue(fakeGameRoom);
         server.to.returns({
             emit: (event: string, gameRoomReturned: GameRoom) => {
                 expect(event).toEqual(WaitingRoomEvents.GameFound);
-                expect(gameRoomReturned).toEqual(gameRoom);
+                expect(gameRoomReturned).toEqual(fakeGameRoom);
             },
         } as BroadcastOperator<unknown, unknown>);
-        gateway.joinGame(socket, { gameName: gameRoom.userGame.gameData.name, username: gameRoom.userGame.username1, gameMode: gameRoom.gameMode });
+        gateway.joinGame(socket, {
+            gameName: fakeGameRoom.userGame.gameData.name,
+            username: fakeGameRoom.userGame.username1,
+            gameMode: fakeGameRoom.gameMode,
+        });
         expect(joinGameSpy).toHaveBeenCalled();
         expect(getGameSpy).toHaveBeenCalled();
     });
 
     it('joinGame should not emit the gameRoom if the game is not joinable', () => {
-        const gameRoom = getFakeGameRoom();
-        const joinGameSpy = jest.spyOn(gameModeService, 'joinGame').mockImplementation(() => {
-            return false;
-        });
+        const fakeGameRoom = getFakeGameRoom();
+        const joinGameSpy = jest.spyOn(gameModeService, 'joinGame').mockReturnValue(false);
         server.to.returns({
             emit: (event: string, gameRoomReturned: GameRoom) => {
                 expect(event).toEqual(WaitingRoomEvents.GameFound);
                 expect(gameRoomReturned).toEqual(undefined);
             },
         } as BroadcastOperator<unknown, unknown>);
-        gateway.joinGame(socket, { gameName: gameRoom.userGame.gameData.name, username: gameRoom.userGame.username1, gameMode: gameRoom.gameMode });
+        gateway.joinGame(socket, {
+            gameName: fakeGameRoom.userGame.gameData.name,
+            username: fakeGameRoom.userGame.username1,
+            gameMode: fakeGameRoom.gameMode,
+        });
         expect(joinGameSpy).toHaveBeenCalled();
     });
 
-    it('abortGameCreation should deleteRoom and emit GameDeleted and canceled if not started', () => {
-        const deleteRoomSpy = jest.spyOn(gameModeService, 'deleteRoom').mockImplementation();
-        const getGameSpy = jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
-            return getFakeGameRoom();
+    it('joinGame should emit the gameRoom if the game is joinable and call playerAccepted in limited-time-mode', () => {
+        const fakeGameRoom = getFakeGameRoom();
+        fakeGameRoom.gameMode = GameMode.limitedTimeMode;
+        const joinGameSpy = jest.spyOn(gameModeService, 'joinGame').mockReturnValue(true);
+        const getGameSpy = jest.spyOn(gameModeService, 'getGameRoom').mockReturnValue(fakeGameRoom);
+        const playerAcceptedSpy = jest.spyOn(gateway, 'playerAccepted').mockImplementation();
+        server.to.returns({
+            emit: (event: string, gameRoomReturned: GameRoom) => {
+                expect(event).toEqual(WaitingRoomEvents.GameFound);
+                expect(gameRoomReturned).toEqual(fakeGameRoom);
+            },
+        } as BroadcastOperator<unknown, unknown>);
+        gateway.joinGame(socket, {
+            gameName: fakeGameRoom.userGame.gameData.name,
+            username: fakeGameRoom.userGame.username1,
+            gameMode: fakeGameRoom.gameMode,
         });
+        expect(joinGameSpy).toHaveBeenCalled();
+        expect(playerAcceptedSpy).toHaveBeenCalled();
+        expect(getGameSpy).toHaveBeenCalled();
+    });
+
+    it('abortGameCreation should deleteRoom and emit GameDeleted and canceled if not started', () => {
+        const deleteRoomSpy = jest.spyOn(gameModeService, 'deleteGameRoom').mockImplementation();
+        const getGameSpy = jest.spyOn(gameModeService, 'getGameRoom').mockReturnValue(getFakeGameRoom());
         server.to.returns({
             emit: (event: string, data) => {
                 expect(event).toEqual(WaitingRoomEvents.GameDeleted || WaitingRoomEvents.GameCanceled);
@@ -135,20 +155,16 @@ describe('WaitingRoomGateway', () => {
     });
 
     it('abortGameCreation should do nothing if the gameRoom is undefined', () => {
-        const deleteRoomSpy = jest.spyOn(gameModeService, 'deleteRoom').mockImplementation();
-        jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
-            return undefined;
-        });
+        const deleteRoomSpy = jest.spyOn(gameModeService, 'deleteGameRoom').mockImplementation();
+        jest.spyOn(gameModeService, 'getGameRoom').mockReturnValue(undefined);
         gateway.abortGameCreation(socket, getFakeGameRoom().roomId);
         expect(deleteRoomSpy).not.toHaveBeenCalled();
     });
 
     it('playerRejected should remove player from potentialPlayers and emit playerRejected', () => {
-        const gameRoom = getFakeGameRoom();
-        gameRoom.userGame.potentialPlayers = ['potentialPlayer'];
-        const getGameSpy = jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
-            return gameRoom;
-        });
+        const fakeGameRoom = getFakeGameRoom();
+        fakeGameRoom.userGame.potentialPlayers = ['potentialPlayer'];
+        const getGameSpy = jest.spyOn(gameModeService, 'getGameRoom').mockReturnValue(fakeGameRoom);
         jest.spyOn(gameModeService, 'setGameRoom').mockImplementation();
         server.to.returns({
             emit: (event: string, gameRoomReturned: GameRoom) => {
@@ -156,14 +172,12 @@ describe('WaitingRoomGateway', () => {
                 expect(gameRoomReturned.userGame.potentialPlayers).toEqual([]);
             },
         } as BroadcastOperator<unknown, unknown>);
-        gateway.playerRejected(socket, { roomId: gameRoom.roomId, username: 'potentialPlayer' });
+        gateway.playerRejected(socket, { roomId: fakeGameRoom.roomId, username: 'potentialPlayer' });
         expect(getGameSpy).toHaveBeenCalled();
     });
 
     it('playerRejected should do nothing if the gameRoom is undefined', () => {
-        const getGameSpy = jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
-            return undefined;
-        });
+        const getGameSpy = jest.spyOn(gameModeService, 'getGameRoom').mockReturnValue(undefined);
         const setGameRoomSpy = jest.spyOn(gameModeService, 'setGameRoom').mockImplementation();
         gateway.playerRejected(socket, { roomId: getFakeGameRoom().roomId, username: 'potentialPlayer' });
         expect(getGameSpy).toHaveBeenCalled();
@@ -171,11 +185,9 @@ describe('WaitingRoomGateway', () => {
     });
 
     it('playerAccepted should emit gameRoom with new username2 set and started at true', () => {
-        const gameRoom = getFakeGameRoom();
-        gameRoom.userGame.potentialPlayers = ['potentialPlayer'];
-        const getGameSpy = jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
-            return gameRoom;
-        });
+        const fakeGameRoom = getFakeGameRoom();
+        fakeGameRoom.userGame.potentialPlayers = ['potentialPlayer'];
+        const getGameSpy = jest.spyOn(gameModeService, 'getGameRoom').mockReturnValue(fakeGameRoom);
         const setGameRoomSpy = jest.spyOn(gameModeService, 'setGameRoom').mockImplementation();
         server.to.returns({
             emit: (event: string, gameRoomReturned: GameRoom) => {
@@ -185,17 +197,15 @@ describe('WaitingRoomGateway', () => {
                 expect(gameRoomReturned.started).toEqual(true);
             },
         } as BroadcastOperator<unknown, unknown>);
-        gateway.playerAccepted(socket, { roomId: gameRoom.roomId, username: 'potentialPlayer' });
+        gateway.playerAccepted(socket, { roomId: fakeGameRoom.roomId, username: 'potentialPlayer' });
         expect(getGameSpy).toHaveBeenCalled();
         expect(setGameRoomSpy).toHaveBeenCalled();
     });
 
     it('leaveGame should remove player from potentialPlayers and emit gameInfo updated', () => {
-        const gameRoom = getFakeGameRoom();
-        gameRoom.userGame.potentialPlayers = ['potentialPlayer'];
-        const getGameSpy = jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
-            return gameRoom;
-        });
+        const fakeGameRoom = getFakeGameRoom();
+        fakeGameRoom.userGame.potentialPlayers = ['potentialPlayer'];
+        const getGameSpy = jest.spyOn(gameModeService, 'getGameRoom').mockReturnValue(fakeGameRoom);
         jest.spyOn(gameModeService, 'setGameRoom').mockImplementation();
         server.to.returns({
             emit: (event: string, gameRoomReturned: GameRoom) => {
@@ -203,26 +213,22 @@ describe('WaitingRoomGateway', () => {
                 expect(gameRoomReturned.userGame.potentialPlayers).toEqual([]);
             },
         } as BroadcastOperator<unknown, unknown>);
-        gateway.leaveGame(socket, { roomId: gameRoom.roomId, username: 'potentialPlayer' });
+        gateway.leaveGame(socket, { roomId: fakeGameRoom.roomId, username: 'potentialPlayer' });
         expect(getGameSpy).toHaveBeenCalled();
     });
 
-    it('leaveGame should do nothing if the gameRoom doesnt exists', () => {
-        const gameRoom = getFakeGameRoom();
-        const getGameSpy = jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
-            return undefined;
-        });
+    it('leaveGame should do nothing if the gameRoom does not exists', () => {
+        const fakeGameRoom = getFakeGameRoom();
+        const getGameSpy = jest.spyOn(gameModeService, 'getGameRoom').mockReturnValue(undefined);
         const setGameSpy = jest.spyOn(gameModeService, 'setGameRoom').mockImplementation();
-        gateway.leaveGame(socket, { roomId: gameRoom.roomId, username: 'potentialPlayer' });
+        gateway.leaveGame(socket, { roomId: fakeGameRoom.roomId, username: 'potentialPlayer' });
         expect(getGameSpy).toHaveBeenCalled();
         expect(setGameSpy).not.toHaveBeenCalled();
     });
 
     it('handleDisconnect should call abortGameCreation if its the creator disconnecting', () => {
         const abortGameCreationSpy = jest.spyOn(gateway, 'abortGameCreation').mockImplementation();
-        jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
-            return getFakeGameRoom();
-        });
+        jest.spyOn(gameModeService, 'getGameRoom').mockReturnValue(getFakeGameRoom());
         gateway.handleDisconnect(socket);
         expect(abortGameCreationSpy).toHaveBeenCalled();
     });
@@ -230,9 +236,9 @@ describe('WaitingRoomGateway', () => {
     it('handleDisconnect should call leaveGame if its not the creator disconnecting', () => {
         const leaveGameSpy = jest.spyOn(gateway, 'leaveGame').mockImplementation();
         jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
-            const gameRoom = getFakeGameRoom();
-            gameRoom.roomId = 'FakeRoomId';
-            return gameRoom;
+            const fakeGameRoom = getFakeGameRoom();
+            fakeGameRoom.roomId = 'FakeRoomId';
+            return fakeGameRoom;
         });
         gateway.handleDisconnect(socket);
         expect(leaveGameSpy).toHaveBeenCalled();
@@ -242,9 +248,9 @@ describe('WaitingRoomGateway', () => {
         const abortGameCreationSpy = jest.spyOn(gateway, 'abortGameCreation').mockImplementation();
         const leaveGameSpy = jest.spyOn(gateway, 'leaveGame').mockImplementation();
         jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
-            const gameRoom = getFakeGameRoom();
-            gameRoom.started = true;
-            return gameRoom;
+            const fakeGameRoom = getFakeGameRoom();
+            fakeGameRoom.started = true;
+            return fakeGameRoom;
         });
         gateway.handleDisconnect(socket);
         expect(abortGameCreationSpy).not.toHaveBeenCalled();
@@ -253,7 +259,7 @@ describe('WaitingRoomGateway', () => {
 });
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-const getFakeUserGame1 = (): UserGame => ({
+const getFakeUserGame = (): UserGame => ({
     username1: 'FakeUser',
     nbDifferenceFound: 0,
     timer: 0,
@@ -269,15 +275,20 @@ const getFakeUserGame1 = (): UserGame => ({
         image1url: `${environment.serverUrl}/FakeGame/image1.bmp`,
         image2url: `${environment.serverUrl}/FakeGame/image2.bmp`,
         difficulty: 'Facile',
-        soloBestTimes: [new BestTime(), new BestTime(), new BestTime()],
-        vsBestTimes: [new BestTime(), new BestTime(), new BestTime()],
+        soloBestTimes: newBestTimes(),
+        vsBestTimes: newBestTimes(),
     },
 });
-/* eslint-enable @typescript-eslint/no-magic-numbers */
+
+const newBestTimes = (): BestTime[] => [
+    { name: 'Joueur 1', time: 60 },
+    { name: 'Joueur 2', time: 120 },
+    { name: 'Joueur 3', time: 180 },
+];
 
 const getFakeGameRoom = (): GameRoom => ({
-    userGame: getFakeUserGame1(),
+    userGame: getFakeUserGame(),
     roomId: 'socketId',
     started: false,
-    gameMode: 'mode classique',
+    gameMode: GameMode.classicMode,
 });

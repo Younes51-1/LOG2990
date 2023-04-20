@@ -37,28 +37,32 @@ describe('EndgameDialogComponent', () => {
     it('ngOnInit should set time and timePosition if new best time is set', () => {
         component.data = { gameFinished: true, gameWinner: true, time: 100 };
         component.ngOnInit();
-        expect(component.time).toEqual('1:40');
+        expect((component as any).time).toEqual('1:40');
         component.gameService.timePosition$.next(0);
-        expect(component.timePosition).toEqual('1er');
+        expect((component as any).timePosition).toEqual('1ere');
         expect(component.bestTimeMessage).toEqual(`Nouveau record de temps !
-                                        Vous avez effectué un temps de ${component.time} et prenez la ${component.timePosition} place !`);
+                                        Vous avez effectué un temps de ${(component as any).time} et prenez la ${
+            (component as any).timePosition
+        } place !`);
     });
 
     it('ngOnInit should set time and timePosition with a different message if not the first best time', () => {
         component.data = { gameFinished: true, gameWinner: true, time: 100 };
         component.ngOnInit();
-        expect(component.time).toEqual('1:40');
+        expect((component as any).time).toEqual('1:40');
         component.gameService.timePosition$.next(1);
-        expect(component.timePosition).toEqual('2eme');
+        expect((component as any).timePosition).toEqual('2eme');
         expect(component.bestTimeMessage).toEqual(`Nouveau record de temps !
-                                        Vous avez effectué un temps de ${component.time} et prenez la ${component.timePosition} place !`);
+                                        Vous avez effectué un temps de ${(component as any).time} et prenez la ${
+            (component as any).timePosition
+        } place !`);
     });
 
-    it('ngOnInit should not be done if we are in the case of a abandonning dialog', () => {
+    it('ngOnInit should not be done if we are in the case of a abandoning dialog', () => {
         component.ngOnInit();
-        expect(component.time).toBeUndefined();
+        expect((component as any).time).toBeUndefined();
         component.gameService.timePosition$.next(1);
-        expect(component.timePosition).toBeUndefined();
+        expect((component as any).timePosition).toBeUndefined();
         expect(component.bestTimeMessage).toBeUndefined();
     });
 

@@ -32,7 +32,7 @@ export class GameHistory {
 
     @ApiProperty()
     @Prop({ required: false })
-    abandonned: string[];
+    abandoned: string[];
 
     @ApiProperty()
     @Prop({ required: false })

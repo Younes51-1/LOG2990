@@ -1,6 +1,6 @@
 import { GameRoom } from '@app/interfaces/game';
-import { Message } from './chat';
-import { Vec2 } from './vec2';
+import { Message } from '@app/interfaces/chat';
+import { Vec2 } from '@app/interfaces/vec2';
 
 export interface VideoReplay {
     images: { original: string; modified: string };

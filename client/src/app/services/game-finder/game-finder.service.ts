@@ -4,6 +4,7 @@ import { GameCardComponent } from '@app/components/game-card/game-card.component
 import { GameContext } from '@app/interfaces/game';
 import { CommunicationSocketService } from '@app/services/communication-socket/communication-socket.service';
 import { Subject } from 'rxjs';
+import { GameMode } from '@common/game-mode';
 
 @Injectable({
     providedIn: 'root',
@@ -17,7 +18,7 @@ export class GameFinderService {
         this.connectSocket();
         this.socketService.send('checkGame', { gameName, gameMode: this.gameMode });
         this.socketService.on('gameFound', (gameContext: GameContext) => {
-            if (gameContext.gameMode === 'limited-time-mode' && gameContext.gameMode === this.gameMode) {
+            if (gameContext.gameMode === GameMode.limitedTimeMode && gameContext.gameMode === this.gameMode) {
                 this.gameExists$.next(true);
             } else if (gameName === gameContext.gameName && gameContext.gameMode === this.gameMode) {
                 this.gameExists$.next(true);
@@ -25,7 +26,7 @@ export class GameFinderService {
         });
 
         this.socketService.on('gameDeleted', (gameContext: GameContext) => {
-            if (gameContext.gameMode === 'limited-time-mode' && gameContext.gameMode === this.gameMode) {
+            if (gameContext.gameMode === GameMode.limitedTimeMode && gameContext.gameMode === this.gameMode) {
                 this.gameExists$.next(false);
             } else if (gameName === gameContext.gameName && gameContext.gameMode === this.gameMode) {
                 this.gameExists$.next(false);

@@ -1,6 +1,7 @@
-import { WaitingRoomEvents } from '@app/gateways/waiting-room/waiting-room.gateway.variables';
+import { WaitingRoomEvents } from '@app/enum/waiting-room.gateway.variables';
 import { GameRoom } from '@app/model/schema/game-room.schema';
 import { GameModeService } from '@app/services/game-mode/game-mode.service';
+import { GameMode } from '@common/game-mode';
 import { Injectable, Logger } from '@nestjs/common';
 import { OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
@@ -13,7 +14,7 @@ export class WaitingRoomGateway implements OnGatewayDisconnect {
     constructor(private readonly logger: Logger, private readonly gameModeService: GameModeService) {}
 
     @SubscribeMessage(WaitingRoomEvents.Start)
-    startGame(socket: Socket, roomId: string): void {
+    startGame(_socket: Socket, roomId: string): void {
         const gameRoom = this.gameModeService.getGameRoom(roomId);
         this.gameModeService.saveGameHistory(gameRoom);
         this.logger.log(`Waiting room gateway: Launching the game: ${gameRoom.userGame.gameData.name}`);
@@ -35,7 +36,7 @@ export class WaitingRoomGateway implements OnGatewayDisconnect {
         if (this.gameModeService.joinGame(socket, data)) {
             const gameRoom = this.gameModeService.getGameRoom(undefined, data.gameName, data.gameMode);
             this.logger.log(`Waiting room gateway: ${data.username} joined the game: ${gameRoom.userGame.gameData.name}`);
-            if (data.gameMode === 'limited-time-mode') this.playerAccepted(socket, { roomId: gameRoom.roomId, username: data.username });
+            if (data.gameMode === GameMode.limitedTimeMode) this.playerAccepted(socket, { roomId: gameRoom.roomId, username: data.username });
             this.server.emit(WaitingRoomEvents.GameInfo, gameRoom);
         } else {
             this.logger.log(`Waiting room gateway: Jeu: ${data.gameName} not found`);
@@ -44,17 +45,17 @@ export class WaitingRoomGateway implements OnGatewayDisconnect {
     }
 
     @SubscribeMessage(WaitingRoomEvents.AbortGameCreation)
-    abortGameCreation(socket: Socket, roomId: string): void {
+    abortGameCreation(_socket: Socket, roomId: string): void {
         const gameRoom = this.gameModeService.getGameRoom(roomId);
         if (!gameRoom) return;
         this.logger.log(`Waiting room gateway: Game creation aborted: ${gameRoom.userGame.gameData.name}`);
-        this.gameModeService.deleteRoom(roomId);
+        this.gameModeService.deleteGameRoom(roomId);
         this.server.emit(WaitingRoomEvents.GameDeleted, { gameName: gameRoom.userGame.gameData.name, gameMode: gameRoom.gameMode });
         this.server.emit(WaitingRoomEvents.GameCanceled, gameRoom);
     }
 
     @SubscribeMessage(WaitingRoomEvents.RejectPlayer)
-    playerRejected(socket: Socket, playerInfo: { roomId: string; username: string }): void {
+    playerRejected(_socket: Socket, playerInfo: { roomId: string; username: string }): void {
         const gameRoom = this.gameModeService.getGameRoom(playerInfo.roomId);
         if (gameRoom) {
             this.logger.log(`Waiting room gateway: ${playerInfo.username} rejected from game: ${gameRoom.userGame.gameData.name}`);
@@ -65,7 +66,7 @@ export class WaitingRoomGateway implements OnGatewayDisconnect {
     }
 
     @SubscribeMessage(WaitingRoomEvents.AcceptPlayer)
-    playerAccepted(socket: Socket, playerInfo: { roomId: string; username: string }): void {
+    playerAccepted(_socket: Socket, playerInfo: { roomId: string; username: string }): void {
         const gameRoom = this.gameModeService.getGameRoom(playerInfo.roomId);
         if (gameRoom) {
             this.logger.log(`Waiting room gateway: ${playerInfo.username} accepted in game:  ${gameRoom.userGame.gameData.name}`);
@@ -78,7 +79,7 @@ export class WaitingRoomGateway implements OnGatewayDisconnect {
     }
 
     @SubscribeMessage(WaitingRoomEvents.LeaveGame)
-    leaveGame(socket: Socket, playerInfo: { roomId: string; username: string }): void {
+    leaveGame(_socket: Socket, playerInfo: { roomId: string; username: string }): void {
         const gameRoom = this.gameModeService.getGameRoom(playerInfo.roomId);
         if (!gameRoom) return;
         this.logger.log(`Waiting room gateway: ${playerInfo.username} left the game: ${gameRoom.userGame.gameData.name}`);
@@ -91,10 +92,7 @@ export class WaitingRoomGateway implements OnGatewayDisconnect {
         const gameRoom = this.gameModeService.getGameRoom(socket.id);
         if (!gameRoom || gameRoom.started) return;
         this.logger.log(`Waiting room gateway: ${socket.id}: disconnected`);
-        if (gameRoom.roomId === socket.id) {
-            this.abortGameCreation(socket, socket.id);
-        } else {
-            this.leaveGame(socket, { roomId: gameRoom.roomId, username: gameRoom.userGame.username2 });
-        }
+        if (gameRoom.roomId === socket.id) this.abortGameCreation(socket, socket.id);
+        else this.leaveGame(socket, { roomId: gameRoom.roomId, username: gameRoom.userGame.username2 });
     }
 }

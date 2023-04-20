@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
 import { Rgba } from '@app/interfaces/creation-game';
 import { Vec2 } from '@app/interfaces/vec2';
-import { PixelSize, PossibleColor } from 'src/assets/variables/images-values';
+import { PIXEL_SIZE, PossibleColor } from 'src/assets/variables/images-values';
 import { Dimensions } from 'src/assets/variables/picture-dimension';
 
 @Injectable({
     providedIn: 'root',
 })
 export class DetectionDifferenceService {
-    private width = Dimensions.DEFAULT_WIDTH;
-    private height = Dimensions.DEFAULT_HEIGHT;
+    private width = Dimensions.DefaultWidth;
+    private height = Dimensions.DefaultHeight;
     private positiveDifferenceCoord = 1;
     private negativeDifferenceCoord = -this.positiveDifferenceCoord;
 
@@ -19,12 +19,12 @@ export class DetectionDifferenceService {
         const data2 = ctx2.getImageData(0, 0, this.width, this.height).data;
         const differencesCoordinates = [];
 
-        for (let i = 0; i < data1.length; i += PixelSize) {
+        for (let i = 0; i < data1.length; i += PIXEL_SIZE) {
             const pixelImg1: Rgba = { r: data1[i], g: data1[i + 1], b: data1[i + 2], a: data1[i + 3] };
             const pixelImg2: Rgba = { r: data2[i], g: data2[i + 1], b: data2[i + 2], a: data2[i + 3] };
 
-            const row = Math.floor(i / PixelSize / this.width);
-            const column = i / PixelSize - row * this.width;
+            const row = Math.floor(i / PIXEL_SIZE / this.width);
+            const column = i / PIXEL_SIZE - row * this.width;
             if (this.areEqual(pixelImg1, pixelImg2)) {
                 matrix[row][column] = PossibleColor.EMPTYPIXEL;
             } else {
@@ -62,7 +62,7 @@ export class DetectionDifferenceService {
         const data = imageData.data;
         for (let i = 0; i < differenceMatrix.length; i++) {
             for (let j = 0; j < differenceMatrix[0].length; j++) {
-                const index = (i * differenceMatrix[0].length + j) * PixelSize;
+                const index = (i * differenceMatrix[0].length + j) * PIXEL_SIZE;
                 if (differenceMatrix[i][j] !== PossibleColor.EMPTYPIXEL) {
                     data[index] = PossibleColor.BLACK;
                     data[index + 1] = PossibleColor.BLACK;

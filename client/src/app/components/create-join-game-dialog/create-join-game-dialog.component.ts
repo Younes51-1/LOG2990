@@ -4,7 +4,7 @@ import { GameSetupService } from '@app/services/game-setup/game-setup.service';
 import { VerifyInputService } from '@app/services/verify-input/verify-input.service';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { WaitingRoomComponent } from '@app/components/waiting-room-dialog/waiting-room-dialog.component';
-
+import { GameMode } from '@common/game-mode';
 @Component({
     selector: 'app-create-join-game-dialog',
     templateUrl: './create-join-game-dialog.component.html',
@@ -17,8 +17,6 @@ export class CreateJoinGameDialogComponent implements OnInit {
     inputValue1: string;
     inputValue2: string;
     gameExists = false;
-    soloBestTime: { name: string; time: string }[];
-    vsBestTime: { name: string; time: string }[];
 
     // eslint-disable-next-line max-params
     constructor(
@@ -30,8 +28,8 @@ export class CreateJoinGameDialogComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.gameFinderService.gameMode = 'limited-time-mode';
-        this.gameSetupService.gameMode = 'limited-time-mode';
+        this.gameFinderService.gameMode = GameMode.limitedTimeMode;
+        this.gameSetupService.gameMode = GameMode.limitedTimeMode;
         this.gameFinderService.gameExists$.subscribe((gameExists) => {
             this.gameExists = gameExists;
         });

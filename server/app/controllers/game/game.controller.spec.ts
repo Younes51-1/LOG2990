@@ -5,7 +5,7 @@ import { GameService } from '@app/services/game/game.service';
 import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Response } from 'express';
-import { createStubInstance, SinonStubbedInstance } from 'sinon';
+import { SinonStubbedInstance, createStubInstance } from 'sinon';
 
 describe.only('GameController', () => {
     let controller: GameController;
@@ -30,7 +30,7 @@ describe.only('GameController', () => {
         expect(controller).toBeDefined();
     });
 
-    it('getAllGames should return all games', async () => {
+    it('getAllGames should return all games and return status code OK', async () => {
         const fakeGames = [new GameData(), new GameData()];
         gameService.getAllGames.resolves(fakeGames);
 
@@ -47,12 +47,12 @@ describe.only('GameController', () => {
         await controller.getAllGames(res);
     });
 
-    it('getAllGames should return NOT_FOUND when service unable to fetch games', async () => {
+    it('getAllGames should return INTERNAL_SERVER_ERROR when service unable to fetch games', async () => {
         gameService.getAllGames.rejects();
 
         const res = {} as unknown as Response;
         res.status = (code) => {
-            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            expect(code).toEqual(HttpStatus.INTERNAL_SERVER_ERROR);
             return res;
         };
         res.send = () => res;
@@ -60,7 +60,7 @@ describe.only('GameController', () => {
         await controller.getAllGames(res);
     });
 
-    it('getGameByName should return the game in question', async () => {
+    it('getGameByName should return the game in question and return status code OK', async () => {
         const fakeGameData = new GameData();
         gameService.getGame.resolves(fakeGameData);
 
@@ -104,13 +104,13 @@ describe.only('GameController', () => {
         await controller.createNewGame(fakeNewGame, res);
     });
 
-    it('createNewGame should return NOT_FOUND when service unable to create a new game', async () => {
+    it('createNewGame should return INTERNAL_SERVER_ERROR when service unable to create a new game', async () => {
         const fakeNewGame = new NewGame();
         gameService.createNewGame.rejects();
 
         const res = {} as unknown as Response;
         res.status = (code) => {
-            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            expect(code).toEqual(HttpStatus.INTERNAL_SERVER_ERROR);
             return res;
         };
         res.send = () => res;
@@ -157,12 +157,12 @@ describe.only('GameController', () => {
         await controller.deleteAllGames(res);
     });
 
-    it('deleteAllGames should return NOT_FOUND when service unable to delete all games', async () => {
+    it('deleteAllGames should return INTERNAL_SERVER_ERROR when service unable to delete all games', async () => {
         gameService.deleteAllGames.rejects();
 
         const res = {} as unknown as Response;
         res.status = (code) => {
-            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            expect(code).toEqual(HttpStatus.INTERNAL_SERVER_ERROR);
             return res;
         };
         res.send = () => res;

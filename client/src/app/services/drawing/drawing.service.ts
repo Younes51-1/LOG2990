@@ -64,11 +64,11 @@ export class DrawingService {
             ctx?.drawImage(this.component.canvasForeground2, 0, 0, this.width, this.height);
             this.component.belongsToCanvas1 = false;
         }
-        this.component.undo.push({ layer: canvas, belonging: this.component.belongsToCanvas1, swap: false });
+        this.component.previousForegroundStates.push({ layer: canvas, belonging: this.component.belongsToCanvas1, swap: false });
     }
 
     emptyRedoStack() {
-        this.component.redo = [];
+        this.component.nextForegroundStates = [];
     }
 
     handleMouseUp() {
@@ -88,28 +88,28 @@ export class DrawingService {
         return canvas;
     }
 
-    ctrlZ() {
-        if (this.component.undo.length > 0) {
-            const state = this.component.undo.pop();
+    undo() {
+        if (this.component.previousForegroundStates.length > 0) {
+            const state = this.component.previousForegroundStates.pop();
             if (state?.swap) {
                 this.component.swapForegrounds();
-                this.component.redo.push({ layer: document.createElement('canvas'), belonging: true, swap: true });
+                this.component.nextForegroundStates.push({ layer: document.createElement('canvas'), belonging: true, swap: true });
             } else {
                 const canvas = this.getCanvasAndUpdate(state);
-                this.component.redo.push({ layer: canvas, belonging: this.component.belongsToCanvas1, swap: false });
+                this.component.nextForegroundStates.push({ layer: canvas, belonging: this.component.belongsToCanvas1, swap: false });
             }
         }
     }
 
-    ctrlShiftZ() {
-        if (this.component.redo.length > 0) {
-            const state = this.component.redo.pop();
+    redo() {
+        if (this.component.nextForegroundStates.length > 0) {
+            const state = this.component.nextForegroundStates.pop();
             if (state?.swap) {
                 this.component.swapForegrounds();
-                this.component.undo.push({ layer: document.createElement('canvas'), belonging: true, swap: true });
+                this.component.previousForegroundStates.push({ layer: document.createElement('canvas'), belonging: true, swap: true });
             } else {
                 const canvas = this.getCanvasAndUpdate(state);
-                this.component.undo.push({ layer: canvas, belonging: this.component.belongsToCanvas1, swap: false });
+                this.component.previousForegroundStates.push({ layer: canvas, belonging: this.component.belongsToCanvas1, swap: false });
             }
         }
     }

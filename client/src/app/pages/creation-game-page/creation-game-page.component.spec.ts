@@ -1,4 +1,3 @@
-/* eslint-disable max-lines */
 import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -124,9 +123,9 @@ describe('CreationGamePageComponent', () => {
         expect(spy).toHaveBeenCalledOnceWith(element);
     });
 
-    it('should call pushAndSwapForegrounds of ForegroundService', () => {
-        const spy = spyOn(foregroundService, 'pushAndSwapForegrounds');
-        component.pushAndSwapForegrounds();
+    it('should call invertForegrounds of ForegroundService', () => {
+        const spy = spyOn(foregroundService, 'invertForegrounds');
+        component.invertForegrounds();
         expect(spy).toHaveBeenCalled();
     });
 
@@ -145,15 +144,15 @@ describe('CreationGamePageComponent', () => {
         expect(spy).toHaveBeenCalled();
     });
 
-    it('should call ctrlZ of DrawingService', () => {
-        const spy = spyOn(drawingService, 'ctrlZ');
-        component.ctrlZ();
+    it('should call undo of DrawingService', () => {
+        const spy = spyOn(drawingService, 'undo');
+        component.undo();
         expect(spy).toHaveBeenCalled();
     });
 
-    it('should call ctrlShiftZ of DrawingService', () => {
-        const spy = spyOn(drawingService, 'ctrlShiftZ');
-        component.ctrlShiftZ();
+    it('should call redo of DrawingService', () => {
+        const spy = spyOn(drawingService, 'redo');
+        component.redo();
         expect(spy).toHaveBeenCalled();
     });
 
@@ -169,16 +168,16 @@ describe('CreationGamePageComponent', () => {
         expect(spy).toHaveBeenCalled();
     });
 
-    it('should call ctrlZ() if ctrl + Z is pressed', () => {
+    it('should call undo if ctrl + Z is pressed', () => {
         const event = new KeyboardEvent('keydown', { key: 'z', ctrlKey: true });
-        const spy = spyOn(component, 'ctrlZ');
+        const spy = spyOn(component, 'undo');
         document.dispatchEvent(event);
         expect(spy).toHaveBeenCalled();
     });
 
-    it('should call ctrlShiftZ() if ctrl + Shift + Z is pressed', () => {
+    it('should call redo if ctrl + Shift + Z is pressed', () => {
         const event = new KeyboardEvent('keydown', { key: 'Z', ctrlKey: true, shiftKey: true });
-        const spy = spyOn(component, 'ctrlShiftZ');
+        const spy = spyOn(component, 'redo');
         document.dispatchEvent(event);
         expect(spy).toHaveBeenCalled();
     });

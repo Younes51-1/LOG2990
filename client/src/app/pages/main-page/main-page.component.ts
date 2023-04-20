@@ -2,6 +2,7 @@ import { Component, OnDestroy } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { CreateJoinGameDialogComponent } from '@app/components/create-join-game-dialog/create-join-game-dialog.component';
+import { GameMode } from '@common/game-mode';
 
 @Component({
     selector: 'app-main-page',
@@ -22,7 +23,7 @@ export class MainPageComponent implements OnDestroy {
     constructor(private readonly router: Router, private dialog: MatDialog) {}
 
     setGameMode(mode: string) {
-        if (mode === 'mode classique') {
+        if (mode === GameMode.classicMode) {
             this.router.navigate(['/selection']);
         } else {
             this.dialogRef = this.dialog.open(CreateJoinGameDialogComponent);

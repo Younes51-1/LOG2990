@@ -12,12 +12,12 @@ const bootstrap = async () => {
     app.useGlobalPipes(new ValidationPipe());
     app.enableCors();
     app.use(json({ limit: '50mb' }));
-    app.useStaticAssets(join(__dirname, '../', 'assets'));
+    app.useStaticAssets(join(__dirname, '../../..', 'assets'));
     app.use(urlencoded({ extended: true, limit: '50mb' }));
     const config = new DocumentBuilder()
         .setTitle('Server - Jeu des différences')
         .setDescription('Serveur du projet 2, équipe 204, pour le cours de LOG2990')
-        .setVersion('0.2.0')
+        .setVersion('0.3.0')
         .build();
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api/docs', app, document);

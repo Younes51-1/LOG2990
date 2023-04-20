@@ -16,12 +16,12 @@ import { Dimensions } from 'src/assets/variables/picture-dimension';
 })
 export class CreationDialogComponent implements AfterViewInit {
     @ViewChild('canvasDifferences') canvasDifferences: ElementRef<HTMLCanvasElement>;
-    width = Dimensions.DEFAULT_WIDTH;
-    height = Dimensions.DEFAULT_HEIGHT;
-    context: CanvasRenderingContext2D;
+    width = Dimensions.DefaultWidth;
+    height = Dimensions.DefaultHeight;
     inputValue: string;
     applyBorder = false;
 
+    private context: CanvasRenderingContext2D;
     private image: HTMLImageElement;
 
     constructor(

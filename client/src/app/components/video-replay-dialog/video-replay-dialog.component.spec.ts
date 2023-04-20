@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -57,7 +58,7 @@ describe('VideoReplayDialogComponent', () => {
     });
 
     it('should call sortActions after init', () => {
-        const sortActionsSpy = spyOn(component, 'sortActions').and.stub();
+        const sortActionsSpy = spyOn(component as any, 'sortActions').and.stub();
         component.ngOnInit();
         expect(component.actions).toEqual(videoReplay.actions);
         expect(component.username).toEqual(videoReplay.scoreboardParams.username);
@@ -80,14 +81,14 @@ describe('VideoReplayDialogComponent', () => {
         component.scoreBoardActions = [];
         component.chatBoxActions = [];
         component.counter = 0;
-        component.sortActions();
+        (component as any).sortActions();
         expect(component.playAreaActions).toEqual([{ type: Instruction.Error, timeStart: 0 }]);
         expect(component.scoreBoardActions).toEqual([{ type: Instruction.Score, timeStart: 0 }]);
         expect(component.chatBoxActions).toEqual([{ type: Instruction.ChatMessage, timeStart: 0 }]);
     });
 
     it('pause should call stopTimer if pause is false', () => {
-        const stopTimerSpy = spyOn(component, 'stopTimer').and.stub();
+        const stopTimerSpy = spyOn(component as any, 'stopTimer').and.stub();
         component.paused = false;
         component.pauseSignal = false;
         component.pause();
@@ -96,7 +97,7 @@ describe('VideoReplayDialogComponent', () => {
     });
 
     it('pause should not call stopTimer if pause is true', () => {
-        const stopTimerSpy = spyOn(component, 'stopTimer').and.stub();
+        const stopTimerSpy = spyOn(component as any, 'stopTimer').and.stub();
         component.paused = true;
         component.pauseSignal = false;
         component.pause();
@@ -125,7 +126,7 @@ describe('VideoReplayDialogComponent', () => {
     });
 
     it('startTimer should call stopTimer and setTimer if paused is false', fakeAsync(() => {
-        const stopTimerSpy = spyOn(component, 'stopTimer').and.stub();
+        const stopTimerSpy = spyOn(component as any, 'stopTimer').and.stub();
         component.paused = false;
         component.startTimer();
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
@@ -136,7 +137,7 @@ describe('VideoReplayDialogComponent', () => {
     }));
 
     it('startTimer should not call stopTimer if paused is true', () => {
-        const stopTimerSpy = spyOn(component, 'stopTimer').and.stub();
+        const stopTimerSpy = spyOn(component as any, 'stopTimer').and.stub();
         component.paused = true;
         component.startTimer();
         expect(stopTimerSpy).not.toHaveBeenCalled();
@@ -160,7 +161,7 @@ describe('VideoReplayDialogComponent', () => {
     it('stopTimer should clear timer', () => {
         const clearIntervalSpy = spyOn(window, 'clearInterval');
         component.startTimer();
-        component.stopTimer();
+        (component as any).stopTimer();
         expect(clearIntervalSpy).toHaveBeenCalled();
     });
 });

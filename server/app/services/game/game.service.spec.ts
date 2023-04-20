@@ -1,12 +1,12 @@
 /* eslint-disable max-lines */
-import { DELAY_BEFORE_CLOSING_CONNECTION, NOT_TOP3 } from '@app/constants';
+import { DELAY_BEFORE_CLOSING_CONNECTION, NOT_TOP3 } from '@app/constants/constants';
 import { environment } from '@app/environments/environment.prod';
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
 import { GameModeGateway } from '@app/gateways/game-mode/game-mode.gateway';
 import { Game, GameDocument, gameSchema } from '@app/model/database/game';
 import { GameData } from '@app/model/dto/game/game-data.dto';
-import { NewBestTime } from '@app/model/dto/game/new-best-times.dto';
-import { BestTime } from '@app/model/schema/best-times.schema';
+import { NewBestTime } from '@app/model/dto/game/new-best-time.dto';
+import { BestTime } from '@app/model/schema/best-time.schema';
 import { GameHistoryService } from '@app/services/game-history/game-history.service';
 import { GameService } from '@app/services/game/game.service';
 import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -24,7 +24,7 @@ describe('GameService', () => {
     let gameModeGateway: SinonStubbedInstance<GameModeGateway>;
     let chatGateway: SinonStubbedInstance<ChatGateway>;
     let gameHistoryService: SinonStubbedInstance<GameHistoryService>;
-    // eslint-disable-next-line no-unused-vars
+
     const timeoutTime = 1000;
 
     beforeEach(async () => {
@@ -154,7 +154,7 @@ describe('GameService', () => {
         });
     });
 
-    it('getBestTime should return undefined if the game doesnt exist', async () => {
+    it('getBestTime should return undefined if the game does not exist', async () => {
         expect(await service.getBestTime('FakeGame')).toEqual(undefined);
     });
 
@@ -253,7 +253,7 @@ describe('GameService', () => {
 
     it('deleteBestTimes should fail if update fails', async () => {
         jest.spyOn(gameModel, 'find').mockRejectedValue('');
-        await expect(service.deleteBestTimes()).rejects.toEqual('Failed to delete best times: ');
+        await expect(service.deleteBestTimes()).rejects.toEqual('Failed to delete all best times: ');
     });
 
     it('deleteBestTime should reset to default values bestTimes of specified game', async () => {
@@ -306,7 +306,9 @@ describe('GameService', () => {
             { name: 'Joueur 2', time: 120 },
         ]);
         expect(gameUpdated.vsBestTimes).toEqual(game.vsBestTimes);
-        expect(chatGateway.newBestTimeScore).toHaveBeenCalledWith('newBest obtient la 1 place dans les meilleurs temps du jeu FakeGame en mode solo');
+        expect(chatGateway.newBestTimeScore).toHaveBeenCalledWith(
+            'newBest obtient la 1ere place dans les meilleurs temps du jeu FakeGame en mode solo',
+        );
         expect(position).toEqual(0);
     });
 
@@ -317,18 +319,19 @@ describe('GameService', () => {
         await gameModel.create(game);
         const newBestTime = newFakeBestTime();
         newBestTime.isSolo = false;
+        newBestTime.time = 64;
         const position = await service.updateBestTime(game.name, newBestTime);
         const gameUpdated = await gameModel.findOne({ name: game.name });
         expect(gameUpdated.vsBestTimes).toEqual([
-            { name: 'newBest', time: 1 },
             { name: 'Joueur 1', time: 60 },
+            { name: 'newBest', time: 64 },
             { name: 'Joueur 2', time: 120 },
         ]);
         expect(gameUpdated.soloBestTimes).toEqual(game.soloBestTimes);
         expect(chatGateway.newBestTimeScore).toHaveBeenCalledWith(
-            'newBest obtient la 1 place dans les meilleurs temps du jeu FakeGame en mode un contre un',
+            'newBest obtient la 2eme place dans les meilleurs temps du jeu FakeGame en mode un contre un',
         );
-        expect(position).toEqual(0);
+        expect(position).toEqual(1);
     });
 
     it('updateBestTime should not add new time if its not a new best score for the game', async () => {

@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-
 export enum AsciiLetterValue {
     B = 66,
     M = 77,
@@ -13,8 +11,8 @@ export enum OffsetValues {
     OFFSET = 10,
 }
 
-export enum BIT_PER_PIXEL {
-    BIT_PER_PIXEL = 24,
+export enum BitPerPixel {
+    BitPerPixel = 24,
 }
 
 export enum PossibleRadius {
@@ -30,4 +28,4 @@ export enum PossibleColor {
     EMPTYPIXEL = -1,
 }
 
-export const PixelSize = 4;
+export const PIXEL_SIZE = 4;

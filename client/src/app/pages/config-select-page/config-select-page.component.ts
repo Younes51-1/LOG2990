@@ -5,7 +5,8 @@ import { DeleteDialogComponent } from '@app/components/delete-dialog/delete-dial
 import { GameData, GameHistory } from '@app/interfaces/game';
 import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 import { ConfigHttpService } from '@app/services/config-http/config-http.service';
-import { PageKeys } from 'src/assets/variables/game-card-options';
+import { DeleteDialogAction } from 'src/assets/variables/delete-dialog-action';
+import { PageKeys, slideConfig } from 'src/assets/variables/game-card-options';
 
 @Component({
     selector: 'app-config-select-page',
@@ -15,19 +16,12 @@ import { PageKeys } from 'src/assets/variables/game-card-options';
 export class ConfigSelectPageComponent implements OnInit {
     @ViewChild('table-container', { static: true }) table: ElementRef;
 
+    noGames: boolean = false;
     pageType: PageKeys;
     imgSource: string;
     slides: GameData[];
     parties: GameHistory[];
-    slideConfig = {
-        slidesToShow: 4,
-        slidesToScroll: 4,
-        lazyLoad: 'ondemand',
-        cssEase: 'linear',
-        dots: true,
-        appendArrows: 'ngx-slick-carousel',
-        infinite: false,
-    };
+    slideConfig = slideConfig;
 
     private dialogRef: MatDialogRef<DeleteDialogComponent>;
 
@@ -51,7 +45,7 @@ export class ConfigSelectPageComponent implements OnInit {
 
     deleteNotify(name: string): void {
         if (this.pageType === PageKeys.Config) {
-            this.dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { action: 'delete' } });
+            this.dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { action: DeleteDialogAction.Delete } });
             if (this.dialogRef) {
                 this.dialogRef.afterClosed().subscribe((supp) => {
                     if (supp) {
@@ -64,7 +58,7 @@ export class ConfigSelectPageComponent implements OnInit {
 
     resetNotify(name: string): void {
         if (this.pageType === PageKeys.Config) {
-            this.dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { action: 'reset' } });
+            this.dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { action: DeleteDialogAction.Reset } });
             if (this.dialogRef) {
                 this.dialogRef.afterClosed().subscribe((supp) => {
                     if (supp) {
@@ -85,7 +79,7 @@ export class ConfigSelectPageComponent implements OnInit {
     }
 
     deletePartie(): void {
-        this.dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { action: 'deleteHistory' } });
+        this.dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { action: DeleteDialogAction.DeleteHistory } });
         if (this.dialogRef) {
             this.dialogRef.afterClosed().subscribe((supp) => {
                 if (supp) {
@@ -104,7 +98,7 @@ export class ConfigSelectPageComponent implements OnInit {
     }
 
     resetBestTimes() {
-        this.dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { action: 'resetAll' } });
+        this.dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { action: DeleteDialogAction.ResetAll } });
         if (this.dialogRef) {
             this.dialogRef.afterClosed().subscribe((supp) => {
                 if (supp) {
@@ -118,7 +112,7 @@ export class ConfigSelectPageComponent implements OnInit {
     }
 
     deleteAllGames(): void {
-        this.dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { action: 'deleteAll' } });
+        this.dialogRef = this.dialog.open(DeleteDialogComponent, { disableClose: true, data: { action: DeleteDialogAction.DeleteAll } });
         if (this.dialogRef) {
             this.dialogRef.afterClosed().subscribe((supp) => {
                 if (supp) {
@@ -131,6 +125,9 @@ export class ConfigSelectPageComponent implements OnInit {
 
     private getSlidesFromServer(): void {
         this.gameCommunicationService.getAllGames().subscribe((res) => {
+            if (res.length === 0) {
+                this.noGames = true;
+            }
             this.slides = res;
             for (const slide of this.slides) {
                 slide.isSelected = false;

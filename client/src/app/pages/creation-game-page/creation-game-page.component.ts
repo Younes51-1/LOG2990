@@ -31,8 +31,8 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     belongsToCanvas1 = true;
     pencilSize = DefaultSize.Pencil;
     eraserSize = DefaultSize.Eraser;
-    undo: ForegroundState[] = [];
-    redo: ForegroundState[] = [];
+    previousForegroundStates: ForegroundState[] = [];
+    nextForegroundStates: ForegroundState[] = [];
     context1: CanvasRenderingContext2D;
     context2: CanvasRenderingContext2D;
     contextForeground1: CanvasRenderingContext2D;
@@ -54,8 +54,8 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     nameGame: string;
     difficulty: string;
     differenceCount: number;
-    width = Dimensions.DEFAULT_WIDTH;
-    height = Dimensions.DEFAULT_HEIGHT;
+    width = Dimensions.DefaultWidth;
+    height = Dimensions.DefaultHeight;
     radius = PossibleRadius.THREE;
     differenceMatrix: number[][];
     possibleRadius = [PossibleRadius.ZERO, PossibleRadius.THREE, PossibleRadius.NINE, PossibleRadius.FIFTEEN];
@@ -76,9 +76,9 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     @HostListener('document:keydown', ['$event'])
     handleKeyboardEvent(event: KeyboardEvent) {
         if (event.key === 'z' && event.ctrlKey) {
-            this.ctrlZ();
+            this.undo();
         } else if (event.key === 'Z' && event.ctrlKey && event.shiftKey) {
-            this.ctrlShiftZ();
+            this.redo();
         } else if (event.shiftKey && !this.shiftPressed) {
             this.shiftPressed = true;
             if (this.mousePressed && this.drawMode === DrawModes.RECTANGLE) {
@@ -102,28 +102,12 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         this.foregroundService.setComponent(this);
         this.imageLoadService.setComponent(this);
 
-        const context1Init = this.canvas1.nativeElement.getContext('2d');
-        if (context1Init) this.context1 = context1Init;
-        const context2Init = this.canvas2.nativeElement.getContext('2d');
-        if (context2Init) this.context2 = context2Init;
-
-        this.canvasForeground1 = this.drawingService.createNewCanvas();
-        this.canvasForeground2 = this.drawingService.createNewCanvas();
-
-        const contextForeground1 = this.canvasForeground1.getContext('2d');
-        if (contextForeground1) this.contextForeground1 = contextForeground1;
-        const contextForeground2 = this.canvasForeground2.getContext('2d');
-        if (contextForeground2) this.contextForeground2 = contextForeground2;
+        this.setContexts();
+        this.setForegroundContexts();
 
         this.mousePosition = { x: 0, y: 0 };
-
-        const canvasRectangle = this.drawingService.createNewCanvas();
-        const contextRectangle = canvasRectangle.getContext('2d');
-        if (contextRectangle) this.rectangleState = { canvas: canvasRectangle, context: contextRectangle, startPos: this.mousePosition };
-
-        const canvasTmp = this.drawingService.createNewCanvas();
-        const canvasTmpCtx = canvasTmp.getContext('2d');
-        if (canvasTmpCtx) this.canvasTemp = { canvas: canvasTmp, context: canvasTmpCtx };
+        this.setRectangleContext();
+        this.setTempCanvas();
 
         this.foregroundService.clearRectWithWhite(this.context1);
         this.foregroundService.clearRectWithWhite(this.context2);
@@ -133,7 +117,7 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         this.imageLoadService.verifyImageFormat(e, img);
     }
 
-    async runDetectionSystem() {
+    runDetectionSystem() {
         this.imageLoadService.runDetectionSystem();
     }
 
@@ -162,8 +146,8 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         this.foregroundService.duplicateForeground(input);
     }
 
-    pushAndSwapForegrounds() {
-        this.foregroundService.pushAndSwapForegrounds();
+    invertForegrounds() {
+        this.foregroundService.invertForegrounds();
     }
 
     handleCanvasEvent(eventType: string, event: MouseEvent, canvas: HTMLCanvasElement) {
@@ -174,12 +158,12 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         this.drawingService.handleMouseUp();
     }
 
-    ctrlZ() {
-        this.drawingService.ctrlZ();
+    undo() {
+        this.drawingService.undo();
     }
 
-    ctrlShiftZ() {
-        this.drawingService.ctrlShiftZ();
+    redo() {
+        this.drawingService.redo();
     }
 
     pushToUndoStack() {
@@ -194,5 +178,34 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         if (this.dialogRef) {
             this.dialogRef.close();
         }
+    }
+
+    private setContexts() {
+        const context1Init = this.canvas1.nativeElement.getContext('2d');
+        if (context1Init) this.context1 = context1Init;
+        const context2Init = this.canvas2.nativeElement.getContext('2d');
+        if (context2Init) this.context2 = context2Init;
+    }
+
+    private setForegroundContexts() {
+        this.canvasForeground1 = this.drawingService.createNewCanvas();
+        this.canvasForeground2 = this.drawingService.createNewCanvas();
+
+        const contextForeground1 = this.canvasForeground1.getContext('2d');
+        if (contextForeground1) this.contextForeground1 = contextForeground1;
+        const contextForeground2 = this.canvasForeground2.getContext('2d');
+        if (contextForeground2) this.contextForeground2 = contextForeground2;
+    }
+
+    private setRectangleContext() {
+        const canvasRectangle = this.drawingService.createNewCanvas();
+        const contextRectangle = canvasRectangle.getContext('2d');
+        if (contextRectangle) this.rectangleState = { canvas: canvasRectangle, context: contextRectangle, startPos: this.mousePosition };
+    }
+
+    private setTempCanvas() {
+        const canvasTmp = this.drawingService.createNewCanvas();
+        const canvasTmpCtx = canvasTmp.getContext('2d');
+        if (canvasTmpCtx) this.canvasTemp = { canvas: canvasTmp, context: canvasTmpCtx };
     }
 }
