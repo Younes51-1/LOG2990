@@ -1,4 +1,4 @@
 export enum ErrorText {
-    Width = 76,
-    Height = 30,
+    Width = 50,
+    Height = 25,
 }

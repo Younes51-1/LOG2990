@@ -2,12 +2,12 @@ import { Injectable } from '@angular/core';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
 import { ReplayPlayAreaComponent } from '@app/components/replay-play-area/replay-play-area.component';
 import { Vec2 } from '@app/interfaces/vec2';
+import { ConfettiService } from '@app/services/confetti/confetti.service';
 import { DetectionDifferenceService } from '@app/services/detection-difference/detection-difference.service';
 import { Color } from 'src/assets/variables/color';
 import { PIXEL_SIZE, PossibleColor } from 'src/assets/variables/images-values';
 import { ErrorText } from 'src/assets/variables/text';
 import { Time } from 'src/assets/variables/time';
-import { ConfettiService } from '@app/services/confetti/confetti.service';
 
 @Injectable({
     providedIn: 'root',
@@ -128,12 +128,12 @@ export class PlayAreaService {
         const context1 = this.component.canvas1.nativeElement.getContext('2d');
         if (context1) {
             this.component.context1 = context1;
-            this.component.context1.font = '50px MarioFont';
+            this.component.context1.font = '40px comic sans ms';
         }
         const context2 = this.component.canvas2.nativeElement.getContext('2d');
         if (context2) {
             this.component.context2 = context2;
-            this.component.context2.font = '50px MarioFont';
+            this.component.context2.font = '40px comic sans ms';
         }
     }
 
