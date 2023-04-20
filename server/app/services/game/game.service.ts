@@ -173,14 +173,14 @@ export class GameService {
     }
 
     private getNewBestTimeMessage(newBestTime: NewBestTime, position: number) {
-        let positionstr = '';
-        if (position === 0) positionstr = `${position + 1}ere`;
-        else positionstr = `${position + 1}eme`;
+        let positionStr = '';
+        if (position === 0) positionStr = `${position + 1}ere`;
+        else positionStr = `${position + 1}eme`;
 
         if (newBestTime.isSolo) {
-            return `${newBestTime.name} obtient la ${positionstr} place dans les meilleurs temps du jeu ${newBestTime.gameName} en mode solo`;
+            return `${newBestTime.name} obtient la ${positionStr} place dans les meilleurs temps du jeu ${newBestTime.gameName} en mode solo`;
         }
-        return `${newBestTime.name} obtient la ${positionstr} place dans les meilleurs temps du jeu ${newBestTime.gameName} en mode un contre un`;
+        return `${newBestTime.name} obtient la ${positionStr} place dans les meilleurs temps du jeu ${newBestTime.gameName} en mode un contre un`;
     }
 
     private async saveImages(newGame: NewGame): Promise<void> {

@@ -206,7 +206,7 @@ describe('GameModeGateway', () => {
         expect(abandonLimitedTimeModeSpy).toHaveBeenCalled();
     });
 
-    it('Abandoned should do nothing if the game doesnt exists', () => {
+    it('Abandoned should do nothing if the game does not exists', () => {
         const getGameRoomSpy = jest.spyOn(gameModeService, 'getGameRoom').mockReturnValue(undefined);
         const abandonClassicModeSpy = jest.spyOn(gameModeService, 'abandonClassicMode').mockImplementation();
         gateway.abandoned(socket, { roomId: getFakeGameRoom().roomId, username: getFakeGameRoom().userGame.username1 });
@@ -247,23 +247,23 @@ describe('GameModeGateway', () => {
         expect(deleteRoomSpy).toHaveBeenCalled();
     });
 
-    it('socket disconnection should just return if the game doesnt exists', () => {
+    it('socket disconnection should just return if the game does not exists', () => {
         const deleteRoomSpy = jest.spyOn(gameModeService, 'deleteGameRoom').mockImplementation();
         jest.spyOn(gameModeService, 'getGameRoom').mockReturnValue(undefined);
         gateway.handleDisconnect(socket);
         expect(deleteRoomSpy).not.toHaveBeenCalled();
     });
 
-    it('socket disconnection should just return if and call abandonned when its multiplayer game', () => {
+    it('socket disconnection should just return if and call abandoned when its multiplayer game', () => {
         const deleteRoomSpy = jest.spyOn(gameModeService, 'deleteGameRoom').mockImplementation();
-        const abandonnedSpy = jest.spyOn(gateway, 'abandoned').mockImplementation();
+        const abandonedSpy = jest.spyOn(gateway, 'abandoned').mockImplementation();
         jest.spyOn(gameModeService, 'getGameRoom').mockImplementation(() => {
             const gameRoom = getFakeGameRoom();
             gameRoom.userGame.username2 = 'fakeUser2';
             return gameRoom;
         });
         gateway.handleDisconnect(socket);
-        expect(abandonnedSpy).toHaveBeenCalled();
+        expect(abandonedSpy).toHaveBeenCalled();
         expect(deleteRoomSpy).not.toHaveBeenCalled();
     });
 

@@ -24,8 +24,8 @@ import {
     PARTICLE_START_VELOCITY,
     PARTICLE_ZINDEX,
     STAR_SHAPES,
-    WININIG_DURATION,
-    WININIG_TICKS,
+    WINNING_DURATION,
+    WINNING_TICKS,
 } from 'src/assets/variables/confetti-const';
 
 @Injectable({
@@ -86,7 +86,7 @@ export class ConfettiService {
             }, HINT_DURATION / this.playAreaService.speed);
         } else {
             const animationEnd = Date.now() + CONFETTI_INTERVAL_DURATION;
-            const defaults = { startVelocity: PARTICLE_START_VELOCITY, spread: PARTICLE_SPREAD, ticks: WININIG_TICKS, zIndex: 0 };
+            const defaults = { startVelocity: PARTICLE_START_VELOCITY, spread: PARTICLE_SPREAD, ticks: WINNING_TICKS, zIndex: 0 };
             this.intervalId = setInterval(() => {
                 const timeLeft = animationEnd - Date.now();
                 if (timeLeft <= 0) {
@@ -105,7 +105,7 @@ export class ConfettiService {
                         origin: { x: Math.random() * PARTICLE_ORIGIN_X + PARTICLE_ORIGIN_MAX_X, y: Math.random() - PARTICLE_ORIGIN_MAX_Y },
                     }),
                 );
-            }, WININIG_DURATION / this.playAreaService.speed);
+            }, WINNING_DURATION / this.playAreaService.speed);
         }
     }
 

@@ -1,4 +1,4 @@
-import { EMPTY_PIXEL_VALUE } from '@app/constants/constants';
+import { EMPTYPIXEL_VALUE } from '@app/constants/constants';
 import { GameHistory } from '@app/model/database/game-history';
 import { EndGame } from '@app/model/schema/end-game.schema';
 import { GameRoom } from '@app/model/schema/game-room.schema';
@@ -85,7 +85,7 @@ export class GameModeService {
     validateDifference(gameId: string, differencePos: Vector2D): boolean {
         const gameRoom = this.getGameRoom(gameId);
         if (!gameRoom) return false;
-        const validated = gameRoom.userGame.gameData.differenceMatrix[differencePos.y][differencePos.x] !== EMPTY_PIXEL_VALUE;
+        const validated = gameRoom.userGame.gameData.differenceMatrix[differencePos.y][differencePos.x] !== EMPTYPIXEL_VALUE;
         if (validated) {
             gameRoom.userGame.nbDifferenceFound++;
             this.setGameRoom(gameRoom);
@@ -106,8 +106,8 @@ export class GameModeService {
     abandonGameHistory(roomId: string, username: string): void {
         const gameHistory = this.getGameHistory(roomId);
         if (gameHistory.username2) {
-            if (!gameHistory.abandonned) gameHistory.abandonned = [];
-            gameHistory.abandonned.push(username);
+            if (!gameHistory.abandoned) gameHistory.abandoned = [];
+            gameHistory.abandoned.push(username);
         } else {
             this.updateGameHistory({ roomId, gameFinished: false, winner: false, username });
         }
@@ -180,8 +180,8 @@ export class GameModeService {
     abandonLimitedTimeMode(gameRoom: GameRoom, username: string, oldRoomId: string): void {
         const gameHistory = this.getGameHistory(oldRoomId);
         if (gameHistory) {
-            if (!gameHistory.abandonned) gameHistory.abandonned = [];
-            gameHistory.abandonned.push(username);
+            if (!gameHistory.abandoned) gameHistory.abandoned = [];
+            gameHistory.abandoned.push(username);
             if (!gameRoom.userGame.username2) {
                 gameHistory.timer = Date.now() - gameHistory.startTime;
                 this.gameHistoryService.saveGameHistory(gameHistory);
@@ -207,8 +207,8 @@ export class GameModeService {
                 gameHistory.winner = 'Aucun gagnant';
             }
         } else {
-            if (!gameHistory.abandonned) gameHistory.abandonned = [];
-            gameHistory.abandonned.push(endGame.username);
+            if (!gameHistory.abandoned) gameHistory.abandoned = [];
+            gameHistory.abandoned.push(endGame.username);
         }
         this.setGameHistory(endGame.roomId, gameHistory);
     }

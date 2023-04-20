@@ -349,9 +349,7 @@ describe('ReplayPlayAreaComponent', () => {
     });
 
     it('should not call drawImage if context is null', () => {
-        spyOn(window.HTMLCanvasElement.prototype, 'getContext').and.callFake(() => {
-            return null;
-        });
+        spyOn(window.HTMLCanvasElement.prototype, 'getContext').and.returnValue(null);
         const drawImageSpy = spyOn(window.CanvasRenderingContext2D.prototype, 'drawImage').and.stub();
         const canvas = document.createElement('canvas');
         (component as any).changeActiveContext(canvas, canvas, true);

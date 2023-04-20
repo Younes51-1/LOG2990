@@ -154,7 +154,7 @@ describe('GameService', () => {
         });
     });
 
-    it('getBestTime should return undefined if the game doesnt exist', async () => {
+    it('getBestTime should return undefined if the game does not exist', async () => {
         expect(await service.getBestTime('FakeGame')).toEqual(undefined);
     });
 

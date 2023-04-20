@@ -117,7 +117,7 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
         this.imageLoadService.verifyImageFormat(e, img);
     }
 
-    async runDetectionSystem() {
+    runDetectionSystem() {
         this.imageLoadService.runDetectionSystem();
     }
 

@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 /* eslint-disable max-classes-per-file */
 import { OverlayModule } from '@angular/cdk/overlay';
 import { HttpClientModule } from '@angular/common/http';
@@ -74,7 +75,7 @@ describe('WaitingRoomService', () => {
         expect(connectSpy).not.toHaveBeenCalled();
     });
 
-    it('should disconnet socket if it is alive', () => {
+    it('should disconnect socket if it is alive', () => {
         const socketAliveSpy = spyOn(socketServiceMock, 'isSocketAlive').and.returnValue(true);
         const disconnectSpy = spyOn(socketServiceMock, 'disconnect').and.stub();
         service.disconnectSocket();
@@ -82,7 +83,7 @@ describe('WaitingRoomService', () => {
         expect(disconnectSpy).toHaveBeenCalled();
     });
 
-    it('should not disconnet socket if it is not alive', () => {
+    it('should not disconnect socket if it is not alive', () => {
         const socketAliveSpy = spyOn(socketServiceMock, 'isSocketAlive').and.returnValue(false);
         const disconnectSpy = spyOn(socketServiceMock, 'disconnect').and.stub();
         service.disconnectSocket();
@@ -249,7 +250,7 @@ describe('WaitingRoomService', () => {
         expect(service.accepted$.next).toHaveBeenCalled();
     });
 
-    it("should handle playerAccepted and rejecte player if requirements aren't met", () => {
+    it("should handle playerAccepted and reject player if requirements aren't met", () => {
         spyOn(service.accepted$, 'next').and.stub();
         spyOn(service.rejected$, 'next').and.stub();
         service.username = 'differentUsername';
@@ -269,7 +270,7 @@ describe('WaitingRoomService', () => {
         expect(service.rejected$.next).toHaveBeenCalled();
     });
 
-    it('should handle playerRejected if differents players still in potentialPlayers', () => {
+    it('should handle playerRejected if different players still in potentialPlayers', () => {
         spyOn(service.rejected$, 'next').and.stub();
         service.username = 'differentUsername';
         gameRoom.userGame.potentialPlayers = ['myusername', 'anotherDifferentUsername'];
@@ -315,7 +316,7 @@ describe('WaitingRoomService', () => {
         expect(service.gameCanceled$.next).not.toHaveBeenCalled();
     });
 
-    it('should handle gameCanceled for potentiel users', () => {
+    it('should handle gameCanceled for potential users', () => {
         spyOn(service.gameCanceled$, 'next').and.stub();
         gameRoom.userGame.potentialPlayers = ['myusername', 'differentUsername'];
         service.gameRoom = gameRoom;
@@ -334,5 +335,29 @@ describe('WaitingRoomService', () => {
         service.handleWaitingRoomSocket();
         socketHelper.peerSideEmit('gameCanceled', gameRoom);
         expect(service.gameCanceled$.next).not.toHaveBeenCalled();
+    });
+
+    it('should handle gameDeleted if it was sent to classic mode', () => {
+        spyOn(service.gameCanceled$, 'next').and.stub();
+        service.gameRoom = gameRoom;
+        service.gameMode = 'mode classique';
+        service.username = 'differentUsername';
+        service.handleWaitingRoomSocket();
+        socketHelper.peerSideEmit('gameDeleted', gameRoom.userGame.gameData.name);
+        expect(service.gameCanceled$.next).toHaveBeenCalled();
+    });
+
+    it('should handle gameDeleted if it was sent to limited time mode and there is no more games', () => {
+        spyOn(service.gameCanceled$, 'next').and.stub();
+        service.gameRoom = gameRoom;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (service as any).gameService.slides = [gameRoom.userGame.gameData];
+        service.gameMode = 'limited-time-mode';
+        service.username = 'differentUsername';
+        service.handleWaitingRoomSocket();
+        socketHelper.peerSideEmit('gameDeleted', gameRoom.userGame.gameData.name);
+        expect(service.gameCanceled$.next).toHaveBeenCalled();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        expect((service as any).gameService.slides).toEqual([]);
     });
 });

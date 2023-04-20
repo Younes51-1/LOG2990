@@ -153,9 +153,7 @@ describe('ImageLoadService', () => {
     }));
 
     it('save name game should set nameGame', () => {
-        spyOn(window, 'alert').and.callFake(() => {
-            return;
-        });
+        spyOn(window, 'alert').and.stub();
         const newGameName = 'newGameName';
         (service as any).saveNameGame(newGameName);
         expect(component.nameGame).toEqual(newGameName);
@@ -183,7 +181,7 @@ describe('ImageLoadService', () => {
         expect(spy).toHaveBeenCalledWith(mockEvent, mockImageElement);
     });
 
-    it("handleReaderOnload should alert if image doesn't have correct dimmensions", () => {
+    it("handleReaderOnload should alert if image doesn't have correct dimensions", () => {
         const mockFileReader = new FileReader();
         const mockEvent = new Event('test');
         const mockImageElement = {
@@ -213,7 +211,7 @@ describe('ImageLoadService', () => {
         expect(window.alert).toHaveBeenCalledWith('Image refusée: elle ne respecte pas le format BMP-24 bit');
     });
 
-    it("handleReaderOnload should alert if image doesn't have correct dimmensions and isn't 24 bits bmp image", () => {
+    it("handleReaderOnload should alert if image doesn't have correct dimensions and isn't 24 bits bmp image", () => {
         const mockFileReader = new FileReader();
         const mockEvent = new Event('test');
         const mockImageElement = {
@@ -379,9 +377,7 @@ describe('ImageLoadService', () => {
     });
 
     it('should call handleReaderOnload on FileReader load', (done) => {
-        const handleReaderOnloadSpy = spyOn(service as any, 'handleReaderOnload').and.callFake(() => {
-            return;
-        });
+        const handleReaderOnloadSpy = spyOn(service as any, 'handleReaderOnload').and.stub();
         const file = new File(['https://example.com/image3.jpg'], 'testFile', { type: 'image/bmp' });
         const event = { target: { files: [file] } } as unknown as Event;
         const inputElement = document.createElement('input');

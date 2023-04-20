@@ -19,9 +19,9 @@ import { EndgameDialogComponent } from '@app/components/endgame-dialog/endgame-d
 import { GameCardComponent } from '@app/components/game-card/game-card.component';
 import { GameScoreboardComponent } from '@app/components/game-scoreboard/game-scoreboard.component';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
-import { ReplayChatBoxComponent } from '@app/components/replay-components/replay-chat-box/replay-chat-box.component';
-import { ReplayPlayAreaComponent } from '@app/components/replay-components/replay-play-area/replay-play-area.component';
-import { ReplayScoreBoardComponent } from '@app/components/replay-components/replay-score-board/replay-score-board.component';
+import { ReplayChatBoxComponent } from '@app/components/replay-chat-box/replay-chat-box.component';
+import { ReplayPlayAreaComponent } from '@app/components/replay-play-area/replay-play-area.component';
+import { ReplayScoreBoardComponent } from '@app/components/replay-score-board/replay-score-board.component';
 import { VideoReplayDialogComponent } from '@app/components/video-replay-dialog/video-replay-dialog.component';
 import { WaitingRoomComponent } from '@app/components/waiting-room-dialog/waiting-room-dialog.component';
 import { AppRoutingModule } from '@app/modules/app-routing.module';

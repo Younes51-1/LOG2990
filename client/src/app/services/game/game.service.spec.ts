@@ -108,7 +108,7 @@ describe('GameService', () => {
         expect(connectSpy).not.toHaveBeenCalled();
     });
 
-    it('should disconnet socket if it is alive', () => {
+    it('should disconnect socket if it is alive', () => {
         const socketAliveSpy = spyOn(socketServiceMock, 'isSocketAlive').and.returnValue(true);
         const disconnectSpy = spyOn(socketServiceMock, 'disconnect').and.stub();
         service.disconnectSocket();
@@ -116,7 +116,7 @@ describe('GameService', () => {
         expect(disconnectSpy).toHaveBeenCalled();
     });
 
-    it('should not disconnet socket if it is not alive', () => {
+    it('should not disconnect socket if it is not alive', () => {
         const socketAliveSpy = spyOn(socketServiceMock, 'isSocketAlive').and.returnValue(false);
         const disconnectSpy = spyOn(socketServiceMock, 'disconnect').and.stub();
         service.disconnectSocket();

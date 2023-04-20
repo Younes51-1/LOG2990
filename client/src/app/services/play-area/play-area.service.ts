@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
-import { ReplayPlayAreaComponent } from '@app/components/replay-components/replay-play-area/replay-play-area.component';
+import { ReplayPlayAreaComponent } from '@app/components/replay-play-area/replay-play-area.component';
 import { Vec2 } from '@app/interfaces/vec2';
 import { DetectionDifferenceService } from '@app/services/detection-difference/detection-difference.service';
 import { Color } from 'src/assets/variables/color';
-import { PixelSize, PossibleColor } from 'src/assets/variables/images-values';
+import { PIXEL_SIZE, PossibleColor } from 'src/assets/variables/images-values';
 import { ErrorText } from 'src/assets/variables/text';
 import { Time } from 'src/assets/variables/time';
 import { ConfettiService } from '@app/services/confetti/confetti.service';
@@ -295,13 +295,13 @@ export class PlayAreaService {
                 return dialMatrix[coords.x < dialHeight ? (coords.y < dialWidth ? 0 : 1) : coords.y < dialWidth ? 2 : 3];
             }
             case 1: {
-                const dialMatrix = new Array(PixelSize ** 2);
-                for (let i = 0; i < PixelSize ** 2; i++) {
-                    const topLeft = { x: (i % PixelSize) * dialHeight, y: Math.floor(i / PixelSize) * dialWidth };
+                const dialMatrix = new Array(PIXEL_SIZE ** 2);
+                for (let i = 0; i < PIXEL_SIZE ** 2; i++) {
+                    const topLeft = { x: (i % PIXEL_SIZE) * dialHeight, y: Math.floor(i / PIXEL_SIZE) * dialWidth };
                     const bottomRight = { x: topLeft.x + dialHeight, y: topLeft.y + dialWidth };
                     dialMatrix[i] = this.createPopulateMatrix(topLeft, bottomRight);
                 }
-                const dialIndex = Math.floor(coords.y / dialWidth) * PixelSize + Math.floor(coords.x / dialHeight);
+                const dialIndex = Math.floor(coords.y / dialWidth) * PIXEL_SIZE + Math.floor(coords.x / dialHeight);
                 return dialMatrix[dialIndex];
             }
         }

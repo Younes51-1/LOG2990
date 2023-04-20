@@ -89,7 +89,7 @@ describe('GameModeService', () => {
         expect(testGameModeService.getGameRoom(undefined, undefined, newRoom.gameMode)).toEqual(newRoom);
     });
 
-    it('getGameRoom should return undefined if the game doesnt exists', () => {
+    it('getGameRoom should return undefined if the game does not exists', () => {
         const newRoom = getFakeGameRoom();
         expect(testGameModeService.getGameRoom(newRoom.roomId)).toEqual(undefined);
     });
@@ -237,7 +237,7 @@ describe('GameModeService', () => {
         expect(testGameModeService.isGameFinished(newRoom.roomId)).toBeTruthy();
     });
 
-    it('isGameFinished should return false if the gameRoom doesnt exists', () => {
+    it('isGameFinished should return false if the gameRoom does not exists', () => {
         const newRoom = getFakeGameRoom();
         expect(testGameModeService.isGameFinished(newRoom.roomId)).toBeFalsy();
     });
@@ -265,7 +265,7 @@ describe('GameModeService', () => {
         expect(testGameModeService.isGameFinished(newRoom.roomId)).toBeFalsy();
     });
 
-    it('abandonGameHistory should correctly update game history when game was abandonned', () => {
+    it('abandonGameHistory should correctly update game history when game was abandoned', () => {
         (testGameModeService as any).gameHistory = new Map();
         jest.spyOn(service, 'getGameHistory').mockReturnValue(getFakeGameHistory());
         jest.spyOn(service as any, 'updateGameHistory').mockImplementation();
@@ -275,7 +275,7 @@ describe('GameModeService', () => {
         expect((service as any).updateGameHistory).toHaveBeenCalled();
     });
 
-    it('abandonGameHistory should correctly update game history when game was abandonned and we are in a multiplayer lobby', () => {
+    it('abandonGameHistory should correctly update game history when game was abandoned and we are in a multiplayer lobby', () => {
         (testGameModeService as any).gameHistory = new Map();
         jest.spyOn(service, 'getGameHistory').mockImplementation(() => {
             const gameHistory = getFakeGameHistory();
@@ -284,7 +284,7 @@ describe('GameModeService', () => {
         });
         service.abandonGameHistory(getFakeGameRoom().roomId, getFakeGameRoom().userGame.username1);
         jest.spyOn(service, 'getGameHistory').mockRestore();
-        expect(service.getGameHistory(getFakeGameRoom().roomId).abandonned).toEqual(['FakeUser']);
+        expect(service.getGameHistory(getFakeGameRoom().roomId).abandoned).toEqual(['FakeUser']);
     });
 
     it('initNewRoom should create a new room with the given id', () => {
@@ -353,7 +353,7 @@ describe('GameModeService', () => {
         expect(testGameModeService.getRoomsValues()).toEqual([newRoom]);
     });
 
-    it('applyTimeToTimer should do nothing if gameRoom doesnt exists', () => {
+    it('applyTimeToTimer should do nothing if gameRoom does not exists', () => {
         const fakeGameRoom = getFakeGameRoom();
         const setGameRoomSpy = jest.spyOn(service, 'setGameRoom').mockImplementation();
         const time = 10;
@@ -428,7 +428,7 @@ describe('GameModeService', () => {
         testGameModeService.addElementToHistoryMap(newRoom.roomId, newGameHistory);
         testGameModeService.abandonLimitedTimeMode(newRoom, newRoom.userGame.username1, newRoom.roomId);
         expect(testGameModeService.getGameRoom(newRoom.roomId).userGame.username1).toEqual('FakeUser2');
-        expect(testGameModeService.getGameHistory(newRoom.roomId).abandonned).toEqual(['FakeUser']);
+        expect(testGameModeService.getGameHistory(newRoom.roomId).abandoned).toEqual(['FakeUser']);
     });
 
     it('abandonLimitedTimeMode should change username if user quit and update gameRoom and history', () => {
@@ -441,7 +441,7 @@ describe('GameModeService', () => {
         testGameModeService.addElementToHistoryMap(newRoom.roomId, newGameHistory);
         testGameModeService.abandonLimitedTimeMode(newRoom, newRoom.userGame.username1, newRoom.roomId);
         expect(saveGameHistorySpy).toHaveBeenCalled();
-        expect(testGameModeService.getGameHistory(newRoom.roomId).abandonned).toEqual(['FakeUser']);
+        expect(testGameModeService.getGameHistory(newRoom.roomId).abandoned).toEqual(['FakeUser']);
     });
 
     it('updateGameHistory should correctly update game history when user is the winner', () => {
@@ -464,7 +464,7 @@ describe('GameModeService', () => {
         expect(testGameModeService.getGameHistory(fakeGameRoom.roomId).winner).toEqual('FakeUser');
     });
 
-    it('updateGameHistory should correctly update game history when game was abandonned', () => {
+    it('updateGameHistory should correctly update game history when game was abandoned', () => {
         (testGameModeService as any).gameHistory = new Map();
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         jest.spyOn(Date, 'now').mockReturnValue(20);
@@ -481,7 +481,7 @@ describe('GameModeService', () => {
         (testGameModeService as any).updateGameHistory(fakeEndGame);
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         expect(testGameModeService.getGameHistory(fakeGameRoom.roomId).timer).toEqual(10);
-        expect(testGameModeService.getGameHistory(fakeGameRoom.roomId).abandonned).toEqual(['FakeUser']);
+        expect(testGameModeService.getGameHistory(fakeGameRoom.roomId).abandoned).toEqual(['FakeUser']);
     });
 
     it('updateGameHistory should correctly update game history with no winners if its a solo game', () => {
@@ -546,7 +546,7 @@ const getFakeGameHistory = (): GameHistory => ({
     username2: undefined,
     username1: 'FakeUser',
     gameMode: GameMode.classicMode,
-    abandonned: undefined,
+    abandoned: undefined,
     winner: undefined,
 });
 

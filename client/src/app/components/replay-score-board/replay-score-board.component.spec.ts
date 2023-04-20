@@ -43,7 +43,7 @@ describe('ReplayScoreBoardComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should assign valueson init', () => {
+    it('should assign values on init', () => {
         expect(component.nbDiff).toBe(0);
         expect(component.difficulty).toBe('');
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -92,23 +92,23 @@ describe('ReplayScoreBoardComponent', () => {
         expect(component.differencesFound).toEqual(1);
     });
 
-    it('getMintes should return the minutes', () => {
+    it('getMinutes should return the minutes', () => {
         component.time = 60;
         expect(component.getMinutes()).toEqual(1);
     });
 
-    it('getMintes should return the max minutes', () => {
+    it('getMinutes should return the max minutes', () => {
         component.time = 200;
         component.timeEnd = 120;
         expect(component.getMinutes()).toEqual(2);
     });
 
-    it('getMintes should return the minutes', () => {
+    it('getMinutes should return the minutes', () => {
         component.time = 61;
         expect(component.getSeconds()).toEqual(1);
     });
 
-    it('getMintes should return the max minutes', () => {
+    it('getMinutes should return the max minutes', () => {
         component.time = 200;
         component.timeEnd = 121;
         expect(component.getSeconds()).toEqual(1);

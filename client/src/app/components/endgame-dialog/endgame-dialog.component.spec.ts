@@ -58,7 +58,7 @@ describe('EndgameDialogComponent', () => {
         } place !`);
     });
 
-    it('ngOnInit should not be done if we are in the case of a abandonning dialog', () => {
+    it('ngOnInit should not be done if we are in the case of a abandoning dialog', () => {
         component.ngOnInit();
         expect((component as any).time).toBeUndefined();
         component.gameService.timePosition$.next(1);

@@ -34,7 +34,7 @@ describe('DrawingService', () => {
         expect(service).toBeTruthy();
     });
 
-    it('should set creatiom game page as component', () => {
+    it('should set creation game page as component', () => {
         service.setComponent(component);
         expect((service as any).component).toEqual(component);
         expect((service as any).width).toEqual(component.width);
@@ -446,42 +446,42 @@ describe('DrawingService', () => {
         expect(spyDrawImage).toHaveBeenCalledTimes(2);
     });
 
-    it("ctrlZ shouldn't call swapForegrounds if pop return undefined", () => {
+    it("undo shouldn't call swapForegrounds if pop return undefined", () => {
         const spySwap = spyOn((service as any).component, 'swapForegrounds').and.stub();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         spyOn(window.Array.prototype, 'pop').and.callFake(function (this: any[]) {
             // eslint-disable-next-line no-invalid-this
-            if (!this) return null;
+            if (!this) return undefined;
             // eslint-disable-next-line no-invalid-this
             if (this.length > 0) {
                 // eslint-disable-next-line no-invalid-this
                 this.splice(0, 1);
             }
-            return null;
+            return undefined;
         });
         // esl
         const canvas = document.createElement('canvas');
-        (service as any).component.undo = [{ layer: canvas, belonging: true, swap: false }];
+        (service as any).component.previousForegroundStates = [{ layer: canvas, belonging: true, swap: false }];
         service.undo();
         expect(spySwap).not.toHaveBeenCalled();
     });
 
-    it("ctrlShiftZ shouldn't call swapForegrounds if pop return undefined", () => {
+    it("redo shouldn't call swapForegrounds if pop return undefined", () => {
         const spySwap = spyOn((service as any).component, 'swapForegrounds').and.stub();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         spyOn(window.Array.prototype, 'pop').and.callFake(function (this: any[]) {
             // eslint-disable-next-line no-invalid-this
-            if (!this) return null;
+            if (!this) return undefined;
             // eslint-disable-next-line no-invalid-this
             if (this.length > 0) {
                 // eslint-disable-next-line no-invalid-this
                 this.splice(0, 1);
             }
-            return null;
+            return undefined;
         });
         // esl
         const canvas = document.createElement('canvas');
-        (service as any).component.redo = [{ layer: canvas, belonging: true, swap: false }];
+        (service as any).component.nextForegroundStates = [{ layer: canvas, belonging: true, swap: false }];
         service.redo();
         expect(spySwap).not.toHaveBeenCalled();
     });

@@ -90,7 +90,7 @@ describe('PlayAreaComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('shoud return width and height of the canvas', () => {
+    it('should return width and height of the canvas', () => {
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         expect(component.width).toEqual(640);
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
@@ -161,7 +161,7 @@ describe('PlayAreaComponent', () => {
         expect(emitSpy).toHaveBeenCalled();
     });
 
-    it('buttonDetect should not emit toggleHint in mutlti game', () => {
+    it('buttonDetect should not emit toggleHint in multi game', () => {
         const expectedKey = 'i';
         const buttonEvent = {
             key: expectedKey,
@@ -183,13 +183,11 @@ describe('PlayAreaComponent', () => {
         expect(gameService.sendServerValidate).toHaveBeenCalled();
     }));
 
-    it('mouseClickAttempt should call the errorretroaction for a mistake', fakeAsync(async () => {
+    it('mouseClickAttempt should call the errorRetroaction for a mistake', fakeAsync(async () => {
         (component as any).playerIsAllowedToClick = true;
         (component as any).differenceMatrix = createAndPopulateMatrix(invalidPixelValue);
         const mockClick = new MouseEvent('mousedown');
-        const spyErrorRetroaction = spyOn(component as any, 'errorRetroaction').and.callFake(() => {
-            return;
-        });
+        const spyErrorRetroaction = spyOn(component as any, 'errorRetroaction').and.stub();
         await component.mouseClickAttempt(mockClick, component.canvas1.nativeElement);
         expect(spyErrorRetroaction).toHaveBeenCalled();
     }));
@@ -207,12 +205,8 @@ describe('PlayAreaComponent', () => {
     });
 
     it('should react accordingly on validated response from the server', () => {
-        const correctRetroactionSpy = spyOn(component as any, 'correctRetroaction').and.callFake(() => {
-            return;
-        });
-        const errorRetroactionSpy = spyOn(component as any, 'errorRetroaction').and.callFake(() => {
-            return;
-        });
+        const correctRetroactionSpy = spyOn(component as any, 'correctRetroaction').and.stub();
+        const errorRetroactionSpy = spyOn(component as any, 'errorRetroaction').and.stub();
         const differenceTry: DifferenceTry = { validated: true, differencePos: { x: 0, y: 0 }, username: 'Test' };
         component.ngAfterViewInit();
         gameService.serverValidateResponse$.next(differenceTry);
@@ -271,12 +265,8 @@ describe('PlayAreaComponent', () => {
     });
 
     it('should react accordingly on invalid response from server', () => {
-        const correctRetroactionSpy = spyOn(component as any, 'correctRetroaction').and.callFake(() => {
-            return;
-        });
-        const errorRetroactionSpy = spyOn(component as any, 'errorRetroaction').and.callFake(() => {
-            return;
-        });
+        const correctRetroactionSpy = spyOn(component as any, 'correctRetroaction').and.stub();
+        const errorRetroactionSpy = spyOn(component as any, 'errorRetroaction').and.stub();
         const differenceTry: DifferenceTry = { validated: false, differencePos: { x: 0, y: 0 }, username: 'Test' };
         (component as any).gameService.username = differenceTry.username;
         component.ngAfterViewInit();
@@ -322,7 +312,6 @@ describe('PlayAreaComponent', () => {
         component.gameRoom = gameRoom;
         (component as any).gameService.gameRoom = gameRoom;
         component.ngOnChanges();
-
         expect((component as any).differenceMatrix).toEqual(gameRoom.userGame.gameData.differenceMatrix);
         expect((component as any).original.src).toContain(gameRoom.userGame.gameData.image1url);
         expect((component as any).modified.src).toContain(gameRoom.userGame.gameData.image2url);

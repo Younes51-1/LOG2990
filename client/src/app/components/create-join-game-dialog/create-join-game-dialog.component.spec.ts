@@ -77,9 +77,7 @@ describe('CreateJoinGameDialogComponent', () => {
     it('should focus appropriate input', fakeAsync(() => {
         const inputElement = document.createElement('input');
         document.body.appendChild(inputElement);
-        const focusSpy = spyOn(window.HTMLInputElement.prototype, 'focus').and.callFake(() => {
-            return;
-        });
+        const focusSpy = spyOn(window.HTMLInputElement.prototype, 'focus').and.stub();
         component.focusInput();
         tick(0);
         expect(focusSpy).toHaveBeenCalled();

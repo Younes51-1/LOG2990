@@ -43,11 +43,11 @@ describe('CreationDialogComponent', () => {
 
     it('should draw canvas', () => {
         component.data.imageUrl = 'https://i.imgur.com/9Z0QZ9A.png';
-        const drawImagespy = spyOn((component as any).context, 'drawImage').and.stub();
+        const drawImageSpy = spyOn((component as any).context, 'drawImage').and.stub();
         const translateSpy = spyOn((component as any).context, 'translate').and.stub();
         const scaleSpy = spyOn((component as any).context, 'scale').and.stub();
         (component as any).drawImage(new Image());
-        expect(drawImagespy).toHaveBeenCalled();
+        expect(drawImageSpy).toHaveBeenCalled();
         expect(translateSpy).not.toHaveBeenCalled();
         expect(scaleSpy).not.toHaveBeenCalled();
     });

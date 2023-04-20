@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { CreationDialogComponent } from '@app/components/creation-dialog/creation-dialog.component';
 import { NewGame } from '@app/interfaces/game';
 import { CreationGamePageComponent } from '@app/pages/creation-game-page/creation-game-page.component';
-import { AsciiLetterValue, BIT_PER_PIXEL, OffsetValues } from 'src/assets/variables/images-values';
+import { AsciiLetterValue, BitPerPixel, OffsetValues } from 'src/assets/variables/images-values';
 import { DetectionDifferenceService } from '@app/services/detection-difference/detection-difference.service';
 import { CommunicationHttpService } from '@app/services/communication-http/communication-http.service';
 
@@ -65,7 +65,7 @@ export class ImageLoadService {
 
         const hasCorrectDimensions = width === this.width && height === this.height;
         const isBmp = data[0] === AsciiLetterValue.B && data[1] === AsciiLetterValue.M;
-        const is24BitPerPixel = data[OffsetValues.DHP] === BIT_PER_PIXEL.BIT_PER_PIXEL;
+        const is24BitPerPixel = data[OffsetValues.DHP] === BitPerPixel.BitPerPixel;
 
         return { hasCorrectDimensions, isBmp, is24BitPerPixel };
     }

@@ -168,14 +168,14 @@ describe('CreationGamePageComponent', () => {
         expect(spy).toHaveBeenCalled();
     });
 
-    it('should call ctrlZ() if ctrl + Z is pressed', () => {
+    it('should call undo if ctrl + Z is pressed', () => {
         const event = new KeyboardEvent('keydown', { key: 'z', ctrlKey: true });
         const spy = spyOn(component, 'undo');
         document.dispatchEvent(event);
         expect(spy).toHaveBeenCalled();
     });
 
-    it('should call ctrlShiftZ() if ctrl + Shift + Z is pressed', () => {
+    it('should call redo if ctrl + Shift + Z is pressed', () => {
         const event = new KeyboardEvent('keydown', { key: 'Z', ctrlKey: true, shiftKey: true });
         const spy = spyOn(component, 'redo');
         document.dispatchEvent(event);

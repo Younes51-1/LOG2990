@@ -97,7 +97,7 @@ const getFakeGameHistory = (): GameHistory => ({
     username1: 'FakeUser1',
     username2: undefined,
     gameMode: 'solo',
-    abandonned: undefined,
+    abandoned: undefined,
     winner: 'FakeUser1',
 });
 
@@ -108,6 +108,6 @@ const getFakeGameHistory2 = (): GameHistory => ({
     username1: 'FakeUser1',
     username2: 'FakeUser2',
     gameMode: 'vs',
-    abandonned: undefined,
+    abandoned: undefined,
     winner: 'FakeUser2',
 });

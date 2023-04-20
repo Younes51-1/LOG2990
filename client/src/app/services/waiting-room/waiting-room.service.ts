@@ -127,6 +127,9 @@ export class WaitingRoomService {
         this.socketService.on('gameDeleted', (gameName: string) => {
             if (this.gameMode === GameMode.limitedTimeMode) {
                 this.gameService.slides = this.gameService.slides.filter((slide) => slide.name !== gameName);
+                if (this.gameService.slides.length === 0) {
+                    this.gameCanceled$.next(true);
+                }
             } else if (this.gameRoom.userGame.gameData.name === gameName) {
                 this.gameCanceled$.next(true);
             }

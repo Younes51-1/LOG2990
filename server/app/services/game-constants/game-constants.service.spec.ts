@@ -75,8 +75,8 @@ describe('GameConstantsService', () => {
         await gameConstantsModel.create(gameConstants);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await (service as any).initiateGameConstants();
-        const afterInitgameConst = await gameConstantsModel.findOne({});
-        expect(afterInitgameConst.initialTime).toEqual(gameConstants.initialTime);
+        const afterInitGameConst = await gameConstantsModel.findOne({});
+        expect(afterInitGameConst.initialTime).toEqual(gameConstants.initialTime);
     });
 
     it('should update the game constants', async () => {

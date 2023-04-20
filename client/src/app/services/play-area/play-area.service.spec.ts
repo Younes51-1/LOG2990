@@ -9,7 +9,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
-import { ReplayPlayAreaComponent } from '@app/components/replay-components/replay-play-area/replay-play-area.component';
+import { ReplayPlayAreaComponent } from '@app/components/replay-play-area/replay-play-area.component';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { DetectionDifferenceService } from '@app/services/detection-difference/detection-difference.service';
 import { PlayAreaService } from '@app/services/play-area/play-area.service';
@@ -83,7 +83,7 @@ describe('PlayAreaService', () => {
 
     it('should call start confetti without coordinates', () => {
         service.setComponent(component, false);
-        const startConfettiSpy = spyOn(service, 'startConfetti').and.stub();
+        const startConfettiSpy = spyOn((service as any).confettiService, 'startConfetti').and.stub();
         service.setSpeed(1);
         service.startConfetti(undefined);
         expect(startConfettiSpy).toHaveBeenCalledWith(undefined);
@@ -91,7 +91,7 @@ describe('PlayAreaService', () => {
 
     it('should call start confetti with coordinates', () => {
         service.setComponent(component, false);
-        const startConfettiSpy = spyOn(service, 'startConfetti').and.stub();
+        const startConfettiSpy = spyOn((service as any).confettiService, 'startConfetti').and.stub();
         service.startConfetti({ x: 100, y: 200 });
         expect(startConfettiSpy).toHaveBeenCalledWith({ x: 100, y: 200 });
     });
@@ -197,9 +197,7 @@ describe('PlayAreaService', () => {
     it('should start the cheat mode in the replay mode', fakeAsync(() => {
         (service as any).replay = false;
         (service as any).replayCheatOn = false;
-        const verifyDifferenceMatrixSpy = spyOn((service as any).normalComponent, 'verifyDifferenceMatrix').and.callFake(() => {
-            return;
-        });
+        const verifyDifferenceMatrixSpy = spyOn((service as any).normalComponent, 'verifyDifferenceMatrix').and.stub();
         service.startCheatMode();
         expect((service as any).replayCheatOn).toBeFalse();
         expect(verifyDifferenceMatrixSpy).toHaveBeenCalled();
@@ -227,15 +225,9 @@ describe('PlayAreaService', () => {
 
     it('cheatInterval should show the cheat mode', (done) => {
         (service as any).replay = true;
-        const updateContextsSpy = spyOn(service as any, 'updateContexts').and.callFake(() => {
-            return;
-        });
-        const drawImageContext1Spy = spyOn((service as any).component.context1, 'drawImage').and.callFake(() => {
-            return;
-        });
-        const drawImageContext2Spy = spyOn((service as any).component.context2, 'drawImage').and.callFake(() => {
-            return;
-        });
+        const updateContextsSpy = spyOn(service as any, 'updateContexts').and.stub();
+        const drawImageContext1Spy = spyOn((service as any).component.context1, 'drawImage').and.stub();
+        const drawImageContext2Spy = spyOn((service as any).component.context2, 'drawImage').and.stub();
         service.startCheatMode();
         setTimeout(() => {
             expect(updateContextsSpy).toHaveBeenCalled();
@@ -290,9 +282,7 @@ describe('PlayAreaService', () => {
         (service as any).replayComponent.cheatLayers = [{}, {}];
         (service as any).replayComponent.sources = ['', ''];
         const clearIntervalSpy = spyOn(window, 'clearInterval').and.callThrough();
-        const updateContextsSpy = spyOn(service as any, 'updateContexts').and.callFake(() => {
-            return;
-        });
+        const updateContextsSpy = spyOn(service as any, 'updateContexts').and.stub();
         service.flashDifference(matrix);
         setTimeout(() => {
             expect(updateContextsSpy).toHaveBeenCalled();
@@ -308,9 +298,7 @@ describe('PlayAreaService', () => {
         ];
         (service as any).replay = false;
         const clearIntervalSpy = spyOn(window, 'clearInterval').and.callThrough();
-        const removeDifferenceSpy = spyOn(service as any, 'removeDifference').and.callFake(() => {
-            return;
-        });
+        const removeDifferenceSpy = spyOn(service as any, 'removeDifference').and.stub();
         service.flashDifference(matrix);
         setTimeout(() => {
             expect(clearIntervalSpy).toHaveBeenCalled();
@@ -321,9 +309,7 @@ describe('PlayAreaService', () => {
 
     it('should show "ERREUR" on the canvas1', () => {
         (service as any).replay = false;
-        const updateContextsSpy = spyOn(service as any, 'updateContexts').and.callFake(() => {
-            return;
-        });
+        const updateContextsSpy = spyOn(service as any, 'updateContexts').and.stub();
         const clearTimeoutSpy = spyOn(window, 'clearTimeout').and.callThrough();
         const canvas = document.createElement('canvas');
         (service as any).component.canvas1 = new ElementRef(canvas);
@@ -334,9 +320,7 @@ describe('PlayAreaService', () => {
 
     it('should show "ERREUR" on the canvas2', () => {
         (service as any).replay = false;
-        const updateContextsSpy = spyOn(service as any, 'updateContexts').and.callFake(() => {
-            return;
-        });
+        const updateContextsSpy = spyOn(service as any, 'updateContexts').and.stub();
         const clearTimeoutSpy = spyOn(window, 'clearTimeout').and.callThrough();
         const canvas = document.createElement('canvas');
         (service as any).component.canvas2 = new ElementRef(canvas);
@@ -359,9 +343,7 @@ describe('PlayAreaService', () => {
         const context = canvas.getContext('2d');
         const image = new Image();
         if (context) {
-            const drawImageSpy = spyOn(context, 'drawImage').and.callFake(() => {
-                return;
-            });
+            const drawImageSpy = spyOn(context, 'drawImage').and.stub();
             service.handleImageLoad(context, image);
             expect(drawImageSpy).toHaveBeenCalled();
         }
@@ -372,12 +354,8 @@ describe('PlayAreaService', () => {
             [1, 2, 3],
             [2, 1, 0],
         ];
-        const extractDifferenceSpy = spyOn((service as any).detectionDifferenceService, 'extractDifference').and.callFake(() => {
-            return matrix;
-        });
-        const flashDifferenceSpy = spyOn(service as any, 'flashDifference').and.callFake(() => {
-            return;
-        });
+        const extractDifferenceSpy = spyOn((service as any).detectionDifferenceService, 'extractDifference').and.returnValue(matrix);
+        const flashDifferenceSpy = spyOn(service as any, 'flashDifference').and.stub();
         service.correctAnswerVisuals({ x: 0, y: 0 }, matrix);
         expect(extractDifferenceSpy).toHaveBeenCalled();
         expect(flashDifferenceSpy).toHaveBeenCalled();
@@ -385,12 +363,8 @@ describe('PlayAreaService', () => {
 
     it('should update the cheat speed if replayCheatOn is true', () => {
         (service as any).replayCheatOn = true;
-        const startCheatModeSpy = spyOn(service as any, 'startCheatMode').and.callFake(() => {
-            return;
-        });
-        const endCheatModeSpy = spyOn(service as any, 'endCheatMode').and.callFake(() => {
-            return;
-        });
+        const startCheatModeSpy = spyOn(service as any, 'startCheatMode').and.stub();
+        const endCheatModeSpy = spyOn(service as any, 'endCheatMode').and.stub();
         service.updateCheatSpeed();
         expect(startCheatModeSpy).toHaveBeenCalled();
         expect(endCheatModeSpy).toHaveBeenCalled();
@@ -398,12 +372,8 @@ describe('PlayAreaService', () => {
 
     it('should not update the cheat speed if replayCheatOn is false', () => {
         (service as any).replayCheatOn = false;
-        const startCheatModeSpy = spyOn(service as any, 'startCheatMode').and.callFake(() => {
-            return;
-        });
-        const endCheatModeSpy = spyOn(service as any, 'endCheatMode').and.callFake(() => {
-            return;
-        });
+        const startCheatModeSpy = spyOn(service as any, 'startCheatMode').and.stub();
+        const endCheatModeSpy = spyOn(service as any, 'endCheatMode').and.stub();
         service.updateCheatSpeed();
         expect(startCheatModeSpy).not.toHaveBeenCalled();
         expect(endCheatModeSpy).not.toHaveBeenCalled();

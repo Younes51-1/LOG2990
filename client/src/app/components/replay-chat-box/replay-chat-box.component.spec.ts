@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Instruction, InstructionReplay } from '@app/interfaces/video-replay';
-import { ReplayChatBoxComponent } from '@app/components/replay-components/replay-chat-box/replay-chat-box.component';
+import { ReplayChatBoxComponent } from '@app/components/replay-chat-box/replay-chat-box.component';
 import { SimpleChanges } from '@angular/core';
 
 describe('ReplayChatBoxComponent', () => {

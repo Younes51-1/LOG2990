@@ -217,7 +217,7 @@ describe('WaitingRoomGateway', () => {
         expect(getGameSpy).toHaveBeenCalled();
     });
 
-    it('leaveGame should do nothing if the gameRoom doesnt exists', () => {
+    it('leaveGame should do nothing if the gameRoom does not exists', () => {
         const fakeGameRoom = getFakeGameRoom();
         const getGameSpy = jest.spyOn(gameModeService, 'getGameRoom').mockReturnValue(undefined);
         const setGameSpy = jest.spyOn(gameModeService, 'setGameRoom').mockImplementation();

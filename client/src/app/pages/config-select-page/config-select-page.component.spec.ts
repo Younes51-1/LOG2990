@@ -284,10 +284,17 @@ describe('ConfigSelectPageComponent', () => {
         expect(component.slides.length).toEqual(2);
     });
 
+    it('getSlidesFromServer should set noGames to true if getAllGames return empty list', () => {
+        component.pageType = PageKeys.Config;
+        communicationServiceSpy.getAllGames.and.returnValue(of([]));
+        (component as any).getSlidesFromServer();
+        expect(communicationServiceSpy.getAllGames).toHaveBeenCalled();
+        expect(component.slides.length).toEqual(0);
+        expect(component.noGames).toBeTrue();
+    });
+
     it('should call initializeImgSource on init', () => {
-        spyOn(component as any, 'initializeImgSource').and.callFake(() => {
-            return;
-        });
+        spyOn(component as any, 'initializeImgSource').and.stub();
         component.ngOnInit();
         expect((component as any).initializeImgSource).toHaveBeenCalled();
     });
