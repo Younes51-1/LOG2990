@@ -5,7 +5,7 @@ import { DetectionDifferenceService } from '@app/services/detection-difference/d
 
 describe('DetectionDifferenceService', () => {
     let service: DetectionDifferenceService;
-    const EMPTYPIXELValue = -1;
+    const EMPTYPIXEL = -1;
     const width = 640;
     const height = 480;
     let matrix: number[][];
@@ -24,7 +24,7 @@ describe('DetectionDifferenceService', () => {
         expect(service).toBeTruthy();
     });
 
-    it('difference matrix should be filled with EMPTYPIXELValue if there is no difference', () => {
+    it('difference matrix should be filled with EMPTYPIXEL if there is no difference', () => {
         const canvas1 = document.createElement('canvas');
         const canvas2 = document.createElement('canvas');
         const context1 = canvas1.getContext('2d');
@@ -36,7 +36,7 @@ describe('DetectionDifferenceService', () => {
             context1.fillRect(randomValue, randomValue, randomValue, randomValue);
             context2.fillRect(randomValue, randomValue, randomValue, randomValue);
             const diffMatrix = service.generateDifferencesMatrix(context1, context2, 3);
-            const emptyMatrix = (service as any).createEmptyMatrix(height, width, EMPTYPIXELValue);
+            const emptyMatrix = (service as any).createEmptyMatrix(height, width, EMPTYPIXEL);
             expect(diffMatrix).toEqual(emptyMatrix);
         }
     });
@@ -55,7 +55,7 @@ describe('DetectionDifferenceService', () => {
             context1.fillStyle = 'red';
             context1.fillRect(1, 1, 1, 1); // difference
             const diffMatrix = service.generateDifferencesMatrix(context1, context2, 0);
-            const emptyMatrix = (service as any).createEmptyMatrix(height, width, EMPTYPIXELValue);
+            const emptyMatrix = (service as any).createEmptyMatrix(height, width, EMPTYPIXEL);
             emptyMatrix[1][1] = 1;
             expect(diffMatrix).toEqual(emptyMatrix);
         }
@@ -74,7 +74,7 @@ describe('DetectionDifferenceService', () => {
     });
 
     it('should count the number of differences correctly', () => {
-        const diffMatrix = (service as any).createEmptyMatrix(height, width, EMPTYPIXELValue);
+        const diffMatrix = (service as any).createEmptyMatrix(height, width, EMPTYPIXEL);
         diffMatrix[1][1] = 1; // first difference
         diffMatrix[1][2] = 1; // should be counted as the same difference
         diffMatrix[5][2] = 1; // second difference
@@ -84,9 +84,9 @@ describe('DetectionDifferenceService', () => {
 
     it('should create an image of differences', () => {
         const diffMatrix = [
-            [0, 1, EMPTYPIXELValue],
+            [0, 1, EMPTYPIXEL],
             [0, 0, 0],
-            [EMPTYPIXELValue, EMPTYPIXELValue, EMPTYPIXELValue],
+            [EMPTYPIXEL, EMPTYPIXEL, EMPTYPIXEL],
         ];
         const canvasUrl = service.createDifferencesImage(diffMatrix);
         expect(canvasUrl).toBeDefined();
@@ -118,7 +118,7 @@ describe('DetectionDifferenceService', () => {
     });
 
     it('should return hard if criteria are met', () => {
-        const diffMatrix = (service as any).createEmptyMatrix(height, width, EMPTYPIXELValue);
+        const diffMatrix = (service as any).createEmptyMatrix(height, width, EMPTYPIXEL);
         diffMatrix[0][0] = 1;
         const nbDifferences = 7;
         const difficulty = service.computeLevelDifficulty(nbDifferences, diffMatrix);
@@ -127,25 +127,25 @@ describe('DetectionDifferenceService', () => {
 
     it('should return empty matrix from extractDifference given invalid coordinates', () => {
         const differenceMatrix = [
-            [1, EMPTYPIXELValue, 1],
-            [1, EMPTYPIXELValue, 1],
-            [EMPTYPIXELValue, EMPTYPIXELValue, 1],
+            [1, EMPTYPIXEL, 1],
+            [1, EMPTYPIXEL, 1],
+            [EMPTYPIXEL, EMPTYPIXEL, 1],
         ];
-        const expectedMatrix = service.createEmptyMatrix(3, 3, EMPTYPIXELValue);
+        const expectedMatrix = service.createEmptyMatrix(3, 3, EMPTYPIXEL);
         const result = service.extractDifference(differenceMatrix, { x: 1, y: 0 });
         expect(result).toEqual(expectedMatrix);
     });
 
     it('should extract the current difference given a valid matrix and coordinates', () => {
         const differenceMatrix = [
-            [1, EMPTYPIXELValue, 1],
-            [1, EMPTYPIXELValue, 1],
-            [EMPTYPIXELValue, EMPTYPIXELValue, 1],
+            [1, EMPTYPIXEL, 1],
+            [1, EMPTYPIXEL, 1],
+            [EMPTYPIXEL, EMPTYPIXEL, 1],
         ];
         const expectedMatrix = [
-            [1, EMPTYPIXELValue, EMPTYPIXELValue],
-            [1, EMPTYPIXELValue, EMPTYPIXELValue],
-            [EMPTYPIXELValue, EMPTYPIXELValue, EMPTYPIXELValue],
+            [1, EMPTYPIXEL, EMPTYPIXEL],
+            [1, EMPTYPIXEL, EMPTYPIXEL],
+            [EMPTYPIXEL, EMPTYPIXEL, EMPTYPIXEL],
         ];
         const result = service.extractDifference(differenceMatrix, { x: 0, y: 0 });
         expect(result).toEqual(expectedMatrix);
@@ -161,16 +161,16 @@ describe('DetectionDifferenceService', () => {
     });
 
     it('should return null if no difference is found', () => {
-        const emptyMatrix = service.createEmptyMatrix(3, 3, EMPTYPIXELValue);
+        const emptyMatrix = service.createEmptyMatrix(3, 3, EMPTYPIXEL);
         const randomDiff = service.findRandomDifference(emptyMatrix);
         expect(randomDiff).toBeNull();
     });
 
     it('should return a random difference', () => {
         const differenceMatrix = [
-            [EMPTYPIXELValue, EMPTYPIXELValue, EMPTYPIXELValue],
-            [EMPTYPIXELValue, 1, EMPTYPIXELValue],
-            [EMPTYPIXELValue, EMPTYPIXELValue, EMPTYPIXELValue],
+            [EMPTYPIXEL, EMPTYPIXEL, EMPTYPIXEL],
+            [EMPTYPIXEL, 1, EMPTYPIXEL],
+            [EMPTYPIXEL, EMPTYPIXEL, EMPTYPIXEL],
         ];
         const randomDiff = service.findRandomDifference(differenceMatrix);
         expect(randomDiff).toEqual({ x: 1, y: 1 });
@@ -195,9 +195,9 @@ describe('DetectionDifferenceService', () => {
     it('should apply radius correctly', () => {
         const spy = spyOn(service as any, 'computeRadiusRelativeCoordinates').and.callThrough();
         const initialMatrix = [
-            [EMPTYPIXELValue, 1, EMPTYPIXELValue],
-            [EMPTYPIXELValue, EMPTYPIXELValue, EMPTYPIXELValue],
-            [EMPTYPIXELValue, EMPTYPIXELValue, EMPTYPIXELValue],
+            [EMPTYPIXEL, 1, EMPTYPIXEL],
+            [EMPTYPIXEL, EMPTYPIXEL, EMPTYPIXEL],
+            [EMPTYPIXEL, EMPTYPIXEL, EMPTYPIXEL],
         ];
         const radius = 2;
         const diffCoordinates = [0, 1];
@@ -205,7 +205,7 @@ describe('DetectionDifferenceService', () => {
         const expectedMatrix = [
             [1, 1, 1],
             [1, 1, 1],
-            [EMPTYPIXELValue, 1, EMPTYPIXELValue],
+            [EMPTYPIXEL, 1, EMPTYPIXEL],
         ];
         expect(matrixAfterRadius).toEqual(expectedMatrix);
         expect(spy).toHaveBeenCalledWith(radius);
@@ -214,7 +214,7 @@ describe('DetectionDifferenceService', () => {
     it('should compute radius relative coordinates correctly', () => {
         const radius = 1;
         const result = (service as any).computeRadiusRelativeCoordinates(radius);
-        const expectedResult = [EMPTYPIXELValue, 0, 0, EMPTYPIXELValue, 0, 0, 0, 1, 1, 0];
+        const expectedResult = [EMPTYPIXEL, 0, 0, EMPTYPIXEL, 0, 0, 0, 1, 1, 0];
         expect(result).toEqual(expectedResult);
     });
 
@@ -229,7 +229,7 @@ describe('DetectionDifferenceService', () => {
     });
 
     it('should delete the difference', () => {
-        const diffMatrix = (service as any).createEmptyMatrix(height, width, EMPTYPIXELValue);
+        const diffMatrix = (service as any).createEmptyMatrix(height, width, EMPTYPIXEL);
         diffMatrix[1][1] = 1;
         const referenceMatrix = JSON.parse(JSON.stringify(diffMatrix));
         diffMatrix[100][1] = 1;
