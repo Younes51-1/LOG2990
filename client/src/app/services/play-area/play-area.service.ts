@@ -37,6 +37,7 @@ export class PlayAreaService {
         this.replay = replay;
         if (replay) this.replayComponent = component as ReplayPlayAreaComponent;
         else this.normalComponent = component as PlayAreaComponent;
+        this.confettiService.setService(this);
     }
 
     setCheatMode() {

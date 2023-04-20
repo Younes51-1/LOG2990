@@ -89,7 +89,7 @@ export class DrawingService {
     }
 
     undo() {
-        if (this.component.undo.length > 0) {
+        if (this.component.previousForegroundStates.length > 0) {
             const state = this.component.previousForegroundStates.pop();
             if (state?.swap) {
                 this.component.swapForegrounds();
@@ -102,7 +102,7 @@ export class DrawingService {
     }
 
     redo() {
-        if (this.component.redo.length > 0) {
+        if (this.component.nextForegroundStates.length > 0) {
             const state = this.component.nextForegroundStates.pop();
             if (state?.swap) {
                 this.component.swapForegrounds();

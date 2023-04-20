@@ -8,8 +8,8 @@ import { Dimensions } from 'src/assets/variables/picture-dimension';
     providedIn: 'root',
 })
 export class DetectionDifferenceService {
-    private width = Dimensions.DEFAULT_WIDTH;
-    private height = Dimensions.DEFAULT_HEIGHT;
+    private width = Dimensions.DefaultWidth;
+    private height = Dimensions.DefaultHeight;
     private positiveDifferenceCoord = 1;
     private negativeDifferenceCoord = -this.positiveDifferenceCoord;
 

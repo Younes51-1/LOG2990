@@ -158,7 +158,7 @@
             </div>
         </fieldset>
         <button
-            *ngIf="(image1?.value !== '' && image2?.value !== '') || images1et2?.value !== '' || this.undo.length > 0"
+            *ngIf="(image1?.value !== '' && image2?.value !== '') || images1et2?.value !== '' || this.previousForegroundStates.length > 0"
             class="button"
             (click)="runDetectionSystem()"
         >

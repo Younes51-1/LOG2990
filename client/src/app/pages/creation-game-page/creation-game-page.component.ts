@@ -54,8 +54,8 @@ export class CreationGamePageComponent implements AfterViewInit, OnDestroy {
     nameGame: string;
     difficulty: string;
     differenceCount: number;
-    width = Dimensions.DEFAULT_WIDTH;
-    height = Dimensions.DEFAULT_HEIGHT;
+    width = Dimensions.DefaultWidth;
+    height = Dimensions.DefaultHeight;
     radius = PossibleRadius.THREE;
     differenceMatrix: number[][];
     possibleRadius = [PossibleRadius.ZERO, PossibleRadius.THREE, PossibleRadius.NINE, PossibleRadius.FIFTEEN];

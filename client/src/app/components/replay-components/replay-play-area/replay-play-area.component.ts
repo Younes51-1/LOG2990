@@ -40,7 +40,7 @@ export class ReplayPlayAreaComponent implements AfterViewInit, OnChanges, OnInit
     modified = new Image();
     cheatLayer: HTMLCanvasElement;
     srcCounter = 0;
-    private canvasSize = { x: Dimensions.DEFAULT_WIDTH, y: Dimensions.DEFAULT_HEIGHT };
+    private canvasSize = { x: Dimensions.DefaultWidth, y: Dimensions.DefaultHeight };
     private pauseCanvas1: HTMLCanvasElement;
     private pauseCanvas2: HTMLCanvasElement;
     private currentAction: InstructionReplay | undefined;

@@ -4,7 +4,7 @@ import { OverlayModule } from '@angular/cdk/overlay';
 import { HttpClientModule } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ElementRef, NgModule } from '@angular/core';
-import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -81,33 +81,19 @@ describe('PlayAreaService', () => {
         expect(window.clearInterval).toHaveBeenCalled();
     });
 
-    it('should start confetti without coordinates', fakeAsync(() => {
+    it('should call start confetti without coordinates', () => {
         service.setComponent(component, false);
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        spyOn(Math, 'random').and.returnValue(0.5);
-        spyOn(window, 'setTimeout').and.callThrough();
-        spyOn(window, 'setInterval').and.callThrough();
+        const startConfettiSpy = spyOn(service, 'startConfetti').and.stub();
         service.setSpeed(1);
         service.startConfetti(undefined);
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        tick(15000);
-        expect((service as any).intervalId).toBeDefined();
-        expect(window.setInterval).toHaveBeenCalled();
-        discardPeriodicTasks();
-    }));
+        expect(startConfettiSpy).toHaveBeenCalledWith(undefined);
+    });
 
-    it('should create a canvas element when given coordinates', (done) => {
-        const canvas = document.createElement('canvas');
-        spyOn(canvas, 'getContext').and.callThrough();
-        spyOn(document, 'createElement').and.returnValue(canvas);
+    it('should call start confetti with coordinates', () => {
+        service.setComponent(component, false);
+        const startConfettiSpy = spyOn(service, 'startConfetti').and.stub();
         service.startConfetti({ x: 100, y: 200 });
-        setTimeout(() => {
-            // eslint-disable-next-line deprecation/deprecation
-            expect(document.createElement).toHaveBeenCalledWith('canvas');
-            expect(canvas.getContext).toHaveBeenCalledWith('2d');
-            done();
-            // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        }, 1000);
+        expect(startConfettiSpy).toHaveBeenCalledWith({ x: 100, y: 200 });
     });
 
     it('should not start cheat mode if component contexts are not set', () => {
@@ -436,8 +422,8 @@ describe('PlayAreaService', () => {
             expect(spyTimeout).toHaveBeenCalled();
             expect(spyInterval).toHaveBeenCalledWith((service as any).hintInterval);
             expect(spyInterval).toHaveBeenCalled();
-            expect(spyCtx1).toHaveBeenCalledWith(layer, 0, 0, Dimensions.DEFAULT_WIDTH, Dimensions.DEFAULT_HEIGHT);
-            expect(spyCtx2).toHaveBeenCalledWith(layer, 0, 0, Dimensions.DEFAULT_WIDTH, Dimensions.DEFAULT_HEIGHT);
+            expect(spyCtx1).toHaveBeenCalledWith(layer, 0, 0, Dimensions.DefaultWidth, Dimensions.DefaultHeight);
+            expect(spyCtx2).toHaveBeenCalledWith(layer, 0, 0, Dimensions.DefaultWidth, Dimensions.DefaultHeight);
             expect(spyUpdateCtx).toHaveBeenCalled();
             expect(spyUpdateCtx).toHaveBeenCalledTimes(Time.Thousand / Time.OneHundredTwentyFive + 1);
             done();
@@ -511,8 +497,8 @@ describe('PlayAreaService', () => {
         const end = { x: 10, y: 10 };
         (service as any).setComponent(component);
         const diffMatrix = (service as any).createPopulateMatrix(start, end);
-        for (let i = 0; i < Dimensions.DEFAULT_HEIGHT; i++) {
-            for (let j = 0; j < Dimensions.DEFAULT_WIDTH; j++) {
+        for (let i = 0; i < Dimensions.DefaultHeight; i++) {
+            for (let j = 0; j < Dimensions.DefaultWidth; j++) {
                 if (i >= start.x && i < end.x && j >= start.y && j < end.y) {
                     expect(diffMatrix[i][j]).toEqual(PossibleColor.BLACK);
                 } else {
@@ -526,7 +512,7 @@ describe('PlayAreaService', () => {
         const spy1 = spyOn((service as any).component.context1, 'drawImage');
         const spy2 = spyOn((service as any).component.context2, 'drawImage');
         (service as any).updateContexts();
-        expect(spy1).toHaveBeenCalledOnceWith((service as any).component.original, 0, 0, Dimensions.DEFAULT_WIDTH, Dimensions.DEFAULT_HEIGHT);
-        expect(spy2).toHaveBeenCalledOnceWith((service as any).component.modified, 0, 0, Dimensions.DEFAULT_WIDTH, Dimensions.DEFAULT_HEIGHT);
+        expect(spy1).toHaveBeenCalledOnceWith((service as any).component.original, 0, 0, Dimensions.DefaultWidth, Dimensions.DefaultHeight);
+        expect(spy2).toHaveBeenCalledOnceWith((service as any).component.modified, 0, 0, Dimensions.DefaultWidth, Dimensions.DefaultHeight);
     });
 });

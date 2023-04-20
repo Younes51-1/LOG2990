@@ -42,7 +42,7 @@ export class ImageLoadService {
         const img1HasContent: boolean = this.component.image1?.value !== undefined;
         const img2HasContent: boolean = this.component.image2?.value !== undefined;
 
-        if ((img1HasContent && img2HasContent) || this.component.undo.length > 0) {
+        if ((img1HasContent && img2HasContent) || this.component.previousForegroundStates.length > 0) {
             this.component.differenceMatrix = this.detectionService.generateDifferencesMatrix(
                 this.component.context1,
                 this.component.context2,

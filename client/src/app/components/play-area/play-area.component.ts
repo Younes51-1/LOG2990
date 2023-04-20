@@ -42,7 +42,7 @@ export class PlayAreaComponent implements AfterViewInit, OnChanges {
     private buttonPressed = '';
     private audioValid = new Audio('assets/sounds/valid_sound.mp3');
     private audioInvalid = new Audio('assets/sounds/invalid_sound.mp3');
-    private canvasSize = { x: Dimensions.DEFAULT_WIDTH, y: Dimensions.DEFAULT_HEIGHT };
+    private canvasSize = { x: Dimensions.DefaultWidth, y: Dimensions.DefaultHeight };
 
     constructor(private mouseService: MouseService, private gameService: GameService, private playAreaService: PlayAreaService) {}
 

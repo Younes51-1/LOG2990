@@ -60,9 +60,7 @@ describe('DrawingService', () => {
             startPos: { x: 0, y: 0 },
         };
         const spyFillRect = spyOn((service as any).component.rectangleState.context, 'fillRect');
-        const spyDrawImage = spyOn((service as any).component.context1, 'drawImage').and.callFake(() => {
-            return;
-        });
+        const spyDrawImage = spyOn((service as any).component.context1, 'drawImage').and.stub();
         (service as any).drawRectangle((service as any).component.context1, pos);
         expect(spyFillRect).toHaveBeenCalledWith(0, 0, pos.x, pos.y);
         expect(spyDrawImage).toHaveBeenCalledTimes(2);
@@ -72,9 +70,7 @@ describe('DrawingService', () => {
         const pos = { x: 13, y: 12 };
         const value = 4;
         (service as any).component.shiftPressed = true;
-        const spyDrawImage = spyOn((service as any).component.context1, 'drawImage').and.callFake(() => {
-            return;
-        });
+        const spyDrawImage = spyOn((service as any).component.context1, 'drawImage').and.stub();
         (service as any).component.rectangleState = {
             canvas: (service as any).component.canvas1.nativeElement,
             context: (service as any).component.context1,
@@ -103,15 +99,9 @@ describe('DrawingService', () => {
     it('should call the mousedown event handler', () => {
         const event = new MouseEvent('mousedown');
         const canvas = document.createElement('canvas');
-        const spy = spyOn(service as any, 'handleMouseDown').and.callFake(() => {
-            return;
-        });
-        const spyEmptyRedoStack = spyOn(service, 'emptyRedoStack').and.callFake(() => {
-            return;
-        });
-        const spyPushToUndoStack = spyOn(service, 'pushToUndoStack').and.callFake(() => {
-            return;
-        });
+        const spy = spyOn(service as any, 'handleMouseDown').and.stub();
+        const spyEmptyRedoStack = spyOn(service, 'emptyRedoStack').and.stub();
+        const spyPushToUndoStack = spyOn(service, 'pushToUndoStack').and.stub();
         (service as any).component.drawMode = DrawModes.RECTANGLE;
         (service as any).component.currentCanvas = canvas;
         service.handleCanvasEvent('mousedown', event, canvas);
@@ -123,9 +113,7 @@ describe('DrawingService', () => {
     it('should call the mousemove event handler', () => {
         const event = new MouseEvent('mousemove');
         const canvas = document.createElement('canvas');
-        const spy = spyOn(service as any, 'handleMouseMove').and.callFake(() => {
-            return;
-        });
+        const spy = spyOn(service as any, 'handleMouseMove').and.stub();
         (service as any).component.currentCanvas = canvas;
         service.handleCanvasEvent('mousemove', event, canvas);
         expect(spy).toHaveBeenCalled();
@@ -134,9 +122,7 @@ describe('DrawingService', () => {
     it('should call the mouseup event handler', () => {
         const event = new MouseEvent('mouseup');
         const canvas = document.createElement('canvas');
-        const spy = spyOn(service, 'handleMouseUp').and.callFake(() => {
-            return;
-        });
+        const spy = spyOn(service, 'handleMouseUp').and.stub();
         (service as any).component.currentCanvas = canvas;
         service.handleCanvasEvent('mouseup', event, canvas);
         expect(spy).toHaveBeenCalled();
@@ -145,9 +131,7 @@ describe('DrawingService', () => {
     it('should call the mouseleave event handler', () => {
         const event = new MouseEvent('mouseleave');
         const canvas = document.createElement('canvas');
-        const spy = spyOn(service as any, 'handleMouseLeave').and.callFake(() => {
-            return;
-        });
+        const spy = spyOn(service as any, 'handleMouseLeave').and.stub();
         (service as any).component.currentCanvas = canvas;
         service.handleCanvasEvent('mouseleave', event, canvas);
         expect(spy).toHaveBeenCalled();
@@ -156,9 +140,7 @@ describe('DrawingService', () => {
     it('should call the mouseenter event handler', () => {
         const event = new MouseEvent('mouseenter');
         const canvas = document.createElement('canvas');
-        const spy = spyOn(service as any, 'handleMouseEnter').and.callFake(() => {
-            return;
-        });
+        const spy = spyOn(service as any, 'handleMouseEnter').and.stub();
         (service as any).component.currentCanvas = canvas;
         service.handleCanvasEvent('mouseenter', event, canvas);
         expect(spy).toHaveBeenCalled();
@@ -166,9 +148,7 @@ describe('DrawingService', () => {
 
     it('handleCanvasEvent should change context depending on the canvas', () => {
         const event = new MouseEvent('mouseup');
-        const spy = spyOn(service, 'handleMouseUp').and.callFake(() => {
-            return;
-        });
+        const spy = spyOn(service, 'handleMouseUp').and.stub();
         (service as any).component.currentCanvas = (service as any).component.canvas2.nativeElement;
         service.handleCanvasEvent('mouseup', event, (service as any).component.canvas2.nativeElement);
         expect(spy).toHaveBeenCalled();
@@ -184,12 +164,8 @@ describe('DrawingService', () => {
 
     it('should update the display of canvas 1 when there is no background image', () => {
         (service as any).component.urlPath1 = '';
-        const spyFillRect = spyOn((service as any).component.context1, 'fillRect').and.callFake(() => {
-            return;
-        });
-        const spyDrawImage = spyOn((service as any).component.context1, 'drawImage').and.callFake(() => {
-            return;
-        });
+        const spyFillRect = spyOn((service as any).component.context1, 'fillRect').and.stub();
+        const spyDrawImage = spyOn((service as any).component.context1, 'drawImage').and.stub();
         (service as any).updateCanvas1Display();
         expect((service as any).component.context1.fillStyle).toEqual('#ffffff');
         expect(spyFillRect).toHaveBeenCalled();
@@ -198,21 +174,15 @@ describe('DrawingService', () => {
 
     it('should update the display of canvas 1 when there is a background image', () => {
         (service as any).component.urlPath1 = 'urlPath';
-        const spy = spyOn((service as any).component, 'updateContext').and.callFake(() => {
-            return;
-        });
+        const spy = spyOn((service as any).component, 'updateContext').and.stub();
         (service as any).updateCanvas1Display();
         expect(spy).toHaveBeenCalled();
     });
 
     it('should update the display of canvas 2', () => {
         (service as any).component.urlPath2 = '';
-        const spyFillRect = spyOn((service as any).component.context2, 'fillRect').and.callFake(() => {
-            return;
-        });
-        const spyDrawImage = spyOn((service as any).component.context2, 'drawImage').and.callFake(() => {
-            return;
-        });
+        const spyFillRect = spyOn((service as any).component.context2, 'fillRect').and.stub();
+        const spyDrawImage = spyOn((service as any).component.context2, 'drawImage').and.stub();
         (service as any).updateCanvas2Display();
         expect((service as any).component.context2.fillStyle).toEqual('#ffffff');
         expect(spyFillRect).toHaveBeenCalled();
@@ -221,9 +191,7 @@ describe('DrawingService', () => {
 
     it('should update the display of canvas 2 when there is a background image', () => {
         (service as any).component.urlPath2 = 'urlPath';
-        const spy = spyOn((service as any).component, 'updateContext').and.callFake(() => {
-            return;
-        });
+        const spy = spyOn((service as any).component, 'updateContext').and.stub();
         (service as any).updateCanvas2Display();
         expect(spy).toHaveBeenCalled();
     });
@@ -238,18 +206,14 @@ describe('DrawingService', () => {
     });
 
     it('should erase the drawing on selected context', () => {
-        const spy = spyOn((service as any).component.context1, 'clearRect').and.callFake(() => {
-            return;
-        });
+        const spy = spyOn((service as any).component.context1, 'clearRect').and.stub();
         const position = { x: 0, y: 0 };
         (service as any).eraseSquare((service as any).component.context1, position);
         expect(spy).toHaveBeenCalled();
     });
 
     it('drawShape should call drawCircle when the draw mode is Pencil', () => {
-        const spy = spyOn(service as any, 'drawCircle').and.callFake(() => {
-            return;
-        });
+        const spy = spyOn(service as any, 'drawCircle').and.stub();
         const position = { x: 0, y: 0 };
         (service as any).component.drawMode = DrawModes.PENCIL;
         (service as any).drawShape((service as any).component.context1, position);
@@ -257,9 +221,7 @@ describe('DrawingService', () => {
     });
 
     it('drawShape should call eraseSquare when the draw mode is Eraser', () => {
-        const spy = spyOn(service as any, 'eraseSquare').and.callFake(() => {
-            return;
-        });
+        const spy = spyOn(service as any, 'eraseSquare').and.stub();
         const position = { x: 0, y: 0 };
         (service as any).component.drawMode = DrawModes.ERASER;
         (service as any).drawShape((service as any).component.context1, position);
@@ -267,9 +229,7 @@ describe('DrawingService', () => {
     });
 
     it('traceShape should call drawShape', () => {
-        const spy = spyOn(service as any, 'drawShape').and.callFake(() => {
-            return;
-        });
+        const spy = spyOn(service as any, 'drawShape').and.stub();
         let start = { x: 0, y: 0 };
         let finish = { x: 10, y: 10 };
         (service as any).traceShape((service as any).component.context1, start, finish);
@@ -291,9 +251,7 @@ describe('DrawingService', () => {
         const state = { layer: (service as any).component.canvas1.nativeElement, belonging: true, swap: true };
         (service as any).component.canvas1.nativeElement = document.createElement('canvas');
         const spyDrawImage = spyOn((service as any).component.contextForeground1, 'drawImage').and.callThrough();
-        const spyUpdateCanvasDisplay = spyOn(service as any, 'updateCanvas1Display').and.callFake(() => {
-            return;
-        });
+        const spyUpdateCanvasDisplay = spyOn(service as any, 'updateCanvas1Display').and.stub();
         (service as any).component.belongsToCanvas1 = false;
         (service as any).getCanvasAndUpdate(state);
         expect(spyDrawImage).toHaveBeenCalled();
@@ -305,9 +263,7 @@ describe('DrawingService', () => {
         const state = { layer: (service as any).component.canvas2.nativeElement, belonging: false, swap: true };
         (service as any).component.canvas2.nativeElement = document.createElement('canvas');
         const spyDrawImage = spyOn((service as any).component.contextForeground2, 'drawImage').and.callThrough();
-        const spyUpdateCanvasDisplay = spyOn(service as any, 'updateCanvas2Display').and.callFake(() => {
-            return;
-        });
+        const spyUpdateCanvasDisplay = spyOn(service as any, 'updateCanvas2Display').and.stub();
         (service as any).component.belongsToCanvas1 = true;
         (service as any).getCanvasAndUpdate(state);
         expect(spyDrawImage).toHaveBeenCalled();
@@ -318,116 +274,108 @@ describe('DrawingService', () => {
     it('should push to undo stack for canvas 1', () => {
         (service as any).component.currentCanvas = (service as any).component.canvas1.nativeElement;
         (service as any).component.belongsToCanvas1 = false;
-        const spy = spyOn((service as any).component.undo, 'push').and.callThrough();
-        const length = (service as any).component.undo.length;
+        const spy = spyOn((service as any).component.previousForegroundStates, 'push').and.callThrough();
+        const length = (service as any).component.previousForegroundStates.length;
         service.pushToUndoStack();
         expect(spy).toHaveBeenCalled();
         expect((service as any).component.belongsToCanvas1).toBeTrue();
-        expect((service as any).component.undo.length).toEqual(length + 1);
+        expect((service as any).component.previousForegroundStates.length).toEqual(length + 1);
     });
 
     it('should push to undo stack for canvas 2', () => {
         (service as any).component.currentCanvas = (service as any).component.canvas2.nativeElement;
         (service as any).component.belongsToCanvas1 = true;
-        const spy = spyOn((service as any).component.undo, 'push').and.callThrough();
-        const length = (service as any).component.undo.length;
+        const spy = spyOn((service as any).component.previousForegroundStates, 'push').and.callThrough();
+        const length = (service as any).component.previousForegroundStates.length;
         service.pushToUndoStack();
         expect(spy).toHaveBeenCalled();
         expect((service as any).component.belongsToCanvas1).toBeFalse();
-        expect((service as any).component.undo.length).toEqual(length + 1);
+        expect((service as any).component.previousForegroundStates.length).toEqual(length + 1);
     });
 
     it('should empty the redo stack', () => {
         const canvas = document.createElement('canvas');
-        (service as any).component.redo = [
+        (service as any).component.nextForegroundStates = [
             { layer: canvas, belonging: true, swap: false },
             { layer: canvas, belonging: false, swap: true },
         ];
-        expect((service as any).component.redo.length).toEqual(2);
+        expect((service as any).component.nextForegroundStates.length).toEqual(2);
         service.emptyRedoStack();
-        expect((service as any).component.redo.length).toEqual(0);
+        expect((service as any).component.nextForegroundStates.length).toEqual(0);
     });
 
     it('should cancel an event when foregrounds are swapped', () => {
         const canvas = document.createElement('canvas');
-        (service as any).component.undo = [{ layer: canvas, belonging: true, swap: true }];
-        (service as any).component.redo = [{ layer: canvas, belonging: true, swap: false }];
-        const lengthRedo = (service as any).component.redo.length;
-        const lengthUndo = (service as any).component.undo.length;
-        const spyPush = spyOn((service as any).component.redo, 'push').and.callThrough();
-        const spySwap = spyOn((service as any).component, 'swapForegrounds').and.callFake(() => {
-            return;
-        });
+        (service as any).component.previousForegroundStates = [{ layer: canvas, belonging: true, swap: true }];
+        (service as any).component.nextForegroundStates = [{ layer: canvas, belonging: true, swap: false }];
+        const lengthRedo = (service as any).component.nextForegroundStates.length;
+        const lengthUndo = (service as any).component.previousForegroundStates.length;
+        const spyPush = spyOn((service as any).component.nextForegroundStates, 'push').and.callThrough();
+        const spySwap = spyOn((service as any).component, 'swapForegrounds').and.stub();
         service.undo();
         expect(spyPush).toHaveBeenCalledWith({ layer: canvas, belonging: true, swap: true });
         expect(spySwap).toHaveBeenCalled();
-        expect((service as any).component.redo.length).toEqual(lengthRedo + 1);
-        expect((service as any).component.undo.length).toEqual(lengthUndo - 1);
+        expect((service as any).component.nextForegroundStates.length).toEqual(lengthRedo + 1);
+        expect((service as any).component.previousForegroundStates.length).toEqual(lengthUndo - 1);
     });
 
     it('should cancel an event when foregrounds are not swapped', () => {
         const canvas = document.createElement('canvas');
-        (service as any).component.undo = [{ layer: canvas, belonging: true, swap: false }];
-        (service as any).component.redo = [{ layer: canvas, belonging: true, swap: false }];
-        const lengthRedo = (service as any).component.redo.length;
-        const lengthUndo = (service as any).component.undo.length;
-        const spyPush = spyOn((service as any).component.redo, 'push').and.callThrough();
-        const spyCanvasAndUpdate = spyOn(service as any, 'getCanvasAndUpdate').and.callFake(() => {
-            return canvas;
-        });
+        (service as any).component.previousForegroundStates = [{ layer: canvas, belonging: true, swap: false }];
+        (service as any).component.nextForegroundStates = [{ layer: canvas, belonging: true, swap: false }];
+        const lengthRedo = (service as any).component.nextForegroundStates.length;
+        const lengthUndo = (service as any).component.previousForegroundStates.length;
+        const spyPush = spyOn((service as any).component.nextForegroundStates, 'push').and.callThrough();
+        const spyCanvasAndUpdate = spyOn(service as any, 'getCanvasAndUpdate').and.returnValue(canvas);
         service.undo();
         expect(spyPush).toHaveBeenCalledWith({ layer: canvas, belonging: (service as any).component.belongsToCanvas1, swap: false });
         expect(spyCanvasAndUpdate).toHaveBeenCalledWith({ layer: canvas, belonging: true, swap: false });
-        expect((service as any).component.redo.length).toEqual(lengthRedo + 1);
-        expect((service as any).component.undo.length).toEqual(lengthUndo - 1);
+        expect((service as any).component.nextForegroundStates.length).toEqual(lengthRedo + 1);
+        expect((service as any).component.previousForegroundStates.length).toEqual(lengthUndo - 1);
     });
 
     it('should not cancel an event if undo stack is empty', () => {
-        (service as any).component.undo = [];
-        expect((service as any).component.undo.length).toEqual(0);
+        (service as any).component.previousForegroundStates = [];
+        expect((service as any).component.previousForegroundStates.length).toEqual(0);
         service.undo();
-        expect((service as any).component.undo.length).toEqual(0);
+        expect((service as any).component.previousForegroundStates.length).toEqual(0);
     });
 
     it('should redo an event when foregrounds are swapped ', () => {
         const canvas = document.createElement('canvas');
-        (service as any).component.redo = [{ layer: canvas, belonging: true, swap: true }];
-        (service as any).component.undo = [{ layer: canvas, belonging: true, swap: false }];
-        const lengthRedo = (service as any).component.redo.length;
-        const lengthUndo = (service as any).component.undo.length;
-        const spyPush = spyOn((service as any).component.undo, 'push').and.callThrough();
-        const spySwap = spyOn((service as any).component, 'swapForegrounds').and.callFake(() => {
-            return;
-        });
+        (service as any).component.nextForegroundStates = [{ layer: canvas, belonging: true, swap: true }];
+        (service as any).component.previousForegroundStates = [{ layer: canvas, belonging: true, swap: false }];
+        const lengthRedo = (service as any).component.nextForegroundStates.length;
+        const lengthUndo = (service as any).component.previousForegroundStates.length;
+        const spyPush = spyOn((service as any).component.previousForegroundStates, 'push').and.callThrough();
+        const spySwap = spyOn((service as any).component, 'swapForegrounds').and.stub();
         service.redo();
         expect(spyPush).toHaveBeenCalledWith({ layer: canvas, belonging: true, swap: true });
         expect(spySwap).toHaveBeenCalled();
-        expect((service as any).component.redo.length).toEqual(lengthRedo - 1);
-        expect((service as any).component.undo.length).toEqual(lengthUndo + 1);
+        expect((service as any).component.nextForegroundStates.length).toEqual(lengthRedo - 1);
+        expect((service as any).component.previousForegroundStates.length).toEqual(lengthUndo + 1);
     });
 
     it('should redo an event when foregrounds are not swapped ', () => {
         const canvas = document.createElement('canvas');
-        (service as any).component.redo = [{ layer: canvas, belonging: true, swap: false }];
-        (service as any).component.undo = [{ layer: canvas, belonging: true, swap: false }];
-        const lengthRedo = (service as any).component.redo.length;
-        const lengthUndo = (service as any).component.undo.length;
-        const spyPush = spyOn((service as any).component.undo, 'push').and.callThrough();
-        const spyCanvasAndUpdate = spyOn(service as any, 'getCanvasAndUpdate').and.callFake(() => {
-            return canvas;
-        });
+        (service as any).component.nextForegroundStates = [{ layer: canvas, belonging: true, swap: false }];
+        (service as any).component.previousForegroundStates = [{ layer: canvas, belonging: true, swap: false }];
+        const lengthRedo = (service as any).component.nextForegroundStates.length;
+        const lengthUndo = (service as any).component.previousForegroundStates.length;
+        const spyPush = spyOn((service as any).component.previousForegroundStates, 'push').and.callThrough();
+        const spyCanvasAndUpdate = spyOn(service as any, 'getCanvasAndUpdate').and.returnValue(canvas);
         service.redo();
         expect(spyPush).toHaveBeenCalledWith({ layer: canvas, belonging: (service as any).component.belongsToCanvas1, swap: false });
         expect(spyCanvasAndUpdate).toHaveBeenCalled();
-        expect((service as any).component.redo.length).toEqual(lengthRedo - 1);
-        expect((service as any).component.undo.length).toEqual(lengthUndo + 1);
+        expect((service as any).component.nextForegroundStates.length).toEqual(lengthRedo - 1);
+        expect((service as any).component.previousForegroundStates.length).toEqual(lengthUndo + 1);
     });
 
     it('should not redo an event if redo stack is empty', () => {
-        (service as any).component.redo = [];
-        expect((service as any).component.redo.length).toEqual(0);
+        (service as any).component.nextForegroundStates = [];
+        expect((service as any).component.nextForegroundStates.length).toEqual(0);
         service.redo();
-        expect((service as any).component.redo.length).toEqual(0);
+        expect((service as any).component.nextForegroundStates.length).toEqual(0);
     });
 
     it('should handle mouseup event', () => {
@@ -449,12 +397,8 @@ describe('DrawingService', () => {
         (service as any).component.mouseInCanvas = true;
         (service as any).component.mousePressed = true;
         (service as any).component.drawMode = DrawModes.PENCIL;
-        const spyTraceShape = spyOn(service as any, 'traceShape').and.callFake(() => {
-            return;
-        });
-        const spyDrawImage = spyOn(service as any, 'drawRectangle').and.callFake(() => {
-            return;
-        });
+        const spyTraceShape = spyOn(service as any, 'traceShape').and.stub();
+        const spyDrawImage = spyOn(service as any, 'drawRectangle').and.stub();
         (service as any).handleMouseLeave(event, (service as any).component.context1);
         (service as any).component.drawMode = DrawModes.RECTANGLE;
         (service as any).handleMouseLeave(event, (service as any).component.context1);
@@ -470,12 +414,8 @@ describe('DrawingService', () => {
         (service as any).component.canvas1.nativeElement.dispatchEvent(event);
         (service as any).component.mousePressed = true;
         (service as any).component.mouseInCanvas = true;
-        const spyTraceShape = spyOn(service as any, 'traceShape').and.callFake(() => {
-            return;
-        });
-        const spyDrawRectangle = spyOn(service as any, 'drawRectangle').and.callFake(() => {
-            return;
-        });
+        const spyTraceShape = spyOn(service as any, 'traceShape').and.stub();
+        const spyDrawRectangle = spyOn(service as any, 'drawRectangle').and.stub();
         (service as any).component.drawMode = DrawModes.PENCIL;
         (service as any).handleMouseMove(event, (service as any).component.context1);
         (service as any).component.drawMode = DrawModes.RECTANGLE;
@@ -491,15 +431,9 @@ describe('DrawingService', () => {
         (service as any).component.canvas1.nativeElement.dispatchEvent(event);
         (service as any).component.mousePressed = true;
         (service as any).component.mouseInCanvas = true;
-        const spyDrawCircle = spyOn(service as any, 'drawCircle').and.callFake(() => {
-            return;
-        });
-        const spyEraseSquare = spyOn(service as any, 'eraseSquare').and.callFake(() => {
-            return;
-        });
-        const spyDrawImage = spyOn((service as any).component.canvasTemp.context, 'drawImage').and.callFake(() => {
-            return;
-        });
+        const spyDrawCircle = spyOn(service as any, 'drawCircle').and.stub();
+        const spyEraseSquare = spyOn(service as any, 'eraseSquare').and.stub();
+        const spyDrawImage = spyOn((service as any).component.canvasTemp.context, 'drawImage').and.stub();
         (service as any).component.drawMode = DrawModes.PENCIL;
         (service as any).handleMouseDown(event, (service as any).component.contextForeground1);
         (service as any).component.drawMode = DrawModes.RECTANGLE;
@@ -513,9 +447,7 @@ describe('DrawingService', () => {
     });
 
     it("ctrlZ shouldn't call swapForegrounds if pop return undefined", () => {
-        const spySwap = spyOn((service as any).component, 'swapForegrounds').and.callFake(() => {
-            return;
-        });
+        const spySwap = spyOn((service as any).component, 'swapForegrounds').and.stub();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         spyOn(window.Array.prototype, 'pop').and.callFake(function (this: any[]) {
             // eslint-disable-next-line no-invalid-this
@@ -535,9 +467,7 @@ describe('DrawingService', () => {
     });
 
     it("ctrlShiftZ shouldn't call swapForegrounds if pop return undefined", () => {
-        const spySwap = spyOn((service as any).component, 'swapForegrounds').and.callFake(() => {
-            return;
-        });
+        const spySwap = spyOn((service as any).component, 'swapForegrounds').and.stub();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         spyOn(window.Array.prototype, 'pop').and.callFake(function (this: any[]) {
             // eslint-disable-next-line no-invalid-this
@@ -558,9 +488,7 @@ describe('DrawingService', () => {
 
     it("shouldn't call drawImage if context is undefined and belonging is true", () => {
         const state = { layer: (service as any).component.canvas2.nativeElement, belonging: true, swap: true };
-        const spyDrawImage = spyOn((service as any).component.canvasTemp.context, 'drawImage').and.callFake(() => {
-            return;
-        });
+        const spyDrawImage = spyOn((service as any).component.canvasTemp.context, 'drawImage').and.stub();
         spyOn(HTMLCanvasElement.prototype, 'getContext').and.returnValue(undefined as unknown as CanvasRenderingContext2D);
         (service as any).getCanvasAndUpdate(state);
         expect(spyDrawImage).not.toHaveBeenCalled();
@@ -568,18 +496,14 @@ describe('DrawingService', () => {
 
     it("shouldn't call drawImage if context is undefined and belonging is false", () => {
         const state = { layer: (service as any).component.canvas2.nativeElement, belonging: false, swap: true };
-        const spyDrawImage = spyOn((service as any).component.canvasTemp.context, 'drawImage').and.callFake(() => {
-            return;
-        });
+        const spyDrawImage = spyOn((service as any).component.canvasTemp.context, 'drawImage').and.stub();
         spyOn(HTMLCanvasElement.prototype, 'getContext').and.returnValue(undefined as unknown as CanvasRenderingContext2D);
         (service as any).getCanvasAndUpdate(state);
         expect(spyDrawImage).not.toHaveBeenCalled();
     });
 
     it("shouldn't call drawImage if context is undefined for canvas1", () => {
-        const spyDrawImage = spyOn((service as any).component.canvasTemp.context, 'drawImage').and.callFake(() => {
-            return;
-        });
+        const spyDrawImage = spyOn((service as any).component.canvasTemp.context, 'drawImage').and.stub();
         (service as any).component.currentCanvas = (service as any).component.canvas1.nativeElement;
         spyOn(HTMLCanvasElement.prototype, 'getContext').and.returnValue(undefined as unknown as CanvasRenderingContext2D);
         service.pushToUndoStack();
@@ -587,9 +511,7 @@ describe('DrawingService', () => {
     });
 
     it("shouldn't call drawImage if context is undefined for canvas2", () => {
-        const spyDrawImage = spyOn((service as any).component.canvasTemp.context, 'drawImage').and.callFake(() => {
-            return;
-        });
+        const spyDrawImage = spyOn((service as any).component.canvasTemp.context, 'drawImage').and.stub();
         (service as any).component.currentCanvas = (service as any).component.canvas2.nativeElement;
         spyOn(HTMLCanvasElement.prototype, 'getContext').and.returnValue(undefined as unknown as CanvasRenderingContext2D);
         service.pushToUndoStack();
@@ -599,9 +521,7 @@ describe('DrawingService', () => {
     it('handleMouseLeave should set mouseInCanvas to false and call traceShape if DrawMode is pencil ', () => {
         const event = new MouseEvent('mouseleave');
         (service as any).component.mousePressed = true;
-        const spyTraceShape = spyOn(service as any, 'traceShape').and.callFake(() => {
-            return;
-        });
+        const spyTraceShape = spyOn(service as any, 'traceShape').and.stub();
         (service as any).component.drawMode = DrawModes.PENCIL;
         (service as any).handleMouseLeave(event, (service as any).component.context1);
         expect(spyTraceShape).toHaveBeenCalled();
@@ -611,9 +531,7 @@ describe('DrawingService', () => {
     it('handleMouseLeave should set mouseInCanvas to false and call traceShape if DrawMode is eraser', () => {
         const event = new MouseEvent('mouseleave');
         (service as any).component.mousePressed = true;
-        const spyTraceShape = spyOn(service as any, 'traceShape').and.callFake(() => {
-            return;
-        });
+        const spyTraceShape = spyOn(service as any, 'traceShape').and.stub();
         (service as any).component.drawMode = DrawModes.ERASER;
         (service as any).handleMouseLeave(event, (service as any).component.context1);
         expect(spyTraceShape).toHaveBeenCalled();
@@ -623,9 +541,7 @@ describe('DrawingService', () => {
     it('handleMouseLeave should set mouseInCanvas to false and call drawRectangle if DrawMode is rectangle', () => {
         const event = new MouseEvent('mouseleave');
         (service as any).component.mousePressed = true;
-        const spyTraceShape = spyOn(service as any, 'drawRectangle').and.callFake(() => {
-            return;
-        });
+        const spyTraceShape = spyOn(service as any, 'drawRectangle').and.stub();
         (service as any).component.drawMode = DrawModes.RECTANGLE;
         (service as any).handleMouseLeave(event, (service as any).component.context1);
         expect(spyTraceShape).toHaveBeenCalled();
@@ -635,12 +551,8 @@ describe('DrawingService', () => {
     it("handleMouseLeave should set mouseInCanvas to false but shouldn't call drawRectangle or traceShape if mousePressed is false ", () => {
         const event = new MouseEvent('mouseleave');
         (service as any).component.mousePressed = false;
-        const spyTraceShape = spyOn(service as any, 'drawRectangle').and.callFake(() => {
-            return;
-        });
-        const spyDrawRectangle = spyOn(service as any, 'traceShape').and.callFake(() => {
-            return;
-        });
+        const spyTraceShape = spyOn(service as any, 'drawRectangle').and.stub();
+        const spyDrawRectangle = spyOn(service as any, 'traceShape').and.stub();
         (service as any).component.drawMode = DrawModes.RECTANGLE;
         (service as any).handleMouseLeave(event, (service as any).component.context1);
         expect(spyTraceShape).not.toHaveBeenCalled();
