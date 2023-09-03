@@ -1,0 +1,51 @@
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.1/css/all.css" crossorigin="anonymous" />
+<div id="title">
+    <h1>REPRISE VIDEO</h1>
+</div>
+<div id="mainContainer">
+    <div id="replaySection">
+        <div id="div0">
+            <div id="scoreBoard">
+                <app-replay-score-board
+                    [gameRoom]="this.data.videoReplay.scoreboardParams.gameRoom"
+                    [gameName]="this.data.videoReplay.scoreboardParams.gameName"
+                    [opponentUsername]="this.data.videoReplay.scoreboardParams.opponentUsername"
+                    [username]="this.data.videoReplay.scoreboardParams.username"
+                    [time]="this.time"
+                    [actions]="this.scoreBoardActions"
+                    [timeEnd]="this.actions[this.actions.length - 1].timeStart"
+                    [restartSignal]="this.restartSignal"
+                ></app-replay-score-board>
+            </div>
+            <app-replay-play-area
+                [image1]="this.data.videoReplay.images.original"
+                [image2]="this.data.videoReplay.images.modified"
+                [time]="this.time"
+                [actions]="this.playAreaActions"
+                [speed]="this.speed"
+                [sources]="this.data.videoReplay.sources"
+                [cheatLayers]="this.data.videoReplay.cheatLayers"
+                [pauseSignal]="this.pauseSignal"
+                [continueSignal]="this.continueSignal"
+                [restartSignal]="this.restartSignal"
+                (hintEvent)="incrementTimer()"
+            ></app-replay-play-area>
+        </div>
+        <div id="div1">
+            <app-replay-chat-box [time]="this.time" [actions]="this.chatBoxActions" [restartSignal]="this.restartSignal" [username]="this.username">
+            </app-replay-chat-box>
+        </div>
+    </div>
+    <div id="options">
+        <button mat-button tabindex="-1" routerLink="/home">Terminer</button>
+        <button *ngIf="!this.paused" mat-button tabindex="-1" (click)="pause()"><i class="fas fa-pause-circle"></i></button>
+        <button *ngIf="this.paused" mat-button tabindex="-1" (click)="continue()"><i class="fas fa-play-circle"></i></button>
+        <select [(ngModel)]="speed" (change)="startTimer()">
+            <option value="1">x1</option>
+            <option value="2">x2</option>
+            <option value="4">x4</option>
+        </select>
+        <mat-progress-bar mode="determinate" [value]="(this.time / (this.actions[this.actions.length - 1].timeStart + 1)) * 100"></mat-progress-bar>
+        <button mat-button tabindex="-1" (click)="restart()"><i class="fas fa-step-backward"></i></button>
+    </div>
+</div>
